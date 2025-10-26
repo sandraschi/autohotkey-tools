@@ -222,7 +222,7 @@ class MCPConfigManager {
             }
             backupText .= "`nEnter backup number to restore:"
             
-            result := InputBox(backupText, "Restore Backup")
+            result := InputBox(backupText, "Restore Backup", "", "")
             if (result.Result != "OK" || result.Value = "") return
             backupNum := Integer(result.Value)
             
