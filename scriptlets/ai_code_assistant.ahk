@@ -1,4 +1,4 @@
-﻿; ==============================================================================
+; ==============================================================================
 ; AI-Powered Code Assistant
 ; @name: AI-Powered Code Assistant
 ; @version: 1.0.0
@@ -30,59 +30,59 @@ class AICodeAssistant {
         this.gui.SetFont("s10 cWhite", "Segoe UI")
         
         ; Title
-        this.gui.Add("Text", "x20 y20 w760 Center Bold", "ðŸ¤– AI-Powered Code Assistant")
+        this.gui.Add("Text", "x20 y20 w760 Center Bold", "🤖 AI-Powered Code Assistant")
         this.gui.Add("Text", "x20 y50 w760 Center c0xcccccc", "Advanced coding assistance with AI suggestions")
         
         ; File operations
-        this.gui.Add("Text", "x20 y90 w760 Bold", "ðŸ“ File Operations")
+        this.gui.Add("Text", "x20 y90 w760 Bold", "📁 File Operations")
         
-        openBtn := this.gui.Add("Button", "x20 y120 w150 h40 Background0x4a4a4a", "ðŸ“‚ Open File")
+        openBtn := this.gui.Add("Button", "x20 y120 w150 h40 Background0x4a4a4a", "📂 Open File")
         openBtn.SetFont("s10 cWhite", "Segoe UI")
         openBtn.OnEvent("Click", this.OpenFile.Bind(this))
         
-        saveBtn := this.gui.Add("Button", "x190 y120 w150 h40 Background0x4a4a4a", "ðŸ’¾ Save File")
+        saveBtn := this.gui.Add("Button", "x190 y120 w150 h40 Background0x4a4a4a", "💾 Save File")
         saveBtn.SetFont("s10 cWhite", "Segoe UI")
         saveBtn.OnEvent("Click", this.SaveFile.Bind(this))
         
-        newBtn := this.gui.Add("Button", "x360 y120 w150 h40 Background0x4a4a4a", "ðŸ“„ New File")
+        newBtn := this.gui.Add("Button", "x360 y120 w150 h40 Background0x4a4a4a", "📄 New File")
         newBtn.SetFont("s10 cWhite", "Segoe UI")
         newBtn.OnEvent("Click", this.NewFile.Bind(this))
         
         ; Code editor
-        this.gui.Add("Text", "x20 y180 w760 Bold", "âœï¸ Code Editor")
+        this.gui.Add("Text", "x20 y180 w760 Bold", "✏️ Code Editor")
         
         this.codeEditor := this.gui.Add("Edit", "x20 y210 w760 h200 Multi VScroll", "")
         this.codeEditor.SetFont("s9 cWhite", "Consolas")
         this.codeEditor.BackColor := "0x2d2d2d"
         
         ; AI suggestions
-        this.gui.Add("Text", "x20 y430 w760 Bold", "ðŸ§  AI Suggestions")
+        this.gui.Add("Text", "x20 y430 w760 Bold", "🧠 AI Suggestions")
         
         this.suggestions := this.gui.Add("ListBox", "x20 y460 w760 h100")
         this.suggestions.SetFont("s9 cWhite", "Consolas")
         this.suggestions.BackColor := "0x2d2d2d"
         
         ; AI actions
-        this.gui.Add("Text", "x20 y580 w760 Bold", "âš¡ AI Actions")
+        this.gui.Add("Text", "x20 y580 w760 Bold", "⚡ AI Actions")
         
-        analyzeBtn := this.gui.Add("Button", "x20 y610 w150 h40 Background0x4a4a4a", "ðŸ” Analyze Code")
+        analyzeBtn := this.gui.Add("Button", "x20 y610 w150 h40 Background0x4a4a4a", "🔍 Analyze Code")
         analyzeBtn.SetFont("s10 cWhite", "Segoe UI")
         analyzeBtn.OnEvent("Click", this.AnalyzeCode.Bind(this))
         
-        optimizeBtn := this.gui.Add("Button", "x190 y610 w150 h40 Background0x4a4a4a", "âš¡ Optimize")
+        optimizeBtn := this.gui.Add("Button", "x190 y610 w150 h40 Background0x4a4a4a", "⚡ Optimize")
         optimizeBtn.SetFont("s10 cWhite", "Segoe UI")
         optimizeBtn.OnEvent("Click", this.OptimizeCode.Bind(this))
         
-        debugBtn := this.gui.Add("Button", "x360 y610 w150 h40 Background0x4a4a4a", "ðŸ› Debug")
+        debugBtn := this.gui.Add("Button", "x360 y610 w150 h40 Background0x4a4a4a", "🐛 Debug")
         debugBtn.SetFont("s10 cWhite", "Segoe UI")
         debugBtn.OnEvent("Click", this.DebugCode.Bind(this))
         
-        generateBtn := this.gui.Add("Button", "x530 y610 w150 h40 Background0x4a4a4a", "âœ¨ Generate")
+        generateBtn := this.gui.Add("Button", "x530 y610 w150 h40 Background0x4a4a4a", "✨ Generate")
         generateBtn.SetFont("s10 cWhite", "Segoe UI")
         generateBtn.OnEvent("Click", this.GenerateCode.Bind(this))
         
         ; Status
-        this.gui.Add("Text", "x20 y660 w760 Center c0x888888", "Press Ctrl+Alt+A to open â€¢ Ctrl+Alt+I for instant suggestions")
+        this.gui.Add("Text", "x20 y660 w760 Center c0x888888", "Press Ctrl+Alt+A to open • Ctrl+Alt+I for instant suggestions")
         
         this.gui.Show("w800 h700")
     }
@@ -194,7 +194,7 @@ class AICodeAssistant {
             inputGui.BackColor := "0x2d2d2d"
             inputGui.SetFont("s10 cWhite", "Segoe UI")
             
-            inputGui.Add("Text", "x20 y20 w300 Center Bold", "âœ¨ AI Code Generator")
+            inputGui.Add("Text", "x20 y20 w300 Center Bold", "✨ AI Code Generator")
             inputGui.Add("Text", "x20 y60 w300", "Describe what you want to create:")
             
             description := inputGui.Add("Edit", "x20 y90 w300 h100 Multi")
@@ -236,20 +236,20 @@ class AICodeAssistant {
         
         ; Analyze code structure
         if (InStr(code, "class ")) {
-            suggestions .= "âœ“ Object-oriented code detected`n"
+            suggestions .= "✓ Object-oriented code detected`n"
         }
         if (InStr(code, "try")) {
-            suggestions .= "âœ“ Error handling present`n"
+            suggestions .= "✓ Error handling present`n"
         }
         if (InStr(code, "Loop")) {
-            suggestions .= "âœ“ Loops detected`n"
+            suggestions .= "✓ Loops detected`n"
         }
         
         suggestions .= "`nSuggestions:`n"
-        suggestions .= "â€¢ Consider adding comments for complex logic`n"
-        suggestions .= "â€¢ Use consistent variable naming`n"
-        suggestions .= "â€¢ Add error handling for file operations`n"
-        suggestions .= "â€¢ Consider breaking large functions into smaller ones`n"
+        suggestions .= "• Consider adding comments for complex logic`n"
+        suggestions .= "• Use consistent variable naming`n"
+        suggestions .= "• Add error handling for file operations`n"
+        suggestions .= "• Consider breaking large functions into smaller ones`n"
         
         return suggestions
     }
@@ -268,23 +268,23 @@ class AICodeAssistant {
     }
     
     static FindBugs(code) {
-        bugs := "ðŸ› Potential Issues Found:`n`n"
+        bugs := "🐛 Potential Issues Found:`n`n"
         
         ; Check for common issues
         if (InStr(code, "MsgBox") && !InStr(code, "MsgBox(")) {
-            bugs .= "â€¢ MsgBox(syntax may need parentheses`n"
+            bugs .= "• MsgBox(syntax may need parentheses`n"
         }
         if (InStr(code,  "FileRead") && !InStr(code,  "FileRead(")) {
-            bugs .= "â€¢ FileRead sy)ntax may need parentheses`n"
+            bugs .= "• FileRead syntax may need parentheses`n"
         }
         if (InStr(code, "catch Error as")) {
-            bugs .= "â€¢ Catch syntax should be 'catch as e'`n"
+            bugs .= "• Catch syntax should be 'catch as e'`n"
         }
         
         bugs .= "`nRecommendations:`n"
-        bugs .= "â€¢ Test error handling paths`n"
-        bugs .= "â€¢ Validate input parameters`n"
-        bugs .= "â€¢ Check file existence before operations`n"
+        bugs .= "• Test error handling paths`n"
+        bugs .= "• Validate input parameters`n"
+        bugs .= "• Check file existence before operations`n"
         
         return bugs
     }
@@ -316,12 +316,12 @@ class AICodeAssistant {
         ; Main hotkey
         ^!Hotkey("a", (*) => this.CreateGUI()
         
-        ; I)nstant suggestions
-        ^!Hotkey("i", (*) => this.A)nalyzeCode()
+        ; Instant suggestions
+        ^!Hotkey("i", (*) => this.AnalyzeCode()
         
         ; Close with Escape
         Hotkey("Escape", (*) => {
-            if (Wi)nExist("AI Code Assistant")) {
+            if (WinExist("AI Code Assistant")) {
                 WinClose("AI Code Assistant")
             }
         }

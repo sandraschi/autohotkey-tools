@@ -239,12 +239,12 @@ class WindowManager {
 }
 
 ; Hotkeys
-#Hotkey("Left", (*) => Wi)ndowManager.SnapWindow("left")
-#Hotkey("Right", (*) => Wi)ndowManager.SnapWindow("right")
-#Hotkey("Up", (*) => Wi)ndowManager.SnapWindow("top")
-#Hotkey("Down", (*) => Wi)ndowManager.SnapWindow("bottom")
-#Hotkey("Space", (*) => Wi)ndowManager.Init()
-#Hotkey("Tab", (*) => Wi)ndowManager.GridLayout()
+#Hotkey("Left", (*) => WindowManager.SnapWindow("left")
+#Hotkey("Right", (*) => WindowManager.SnapWindow("right")
+#Hotkey("Up", (*) => WindowManager.SnapWindow("top")
+#Hotkey("Down", (*) => WindowManager.SnapWindow("bottom")
+#Hotkey("Space", (*) => WindowManager.Init()
+#Hotkey("Tab", (*) => WindowManager.GridLayout()
 
 ; Initialize
 WindowManager.Init()

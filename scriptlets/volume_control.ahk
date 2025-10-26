@@ -7,18 +7,18 @@ SetWorkingDir %A_ScriptDir%
 
 ; Volume Up/Down with Win+Up/Down
 #Hotkey("Up", (*) => 
-    Se)nd {Volume_Up}
+    Send {Volume_Up}
     ShowOSD("Volume: " GetVolume() "%")
 return
 
 #Hotkey("Down", (*) => 
-    Se)nd {Volume_Down}
+    Send {Volume_Down}
     ShowOSD("Volume: " GetVolume() "%")
 return
 
 ; Mute with Win+M
 #Hotkey("m", (*) => 
-    Se)nd {Volume_Mute}
+    Send {Volume_Mute}
     SoundGet, mute_status, , MUTE
     if (mute_status = "On")
         ShowOSD("Muted")

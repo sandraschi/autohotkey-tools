@@ -1,4 +1,4 @@
-﻿#Requires AutoHotkey v2.0+
+#Requires AutoHotkey v2.0+
 #SingleInstance Force
 
 ; ==============================================================================
@@ -77,7 +77,7 @@ class SmartClipboard {
         this.gui := Gui("+Resize", "Smart Clipboard Manager")
         
         ; Title
-        this.gui.Add("Text", "w800 h30 Center", "📋 Smart Clipboard Manager")
+        this.gui.Add("Text", "w800 h30 Center", "?? Smart Clipboard Manager")
         
         ; History list
         this.gui.Add("Text", "w800 h20", "Clipboard History:")
@@ -256,7 +256,7 @@ class SmartClipboard {
     }
     
     static AppendLog(message) {
-        if (!this.logArea) return
+        if (!this.logArea return
         
         timestamp := FormatTime(A_Now, "HH:mm:ss")
         this.logArea.Text .= "[" . timestamp . "] " . message . "`n"

@@ -51,81 +51,81 @@ IDE_SHORTCUTS := Map(
 ; VS Code specific shortcuts
 #HotIf WinActive("ahk_exe code.exe")
     ; Format Document
-    ^!Hotkey("l", (*) =>  Se)nd("^k^f")
+    ^!Hotkey("l", (*) =>  Send("^k^f")
     
     ; Comment/Uncomment Line
     ^/:: Send("^k^c")
     ^+/:: Send("^k^u")
     
     ; Duplicate Line
-    ^Hotkey("d", (*) =>  Se)nd("^d")
+    ^Hotkey("d", (*) =>  Send("^d")
     
     ; Move Line Up/Down
-    !Hotkey("Up", (*) =>  Se)nd("!{Up}")
-    !Hotkey("Down", (*) =>  Se)nd("!{Down}")
+    !Hotkey("Up", (*) =>  Send("!{Up}")
+    !Hotkey("Down", (*) =>  Send("!{Down}")
     
     ; Find in Files
-    ^+Hotkey("f", (*) =>  Se)nd("^+f")
+    ^+Hotkey("f", (*) =>  Send("^+f")
     
     ; Toggle Terminal
     ^`:: Send("^`")
     
     ; Toggle Sidebar
-    ^Hotkey("b", (*) =>  Se)nd("^b")
+    ^Hotkey("b", (*) =>  Send("^b")
     
     ; Command Palette
-    ^+Hotkey("p", (*) =>  Se)nd("^+p")
+    ^+Hotkey("p", (*) =>  Send("^+p")
 #HotIf
 
 ; IntelliJ specific shortcuts
 #HotIf WinActive("ahk_exe idea64.exe")
     ; Reformat Code
-    ^!Hotkey("l", (*) =>  Se)nd("^!l")
+    ^!Hotkey("l", (*) =>  Send("^!l")
     
     ; Comment Line
     ^/:: Send("^/")
     
     ; Duplicate Line
-    ^Hotkey("d", (*) =>  Se)nd("^d")
+    ^Hotkey("d", (*) =>  Send("^d")
     
     ; Move Line Up/Down
-    ^+Hotkey("Up", (*) =>  Se)nd("^+{Up}")
-    ^+Hotkey("Down", (*) =>  Se)nd("^+{Down}")
+    ^+Hotkey("Up", (*) =>  Send("^+{Up}")
+    ^+Hotkey("Down", (*) =>  Send("^+{Down}")
     
     ; Find in Files
-    ^+Hotkey("f", (*) =>  Se)nd("^+f")
+    ^+Hotkey("f", (*) =>  Send("^+f")
     
     ; Find Action
-    ^+Hotkey("a", (*) =>  Se)nd("^+a")
+    ^+Hotkey("a", (*) =>  Send("^+a")
     
     ; Recent Files
-    ^Hotkey("e", (*) =>  Se)nd("^e")
+    ^Hotkey("e", (*) =>  Send("^e")
 #HotIf
 
 ; Visual Studio specific shortcuts
 #HotIf WinActive("ahk_exe devenv.exe")
     ; Format Document
-    ^k^Hotkey("d", (*) =>  Se)nd("^k^d")
+    ^k^Hotkey("d", (*) =>  Send("^k^d")
     
     ; Comment/Uncomment Selection
-    ^k^Hotkey("c", (*) =>  Se)nd("^k^c")
-    ^k^Hotkey("u", (*) =>  Se)nd("^k^u")
+    ^k^Hotkey("c", (*) =>  Send("^k^c")
+    ^k^Hotkey("u", (*) =>  Send("^k^u")
     
     ; Duplicate Line
-    ^Hotkey("d", (*) =>  Se)nd("^d")
+    ^Hotkey("d", (*) =>  Send("^d")
     
     ; Move Line Up/Down
-    !Hotkey("Up", (*) =>  Se)nd("!{Up}")
-    !Hotkey("Down", (*) =>  Se)nd("!{Down}")
+    !Hotkey("Up", (*) =>  Send("!{Up}")
+    !Hotkey("Down", (*) =>  Send("!{Down}")
     
     ; Find in Files
-    ^+Hotkey("f", (*) =>  Se)nd("^+f")
+    ^+Hotkey("f", (*) =>  Send("^+f")
     
     ; Quick Launch
     ^,:: Send("^,")
     
     ; Solution Explorer
-    ^!Hotkey("l", (*) =>  Se)nd("^!l")
+    ^!Hotkey("l", (*) =>  Send("^!l")
 #HotIf
 
 ; =============================================================================

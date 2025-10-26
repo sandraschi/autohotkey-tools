@@ -1,4 +1,4 @@
-﻿; ==============================================================================
+; ==============================================================================
 ; Game Starter Popup
 ; @name: Game Starter Popup
 ; @version: 1.0.0
@@ -25,16 +25,16 @@ class GameStarter {
     static LoadGameList() {
         ; Define all available games
         this.gameList := [
-            {name: "ðŸŽ® Tetris", script: "scriptlets/tetris_classic.ahk", category: "puzzle", description: "Classic falling blocks puzzle"},
-            {name: "ðŸ‘» Pacman", script: "scriptlets/pacman_classic.ahk", category: "arcade", description: "Eat dots, avoid ghosts!"},
-            {name: "â™Ÿï¸ Chess vs Stockfish", script: "scriptlets/chess_stockfish.ahk", category: "strategy", description: "Play chess against AI"},
-            {name: "ðŸ“ Classic Pong", script: "scriptlets/classic_pong.ahk", category: "arcade", description: "Retro paddle game"},
-            {name: "ðŸ¸ Classic Frogger", script: "scriptlets/classic_frogger.ahk", category: "arcade", description: "Cross the road safely"},
-            {name: "ðŸŽ¯ Sudoku", script: "scriptlets/sudoku.ahk", category: "puzzle", description: "Number puzzle game"},
-            {name: "ðŸŽ² Mini Games Collection", script: "scriptlets/mini_games_collection.ahk", category: "collection", description: "Snake, Breakout, and more"},
-            {name: "ðŸŽª Fun Games", script: "scriptlets/fun_games.ahk", category: "fun", description: "Various fun mini-games"},
-            {name: "ðŸŽ¨ Fun Animations", script: "scriptlets/fun_animations.ahk", category: "visual", description: "Cool visual effects"},
-            {name: "ðŸŽµ Dev Context Music", script: "scriptlets/dev_context_music.ahk", category: "music", description: "Coding music player"}
+            {name: "🎮 Tetris", script: "scriptlets/tetris_classic.ahk", category: "puzzle", description: "Classic falling blocks puzzle"},
+            {name: "👻 Pacman", script: "scriptlets/pacman_classic.ahk", category: "arcade", description: "Eat dots, avoid ghosts!"},
+            {name: "♟️ Chess vs Stockfish", script: "scriptlets/chess_stockfish.ahk", category: "strategy", description: "Play chess against AI"},
+            {name: "🏓 Classic Pong", script: "scriptlets/classic_pong.ahk", category: "arcade", description: "Retro paddle game"},
+            {name: "🐸 Classic Frogger", script: "scriptlets/classic_frogger.ahk", category: "arcade", description: "Cross the road safely"},
+            {name: "🎯 Sudoku", script: "scriptlets/sudoku.ahk", category: "puzzle", description: "Number puzzle game"},
+            {name: "🎲 Mini Games Collection", script: "scriptlets/mini_games_collection.ahk", category: "collection", description: "Snake, Breakout, and more"},
+            {name: "🎪 Fun Games", script: "scriptlets/fun_games.ahk", category: "fun", description: "Various fun mini-games"},
+            {name: "🎨 Fun Animations", script: "scriptlets/fun_animations.ahk", category: "visual", description: "Cool visual effects"},
+            {name: "🎵 Dev Context Music", script: "scriptlets/dev_context_music.ahk", category: "music", description: "Coding music player"}
         ]
     }
     
@@ -48,11 +48,11 @@ class GameStarter {
         this.gui.SetFont("s12 cWhite Bold", "Segoe UI")
         
         ; Title bar
-        titleBar := this.gui.Add("Text", "x0 y0 w400 h40 Center Background0x2d2d2d", "ðŸŽ® Game Starter")
+        titleBar := this.gui.Add("Text", "x0 y0 w400 h40 Center Background0x2d2d2d", "🎮 Game Starter")
         titleBar.SetFont("s14 cWhite Bold", "Segoe UI")
         
         ; Close button
-        closeBtn := this.gui.Add("Button", "x360 y5 w30 h30 Background0x444444", "âœ•")
+        closeBtn := this.gui.Add("Button", "x360 y5 w30 h30 Background0x444444", "✕")
         closeBtn.SetFont("s10 cWhite Bold", "Segoe UI")
         closeBtn.OnEvent("Click", this.ClosePopup.Bind(this))
         
@@ -71,7 +71,7 @@ class GameStarter {
         yPos := 50
         for category, games in categories {
             ; Category header
-            this.gui.Add("Text", "x20 y" . yPos . " w360 Bold c0x888888", "ðŸ“ " . StrUpper(category))
+            this.gui.Add("Text", "x20 y" . yPos . " w360 Bold c0x888888", "📁 " . StrUpper(category))
             yPos += 25
             
             ; Games in category
@@ -89,23 +89,23 @@ class GameStarter {
         
         ; Quick actions
         yPos += 20
-        this.gui.Add("Text", "x20 y" . yPos . " w360 Bold c0x888888", "âš¡ Quick Actions")
+        this.gui.Add("Text", "x20 y" . yPos . " w360 Bold c0x888888", "⚡ Quick Actions")
         yPos += 25
         
         ; Random game button
-        randomBtn := this.gui.Add("Button", "x20 y" . yPos . " w170 h40 Background0x4a4a4a", "ðŸŽ² Random Game")
+        randomBtn := this.gui.Add("Button", "x20 y" . yPos . " w170 h40 Background0x4a4a4a", "🎲 Random Game")
         randomBtn.SetFont("s10 cWhite Bold", "Segoe UI")
         randomBtn.OnEvent("Click", this.LaunchRandomGame.Bind(this))
         
         ; Refresh list button
-        refreshBtn := this.gui.Add("Button", "x210 y" . yPos . " w170 h40 Background0x4a4a4a", "ðŸ”„ Refresh")
+        refreshBtn := this.gui.Add("Button", "x210 y" . yPos . " w170 h40 Background0x4a4a4a", "🔄 Refresh")
         refreshBtn.SetFont("s10 cWhite Bold", "Segoe UI")
         refreshBtn.OnEvent("Click", this.RefreshList.Bind(this))
         
         yPos += 50
         
         ; Status bar
-        this.gui.Add("Text", "x20 y" . yPos . " w360 Center c0x888888", "Press Ctrl+Alt+G to open â€¢ Escape to close")
+        this.gui.Add("Text", "x20 y" . yPos . " w360 Center c0x888888", "Press Ctrl+Alt+G to open • Escape to close")
         
         ; Calculate height based on content
         totalHeight := yPos + 40
@@ -220,14 +220,14 @@ class GameStarter {
         
         ; Close with Escape
         Escape::{
-            if (Wi)nExist("Game Starter")) {
+            if (WinExist("Game Starter")) {
                 GameStarter.ClosePopup()
             }
         }
         
         ; Close with Enter (launch selected)
         Hotkey("Enter", (*) => {
-            if (Wi)nExist("Game Starter")) {
+            if (WinExist("Game Starter")) {
                 ; Could implement selection logic here
                 GameStarter.ClosePopup()
             }
@@ -237,6 +237,7 @@ class GameStarter {
 
 ; Initialize
 GameStarter.Init()
+
 
 
 

@@ -1,4 +1,4 @@
-﻿; ==============================================================================
+; ==============================================================================
 ; Scriptlet Tester
 ; @name: Scriptlet Tester
 ; @version: 1.0.0
@@ -27,9 +27,9 @@ class ScriptletTester {
             result := RunWait(testCmd, , "Hide")
             
             if (result = 0) {
-                MsgBox("âœ… Script syntax is valid: " . scriptPath, "Test Result", "Iconi")
+                MsgBox("✅ Script syntax is valid: " . scriptPath, "Test Result", "Iconi")
             } else {
-                MsgBox("âŒ Script has errors (exit code: " . result . "): " . scriptPath . "`n`nCheck the script for syntax issues.", "Test Result", "Icon!")
+                MsgBox("❌ Script has errors (exit code: " . result . "): " . scriptPath . "`n`nCheck the script for syntax issues.", "Test Result", "Icon!")
             }
         } catch as e {
             MsgBox("Test failed: " . e.Message, "Test Error", "Icon!")
@@ -54,17 +54,17 @@ class ScriptletTester {
             try {
                 result := RunWait(testCmd, , "Hide")
                 if (result = 0) {
-                    results.Push("âœ… " . scriptName . " - OK")
+                    results.Push("✅ " . scriptName . " - OK")
                 } else {
-                    results.Push("âŒ " . scriptName . " - ERROR (code: " . result . ")")
+                    results.Push("❌ " . scriptName . " - ERROR (code: " . result . ")")
                 }
             } catch {
-                results.Push("âŒ " . scriptName . " - FAILED")
+                results.Push("❌ " . scriptName . " - FAILED")
             }
         }
         
         ; Show results
-        resultText := "ðŸ” SCRIPTLET TEST RESULTS ðŸ”`n`n"
+        resultText := "🔍 SCRIPTLET TEST RESULTS 🔍`n`n"
         resultText .= "Total scripts tested: " . results.Length . "`n`n"
         
         for result in results {
@@ -75,7 +75,7 @@ class ScriptletTester {
     }
     
     static ShowQuickFix() {
-        fixText := "ðŸ”§ QUICK FIX GUIDE ðŸ”§`n`n"
+        fixText := "🔧 QUICK FIX GUIDE 🔧`n`n"
         fixText .= "Most common AutoHotkey v2 fixes:`n`n"
         fixText .= "1. String concatenation:`n"
         fixText .= "   Change: `"text`" variable`n"
@@ -102,6 +102,6 @@ class ScriptletTester {
 ^!Hotkey("t", (*) => ScriptletTester.TestAllScriptlets()
 ^!f::ScriptletTester.ShowQuickFix()
 
-; Test specific scriptlet (you ca)n change this)
+; Test specific scriptlet (you can change this)
 ; ScriptletTester.TestScriptlet(A_ScriptDir . "\scriptlets\system_monitor.ahk")
 

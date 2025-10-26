@@ -1,4 +1,4 @@
-﻿#Requires AutoHotkey v2.0
+#Requires AutoHotkey v2.0
 #SingleInstance Force
 #Warn
 
@@ -311,7 +311,7 @@ MoveWindow(*) {
 ; HOTKEYS
 ; =============================================================================
 ; Win+V: Show clipboard history
-#Hotkey("v", (*) =>  ShowClipboardMe)nu()
+#Hotkey("v", (*) =>  ShowClipboardMenu()
 
 ; Ctrl+Alt+V: Paste previous clipboard item
 ^!Hotkey("v", (*) =>  PastePreviousItem()
@@ -320,7 +320,7 @@ MoveWindow(*) {
 ^!+c:: ClearClipboardHistory()
 
 ; =============================================================================
-; EXIT HA)NDLER
+; EXIT HANDLER
 ; =============================================================================nOnExit(ExitFunc)
 ExitFunc(ExitReason, ExitCode) {
     ; Save clipboard history on exit

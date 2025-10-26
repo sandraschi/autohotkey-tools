@@ -7,7 +7,7 @@ SetWorkingDir %A_ScriptDir%
 
 ; Self Destruct Sequence
 ^!Hotkey("d", (*) =>   ; Ctrl+Alt+D for self-destruct
-    ; Create GUI for cou)ntdown
+    ; Create GUI for Countdown
     Gui( Destroy
     Gui( Color, 000000
     Gui( Font, s24 cRed, Consolas

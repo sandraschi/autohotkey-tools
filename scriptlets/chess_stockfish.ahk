@@ -43,62 +43,69 @@ class ChessGame {
     
     static InitializeBoard() {
         ; Initialize empty board
-        this.board := []
+        ChessGame.board := []
+        
+        ; Create 8 rows with 8 columns each
         Loop 8 {
             row := []
             Loop 8 {
                 row.Push("")
             }
-            this.board.Push(row)
+            ChessGame.board.Push(row)
         }
+        
+        ; Board is initialized
         
         ; Set up initial position
         ; Black pieces (top)
-        this.board[0][0] := "r" ; rook
-        this.board[0][1] := "n" ; knight
-        this.board[0][2] := "b" ; bishop
-        this.board[0][3] := "q" ; queen
-        this.board[0][4] := "k" ; king
-        this.board[0][5] := "b" ; bishop
-        this.board[0][6] := "n" ; knight
-        this.board[0][7] := "r" ; rook
+        ChessGame.board[1][1] := "r" ; rook
+        ChessGame.board[1][2] := "n" ; knight
+        ChessGame.board[1][3] := "b" ; bishop
+        ChessGame.board[1][4] := "q" ; queen
+        ChessGame.board[1][5] := "k" ; king
+        ChessGame.board[1][6] := "b" ; bishop
+        ChessGame.board[1][7] := "n" ; knight
+        ChessGame.board[1][8] := "r" ; rook
         
         Loop 8 {
-            this.board[1][A_Index - 1] := "p" ; pawns
+            ChessGame.board[2][A_Index] := "p" ; pawns
         }
         
         ; White pieces (bottom)
         Loop 8 {
-            this.board[6][A_Index - 1] := "P" ; pawns
+            ChessGame.board[7][A_Index] := "P" ; pawns
         }
         
-        this.board[7][0] := "R" ; rook
-        this.board[7][1] := "N" ; knight
-        this.board[7][2] := "B" ; bishop
-        this.board[7][3] := "Q" ; queen
-        this.board[7][4] := "K" ; king
-        this.board[7][5] := "B" ; bishop
-        this.board[7][6] := "N" ; knight
-        this.board[7][7] := "R" ; rook
+        ChessGame.board[8][1] := "R" ; rook
+        ChessGame.board[8][2] := "N" ; knight
+        ChessGame.board[8][3] := "B" ; bishop
+        ChessGame.board[8][4] := "Q" ; queen
+        ChessGame.board[8][5] := "K" ; king
+        ChessGame.board[8][6] := "B" ; bishop
+        ChessGame.board[8][7] := "N" ; knight
+        ChessGame.board[8][8] := "R" ; rook
     }
     
     static FindStockfish() {
         ; Try to find Stockfish executable
+        scriptletsDir := A_ScriptDir
+        parentDir := RegExReplace(scriptletsDir, "\\[^\\]+$", "")  ; Go up one directory
         possiblePaths := [
-            A_ScriptDir . "\stockfish.exe",
-            A_ScriptDir . "\engines\stockfish.exe",
+            scriptletsDir . "\stockfish.exe",  ; scriptlets folder
+            parentDir . "\stockfish.exe",  ; parent folder (root)
+            parentDir . "\engines\stockfish.exe",  ; parent\engines folder
             "C:\Program Files\Stockfish\stockfish.exe",
             "C:\Stockfish\stockfish.exe"
         ]
         
         for path in possiblePaths {
             if (FileExist(path)) {
-                this.stockfishPath := path
+                ChessGame.stockfishPath := path
                 return
             }
         }
         
-        ; If not found, show download instructions
+        ; If not found, show download instructions silently
         this.ShowStockfishInstructions()
     }
     
@@ -126,21 +133,21 @@ class ChessGame {
         this.gameGui.BackColor := "0x8B4513"
         this.gameGui.SetFont("s12 cWhite Bold", "Arial")
         
-        ; Game area
-        this.gameGui.Add("Text", "x10 y10 w780 h580 Border Center", "CHESS")
+        ; Game area with board display
+        this.gameGui.Add("Text", "x10 y10 w780 h450 Border Center vBoardText Center", "Click 'Start Game' to begin")
         
         ; Status display
-        this.gameGui.Add("Text", "x50 y50 w200 h30", "Current Player: " . this.currentPlayer)
-        this.gameGui.Add("Text", "x300 y50 w200 h30", "Mode: " . this.gameMode)
-        this.gameGui.Add("Text", "x550 y50 w200 h30", "Captured: " . this.capturedPieces.white.Length . "/" . this.capturedPieces.black.Length)
+        this.gameGui.Add("Text", "x50 y470 w200 h30", "Current Player: " . this.currentPlayer)
+        this.gameGui.Add("Text", "x300 y470 w200 h30", "Mode: " . this.gameMode)
+        this.gameGui.Add("Text", "x550 y470 w200 h30", "Captured: " . this.capturedPieces.white.Length . "/" . this.capturedPieces.black.Length)
         
         ; Controls info
-        this.gameGui.Add("Text", "x10 y570 w780 h20 Center", "Click pieces to move | SPACE: Start | R: Reset | M: Menu")
+        this.gameGui.Add("Text", "x10 y510 w780 h20 Center", "Click pieces to move | SPACE: Start | R: Reset | M: Menu")
         
         ; Menu buttons
-        this.gameGui.Add("Button", "x300 y100 w100 h40", "Start Game").OnEvent("Click", this.StartGame.Bind(this))
-        this.gameGui.Add("Button", "x300 y150 w100 h40", "Game Mode").OnEvent("Click", this.ShowGameMode.Bind(this))
-        this.gameGui.Add("Button", "x300 y200 w100 h40", "Instructions").OnEvent("Click", this.ShowInstructions.Bind(this))
+        this.gameGui.Add("Button", "x300 y540 w100 h40", "Start Game").OnEvent("Click", this.StartGame.Bind(this))
+        this.gameGui.Add("Button", "x410 y540 w100 h40", "Game Mode").OnEvent("Click", this.ShowGameMode.Bind(this))
+        this.gameGui.Add("Button", "x520 y540 w100 h40", "Instructions").OnEvent("Click", this.ShowInstructions.Bind(this))
         
         ; Set up hotkeys
         this.SetupHotkeys()
@@ -150,7 +157,9 @@ class ChessGame {
     
     static StartGame(*) {
         this.gameRunning := true
+        OutputDebug("Starting game...")
         this.DrawBoard()
+        OutputDebug("Board drawn")
     }
     
     static DrawBoard() {
@@ -166,10 +175,10 @@ class ChessGame {
         
         ; Display board
         Loop 8 {
-            row := 8 - A_Index
-            boardText .= (row + 1) . " "
+            row := 9 - A_Index
+            boardText .= (row) . " "
             Loop 8 {
-                piece := this.board[row][A_Index - 1]
+                piece := ChessGame.board[row][A_Index]
                 if (piece = "") {
                     boardText .= "Â· "
                 } else {
@@ -195,9 +204,13 @@ class ChessGame {
         }
         
         try {
-            this.gameGui.Control["Text1"].Text := boardText
-        } catch {
+            this.gameGui.Control["BoardText"].Text := boardText
+            OutputDebug("BoardText updated successfully")
+            OutputDebug("Board text length: " . StrLen(boardText))
+        } catch as e {
             ; Control might not exist yet
+            OutputDebug("DrawBoard error: " . e.Message)
+            MsgBox("Error updating board: " . e.Message, "Debug", "Iconx")
         }
     }
     
@@ -258,8 +271,8 @@ class ChessGame {
         move := {
             from: from,
             to: to,
-            piece: this.board[from.row][from.col],
-            captured: this.board[to.row][to.col],
+            piece: ChessGame.board[from.row][from.col],
+            captured: ChessGame.board[to.row][to.col],
             player: this.currentPlayer
         }
         
@@ -270,8 +283,8 @@ class ChessGame {
             this.capturedPieces[this.currentPlayer].Push(move.captured)
         }
         
-        this.board[to.row][to.col] := this.board[from.row][from.col]
-        this.board[from.row][from.col] := ""
+        ChessGame.board[to.row][to.col] := ChessGame.board[from.row][from.col]
+        ChessGame.board[from.row][from.col] := ""
         
         ; Switch players
         this.currentPlayer := (this.currentPlayer = "white") ? "black" : "white"
@@ -296,7 +309,7 @@ class ChessGame {
             return false ; Can't move to same square
         }
         
-        piece := this.board[from.row][from.col]
+        piece := ChessGame.board[from.row][from.col]
         if (piece = "") {
             return false ; No piece to move
         }
@@ -366,7 +379,7 @@ class ChessGame {
             emptyCount := 0
             
             Loop 8 {
-                piece := this.board[row][A_Index - 1]
+                piece := ChessGame.board[row][A_Index - 1]
                 if (piece = "") {
                     emptyCount++
                 } else {
@@ -417,23 +430,26 @@ class ChessGame {
     
     static SetupHotkeys() {
         ; Game controls
-        Hotkey("Space", (*) => {
-            if (ChessGame.gameRu)nning) {
-                ChessGame.gameRunning := false
-            } else {
-                ChessGame.StartGame()
-            }
-        }
-        
-        Hotkey("r", (*) => ChessGame.I)nit()
-        Hotkey("m", (*) => ChessGame.ShowI)nstructions()
+        Hotkey("Space", (*) => this.ToggleGame())
+        Hotkey("r", (*) => ChessGame.Init())
+        Hotkey("m", (*) => ChessGame.ShowInstructions())
         
         ; Escape to close
-        Hotkey("Escape", (*) => {
-            ChessGame.gameRu)nning := false
-            if (ChessGame.gameGui) {
-                ChessGame.gameGui.Close()
-            }
+        Hotkey("Escape", (*) => this.QuitGame())
+    }
+    
+    static ToggleGame(*) {
+        if (ChessGame.gameRunning) {
+            ChessGame.gameRunning := false
+        } else {
+            ChessGame.StartGame()
+        }
+    }
+    
+    static QuitGame(*) {
+        ChessGame.gameRunning := false
+        if (ChessGame.gameGui) {
+            ChessGame.gameGui.Close()
         }
     }
 }

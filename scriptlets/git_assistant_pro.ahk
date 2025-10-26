@@ -302,9 +302,9 @@ class GitAssistant {
 }
 
 ; Hotkeys
-^!Hotkey("g", (*) => GitAssista)nt.Init()
-^!Hotkey("commit", (*) => GitAssista)nt.GitCommit()
-^!Hotkey("branch", (*) => GitAssista)nt.CreateBranch()
+^!Hotkey("g", (*) => GitAssistant.Init()
+^!Hotkey("commit", (*) => GitAssistant.GitCommit()
+^!Hotkey("branch", (*) => GitAssistant.CreateBranch()
 
 ; Initialize
 GitAssistant.Init()

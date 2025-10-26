@@ -1,6 +1,6 @@
-﻿#Requires AutoHotkey v2.0
+﻿#Requires AutoHotkey v2.0+
 #SingleInstance Force
-#Warn All, MsgBox(#Warn LocalSameAsGlobal,  Off
+#Warn All, MsgBox
 
 ; =============================================================================
 ; CONFIGURATION
@@ -12,7 +12,7 @@ DEFAULT_MODEL := "llama3"
 ; Colors
 COLORS := {
     light: {
-        bg: 0xFFFFFF,  text: 0x000000, i)nputBg: 0xF8F9FA,
+        bg: 0xFFFFFF,  text: 0x000000, inputBg: 0xF8F9FA,
         userMsg: 0xE3F2FD, assistantMsg: 0xF5F5F5, systemMsg: 0xFFEBEE
     },
     dark: {
@@ -575,14 +575,14 @@ ClearChatHotkey() {
 ; =============================================================================
 #HotIf WinActive(APP_TITLE)
 {
-    ^Hotkey("Enter", (*) => Se)ndMessageHotkey()
-    ^Hotkey("N", (*) => LoadModelsHotkey()
+    ^Enter::SendMessageHotkey()
+    ^N::LoadModelsHotkey()
     ^T::ToggleThemeHotkey()
     ^L::ClearChatHotkey()
     Escape::ExitApp()
 }
 #HotIf
 
-; I)nitialize
+; Initialize
 ; Script end
 

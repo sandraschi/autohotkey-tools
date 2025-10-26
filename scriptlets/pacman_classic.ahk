@@ -1,4 +1,4 @@
-﻿; ==============================================================================
+; ==============================================================================
 ; Pacman Classic
 ; @name: Pacman Classic
 ; @version: 1.0.0
@@ -94,7 +94,7 @@ class PacmanGame {
         this.gui.SetFont("s12 cWhite Bold", "Segoe UI")
         
         ; Title
-        this.gui.Add("Text", "x20 y20 w400 Center Bold cYellow", "ðŸ‘» Pacman Classic")
+        this.gui.Add("Text", "x20 y20 w400 Center Bold cYellow", "👻 Pacman Classic")
         
         ; Game area
         this.canvas := this.gui.Add("Text", "x20 y60 w400 h400 Background0x000000 Border", "")
@@ -333,11 +333,11 @@ class PacmanGame {
             for cell in row {
                 switch cell {
                     case 1:
-                        display .= "â–ˆ"  ; Wall
+                        display .= "█"  ; Wall
                     case 2:
-                        display .= "Â·"  ; Dot
+                        display .= "·"  ; Dot
                     case 3:
-                        display .= "â—"  ; Power pellet
+                        display .= "●"  ; Power pellet
                     default:
                         display .= " "  ; Empty
                 }
@@ -421,17 +421,17 @@ class PacmanGame {
     
     static SetupHotkeys() {
         ; Movement
-        Hotkey("Up", (*) => this.SetDirectio)n("up")
-        Hotkey("Down", (*) => this.SetDirectio)n("down")
-        Hotkey("Left", (*) => this.SetDirectio)n("left")
-        Hotkey("Right", (*) => this.SetDirectio)n("right")
+        Hotkey("Up", (*) => this.SetDirection("up")
+        Hotkey("Down", (*) => this.SetDirection("down")
+        Hotkey("Left", (*) => this.SetDirection("left")
+        Hotkey("Right", (*) => this.SetDirection("right")
         
         ; Start game
         Hotkey("Space", (*) => this.StartGame()
         
         ; Pause/Resume
         p::{
-            if (this.gameRu)nning) {
+            if (this.gameRunning) {
                 this.PauseGame()
             } else {
                 this.ResumeGame()
@@ -443,7 +443,7 @@ class PacmanGame {
         
         ; Close with Escape
         Escape::{
-            if (Wi)nExist("Pacman Classic")) {
+            if (WinExist("Pacman Classic")) {
                 WinClose("Pacman Classic")
             }
         }
@@ -452,6 +452,7 @@ class PacmanGame {
 
 ; Initialize
 PacmanGame.Init()
+
 
 
 

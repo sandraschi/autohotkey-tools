@@ -24,7 +24,17 @@ while ($listener.IsListening) {
         $url = $request.Url.AbsolutePath
         $result = 'Unknown command'
 
-        if ($url -eq '/status') {
+        if ($url -eq '/' -or $url -eq '/launcher_enhanced.html') {
+            # Serve the HTML dashboard
+            $htmlPath = "D:\Dev\repos\autohotkey-test\launcher_enhanced.html"
+            if (Test-Path $htmlPath) {
+                $result = Get-Content $htmlPath -Raw
+                $response.ContentType = 'text/html'
+            } else {
+                $result = '<h1>Dashboard not found</h1>'
+                $response.ContentType = 'text/html'
+            }
+        } elseif ($url -eq '/status') {
             $result = 'Server running'
         } elseif ($url -eq '/scriptlets') {
             $scriptletsDir = "D:\Dev\repos\autohotkey-test\scriptlets"

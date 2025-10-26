@@ -358,9 +358,9 @@ class SmartAssistant {
 }
 
 ; Hotkeys
-^!Hotkey("a", (*) => SmartAssista)nt.Init()
-#Hotkey("v", (*) => SmartAssista)nt.ToggleVoice()
-^!Hotkey("s", (*) => SmartAssista)nt.StartWorkSession()
+^!Hotkey("a", (*) => SmartAssistant.Init()
+#Hotkey("v", (*) => SmartAssistant.ToggleVoice()
+^!Hotkey("s", (*) => SmartAssistant.StartWorkSession()
 
 ; Initialize
 SmartAssistant.Init()

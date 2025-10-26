@@ -1,4 +1,4 @@
-﻿; ==============================================================================
+; ==============================================================================
 ; GitHub Repository Manager
 ; @name: GitHub Repository Manager
 ; @version: 1.0.0
@@ -28,7 +28,7 @@ class GitHubRepoManager {
         this.repositories := [
             {name: "pywinauto-mcp", description: "MCP 2.12 Server for Windows Automation", language: "Python", stars: 3},
             {name: "database-operations-mcp", description: "Database operations MCP server", language: "Python", stars: 1},
-            {name: "fastsearch-mcp", description: "âš¡ Lightning-fast file search MCP server using NTFS Master File Table", language: "JavaScript", stars: 1},
+            {name: "fastsearch-mcp", description: "⚡ Lightning-fast file search MCP server using NTFS Master File Table", language: "JavaScript", stars: 1},
             {name: "windows-operations-mcp", description: "Windows operations MCP server", language: "Python", stars: 1},
             {name: "vboxmcp", description: "FastMCP 2.0 server for VirtualBox management through Claude Desktop", language: "Python", stars: 2},
             {name: "local-llm-mcp", description: "Local LLM MCP - A FastMCP 2.10 compliant server for local LLM management", language: "Python", stars: 0},
@@ -42,11 +42,11 @@ class GitHubRepoManager {
         this.gui.SetFont("s10 cWhite", "Segoe UI")
         
         ; Title
-        this.gui.Add("Text", "x20 y20 w760 Center Bold", "ðŸ™ GitHub Repository Manager")
+        this.gui.Add("Text", "x20 y20 w760 Center Bold", "🐙 GitHub Repository Manager")
         this.gui.Add("Text", "x20 y50 w760 Center c0xcccccc", "Manage and display GitHub repositories for @" . this.username)
         
         ; Profile info
-        this.gui.Add("Text", "x20 y90 w760 Bold", "ðŸ‘¤ Profile Information")
+        this.gui.Add("Text", "x20 y90 w760 Bold", "👤 Profile Information")
         this.gui.Add("Text", "x20 y120 w200", "Username: @" . this.username)
         this.gui.Add("Text", "x240 y120 w200", "Location: Vienna")
         this.gui.Add("Text", "x460 y120 w200", "Repositories: 34")
@@ -55,22 +55,22 @@ class GitHubRepoManager {
         this.gui.Add("Text", "x460 y150 w200", "Following: 6")
         
         ; Actions
-        this.gui.Add("Text", "x20 y190 w760 Bold", "âš¡ Actions")
+        this.gui.Add("Text", "x20 y190 w760 Bold", "⚡ Actions")
         
-        refreshBtn := this.gui.Add("Button", "x20 y220 w150 h40 Background0x4a4a4a", "ðŸ”„ Refresh List")
+        refreshBtn := this.gui.Add("Button", "x20 y220 w150 h40 Background0x4a4a4a", "🔄 Refresh List")
         refreshBtn.SetFont("s10 cWhite", "Segoe UI")
         refreshBtn.OnEvent("Click", this.RefreshRepositories.Bind(this))
         
-        exportBtn := this.gui.Add("Button", "x190 y220 w150 h40 Background0x4a4a4a", "ðŸ“‹ Export URLs")
+        exportBtn := this.gui.Add("Button", "x190 y220 w150 h40 Background0x4a4a4a", "📋 Export URLs")
         exportBtn.SetFont("s10 cWhite", "Segoe UI")
         exportBtn.OnEvent("Click", this.ExportURLs.Bind(this))
         
-        openProfileBtn := this.gui.Add("Button", "x360 y220 w150 h40 Background0x4a4a4a", "ðŸŒ Open Profile")
+        openProfileBtn := this.gui.Add("Button", "x360 y220 w150 h40 Background0x4a4a4a", "🌐 Open Profile")
         openProfileBtn.SetFont("s10 cWhite", "Segoe UI")
         openProfileBtn.OnEvent("Click", this.OpenProfile.Bind(this))
         
         ; Repository list
-        this.gui.Add("Text", "x20 y280 w760 Bold", "ðŸ“š Repositories")
+        this.gui.Add("Text", "x20 y280 w760 Bold", "📚 Repositories")
         
         repoList := this.gui.Add("ListBox", "x20 y310 w760 h250")
         repoList.SetFont("s9 cWhite", "Consolas")
@@ -80,7 +80,7 @@ class GitHubRepoManager {
         this.PopulateRepositoryList()
         
         ; Repository details
-        this.gui.Add("Text", "x20 y580 w760 Bold", "ðŸ“– Repository Details")
+        this.gui.Add("Text", "x20 y580 w760 Bold", "📖 Repository Details")
         
         detailsText := this.gui.Add("Text", "x20 y610 w760 h60 c0xcccccc", "Select a repository to view details...")
         detailsText.SetFont("s9 cWhite", "Segoe UI")
@@ -103,7 +103,7 @@ class GitHubRepoManager {
         this.gui.repoList.Text := ""
         
         for repo in this.repositories {
-            repoText := "[" . repo.language . "] " . repo.name . " â­" . repo.stars
+            repoText := "[" . repo.language . "] " . repo.name . " ⭐" . repo.stars
             this.gui.repoList.Add([repoText])
         }
     }
@@ -114,11 +114,11 @@ class GitHubRepoManager {
             if (selectedIndex > 0 && selectedIndex <= this.repositories.Length) {
                 repo := this.repositories[selectedIndex]
                 
-                details := "ðŸ“ " . repo.name . "`n"
-                details .= "ðŸ“ " . repo.description . "`n"
-                details .= "ðŸ’» Language: " . repo.language . "`n"
-                details .= "â­ Stars: " . repo.stars . "`n"
-                details .= "ðŸ”— URL: https://github.com/" . this.username . "/" . repo.name
+                details := "📁 " . repo.name . "`n"
+                details .= "📝 " . repo.description . "`n"
+                details .= "💻 Language: " . repo.language . "`n"
+                details .= "⭐ Stars: " . repo.stars . "`n"
+                details .= "🔗 URL: https://github.com/" . this.username . "/" . repo.name
                 
                 this.gui.detailsText.Text := details
             }
@@ -143,7 +143,7 @@ class GitHubRepoManager {
             if (filePath) {
                 content := "# GitHub Repositories - @" . this.username . "`n`n"
                 content .= "**Profile:** https://github.com/" . this.username . "`n`n"
-                content .= "## ðŸ“š Repository List`n`n"
+                content .= "## 📚 Repository List`n`n"
                 
                 for repo in this.repositories {
                     content .= "### " . repo.name . "`n"
@@ -153,7 +153,7 @@ class GitHubRepoManager {
                     content .= "- **URL:** https://github.com/" . this.username . "/" . repo.name . "`n`n"
                 }
                 
-                content .= "## ðŸ“Š Statistics`n`n"
+                content .= "## 📊 Statistics`n`n"
                 content .= "- **Total Repositories:** " . this.repositories.Length . "`n"
                 content .= "- **Total Stars:** " . this.GetTotalStars() . "`n"
                 content .= "- **Languages:** " . this.GetLanguages() . "`n"
@@ -202,7 +202,7 @@ class GitHubRepoManager {
         
         ; Close with Escape
         Escape::{
-            if (Wi)nExist("GitHub Repository Manager")) {
+            if (WinExist("GitHub Repository Manager")) {
                 WinClose("GitHub Repository Manager")
             }
         }
@@ -211,6 +211,7 @@ class GitHubRepoManager {
 
 ; Initialize
 GitHubRepoManager.Init()
+
 
 
 

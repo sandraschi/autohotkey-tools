@@ -1,4 +1,7 @@
 const http = require('http');
+const fs = require('fs');
+const path = require('path');
+
 const port = 8765;
 
 const server = http.createServer((req, res) => {
@@ -16,8 +19,17 @@ const server = http.createServer((req, res) => {
     const url = req.url;
     
     if (url === '/') {
-        res.writeHead(200, {'Content-Type': 'text/plain'});
-        res.end('Scriptlet Bridge Server v2.0 - Use /status, /scriptlets, /exit endpoints');
+        // Serve the HTML dashboard
+        const htmlPath = path.join(__dirname, 'launcher_enhanced.html');
+        fs.readFile(htmlPath, 'utf8', (err, data) => {
+            if (err) {
+                res.writeHead(500, {'Content-Type': 'text/plain'});
+                res.end('Error loading dashboard');
+            } else {
+                res.writeHead(200, {'Content-Type': 'text/html'});
+                res.end(data);
+            }
+        });
     } else if (url === '/status') {
         res.writeHead(200, {'Content-Type': 'application/json'});
         res.end(JSON.stringify({status: 'running', port: port}));

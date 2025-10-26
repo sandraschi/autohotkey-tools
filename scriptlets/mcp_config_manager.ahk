@@ -1,4 +1,4 @@
-﻿; ==============================================================================
+; ==============================================================================
 ; MCP Config Manager
 ; @name: MCP Config Manager
 ; @version: 1.0.0
@@ -42,36 +42,36 @@ class MCPConfigManager {
         gui.SetFont("s10 cWhite", "Segoe UI")
         
         ; Title
-        gui.Add("Text", "x20 y20 w760 Center Bold", "âš™ï¸ MCP Config Manager")
+        gui.Add("Text", "x20 y20 w760 Center Bold", "⚙️ MCP Config Manager")
         gui.Add("Text", "x20 y50 w760 Center c0xcccccc", "Manage Claude Desktop MCP configuration with validation and backup")
         
         ; Configuration file section
-        gui.Add("Text", "x20 y90 w760 Bold", "ðŸ“ Configuration File")
+        gui.Add("Text", "x20 y90 w760 Bold", "📁 Configuration File")
         gui.Add("Text", "x20 y115 w150", "Config Path:")
         gui.Add("Text", "x180 y115 w580 c0xcccccc", this.claudeConfig)
         
         ; File operations
-        gui.Add("Button", "x20 y150 w150 h40", "ðŸ“– Load Config").OnEvent("Click", this.LoadConfig.Bind(this))
-        gui.Add("Button", "x190 y150 w150 h40", "ðŸ’¾ Save Config").OnEvent("Click", this.SaveConfig.Bind(this))
-        gui.Add("Button", "x360 y150 w150 h40", "ðŸ“‹ Backup Config").OnEvent("Click", this.BackupConfig.Bind(this))
-        gui.Add("Button", "x530 y150 w150 h40", "ðŸ”„ Restore Config").OnEvent("Click", this.RestoreConfig.Bind(this))
+        gui.Add("Button", "x20 y150 w150 h40", "📖 Load Config").OnEvent("Click", this.LoadConfig.Bind(this))
+        gui.Add("Button", "x190 y150 w150 h40", "💾 Save Config").OnEvent("Click", this.SaveConfig.Bind(this))
+        gui.Add("Button", "x360 y150 w150 h40", "📋 Backup Config").OnEvent("Click", this.BackupConfig.Bind(this))
+        gui.Add("Button", "x530 y150 w150 h40", "🔄 Restore Config").OnEvent("Click", this.RestoreConfig.Bind(this))
         
         ; MCP Servers section
-        gui.Add("Text", "x20 y210 w760 Bold", "ðŸ–¥ï¸ MCP Servers")
+        gui.Add("Text", "x20 y210 w760 Bold", "🖥️ MCP Servers")
         
         ; Server list
         serverList := gui.Add("ListBox", "x20 y240 w400 h200")
         
         ; Server controls
-        gui.Add("Button", "x440 y240 w150 h40", "âž• Add Server").OnEvent("Click", this.AddServer.Bind(this))
-        gui.Add("Button", "x610 y240 w150 h40", "âœï¸ Edit Server").OnEvent("Click", this.EditServer.Bind(this))
-        gui.Add("Button", "x440 y290 w150 h40", "ðŸ—‘ï¸ Remove Server").OnEvent("Click", this.RemoveServer.Bind(this))
-        gui.Add("Button", "x610 y290 w150 h40", "ðŸ“‹ Duplicate Server").OnEvent("Click", this.DuplicateServer.Bind(this))
-        gui.Add("Button", "x440 y340 w150 h40", "âœ… Test Server").OnEvent("Click", this.TestServer.Bind(this))
-        gui.Add("Button", "x610 y340 w150 h40", "ðŸ“Š Server Info").OnEvent("Click", this.ServerInfo.Bind(this))
+        gui.Add("Button", "x440 y240 w150 h40", "➕ Add Server").OnEvent("Click", this.AddServer.Bind(this))
+        gui.Add("Button", "x610 y240 w150 h40", "✏️ Edit Server").OnEvent("Click", this.EditServer.Bind(this))
+        gui.Add("Button", "x440 y290 w150 h40", "🗑️ Remove Server").OnEvent("Click", this.RemoveServer.Bind(this))
+        gui.Add("Button", "x610 y290 w150 h40", "📋 Duplicate Server").OnEvent("Click", this.DuplicateServer.Bind(this))
+        gui.Add("Button", "x440 y340 w150 h40", "✅ Test Server").OnEvent("Click", this.TestServer.Bind(this))
+        gui.Add("Button", "x610 y340 w150 h40", "📊 Server Info").OnEvent("Click", this.ServerInfo.Bind(this))
         
         ; Configuration editor
-        gui.Add("Text", "x20 y460 w760 Bold", "âœï¸ Configuration Editor")
+        gui.Add("Text", "x20 y460 w760 Bold", "✏️ Configuration Editor")
         
         ; JSON editor
         configEdit := gui.Add("Edit", "x20 y490 w760 h100 Multi VScroll", "")
@@ -79,10 +79,10 @@ class MCPConfigManager {
         configEdit.SetFont("s9 cWhite", "Consolas")
         
         ; Validation and actions
-        gui.Add("Button", "x20 y600 w150 h40", "âœ… Validate JSON").OnEvent("Click", this.ValidateJSON.Bind(this))
-        gui.Add("Button", "x190 y600 w150 h40", "ðŸŽ¨ Format JSON").OnEvent("Click", this.FormatJSON.Bind(this))
-        gui.Add("Button", "x360 y600 w150 h40", "ðŸ”„ Reset to Default").OnEvent("Click", this.ResetToDefault.Bind(this))
-        gui.Add("Button", "x530 y600 w150 h40", "â“ Help").OnEvent("Click", this.ShowHelp.Bind(this))
+        gui.Add("Button", "x20 y600 w150 h40", "✅ Validate JSON").OnEvent("Click", this.ValidateJSON.Bind(this))
+        gui.Add("Button", "x190 y600 w150 h40", "🎨 Format JSON").OnEvent("Click", this.FormatJSON.Bind(this))
+        gui.Add("Button", "x360 y600 w150 h40", "🔄 Reset to Default").OnEvent("Click", this.ResetToDefault.Bind(this))
+        gui.Add("Button", "x530 y600 w150 h40", "❓ Help").OnEvent("Click", this.ShowHelp.Bind(this))
         
         ; Status
         gui.Add("Text", "x20 y650 w760 Center c0x888888", "Hotkeys: Ctrl+Alt+C (Load Config) | F12 (Validate) | Press Load Config to start")
@@ -374,9 +374,9 @@ class MCPConfigManager {
             }
             
             if (this.ValidateJSONContent(this.configData)) {
-                MsgBox("âœ… Configuration JSON is valid!", "Validation Passed", "Iconi")
+                MsgBox("✅ Configuration JSON is valid!", "Validation Passed", "Iconi")
             } else {
-                MsgBox("âŒ Configuration JSON is invalid. Please check syntax.", "Validation Failed", "Iconx")
+                MsgBox("❌ Configuration JSON is invalid. Please check syntax.", "Validation Failed", "Iconx")
             }
             
         } catch as e {
@@ -530,38 +530,38 @@ class MCPConfigManager {
     }
     
     static ShowHelp(*) {
-        helpText := "âš™ï¸ MCP Config Manager Help`n`n"
+        helpText := "⚙️ MCP Config Manager Help`n`n"
         helpText .= "This tool manages Claude Desktop MCP configuration:`n`n"
-        helpText .= "ðŸ“ File Operations:`n"
-        helpText .= "â€¢ Load Config: Load existing configuration`n"
-        helpText .= "â€¢ Save Config: Save current configuration`n"
-        helpText .= "â€¢ Backup Config: Create timestamped backup`n"
-        helpText .= "â€¢ Restore Config: Restore from backup`n`n"
-        helpText .= "ðŸ–¥ï¸ Server Management:`n"
-        helpText .= "â€¢ Add Server: Create new MCP server entry`n"
-        helpText .= "â€¢ Edit Server: Modify existing server settings`n"
-        helpText .= "â€¢ Remove Server: Delete server from config`n"
-        helpText .= "â€¢ Duplicate Server: Copy server with new name`n"
-        helpText .= "â€¢ Test Server: Validate server configuration`n"
-        helpText .= "â€¢ Server Info: View detailed server information`n`n"
-        helpText .= "âœï¸ Configuration Editor:`n"
-        helpText .= "â€¢ Validate JSON: Check JSON syntax`n"
-        helpText .= "â€¢ Format JSON: Pretty-print JSON`n"
-        helpText .= "â€¢ Reset to Default: Restore default config`n`n"
+        helpText .= "📁 File Operations:`n"
+        helpText .= "• Load Config: Load existing configuration`n"
+        helpText .= "• Save Config: Save current configuration`n"
+        helpText .= "• Backup Config: Create timestamped backup`n"
+        helpText .= "• Restore Config: Restore from backup`n`n"
+        helpText .= "🖥️ Server Management:`n"
+        helpText .= "• Add Server: Create new MCP server entry`n"
+        helpText .= "• Edit Server: Modify existing server settings`n"
+        helpText .= "• Remove Server: Delete server from config`n"
+        helpText .= "• Duplicate Server: Copy server with new name`n"
+        helpText .= "• Test Server: Validate server configuration`n"
+        helpText .= "• Server Info: View detailed server information`n`n"
+        helpText .= "✏️ Configuration Editor:`n"
+        helpText .= "• Validate JSON: Check JSON syntax`n"
+        helpText .= "• Format JSON: Pretty-print JSON`n"
+        helpText .= "• Reset to Default: Restore default config`n`n"
         helpText .= "Hotkeys:`n"
-        helpText .= "â€¢ Ctrl+Alt+C: Load configuration`n"
-        helpText .= "â€¢ F12: Validate JSON`n"
-        helpText .= "â€¢ Escape: Close tool"
+        helpText .= "• Ctrl+Alt+C: Load configuration`n"
+        helpText .= "• F12: Validate JSON`n"
+        helpText .= "• Escape: Close tool"
         
         MsgBox(helpText, "MCP Config Manager Help", "Iconi")
     }
     
     static SetupHotkeys(gui) {
-        ^!Hotkey("c", (*) => this.LoadCo)nfig()
-        Hotkey("F12", (*) => this.ValidateJSO)N()
+        ^!Hotkey("c", (*) => this.LoadConfig()
+        Hotkey("F12", (*) => this.ValidateJSON()
         
         Hotkey("Escape", (*) => {
-            if (Wi)nExist("MCP Config Manager")) {
+            if (WinExist("MCP Config Manager")) {
                 WinClose("MCP Config Manager")
             }
         }
@@ -569,8 +569,8 @@ class MCPConfigManager {
 }
 
 ; Hotkeys
-^!Hotkey("c", (*) => MCPCo)nfigManager.Init()
-Hotkey("F12", (*) => MCPCo)nfigManager.Init()
+^!Hotkey("c", (*) => MCPConfigManager.Init()
+Hotkey("F12", (*) => MCPConfigManager.Init()
 
 ; Initialize
 MCPConfigManager.Init()

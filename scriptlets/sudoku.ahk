@@ -761,5 +761,7 @@ InitHotkeys() {
 ; =============================================================================
 ; MAIN ENTRY POINT
 ; =============================================================================
-; Start the application
-return
+; Initialize the game
+CreateSudokuGUI()
+SetupGameHotkeys()
+StartNewGame()

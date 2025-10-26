@@ -22,8 +22,8 @@ $CommonFixes = @{
     # MsgBox syntax fixes
     "MsgBox\s+(\w+)" = "MsgBox(`$1)"
     
-    # Hotkey syntax fixes
-    "(\w+)::" = "Hotkey(`"`$1`","
+    # Hotkey syntax fixes - DISABLED: too dangerous, use manual fixes
+    # "(\w+)::" = "Hotkey(`"`$1`", (*) =>`"
     
     # String functions
     "StringReplace\s*\(([^)]+)\)" = "StrReplace(`$1)"

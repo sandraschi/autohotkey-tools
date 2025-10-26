@@ -1,4 +1,4 @@
-﻿#Requires AutoHotkey v2.0
+#Requires AutoHotkey v2.0
 #SingleInstance Force
 #Warn All, MsgBox(#Warn LocalSameAsGlobal,  Off
 
@@ -12,7 +12,7 @@ DEFAULT_MODEL := "llama3"
 ; Colors
 COLORS := {
     light: {
-        bg: 0xFFFFFF,  text: 0x000000, i)nputBg: 0xF8F9FA,
+        bg: 0xFFFFFF,  text: 0x000000, inputBg: 0xF8F9FA,
         userMsg: 0xE3F2FD, assistantMsg: 0xF5F5F5, systemMsg: 0xFFEBEE
     },
     dark: {
@@ -165,9 +165,9 @@ ShowConnectionError() {
     
     errorMsg := "Cannot connect to Ollama server.`n`n"
     errorMsg .= "Please check:`n"
-    errorMsg .= "â€¢ Ollama is installed and running`n"
-    errorMsg .= "â€¢ Ollama server is accessible at: " . OLLAMA_URL . "`n"
-    errorMsg .= "â€¢ No firewall blocking the connection`n`n"
+    errorMsg .= "• Ollama is installed and running`n"
+    errorMsg .= "• Ollama server is accessible at: " . OLLAMA_URL . "`n"
+    errorMsg .= "• No firewall blocking the connection`n`n"
     errorMsg .= "To start Ollama, run 'ollama serve' in a command prompt."
     
     MsgBox(errorMsg, "Ollama Connection Error", "OK")
@@ -441,9 +441,9 @@ LoadModels() {
         errorMsg := "Failed to load models from Ollama.`n`n"
         errorMsg .= "Error: " . e.Message . "`n`n"
         errorMsg .= "Please ensure:`n"
-        errorMsg .= "â€¢ Ollama is running on " . OLLAMA_URL . "`n"
-        errorMsg .= "â€¢ At least one model is installed (try: ollama pull llama3)`n"
-        errorMsg .= "â€¢ No firewall is blocking the connection"
+        errorMsg .= "• Ollama is running on " . OLLAMA_URL . "`n"
+        errorMsg .= "• At least one model is installed (try: ollama pull llama3)`n"
+        errorMsg .= "• No firewall is blocking the connection"
         
         MsgBox(errorMsg, "Model Loading Error", "OK")
         return false
@@ -888,7 +888,7 @@ ClearChatHotkey() {
 ; =============================================================================
 #HotIf WinActive(APP_TITLE)
 {
-    ^Hotkey("Enter", (*) => Se)ndMessageHotkey()
+    ^Hotkey("Enter", (*) => SendMessageHotkey()
     ^Hotkey("N", (*) => LoadModelsHotkey()
     ^T::ToggleThemeHotkey()
     ^L::ClearChatHotkey()
@@ -896,5 +896,5 @@ ClearChatHotkey() {
 }
 #HotIf
 
-; I)nitialize
+; Initialize
 ; Script end

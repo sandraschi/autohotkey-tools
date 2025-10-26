@@ -1,4 +1,4 @@
-﻿; ==============================================================================
+; ==============================================================================
 ; Tetris Classic
 ; @name: Tetris Classic
 ; @version: 1.0.0
@@ -67,7 +67,7 @@ class TetrisGame {
         this.gui.SetFont("s12 cWhite Bold", "Segoe UI")
         
         ; Title
-        this.gui.Add("Text", "x20 y20 w400 Center Bold", "ðŸŽ® Tetris Classic")
+        this.gui.Add("Text", "x20 y20 w400 Center Bold", "🎮 Tetris Classic")
         
         ; Game area
         this.canvas := this.gui.Add("Text", "x20 y60 w200 h400 Background0x000000 Border", "")
@@ -85,10 +85,10 @@ class TetrisGame {
         
         ; Controls
         this.gui.Add("Text", "x250 y280 w100 Center Bold", "Controls:")
-        this.gui.Add("Text", "x250 y310 w100", "â† â†’ Move")
-        this.gui.Add("Text", "x250 y330 w100", "â†“ Soft Drop")
+        this.gui.Add("Text", "x250 y310 w100", "← → Move")
+        this.gui.Add("Text", "x250 y330 w100", "↓ Soft Drop")
         this.gui.Add("Text", "x250 y350 w100", "Space Hard Drop")
-        this.gui.Add("Text", "x250 y370 w100", "â†‘ Rotate")
+        this.gui.Add("Text", "x250 y370 w100", "↑ Rotate")
         this.gui.Add("Text", "x250 y390 w100", "P Pause")
         this.gui.Add("Text", "x250 y410 w100", "R Restart")
         
@@ -322,9 +322,9 @@ class TetrisGame {
         for row in this.gameBoard {
             for cell in row {
                 if (cell) {
-                    display .= "â–ˆ"
+                    display .= "█"
                 } else {
-                    display .= "Â·"
+                    display .= "·"
                 }
             }
             display .= "`n"
@@ -341,7 +341,7 @@ class TetrisGame {
                         if (boardY >= 0 && boardY < 20 && boardX >= 0 && boardX < 10) {
                             ; Replace the character at this position
                             pos := (boardY * 11) + boardX + 1
-                            display := SubStr(display, 1, pos - 1) . "â–ˆ" . SubStr(display, pos + 1)
+                            display := SubStr(display, 1, pos - 1) . "█" . SubStr(display, pos + 1)
                         }
                     }
                 }
@@ -398,19 +398,19 @@ class TetrisGame {
         ; Movement
         Hotkey("Left", (*) => this.MovePiece(-1, 0)
         Right::this.MovePiece(1, 0)
-        Dow)Hotkey("n", (*) => this.MovePiece(0, 1)
+        Down::this.MovePiece(0, 1)
         Up::this.RotatePiece()
         
         ; Hard drop
         Space::{
             while (this.MovePiece(0, 1)) {
-                ; Keep movi)ng down
+                ; Keep moving down
             }
         }
         
         ; Pause/Resume
         Hotkey("p", (*) => {
-            if (this.gameRu)nning) {
+            if (this.gameRunning) {
                 this.PauseGame()
             } else {
                 this.ResumeGame()
@@ -422,7 +422,7 @@ class TetrisGame {
         
         ; Close with Escape
         Escape::{
-            if (Wi)nExist("Tetris Classic")) {
+            if (WinExist("Tetris Classic")) {
                 WinClose("Tetris Classic")
             }
         }

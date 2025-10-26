@@ -304,12 +304,12 @@ class MusicController {
 }
 
 ; Hotkeys
-#Hotkey("Space", (*) => MusicCo)ntroller.PlayTrack()
-#Hotkey("Left", (*) => MusicCo)ntroller.PreviousTrack()
-#Hotkey("Right", (*) => MusicCo)ntroller.NextTrack()
-#Hotkey("Up", (*) => MusicCo)ntroller.VolumeChanged()
-#Hotkey("Down", (*) => MusicCo)ntroller.VolumeChanged()
-#Hotkey("M", (*) => MusicCo)ntroller.Init()
+#Hotkey("Space", (*) => MusicController.PlayTrack()
+#Hotkey("Left", (*) => MusicController.PreviousTrack()
+#Hotkey("Right", (*) => MusicController.NextTrack()
+#Hotkey("Up", (*) => MusicController.VolumeChanged()
+#Hotkey("Down", (*) => MusicController.VolumeChanged()
+#Hotkey("M", (*) => MusicController.Init()
 
 ; Initialize
 MusicController.Init()

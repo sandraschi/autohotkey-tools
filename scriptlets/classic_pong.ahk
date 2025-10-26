@@ -1,4 +1,4 @@
-﻿; ==============================================================================
+; ==============================================================================
 ; Classic Pong Game
 ; @name: Classic Pong Game
 ; @version: 1.0.0
@@ -221,42 +221,42 @@ class PongGame {
     }
     
     static ShowSettings(*) {
-        settingsText := "ðŸŽ® PONG SETTINGS ðŸŽ®`n`n"
+        settingsText := "🎮 PONG SETTINGS 🎮`n`n"
         settingsText .= "Current Difficulty: " . this.difficulty . "`n`n"
         settingsText .= "Available Difficulties:`n"
-        settingsText .= "â€¢ Easy: AI moves slowly`n"
-        settingsText .= "â€¢ Medium: AI moves at normal speed`n"
-        settingsText .= "â€¢ Hard: AI moves at full speed`n`n"
+        settingsText .= "• Easy: AI moves slowly`n"
+        settingsText .= "• Medium: AI moves at normal speed`n"
+        settingsText .= "• Hard: AI moves at full speed`n`n"
         settingsText .= "Sound Effects: " . (this.soundEnabled ? "ON" : "OFF") . "`n`n"
         settingsText .= "Controls:`n"
-        settingsText .= "â€¢ W/S: Move paddle up/down`n"
-        settingsText .= "â€¢ SPACE: Start/Pause game`n"
-        settingsText .= "â€¢ R: Reset game`n"
-        settingsText .= "â€¢ M: Show this menu`n`n"
+        settingsText .= "• W/S: Move paddle up/down`n"
+        settingsText .= "• SPACE: Start/Pause game`n"
+        settingsText .= "• R: Reset game`n"
+        settingsText .= "• M: Show this menu`n`n"
         settingsText .= "Press OK to continue."
         
         MsgBox(settingsText, "Pong Settings", "Iconi")
     }
     
     static ShowInstructions(*) {
-        instructionsText := "ðŸŽ® HOW TO PLAY PONG ðŸŽ®`n`n"
+        instructionsText := "🎮 HOW TO PLAY PONG 🎮`n`n"
         instructionsText .= "OBJECTIVE:`n"
         instructionsText .= "Hit the ball past your opponent's paddle to score!`n`n"
         instructionsText .= "CONTROLS:`n"
-        instructionsText .= "â€¢ W: Move paddle UP`n"
-        instructionsText .= "â€¢ S: Move paddle DOWN`n"
-        instructionsText .= "â€¢ SPACE: Start/Pause game`n"
-        instructionsText .= "â€¢ R: Reset game`n"
-        instructionsText .= "â€¢ M: Show menu`n`n"
+        instructionsText .= "• W: Move paddle UP`n"
+        instructionsText .= "• S: Move paddle DOWN`n"
+        instructionsText .= "• SPACE: Start/Pause game`n"
+        instructionsText .= "• R: Reset game`n"
+        instructionsText .= "• M: Show menu`n`n"
         instructionsText .= "RULES:`n"
-        instructionsText .= "â€¢ First to 10 points wins`n"
-        instructionsText .= "â€¢ Ball bounces off walls and paddles`n"
-        instructionsText .= "â€¢ Ball speed increases slightly on paddle hits`n"
-        instructionsText .= "â€¢ AI opponent adjusts difficulty based on setting`n`n"
+        instructionsText .= "• First to 10 points wins`n"
+        instructionsText .= "• Ball bounces off walls and paddles`n"
+        instructionsText .= "• Ball speed increases slightly on paddle hits`n"
+        instructionsText .= "• AI opponent adjusts difficulty based on setting`n`n"
         instructionsText .= "TIPS:`n"
-        instructionsText .= "â€¢ Try to hit the ball with the edge of your paddle`n"
-        instructionsText .= "â€¢ Watch the ball's trajectory to predict movement`n"
-        instructionsText .= "â€¢ Use the paddle's center for straight shots`n`n"
+        instructionsText .= "• Try to hit the ball with the edge of your paddle`n"
+        instructionsText .= "• Watch the ball's trajectory to predict movement`n"
+        instructionsText .= "• Use the paddle's center for straight shots`n`n"
         instructionsText .= "Press OK to start playing!"
         
         MsgBox(instructionsText, "Pong Instructions", "Iconi")
@@ -265,7 +265,7 @@ class PongGame {
     static SetupHotkeys() {
         ; Player controls
         Hotkey("w", (*) => {
-            if (Po)ngGame.gameRunning) {
+            if (PongGame.gameRunning) {
                 PongGame.paddle1Y -= PongGame.paddleSpeed
                 if (PongGame.paddle1Y < 0) {
                     PongGame.paddle1Y := 0
@@ -274,7 +274,7 @@ class PongGame {
         }
         
         Hotkey("s", (*) => {
-            if (Po)ngGame.gameRunning) {
+            if (PongGame.gameRunning) {
                 PongGame.paddle1Y += PongGame.paddleSpeed
                 if (PongGame.paddle1Y > PongGame.gameHeight - PongGame.paddleHeight) {
                     PongGame.paddle1Y := PongGame.gameHeight - PongGame.paddleHeight
@@ -284,19 +284,19 @@ class PongGame {
         
         ; Game controls
         Hotkey("Space", (*) => {
-            if (Po)ngGame.gameRunning) {
+            if (PongGame.gameRunning) {
                 PongGame.gameRunning := false
             } else {
                 PongGame.StartGame()
             }
         }
         
-        Hotkey("r", (*) => Po)ngGame.Init()
-        Hotkey("m", (*) => Po)ngGame.ShowSettings()
+        Hotkey("r", (*) => PongGame.Init()
+        Hotkey("m", (*) => PongGame.ShowSettings()
         
         ; Escape to close
         Hotkey("Escape", (*) => {
-            Po)ngGame.gameRunning := false
+            PongGame.gameRunning := false
             if (PongGame.gameGui) {
                 PongGame.gameGui.Close()
             }
@@ -305,8 +305,8 @@ class PongGame {
 }
 
 ; Hotkeys
-^!Hotkey("p", (*) => Po)ngGame.Init()
-Hotkey("F5", (*) => Po)ngGame.Init()
+^!Hotkey("p", (*) => PongGame.Init()
+Hotkey("F5", (*) => PongGame.Init()
 
 ; Initialize
 PongGame.Init()

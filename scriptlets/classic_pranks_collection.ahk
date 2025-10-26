@@ -1,4 +1,4 @@
-﻿; ==============================================================================
+; ==============================================================================
 ; Classic Pranks Collection
 ; @name: Classic Pranks Collection
 ; @version: 1.0.0
@@ -27,66 +27,66 @@ class ClassicPranks {
         this.gui.SetFont("s12 cWhite Bold", "Segoe UI")
         
         ; Title
-        this.gui.Add("Text", "x20 y20 w560 Center Bold", "ðŸŽ­ Classic Pranks Collection")
+        this.gui.Add("Text", "x20 y20 w560 Center Bold", "🎭 Classic Pranks Collection")
         this.gui.Add("Text", "x20 y50 w560 Center c0xcccccc", "Harmless computer pranks and classic jokes")
         
         ; Warning
-        this.gui.Add("Text", "x20 y80 w560 Center c0xffaa00 Bold", "âš ï¸ Use responsibly! These are harmless pranks.")
+        this.gui.Add("Text", "x20 y80 w560 Center c0xffaa00 Bold", "⚠️ Use responsibly! These are harmless pranks.")
         
         ; Prank categories
-        this.gui.Add("Text", "x20 y120 w560 Bold", "ðŸŽ¯ Classic Pranks")
+        this.gui.Add("Text", "x20 y120 w560 Bold", "🎯 Classic Pranks")
         
         ; Desktop pranks
-        this.gui.Add("Text", "x20 y150 w560 Bold c0x888888", "ðŸ–¥ï¸ Desktop Pranks")
+        this.gui.Add("Text", "x20 y150 w560 Bold c0x888888", "🖥️ Desktop Pranks")
         
-        desktopBtn1 := this.gui.Add("Button", "x20 y180 w250 h40 Background0x4a4a4a", "ðŸ”„ Flip Screen")
+        desktopBtn1 := this.gui.Add("Button", "x20 y180 w250 h40 Background0x4a4a4a", "🔄 Flip Screen")
         desktopBtn1.SetFont("s10 cWhite", "Segoe UI")
         desktopBtn1.OnEvent("Click", this.FlipScreen.Bind(this))
         
-        desktopBtn2 := this.gui.Add("Button", "x290 y180 w250 h40 Background0x4a4a4a", "ðŸ–¼ï¸ Fake Blue Screen")
+        desktopBtn2 := this.gui.Add("Button", "x290 y180 w250 h40 Background0x4a4a4a", "🖼️ Fake Blue Screen")
         desktopBtn2.SetFont("s10 cWhite", "Segoe UI")
         desktopBtn2.OnEvent("Click", this.FakeBlueScreen.Bind(this))
         
-        desktopBtn3 := this.gui.Add("Button", "x20 y230 w250 h40 Background0x4a4a4a", "ðŸ“± Fake Phone Call")
+        desktopBtn3 := this.gui.Add("Button", "x20 y230 w250 h40 Background0x4a4a4a", "📱 Fake Phone Call")
         desktopBtn3.SetFont("s10 cWhite", "Segoe UI")
         desktopBtn3.OnEvent("Click", this.FakePhoneCall.Bind(this))
         
-        desktopBtn4 := this.gui.Add("Button", "x290 y230 w250 h40 Background0x4a4a4a", "ðŸŽ­ Fake Windows Update")
+        desktopBtn4 := this.gui.Add("Button", "x290 y230 w250 h40 Background0x4a4a4a", "🎭 Fake Windows Update")
         desktopBtn4.SetFont("s10 cWhite", "Segoe UI")
         desktopBtn4.OnEvent("Click", this.FakeWindowsUpdate.Bind(this))
         
         ; Mouse pranks
-        this.gui.Add("Text", "x20 y290 w560 Bold c0x888888", "ðŸ–±ï¸ Mouse Pranks")
+        this.gui.Add("Text", "x20 y290 w560 Bold c0x888888", "🖱️ Mouse Pranks")
         
-        mouseBtn1 := this.gui.Add("Button", "x20 y320 w250 h40 Background0x4a4a4a", "ðŸ”„ Reverse Mouse")
+        mouseBtn1 := this.gui.Add("Button", "x20 y320 w250 h40 Background0x4a4a4a", "🔄 Reverse Mouse")
         mouseBtn1.SetFont("s10 cWhite", "Segoe UI")
         mouseBtn1.OnEvent("Click", this.ReverseMouse.Bind(this))
         
-        mouseBtn2 := this.gui.Add("Button", "x290 y320 w250 h40 Background0x4a4a4a", "ðŸŽ¯ Mouse Jitter")
+        mouseBtn2 := this.gui.Add("Button", "x290 y320 w250 h40 Background0x4a4a4a", "🎯 Mouse Jitter")
         mouseBtn2.SetFont("s10 cWhite", "Segoe UI")
         mouseBtn2.OnEvent("Click", this.MouseJitter.Bind(this))
         
-        mouseBtn3 := this.gui.Add("Button", "x20 y370 w250 h40 Background0x4a4a4a", "ðŸ–±ï¸ Mouse Trail")
+        mouseBtn3 := this.gui.Add("Button", "x20 y370 w250 h40 Background0x4a4a4a", "🖱️ Mouse Trail")
         mouseBtn3.SetFont("s10 cWhite", "Segoe UI")
         mouseBtn3.OnEvent("Click", this.MouseTrail.Bind(this))
         
-        mouseBtn4 := this.gui.Add("Button", "x290 y370 w250 h40 Background0x4a4a4a", "ðŸŽª Random Clicks")
+        mouseBtn4 := this.gui.Add("Button", "x290 y370 w250 h40 Background0x4a4a4a", "🎪 Random Clicks")
         mouseBtn4.SetFont("s10 cWhite", "Segoe UI")
         mouseBtn4.OnEvent("Click", this.RandomClicks.Bind(this))
         
         ; Keyboard pranks
-        this.gui.Add("Text", "x20 y430 w560 Bold c0x888888", "âŒ¨ï¸ Keyboard Pranks")
+        this.gui.Add("Text", "x20 y430 w560 Bold c0x888888", "⌨️ Keyboard Pranks")
         
-        keyboardBtn1 := this.gui.Add("Button", "x20 y460 w250 h40 Background0x4a4a4a", "ðŸ”„ Swap Keys")
+        keyboardBtn1 := this.gui.Add("Button", "x20 y460 w250 h40 Background0x4a4a4a", "🔄 Swap Keys")
         keyboardBtn1.SetFont("s10 cWhite", "Segoe UI")
         keyboardBtn1.OnEvent("Click", this.SwapKeys.Bind(this))
         
-        keyboardBtn2 := this.gui.Add("Button", "x290 y460 w250 h40 Background0x4a4a4a", "ðŸŽ­ Fake Typing")
+        keyboardBtn2 := this.gui.Add("Button", "x290 y460 w250 h40 Background0x4a4a4a", "🎭 Fake Typing")
         keyboardBtn2.SetFont("s10 cWhite", "Segoe UI")
         keyboardBtn2.OnEvent("Click", this.FakeTyping.Bind(this))
         
         ; Emergency stop
-        stopBtn := this.gui.Add("Button", "x20 y520 w540 h40 Background0xaa0000", "ðŸ›‘ EMERGENCY STOP ALL PRANKS")
+        stopBtn := this.gui.Add("Button", "x20 y520 w540 h40 Background0xaa0000", "🛑 EMERGENCY STOP ALL PRANKS")
         stopBtn.SetFont("s12 cWhite Bold", "Segoe UI")
         stopBtn.OnEvent("Click", this.StopAllPranks.Bind(this))
         
@@ -154,7 +154,7 @@ class ClassicPranks {
             callGui.BackColor := "0x2d2d2d"
             callGui.SetFont("s14 cWhite Bold", "Segoe UI")
             
-            callGui.Add("Text", "x20 y20 w300 Center", "ðŸ“ž Incoming Call")
+            callGui.Add("Text", "x20 y20 w300 Center", "📞 Incoming Call")
             callGui.Add("Text", "x20 y60 w300 Center", "Unknown Number")
             callGui.Add("Text", "x20 y100 w300 Center", "555-0123")
             
@@ -357,12 +357,12 @@ class ClassicPranks {
         ; Main hotkey
         ^!Hotkey("p", (*) => this.CreateGUI()
         
-        ; Emerge)ncy stop
-        Hotkey("F9", (*) => this.StopAllPra)nks()
+        ; Emergency stop
+        Hotkey("F9", (*) => this.StopAllPranksnks()
         
         ; Close with Escape
         Hotkey("Escape", (*) => {
-            if (Wi)nExist("Classic Pranks Collection")) {
+            if (WinExist("Classic Pranks Collection")) {
                 WinClose("Classic Pranks Collection")
             }
         }
@@ -371,6 +371,7 @@ class ClassicPranks {
 
 ; Initialize
 ClassicPranks.Init()
+
 
 
 

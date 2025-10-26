@@ -1,4 +1,4 @@
-﻿; ==============================================================================
+; ==============================================================================
 ; MCP Log Analyzer
 ; @name: MCP Log Analyzer
 ; @version: 1.0.0
@@ -29,18 +29,18 @@ class MCPLogAnalyzer {
         gui.SetFont("s10 cWhite", "Segoe UI")
         
         ; Title
-        gui.Add("Text", "x20 y20 w760 Center Bold", "ðŸ“Š MCP Log Analyzer")
+        gui.Add("Text", "x20 y20 w760 Center Bold", "📊 MCP Log Analyzer")
         gui.Add("Text", "x20 y50 w760 Center c0xcccccc", "Analyze Claude Desktop MCP logs for startup issues and errors")
         
         ; Configuration section
-        gui.Add("Text", "x20 y90 w760 Bold", "âš™ï¸ Configuration")
+        gui.Add("Text", "x20 y90 w760 Bold", "⚙️ Configuration")
         gui.Add("Text", "x20 y115 w150", "Log Directory:")
         gui.Add("Text", "x180 y115 w580 c0xcccccc", this.logDir)
         gui.Add("Text", "x20 y140 w150", "Claude Config:")
         gui.Add("Text", "x180 y140 w580 c0xcccccc", this.claudeConfig)
         
         ; Analysis options
-        gui.Add("Text", "x20 y180 w760 Bold", "ðŸ” Analysis Options")
+        gui.Add("Text", "x20 y180 w760 Bold", "🔍 Analysis Options")
         
         ; Checkboxes for analysis types
         gui.Add("CheckBox", "x20 y210 w200", "Connection Failures").Value := 1
@@ -51,20 +51,20 @@ class MCPLogAnalyzer {
         gui.Add("CheckBox", "x460 y240 w200", "Startup Sequence Errors").Value := 1
         
         ; Analysis buttons
-        gui.Add("Button", "x20 y280 w200 h50", "ðŸ” Analyze Latest Logs").OnEvent("Click", this.AnalyzeLatestLogs.Bind(this))
-        gui.Add("Button", "x240 y280 w200 h50", "ðŸ“ˆ Analyze All Logs").OnEvent("Click", this.AnalyzeAllLogs.Bind(this))
-        gui.Add("Button", "x460 y280 w200 h50", "ðŸ”§ Generate Fixes").OnEvent("Click", this.GenerateFixes.Bind(this))
+        gui.Add("Button", "x20 y280 w200 h50", "🔍 Analyze Latest Logs").OnEvent("Click", this.AnalyzeLatestLogs.Bind(this))
+        gui.Add("Button", "x240 y280 w200 h50", "📈 Analyze All Logs").OnEvent("Click", this.AnalyzeAllLogs.Bind(this))
+        gui.Add("Button", "x460 y280 w200 h50", "🔧 Generate Fixes").OnEvent("Click", this.GenerateFixes.Bind(this))
         
         ; Results section
-        gui.Add("Text", "x20 y350 w760 Bold", "ðŸ“‹ Analysis Results")
+        gui.Add("Text", "x20 y350 w760 Bold", "📋 Analysis Results")
         
         ; Results list
         resultsList := gui.Add("ListBox", "x20 y380 w760 h150")
         
         ; Export buttons
-        gui.Add("Button", "x20 y540 w150 h40", "ðŸ’¾ Export Report").OnEvent("Click", this.ExportReport.Bind(this))
-        gui.Add("Button", "x190 y540 w150 h40", "ðŸ“‹ Copy to Clipboard").OnEvent("Click", this.CopyToClipboard.Bind(this))
-        gui.Add("Button", "x360 y540 w150 h40", "â“ Help").OnEvent("Click", this.ShowHelp.Bind(this))
+        gui.Add("Button", "x20 y540 w150 h40", "💾 Export Report").OnEvent("Click", this.ExportReport.Bind(this))
+        gui.Add("Button", "x190 y540 w150 h40", "📋 Copy to Clipboard").OnEvent("Click", this.CopyToClipboard.Bind(this))
+        gui.Add("Button", "x360 y540 w150 h40", "❓ Help").OnEvent("Click", this.ShowHelp.Bind(this))
         
         ; Status
         gui.Add("Text", "x20 y590 w760 Center c0x888888", "Hotkeys: Ctrl+Alt+L (Analyze) | F10 (Generate Fixes) | Press Analyze to start")
@@ -353,7 +353,7 @@ class MCPLogAnalyzer {
     static DisplayResults() {
         ; This would update the GUI results list
         ; For now, show a summary
-        summary := "ðŸ“Š Analysis Complete!`n`n"
+        summary := "📊 Analysis Complete!`n`n"
         summary .= "Total Issues Found: " . this.analysisResults.Length . "`n`n"
         
         ; Count by severity
@@ -370,18 +370,18 @@ class MCPLogAnalyzer {
         }
         
         summary .= "Severity Breakdown:`n"
-        summary .= "â€¢ High: " . highCount . "`n"
-        summary .= "â€¢ Medium: " . mediumCount . "`n"
-        summary .= "â€¢ Low: " . lowCount . "`n`n"
+        summary .= "• High: " . highCount . "`n"
+        summary .= "• Medium: " . mediumCount . "`n"
+        summary .= "• Low: " . lowCount . "`n`n"
         
         if (this.analysisResults.Length > 0) {
             summary .= "Top Issues:`n"
             for i, result in this.analysisResults {
                 if (i > 5) break
-                summary .= "â€¢ " . result.type . " (" . result.severity . "): " . result.message . "`n"
+                summary .= "• " . result.type . " (" . result.severity . "): " . result.message . "`n"
             }
         } else {
-            summary .= "âœ… No issues detected! Your MCP setup looks healthy."
+            summary .= "✅ No issues detected! Your MCP setup looks healthy."
         }
         
         MsgBox(summary, "MCP Log Analysis Results", "Iconi")
@@ -393,7 +393,7 @@ class MCPLogAnalyzer {
             return
         }
         
-        fixesText := "ðŸ”§ MCP Issue Fixes`n`n"
+        fixesText := "🔧 MCP Issue Fixes`n`n"
         
         for result in this.analysisResults {
             fixesText .= "Issue: " . result.type . "`n"
@@ -403,11 +403,11 @@ class MCPLogAnalyzer {
         }
         
         fixesText .= "General Recommendations:`n"
-        fixesText .= "â€¢ Ensure all Python dependencies are installed`n"
-        fixesText .= "â€¢ Check Claude Desktop configuration syntax`n"
-        fixesText .= "â€¢ Verify MCP server is running and accessible`n"
-        fixesText .= "â€¢ Review server logs for detailed error messages`n"
-        fixesText .= "â€¢ Test MCP server independently before Claude integration"
+        fixesText .= "• Ensure all Python dependencies are installed`n"
+        fixesText .= "• Check Claude Desktop configuration syntax`n"
+        fixesText .= "• Verify MCP server is running and accessible`n"
+        fixesText .= "• Review server logs for detailed error messages`n"
+        fixesText .= "• Test MCP server independently before Claude integration"
         
         MsgBox(fixesText, "MCP Issue Fixes", "Iconi")
     }
@@ -461,35 +461,35 @@ class MCPLogAnalyzer {
     }
     
     static ShowHelp(*) {
-        helpText := "ðŸ“Š MCP Log Analyzer Help`n`n"
+        helpText := "📊 MCP Log Analyzer Help`n`n"
         helpText .= "This tool analyzes Claude Desktop MCP logs to identify:`n`n"
-        helpText .= "ðŸ” Analysis Types:`n"
-        helpText .= "â€¢ Connection Failures: Network and connectivity issues`n"
-        helpText .= "â€¢ Import Errors: Python module and dependency problems`n"
-        helpText .= "â€¢ Tool Registration: MCP tool registration failures`n"
-        helpText .= "â€¢ Config Validation: Configuration file syntax errors`n"
-        helpText .= "â€¢ Performance Issues: Slow responses and timeouts`n"
-        helpText .= "â€¢ Startup Errors: MCP server initialization problems`n`n"
-        helpText .= "ðŸ“‹ Features:`n"
-        helpText .= "â€¢ Analyze Latest Logs: Check most recent log files`n"
-        helpText .= "â€¢ Analyze All Logs: Comprehensive analysis of all logs`n"
-        helpText .= "â€¢ Generate Fixes: Get specific fix recommendations`n"
-        helpText .= "â€¢ Export Report: Save analysis to text file`n"
-        helpText .= "â€¢ Copy to Clipboard: Copy results for sharing`n`n"
+        helpText .= "🔍 Analysis Types:`n"
+        helpText .= "• Connection Failures: Network and connectivity issues`n"
+        helpText .= "• Import Errors: Python module and dependency problems`n"
+        helpText .= "• Tool Registration: MCP tool registration failures`n"
+        helpText .= "• Config Validation: Configuration file syntax errors`n"
+        helpText .= "• Performance Issues: Slow responses and timeouts`n"
+        helpText .= "• Startup Errors: MCP server initialization problems`n`n"
+        helpText .= "📋 Features:`n"
+        helpText .= "• Analyze Latest Logs: Check most recent log files`n"
+        helpText .= "• Analyze All Logs: Comprehensive analysis of all logs`n"
+        helpText .= "• Generate Fixes: Get specific fix recommendations`n"
+        helpText .= "• Export Report: Save analysis to text file`n"
+        helpText .= "• Copy to Clipboard: Copy results for sharing`n`n"
         helpText .= "Hotkeys:`n"
-        helpText .= "â€¢ Ctrl+Alt+L: Analyze latest logs`n"
-        helpText .= "â€¢ F10: Generate fixes`n"
-        helpText .= "â€¢ Escape: Close tool"
+        helpText .= "• Ctrl+Alt+L: Analyze latest logs`n"
+        helpText .= "• F10: Generate fixes`n"
+        helpText .= "• Escape: Close tool"
         
         MsgBox(helpText, "MCP Log Analyzer Help", "Iconi")
     }
     
     static SetupHotkeys(gui) {
-        ^!Hotkey("l", (*) => this.A)nalyzeLatestLogs()
-        Hotkey("F10", (*) => this.Ge)nerateFixes()
+        ^!Hotkey("l", (*) => this.AnalyzeLatestLogs()
+        Hotkey("F10", (*) => this.GenerateFixes()
         
         Hotkey("Escape", (*) => {
-            if (Wi)nExist("MCP Log Analyzer")) {
+            if (WinExist("MCP Log Analyzer")) {
                 WinClose("MCP Log Analyzer")
             }
         }
@@ -497,8 +497,8 @@ class MCPLogAnalyzer {
 }
 
 ; Hotkeys
-^!Hotkey("l", (*) => MCPLogA)nalyzer.Init()
-Hotkey("F10", (*) => MCPLogA)nalyzer.Init()
+^!Hotkey("l", (*) => MCPLogAnalyzer.Init()
+Hotkey("F10", (*) => MCPLogAnalyzer.Init()
 
 ; Initialize
 MCPLogAnalyzer.Init()

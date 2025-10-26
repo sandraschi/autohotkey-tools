@@ -1,4 +1,4 @@
-﻿#Requires AutoHotkey v2.0
+#Requires AutoHotkey v2.0
 #NoEnv
 #SingleInstance Force
 #MaxHotkeysPerInterval 200
@@ -120,12 +120,12 @@ CheckRepoHealth() {
 ; Play a sad march
 ^!Hotkey("s", (*) =>   ; Ctrl+Alt+S for sad march
     PlayTrack(SadMarches)
-    TrayTip, Mood Music, Playi)ng a sad march..., , 1
+    TrayTip, Mood Music, Playing a sad march..., , 1
     SetTimer, RemoveTrayTip, -3000
     return
 
 ; Play a triumphant piece
-^!Hotkey("t", (*) =>   ; Ctrl+Alt+T for triumpha)nt music
+^!Hotkey("t", (*) =>   ; Ctrl+Alt+T for triumphant music
     PlayTrack(TriumphantTracks)
     TrayTip, Mood Music, Playing something triumphant!, , 1
     SetTimer, RemoveTrayTip, -3000
@@ -134,13 +134,13 @@ CheckRepoHealth() {
 ; Play a random Betty Boop cartoon (Plex)
 ^!Hotkey("b", (*) =>   ; Ctrl+Alt+B for Betty Boop
     PlayPlexTrack("Betty Boop")
-    TrayTip, Plex, Playi)ng Betty Boop..., , 1
+    TrayTip, Plex, Playing Betty Boop..., , 1
     SetTimer, RemoveTrayTip, -3000
     return
 
 ; Play a random classical piece
 ^!Hotkey("c", (*) =>   ; Ctrl+Alt+C for classical
-    allClassical := [].Appe)nd(BuildSuccessTracks, BuildFailureTracks, SadMarches, TriumphantTracks)
+    allClassical := [].Append(BuildSuccessTracks, BuildFailureTracks, SadMarches, TriumphantTracks)
     PlayTrack(allClassical)
     TrayTip, Classical Music, Playing a classical piece..., , 1
     SetTimer, RemoveTrayTip, -3000

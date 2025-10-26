@@ -1,4 +1,4 @@
-﻿; ==============================================================================
+; ==============================================================================
 ; Security Guide Pro
 ; @name: Security Guide Pro
 ; @version: 1.0.0
@@ -23,11 +23,11 @@ class SecurityGuide {
     static LoadSecurityData() {
         ; Security Overview
         this.securityData["overview"] := {
-            title: "ðŸš¨ SECURITY WARNING - AutoHotkey Can Do ANYTHING!",
+            title: "🚨 SECURITY WARNING - AutoHotkey Can Do ANYTHING!",
             content: "
-# ðŸš¨ CRITICAL SECURITY WARNING
+# 🚨 CRITICAL SECURITY WARNING
 
-## âš ï¸ AutoHotkey Has UNLIMITED POWER
+## ⚠️ AutoHotkey Has UNLIMITED POWER
 
 **AutoHotkey can literally do ANYTHING on your computer:**
 - **Access ALL files** on your system
@@ -40,7 +40,7 @@ class SecurityGuide {
 - **Install/uninstall** software
 - **Surveil user activity** (keyboard, mouse, screen)
 
-## ðŸ”¥ REAL DANGERS
+## 🔥 REAL DANGERS
 
 ### **Financial Risk**
 - **Banking Apps**: Can automate banking transactions
@@ -62,7 +62,7 @@ class SecurityGuide {
 - **Network Access**: Can connect to external servers
 - **Privilege Escalation**: Can gain admin rights
 
-## ðŸ›¡ï¸ SECURITY PRINCIPLES
+## 🛡️ SECURITY PRINCIPLES
 
 ### **1. TRUST BUT VERIFY**
 - **Never run** scriptlets from untrusted sources
@@ -82,7 +82,7 @@ class SecurityGuide {
 - **Backup and recovery** procedures
 - **Incident response** plans
 
-## ðŸš¨ WHEN USING WITH AI
+## 🚨 WHEN USING WITH AI
 
 ### **EXTREME CAUTION REQUIRED**
 - **AI can generate** malicious AutoHotkey code
@@ -97,7 +97,7 @@ class SecurityGuide {
 - **Monitor AI behavior** closely
 - **Limit AI access** to safe operations only
 
-## ðŸ” WHAT TO WATCH FOR
+## 🔍 WHAT TO WATCH FOR
 
 ### **Red Flags in Scriptlets**
 - **Network requests** to unknown servers
@@ -114,7 +114,7 @@ class SecurityGuide {
 - **Performance degradation** or slowdowns
 - **Antivirus warnings** or detections
 
-## ðŸ› ï¸ SECURITY BEST PRACTICES
+## 🛠️ SECURITY BEST PRACTICES
 
 ### **Before Running Any Scriptlet**
 1. **Read the code** completely
@@ -132,7 +132,7 @@ class SecurityGuide {
 - **Update regularly** for security patches
 - **Use antivirus** and security software
 
-## ðŸš¨ EMERGENCY PROCEDURES
+## 🚨 EMERGENCY PROCEDURES
 
 ### **If Something Goes Wrong**
 1. **Stop all** AutoHotkey processes immediately
@@ -157,44 +157,44 @@ class SecurityGuide {
         this.securityData["limitations"] := {
             title: "AutoHotkey Limitations - What It CAN'T Do",
             content: "
-# ðŸ”’ AutoHotkey Limitations - What It CAN'T Do
+# 🔒 AutoHotkey Limitations - What It CAN'T Do
 
-## ðŸŒ Browser DOM Access Limitations
+## 🌐 Browser DOM Access Limitations
 
-### **âŒ Cannot Read Browser DOM Directly**
+### **❌ Cannot Read Browser DOM Directly**
 - **No direct access** to webpage HTML structure
 - **Cannot manipulate** DOM elements directly
 - **Cannot execute** JavaScript in browser context
 - **Cannot access** browser developer tools
 - **Cannot read** webpage content programmatically
 
-### **ðŸ”„ Workarounds Available**
+### **🔄 Workarounds Available**
 - **Screen scraping** (OCR, image recognition)
 - **Clipboard manipulation** (copy/paste content)
 - **Keyboard automation** (send keys to browser)
 - **Mouse automation** (click, scroll, hover)
 - **Browser extensions** (if supported)
 
-## ðŸŽ­ Comparison with Other Tools
+## 🎭 Comparison with Other Tools
 
 ### **Playwright vs AutoHotkey**
 | Feature | Playwright | AutoHotkey |
 |---------|------------|------------|
-| DOM Access | âœ… Direct | âŒ None |
-| JavaScript Execution | âœ… Yes | âŒ No |
-| Browser Control | âœ… Full | âš ï¸ Limited |
-| Cross-Platform | âœ… Yes | âŒ Windows Only |
-| System Integration | âŒ Limited | âœ… Full |
-| File System Access | âŒ Limited | âœ… Full |
-| Registry Access | âŒ No | âœ… Yes |
-| Process Control | âŒ Limited | âœ… Full |
+| DOM Access | ✅ Direct | ❌ None |
+| JavaScript Execution | ✅ Yes | ❌ No |
+| Browser Control | ✅ Full | ⚠️ Limited |
+| Cross-Platform | ✅ Yes | ❌ Windows Only |
+| System Integration | ❌ Limited | ✅ Full |
+| File System Access | ❌ Limited | ✅ Full |
+| Registry Access | ❌ No | ✅ Yes |
+| Process Control | ❌ Limited | ✅ Full |
 
 ### **When to Use What**
 - **Use Playwright** for web automation and testing
 - **Use AutoHotkey** for system automation and integration
 - **Use both together** for comprehensive automation
 
-## ðŸš« Technical Limitations
+## 🚫 Technical Limitations
 
 ### **Browser-Specific Limitations**
 - **Cannot inject** code into browser processes
@@ -210,7 +210,7 @@ class SecurityGuide {
 - **Cannot access** web APIs directly
 - **Cannot work** with encrypted content
 
-## ðŸ”§ Alternative Approaches
+## 🔧 Alternative Approaches
 
 ### **For Web Automation**
 - **Use Playwright** for DOM manipulation
@@ -226,7 +226,7 @@ class SecurityGuide {
 - **Use batch scripts** for simple tasks
 - **Use specialized tools** for specific domains
 
-## âš ï¸ AI Integration Limitations
+## ⚠️ AI Integration Limitations
 
 ### **When AI Uses AutoHotkey**
 - **AI cannot see** browser content directly
@@ -242,7 +242,7 @@ class SecurityGuide {
 - **AI cannot be trusted** with system access
 - **AI requires human** oversight and verification
 
-## ðŸ›¡ï¸ Security Implications
+## 🛡️ Security Implications
 
 ### **Reduced Attack Surface**
 - **Cannot access** web content directly
@@ -258,7 +258,7 @@ class SecurityGuide {
 - **Can still access** network and internet
 - **Can still modify** system settings
 
-## ðŸŽ¯ Best Practices for AI + AutoHotkey
+## 🎯 Best Practices for AI + AutoHotkey
 
 ### **Safe AI Integration**
 - **Never let AI** write AutoHotkey code directly
@@ -274,7 +274,7 @@ class SecurityGuide {
 - **Combine tools** for comprehensive solutions
 - **Human oversight** at every step
 
-## ðŸ” Detection and Monitoring
+## 🔍 Detection and Monitoring
 
 ### **How to Detect Misuse**
 - **Monitor system** processes and activity
@@ -298,9 +298,9 @@ Understanding these limitations helps you use AutoHotkey safely and effectively!
         this.securityData["bestpractices"] := {
             title: "Security Best Practices - Safe AutoHotkey Usage",
             content: "
-# ðŸ›¡ï¸ Security Best Practices - Safe AutoHotkey Usage
+# 🛡️ Security Best Practices - Safe AutoHotkey Usage
 
-## ðŸ”’ Code Review Guidelines
+## 🔒 Code Review Guidelines
 
 ### **Before Running Any Scriptlet**
 1. **Read the entire** code file
@@ -319,7 +319,7 @@ Understanding these limitations helps you use AutoHotkey safely and effectively!
 - **Excessive permissions** requests
 - **Hidden functionality** or backdoors
 
-## ðŸš¨ Safe Execution Environment
+## 🚨 Safe Execution Environment
 
 ### **Sandboxing Strategies**
 - **Use virtual machines** for testing
@@ -337,7 +337,7 @@ Understanding these limitations helps you use AutoHotkey safely and effectively!
 - **Document all** observed behavior
 - **Report any** suspicious activity
 
-## ðŸ” Permission Management
+## 🔐 Permission Management
 
 ### **Principle of Least Privilege**
 - **Run with minimal** necessary permissions
@@ -353,7 +353,7 @@ Understanding these limitations helps you use AutoHotkey safely and effectively!
 - **Administrator**: Only for system-level changes
 - **System**: Extreme caution required
 
-## ðŸŒ Network Security
+## 🌐 Network Security
 
 ### **Network Access Control**
 - **Block unnecessary** network access
@@ -371,7 +371,7 @@ Understanding these limitations helps you use AutoHotkey safely and effectively!
 - **Secure deletion** of sensitive information
 - **Access logging** and monitoring
 
-## ðŸ” Monitoring and Auditing
+## 🔍 Monitoring and Auditing
 
 ### **System Monitoring**
 - **Monitor process** activity and resource usage
@@ -389,7 +389,7 @@ Understanding these limitations helps you use AutoHotkey safely and effectively!
 - **Forensic capabilities** for investigation
 - **Compliance reporting** as needed
 
-## ðŸš¨ Incident Response
+## 🚨 Incident Response
 
 ### **When Something Goes Wrong**
 1. **Stop all** AutoHotkey processes immediately
@@ -408,7 +408,7 @@ Understanding these limitations helps you use AutoHotkey safely and effectively!
 - **Monitor accounts** for unauthorized activity
 - **Update security** measures and procedures
 
-## ðŸ¤– AI Safety Guidelines
+## 🤖 AI Safety Guidelines
 
 ### **AI + AutoHotkey Safety**
 - **Never let AI** write AutoHotkey code directly
@@ -425,7 +425,7 @@ Understanding these limitations helps you use AutoHotkey safely and effectively!
 - **AI cannot be trusted** with system access
 - **AI requires human** verification and approval
 
-## ðŸ”§ Secure Development
+## 🔧 Secure Development
 
 ### **Secure Coding Practices**
 - **Input validation** and sanitization
@@ -443,7 +443,7 @@ Understanding these limitations helps you use AutoHotkey safely and effectively!
 - **Testing** and validation procedures
 - **Version control** and change management
 
-## ðŸ“š Security Resources
+## 📚 Security Resources
 
 ### **Learning Resources**
 - **OWASP Top 10** for web application security
@@ -461,7 +461,7 @@ Understanding these limitations helps you use AutoHotkey safely and effectively!
 - **System integrity** checking tools
 - **Forensic analysis** utilities
 
-## ðŸŽ¯ Compliance and Standards
+## 🎯 Compliance and Standards
 
 ### **Security Standards**
 - **ISO 27001** for information security management
@@ -487,161 +487,161 @@ Remember: Security is everyone's responsibility!
         this.securityData["emergency"] := {
             title: "Emergency Security Procedures - What to Do When Things Go Wrong",
             content: "
-# ðŸš¨ Emergency Security Procedures
+# 🚨 Emergency Security Procedures
 
-## âš¡ IMMEDIATE RESPONSE (First 5 Minutes)
+## ⚡ IMMEDIATE RESPONSE (First 5 Minutes)
 
-### **ðŸš¨ STOP EVERYTHING**
-1. **Press Ctrl+Alt+Del** â†’ Task Manager
+### **🚨 STOP EVERYTHING**
+1. **Press Ctrl+Alt+Del** → Task Manager
 2. **End all** AutoHotkey processes immediately
 3. **Disconnect from** internet (unplug cable or disable WiFi)
 4. **Take screenshots** of current state
 5. **Document time** and what you were doing
 
-### **ðŸ” ASSESS THE SITUATION**
+### **🔍 ASSESS THE SITUATION**
 - **What scriptlet** was running?
 - **What unexpected** behavior occurred?
 - **Any error messages** or warnings?
 - **System performance** issues?
 - **Network activity** indicators?
 
-## ðŸ›‘ CONTAINMENT (Next 15 Minutes)
+## 🛑 CONTAINMENT (Next 15 Minutes)
 
-### **ðŸ”’ ISOLATE THE SYSTEM**
+### **🔒 ISOLATE THE SYSTEM**
 1. **Disconnect from** all networks
 2. **Stop all** unnecessary processes
 3. **Disable AutoHotkey** completely
 4. **Check system** integrity
 5. **Preserve evidence** (don't delete anything yet)
 
-### **ðŸ“‹ DOCUMENT EVERYTHING**
+### **📋 DOCUMENT EVERYTHING**
 - **Screenshot** all open windows
 - **Note exact time** of incident
 - **Record all** error messages
 - **List all** running processes
 - **Check system** event logs
 
-## ðŸ” INVESTIGATION (Next 30 Minutes)
+## 🔍 INVESTIGATION (Next 30 Minutes)
 
-### **ðŸ”Ž SYSTEM ANALYSIS**
+### **🔎 SYSTEM ANALYSIS**
 1. **Check Windows** Event Viewer for errors
 2. **Review antivirus** logs and alerts
 3. **Examine network** connections
 4. **Check file** system for changes
 5. **Review registry** modifications
 
-### **ðŸ“Š FORENSIC EVIDENCE**
+### **📊 FORENSIC EVIDENCE**
 - **Preserve memory** dumps if possible
 - **Copy log files** to external storage
 - **Document system** state thoroughly
 - **Record network** traffic if available
 - **Save all** relevant files
 
-## ðŸš¨ DAMAGE ASSESSMENT
+## 🚨 DAMAGE ASSESSMENT
 
-### **ðŸ’° FINANCIAL IMPACT**
+### **💰 FINANCIAL IMPACT**
 - **Check banking** accounts for unauthorized transactions
 - **Review credit card** statements
 - **Monitor cryptocurrency** wallets
 - **Check payment** platforms (PayPal, Venmo, etc.)
 - **Review trading** accounts
 
-### **ðŸ” PRIVACY IMPACT**
+### **🔐 PRIVACY IMPACT**
 - **Check for** unauthorized file access
 - **Review email** and message accounts
 - **Monitor social** media accounts
 - **Check cloud** storage services
 - **Review browser** history and saved passwords
 
-### **ðŸ’» SYSTEM IMPACT**
+### **💻 SYSTEM IMPACT**
 - **Check for** unauthorized software installation
 - **Review system** configuration changes
 - **Monitor for** malware or viruses
 - **Check for** unauthorized user accounts
 - **Review network** configuration
 
-## ðŸ› ï¸ RECOVERY PROCEDURES
+## 🛠️ RECOVERY PROCEDURES
 
-### **ðŸ”„ SYSTEM RESTORATION**
+### **🔄 SYSTEM RESTORATION**
 1. **Use System Restore** to previous clean state
 2. **Restore files** from backup if needed
 3. **Reinstall** affected applications
 4. **Update security** software
 5. **Scan system** with multiple antivirus tools
 
-### **ðŸ” SECURITY HARDENING**
+### **🔐 SECURITY HARDENING**
 1. **Change all** passwords immediately
 2. **Enable two-factor** authentication everywhere
 3. **Update all** software and security patches
 4. **Review and tighten** security settings
 5. **Install additional** security software
 
-## ðŸ“ž REPORTING AND COMMUNICATION
+## 📞 REPORTING AND COMMUNICATION
 
-### **ðŸš¨ IMMEDIATE NOTIFICATIONS**
+### **🚨 IMMEDIATE NOTIFICATIONS**
 - **Notify IT** security team immediately
 - **Contact law** enforcement if financial loss
 - **Inform relevant** service providers
 - **Notify insurance** company if applicable
 - **Alert family** or colleagues if needed
 
-### **ðŸ“‹ INCIDENT REPORTING**
+### **📋 INCIDENT REPORTING**
 - **Document everything** thoroughly
 - **Create timeline** of events
 - **Preserve all** evidence
 - **Prepare detailed** incident report
 - **Follow organizational** procedures
 
-## ðŸ”’ PREVENTION MEASURES
+## 🔒 PREVENTION MEASURES
 
-### **ðŸ›¡ï¸ IMMEDIATE ACTIONS**
+### **🛡️ IMMEDIATE ACTIONS**
 1. **Disable AutoHotkey** until investigation complete
 2. **Review all** scriptlets for security issues
 3. **Implement stricter** security controls
 4. **Update security** policies and procedures
 5. **Provide additional** training to users
 
-### **ðŸ”§ LONG-TERM IMPROVEMENTS**
+### **🔧 LONG-TERM IMPROVEMENTS**
 - **Implement** security monitoring
 - **Regular security** assessments
 - **Enhanced backup** and recovery procedures
 - **Improved incident** response capabilities
 - **Better security** awareness training
 
-## ðŸ“š LEGAL CONSIDERATIONS
+## 📚 LEGAL CONSIDERATIONS
 
-### **âš–ï¸ LEGAL OBLIGATIONS**
+### **⚖️ LEGAL OBLIGATIONS**
 - **Report breaches** as required by law
 - **Preserve evidence** for legal proceedings
 - **Notify affected** parties if required
 - **Comply with** regulatory requirements
 - **Document everything** for legal purposes
 
-### **ðŸ” INVESTIGATION SUPPORT**
+### **🔍 INVESTIGATION SUPPORT**
 - **Cooperate with** law enforcement
 - **Provide evidence** as requested
 - **Maintain chain** of custody
 - **Follow legal** advice and procedures
 - **Protect privacy** rights of individuals
 
-## ðŸ†˜ EMERGENCY CONTACTS
+## 🆘 EMERGENCY CONTACTS
 
-### **ðŸ“ž KEY CONTACTS**
+### **📞 KEY CONTACTS**
 - **IT Security Team**: [Your IT Security Contact]
 - **Law Enforcement**: 911 (for emergencies)
 - **Banking Fraud**: [Your Bank's Fraud Department]
 - **Cybersecurity Insurance**: [Your Insurance Provider]
 - **Legal Counsel**: [Your Legal Contact]
 
-### **ðŸŒ HELPFUL RESOURCES**
+### **🌐 HELPFUL RESOURCES**
 - **CISA (Cybersecurity & Infrastructure Security Agency)**: https://www.cisa.gov/
 - **FBI Internet Crime Complaint Center**: https://www.ic3.gov/
 - **National Cyber Security Alliance**: https://staysafeonline.org/
 - **Microsoft Security Response Center**: https://msrc.microsoft.com/
 
-## â° TIMELINE TEMPLATE
+## ⏰ TIMELINE TEMPLATE
 
-### **ðŸ“… INCIDENT TIMELINE**
+### **📅 INCIDENT TIMELINE**
 - **T+0**: Incident detected
 - **T+5**: Immediate response initiated
 - **T+15**: Containment procedures completed
@@ -651,16 +651,16 @@ Remember: Security is everyone's responsibility!
 - **T+240**: System restored and secured
 - **T+480**: Incident report completed
 
-## ðŸŽ¯ LESSONS LEARNED
+## 🎯 LESSONS LEARNED
 
-### **ðŸ“ POST-INCIDENT REVIEW**
+### **📝 POST-INCIDENT REVIEW**
 - **What went wrong** and why?
 - **How could this** have been prevented?
 - **What worked well** in the response?
 - **What needs** improvement?
 - **How to prevent** similar incidents?
 
-### **ðŸ”„ PROCESS IMPROVEMENT**
+### **🔄 PROCESS IMPROVEMENT**
 - **Update security** procedures
 - **Improve monitoring** and detection
 - **Enhance training** and awareness
@@ -675,137 +675,137 @@ Remember: Security is everyone's responsibility!
         this.securityData["aisafety"] := {
             title: "AI Safety with AutoHotkey - Critical Warnings",
             content: "
-# ðŸ¤– AI Safety with AutoHotkey - CRITICAL WARNINGS
+# 🤖 AI Safety with AutoHotkey - CRITICAL WARNINGS
 
-## ðŸš¨ EXTREME DANGER - AI + AutoHotkey
+## 🚨 EXTREME DANGER - AI + AutoHotkey
 
-### **âš ï¸ AI CANNOT BE TRUSTED WITH SYSTEM ACCESS**
+### **⚠️ AI CANNOT BE TRUSTED WITH SYSTEM ACCESS**
 - **AI doesn't understand** real-world consequences
 - **AI may generate** malicious or dangerous code
 - **AI cannot see** the full system context
 - **AI may suggest** operations that seem safe but aren't
 - **AI has no moral** or ethical constraints
 
-### **ðŸ”¥ REAL DANGERS WITH AI**
+### **🔥 REAL DANGERS WITH AI**
 - **AI could generate** code that steals your data
 - **AI might create** scripts that damage your system
 - **AI could suggest** operations that compromise security
 - **AI may not understand** the difference between safe and dangerous
 - **AI cannot be held** responsible for its actions
 
-## ðŸš« WHAT AI CANNOT DO SAFELY
+## 🚫 WHAT AI CANNOT DO SAFELY
 
-### **âŒ Browser DOM Manipulation**
+### **❌ Browser DOM Manipulation**
 - **AI cannot read** webpage content directly
 - **AI cannot interact** with web forms intelligently
 - **AI cannot understand** web page context
 - **AI cannot handle** dynamic web content
 - **AI cannot see** what's actually on the screen
 
-### **âŒ Financial Operations**
+### **❌ Financial Operations**
 - **AI cannot safely** access banking applications
 - **AI cannot handle** cryptocurrency transactions
 - **AI cannot manage** payment systems
 - **AI cannot be trusted** with financial data
 - **AI cannot understand** financial consequences
 
-### **âŒ System Administration**
+### **❌ System Administration**
 - **AI cannot safely** modify system settings
 - **AI cannot handle** registry changes
 - **AI cannot manage** user accounts
 - **AI cannot install** or uninstall software
 - **AI cannot be trusted** with admin privileges
 
-## ðŸ›¡ï¸ AI SAFETY GUIDELINES
+## 🛡️ AI SAFETY GUIDELINES
 
-### **ðŸ”’ NEVER DO THESE WITH AI**
+### **🔒 NEVER DO THESE WITH AI**
 - **Never let AI** write AutoHotkey code directly
 - **Never give AI** system administration access
 - **Never let AI** access financial applications
 - **Never trust AI** with sensitive data
 - **Never let AI** run code without human review
 
-### **âœ… SAFE AI USAGE**
+### **✅ SAFE AI USAGE**
 - **Use AI for** planning and strategy only
 - **Use AI for** learning and education
 - **Use AI for** code review and suggestions
 - **Use AI for** documentation and help
 - **Always verify** AI suggestions manually
 
-## ðŸ” AI LIMITATIONS WITH AUTOHOTKEY
+## 🔍 AI LIMITATIONS WITH AUTOHOTKEY
 
-### **ðŸŒ Web Automation Limitations**
+### **🌐 Web Automation Limitations**
 - **AI cannot see** browser content
 - **AI cannot read** webpage text
 - **AI cannot understand** web page structure
 - **AI cannot interact** with complex web apps
 - **AI cannot handle** modern web frameworks
 
-### **ðŸ’» System Integration Limitations**
+### **💻 System Integration Limitations**
 - **AI cannot see** application interfaces
 - **AI cannot understand** system context
 - **AI cannot predict** system behavior
 - **AI cannot handle** error conditions
 - **AI cannot adapt** to system changes
 
-## ðŸš¨ RED FLAGS WITH AI SUGGESTIONS
+## 🚨 RED FLAGS WITH AI SUGGESTIONS
 
-### **ðŸ”´ DANGEROUS AI SUGGESTIONS**
+### **🔴 DANGEROUS AI SUGGESTIONS**
 - **Code that accesses** network or internet
 - **Scripts that modify** system files
 - **Operations that require** admin privileges
 - **Code that accesses** financial applications
 - **Scripts that hide** their functionality
 
-### **ðŸŸ¡ QUESTIONABLE AI SUGGESTIONS**
+### **🟡 QUESTIONABLE AI SUGGESTIONS**
 - **Code that's hard** to understand
 - **Scripts with** excessive permissions
 - **Operations that** seem unnecessary
 - **Code that doesn't** explain its purpose
 - **Scripts that** modify user data
 
-## ðŸ› ï¸ SAFE AI INTEGRATION APPROACHES
+## 🛠️ SAFE AI INTEGRATION APPROACHES
 
-### **ðŸ“š EDUCATION AND LEARNING**
+### **📚 EDUCATION AND LEARNING**
 - **Use AI to learn** AutoHotkey concepts
 - **Use AI for** code examples and tutorials
 - **Use AI to understand** best practices
 - **Use AI for** troubleshooting guidance
 - **Always verify** AI information
 
-### **ðŸ” CODE REVIEW AND ANALYSIS**
+### **🔍 CODE REVIEW AND ANALYSIS**
 - **Use AI to review** existing code
 - **Use AI to suggest** improvements
 - **Use AI to identify** potential issues
 - **Use AI to explain** complex code
 - **Always validate** AI analysis
 
-### **ðŸ“– DOCUMENTATION AND HELP**
+### **📖 DOCUMENTATION AND HELP**
 - **Use AI to create** documentation
 - **Use AI to generate** help content
 - **Use AI to explain** concepts
 - **Use AI to create** tutorials
 - **Always review** AI content
 
-## ðŸ”’ SECURITY MEASURES FOR AI
+## 🔒 SECURITY MEASURES FOR AI
 
-### **ðŸ›¡ï¸ ISOLATION AND SANDBOXING**
+### **🛡️ ISOLATION AND SANDBOXING**
 - **Test AI suggestions** in isolated environment
 - **Use virtual machines** for AI testing
 - **Disable network** access during AI testing
 - **Monitor AI behavior** closely
 - **Never run AI code** on production systems
 
-### **ðŸ‘¥ HUMAN OVERSIGHT**
+### **👥 HUMAN OVERSIGHT**
 - **Always have human** review AI suggestions
 - **Require human** approval for AI operations
 - **Monitor AI** behavior and output
 - **Train humans** to recognize AI risks
 - **Maintain human** control over AI systems
 
-## ðŸŽ¯ BEST PRACTICES FOR AI + AUTOHOTKEY
+## 🎯 BEST PRACTICES FOR AI + AUTOHOTKEY
 
-### **âœ… SAFE WORKFLOW**
+### **✅ SAFE WORKFLOW**
 1. **AI suggests** approach or strategy
 2. **Human reviews** and validates suggestion
 3. **Human writes** or modifies code
@@ -813,7 +813,7 @@ Remember: Security is everyone's responsibility!
 5. **Human monitors** execution
 6. **Human maintains** control throughout
 
-### **âŒ DANGEROUS WORKFLOW**
+### **❌ DANGEROUS WORKFLOW**
 1. **AI generates** AutoHotkey code
 2. **Human runs** AI code directly
 3. **No human** review or validation
@@ -821,41 +821,41 @@ Remember: Security is everyone's responsibility!
 5. **No monitoring** of AI behavior
 6. **AI has** uncontrolled access
 
-## ðŸš¨ EMERGENCY PROCEDURES FOR AI INCIDENTS
+## 🚨 EMERGENCY PROCEDURES FOR AI INCIDENTS
 
-### **âš¡ IMMEDIATE RESPONSE**
+### **⚡ IMMEDIATE RESPONSE**
 1. **Stop all** AI-generated processes
 2. **Disconnect from** internet
 3. **Review what** AI actually did
 4. **Check system** for damage
 5. **Document everything** thoroughly
 
-### **ðŸ” INVESTIGATION**
+### **🔍 INVESTIGATION**
 - **Review AI** conversation logs
 - **Check system** for unauthorized changes
 - **Monitor network** for data exfiltration
 - **Verify system** integrity
 - **Report incident** to security team
 
-## ðŸ“š AI SAFETY RESOURCES
+## 📚 AI SAFETY RESOURCES
 
-### **ðŸŽ“ LEARNING RESOURCES**
+### **🎓 LEARNING RESOURCES**
 - **AI Safety** research papers
 - **Machine Learning** security guidelines
 - **AI Ethics** frameworks
 - **Responsible AI** development practices
 - **AI Risk** assessment methodologies
 
-### **ðŸ› ï¸ SAFETY TOOLS**
+### **🛠️ SAFETY TOOLS**
 - **AI monitoring** and logging tools
 - **Sandboxing** and isolation software
 - **Code analysis** and review tools
 - **Security scanning** utilities
 - **Incident response** procedures
 
-## ðŸŽ¯ CONCLUSION
+## 🎯 CONCLUSION
 
-### **ðŸš¨ KEY MESSAGE**
+### **🚨 KEY MESSAGE**
 **AI + AutoHotkey = EXTREME DANGER**
 
 - **Never trust AI** with system access
@@ -864,7 +864,7 @@ Remember: Security is everyone's responsibility!
 - **Always test** in safe environments
 - **Always monitor** AI behavior
 
-### **ðŸ›¡ï¸ SAFETY FIRST**
+### **🛡️ SAFETY FIRST**
 - **Human oversight** is essential
 - **Security measures** are critical
 - **Risk assessment** is mandatory
@@ -881,7 +881,7 @@ Remember: Security is everyone's responsibility!
         
         ; Warning header
         warningPanel := this.gui.Add("Text", "w900 h60 BackgroundRed")
-        this.gui.Add("Text", "x10 y10 w880 h40 Center cWhite", "ðŸš¨ SECURITY WARNING - AutoHotkey Can Do ANYTHING! ðŸš¨")
+        this.gui.Add("Text", "x10 y10 w880 h40 Center cWhite", "🚨 SECURITY WARNING - AutoHotkey Can Do ANYTHING! 🚨")
         this.gui.Add("Text", "x10 y30 w880 h20 Center cWhite", "Handle with EXTREME CARE - Financial, Privacy, and System Risks")
         
         ; Menu bar
@@ -898,11 +898,11 @@ Remember: Security is everyone's responsibility!
         toolbar := this.gui.Add("Text", "w900 h50 Background0xF0F0F0")
         
         ; Navigation buttons
-        overviewBtn := this.gui.Add("Button", "x10 y10 w100 h30", "ðŸš¨ Overview")
-        limitationsBtn := this.gui.Add("Button", "x120 y10 w100 h30", "ðŸ”’ Limitations")
-        practicesBtn := this.gui.Add("Button", "x230 y10 w120 h30", "ðŸ›¡ï¸ Best Practices")
-        emergencyBtn := this.gui.Add("Button", "x360 y10 w120 h30", "ðŸš¨ Emergency")
-        aiBtn := this.gui.Add("Button", "x490 y10 w100 h30", "ðŸ¤– AI Safety")
+        overviewBtn := this.gui.Add("Button", "x10 y10 w100 h30", "🚨 Overview")
+        limitationsBtn := this.gui.Add("Button", "x120 y10 w100 h30", "🔒 Limitations")
+        practicesBtn := this.gui.Add("Button", "x230 y10 w120 h30", "🛡️ Best Practices")
+        emergencyBtn := this.gui.Add("Button", "x360 y10 w120 h30", "🚨 Emergency")
+        aiBtn := this.gui.Add("Button", "x490 y10 w100 h30", "🤖 AI Safety")
         
         overviewBtn.OnEvent("Click", this.ShowTopic.Bind(this, "overview"))
         limitationsBtn.OnEvent("Click", this.ShowTopic.Bind(this, "limitations"))
@@ -934,8 +934,8 @@ Remember: Security is everyone's responsibility!
 }
 
 ; Hotkeys
-^!Hotkey("s", (*) => SecurityGuide.I)nit()
-Hotkey("F2", (*) => SecurityGuide.I)nit()
+^!Hotkey("s", (*) => SecurityGuide.Init()
+Hotkey("F2", (*) => SecurityGuide.Init()
 
 ; Initialize
 SecurityGuide.Init()

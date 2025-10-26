@@ -1,4 +1,4 @@
-﻿; ==============================================================================
+; ==============================================================================
 ; Real-time System Monitor Pro
 ; @name: Real-time System Monitor Pro
 ; @version: 1.0.0
@@ -34,55 +34,55 @@ class SystemMonitorPro {
         this.gui.SetFont("s10 cWhite", "Segoe UI")
         
         ; Title
-        this.gui.Add("Text", "x20 y20 w960 Center Bold", "ðŸ“Š Real-time System Monitor Pro")
+        this.gui.Add("Text", "x20 y20 w960 Center Bold", "📊 Real-time System Monitor Pro")
         this.gui.Add("Text", "x20 y50 w960 Center c0xcccccc", "Advanced system monitoring with alerts and analytics")
         
         ; Control panel
-        this.gui.Add("Text", "x20 y90 w960 Bold", "ðŸŽ›ï¸ Control Panel")
+        this.gui.Add("Text", "x20 y90 w960 Bold", "🎛️ Control Panel")
         
-        startBtn := this.gui.Add("Button", "x20 y120 w150 h40 Background0x4a4a4a", "â–¶ï¸ Start Monitor")
+        startBtn := this.gui.Add("Button", "x20 y120 w150 h40 Background0x4a4a4a", "▶️ Start Monitor")
         startBtn.SetFont("s10 cWhite", "Segoe UI")
         startBtn.OnEvent("Click", this.StartMonitoring.Bind(this))
         
-        stopBtn := this.gui.Add("Button", "x190 y120 w150 h40 Background0x4a4a4a", "â¹ï¸ Stop Monitor")
+        stopBtn := this.gui.Add("Button", "x190 y120 w150 h40 Background0x4a4a4a", "⏹️ Stop Monitor")
         stopBtn.SetFont("s10 cWhite", "Segoe UI")
         stopBtn.OnEvent("Click", this.StopMonitoring.Bind(this))
         
-        alertBtn := this.gui.Add("Button", "x360 y120 w150 h40 Background0x4a4a4a", "ðŸš¨ Alerts")
+        alertBtn := this.gui.Add("Button", "x360 y120 w150 h40 Background0x4a4a4a", "🚨 Alerts")
         alertBtn.SetFont("s10 cWhite", "Segoe UI")
         alertBtn.OnEvent("Click", this.ShowAlerts.Bind(this))
         
-        exportBtn := this.gui.Add("Button", "x530 y120 w150 h40 Background0x4a4a4a", "ðŸ“Š Export Data")
+        exportBtn := this.gui.Add("Button", "x530 y120 w150 h40 Background0x4a4a4a", "📊 Export Data")
         exportBtn.SetFont("s10 cWhite", "Segoe UI")
         exportBtn.OnEvent("Click", this.ExportData.Bind(this))
         
         ; System metrics
-        this.gui.Add("Text", "x20 y180 w960 Bold", "ðŸ“ˆ System Metrics")
+        this.gui.Add("Text", "x20 y180 w960 Bold", "📈 System Metrics")
         
         ; CPU section
-        this.gui.Add("Text", "x20 y210 w300 Bold c0x888888", "ðŸ–¥ï¸ CPU Usage")
+        this.gui.Add("Text", "x20 y210 w300 Bold c0x888888", "🖥️ CPU Usage")
         this.cpuChart := this.gui.Add("Text", "x20 y240 w300 h100 Background0x2d2d2d Border", "")
         this.cpuChart.SetFont("s8 cWhite", "Courier New")
         
         ; Memory section
-        this.gui.Add("Text", "x340 y210 w300 Bold c0x888888", "ðŸ’¾ Memory Usage")
+        this.gui.Add("Text", "x340 y210 w300 Bold c0x888888", "💾 Memory Usage")
         this.memoryChart := this.gui.Add("Text", "x340 y240 w300 h100 Background0x2d2d2d Border", "")
         this.memoryChart.SetFont("s8 cWhite", "Courier New")
         
         ; Network section
-        this.gui.Add("Text", "x660 y210 w300 Bold c0x888888", "ðŸŒ Network Activity")
+        this.gui.Add("Text", "x660 y210 w300 Bold c0x888888", "🌐 Network Activity")
         this.networkChart := this.gui.Add("Text", "x660 y240 w300 h100 Background0x2d2d2d Border", "")
         this.networkChart.SetFont("s8 cWhite", "Courier New")
         
         ; Process list
-        this.gui.Add("Text", "x20 y360 w960 Bold", "ðŸ”„ Top Processes")
+        this.gui.Add("Text", "x20 y360 w960 Bold", "🔄 Top Processes")
         
         this.processList := this.gui.Add("ListBox", "x20 y390 w960 h200")
         this.processList.SetFont("s9 cWhite", "Courier New")
         this.processList.BackColor := "0x2d2d2d"
         
         ; Status bar
-        this.gui.Add("Text", "x20 y610 w960 Center c0x888888", "Press Ctrl+Alt+M to open â€¢ F10 for alerts â€¢ Escape to close")
+        this.gui.Add("Text", "x20 y610 w960 Center c0x888888", "Press Ctrl+Alt+M to open • F10 for alerts • Escape to close")
         
         this.gui.Show("w1000 h650")
     }
@@ -187,11 +187,11 @@ class SystemMonitorPro {
         if (this.history.Length > 1) {
             prevUsage := this.history[this.history.Length - 1].cpu
             if (usage > prevUsage) {
-                chart .= "â†—ï¸ Increasing"
+                chart .= "↗️ Increasing"
             } else if (usage < prevUsage) {
-                chart .= "â†˜ï¸ Decreasing"
+                chart .= "↘️ Decreasing"
             } else {
-                chart .= "â†’ Stable"
+                chart .= "→ Stable"
             }
         }
         
@@ -251,10 +251,10 @@ class SystemMonitorPro {
         bar := ""
         
         Loop filled {
-            bar .= "â–ˆ"
+            bar .= "█"
         }
         Loop (maxLength - filled) {
-            bar .= "â–‘"
+            bar .= "░"
         }
         
         return bar
@@ -293,9 +293,9 @@ class SystemMonitorPro {
         
         ; Show notification
         if (type = "critical") {
-            TrayTip("ðŸš¨ " . title, message, 5)
+            TrayTip("🚨 " . title, message, 5)
         } else {
-            TrayTip("âš ï¸ " . title, message, 3)
+            TrayTip("⚠️ " . title, message, 3)
         }
     }
     
@@ -321,7 +321,7 @@ class SystemMonitorPro {
             alertGui.BackColor := "0x2d2d2d"
             alertGui.SetFont("s10 cWhite", "Segoe UI")
             
-            alertGui.Add("Text", "x20 y20 w400 Center Bold", "ðŸš¨ System Alerts")
+            alertGui.Add("Text", "x20 y20 w400 Center Bold", "🚨 System Alerts")
             
             if (this.alerts.Length = 0) {
                 alertGui.Add("Text", "x20 y60 w400 Center", "No alerts at this time")
@@ -378,7 +378,7 @@ class SystemMonitorPro {
         
         ; Close with Escape
         Escape::{
-            if (Wi)nExist("System Monitor Pro")) {
+            if (WinExist("System Monitor Pro")) {
                 WinClose("System Monitor Pro")
             }
         }
@@ -387,6 +387,7 @@ class SystemMonitorPro {
 
 ; Initialize
 SystemMonitorPro.Init()
+
 
 
 

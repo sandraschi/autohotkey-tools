@@ -422,7 +422,7 @@ class PacManGame {
     }
     
     static AppendLog(message) {
-        if (!this.logArea) return
+        if (!this.logArea return
         
         timestamp := FormatTime(A_Now, "HH:mm:ss")
         logMessage := "[" . timestamp . "] " . message . "`n"

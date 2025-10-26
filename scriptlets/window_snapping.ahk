@@ -5,7 +5,7 @@ SendMode Input
 SetWorkingDir %A_ScriptDir%
 
 ; Snap to Left Half
-#Hotkey("Left", (*) =>   ; Wi)n+Left
+#Hotkey("Left", (*) => {  ; Win+Left
     WinGet, active_id, ID, A
     WinRestore, ahk_id %active_id%
     WinGetPos, X, Y, Width, Height, ahk_id %active_id%
@@ -13,7 +13,7 @@ SetWorkingDir %A_ScriptDir%
 return
 
 ; Snap to Right Half
-#Hotkey("Right", (*) =>   ; Wi)n+Right
+#Hotkey("Right", (*) => {  ; Win+Right
     WinGet, active_id, ID, A
     WinRestore, ahk_id %active_id%
     WinGetPos, X, Y, Width, Height, ahk_id %active_id%
@@ -21,7 +21,7 @@ return
 return
 
 ; Snap to Top Half
-#Hotkey("Up", (*) =>   ; Wi)n+Up
+#Hotkey("Up", (*) => {  ; Win+Up
     WinGet, active_id, ID, A
     WinRestore, ahk_id %active_id%
     WinGetPos, X, Y, Width, Height, ahk_id %active_id%
@@ -29,7 +29,7 @@ return
 return
 
 ; Snap to Bottom Half
-#Hotkey("Down", (*) =>   ; Wi)n+Down
+#Hotkey("Down", (*) => {  ; Win+Down
     WinGet, active_id, ID, A
     WinRestore, ahk_id %active_id%
     WinGetPos, X, Y, Width, Height, ahk_id %active_id%
