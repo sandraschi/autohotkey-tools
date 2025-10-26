@@ -205,7 +205,7 @@ class MCPConfigManager {
             
             ; List available backups
             backups := []
-            Loop Files, this.backupDir . "\*.json" {
+            Loop Files this.backupDir . "\*.json" {
                 backups.Push(A_LoopFilePath)
             }
             

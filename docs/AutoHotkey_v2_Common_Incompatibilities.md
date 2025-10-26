@@ -173,6 +173,43 @@ if (result.Result != "OK" || result.Value = "") return
 name := result.Value
 ```
 
+## Loop Files Syntax
+
+### Issue 5: Loop Files Comma
+
+**Incorrect Pattern (v1):**
+```autohotkey
+Loop Files, "*.ahk" {
+    ; code
+}
+```
+
+**Correct Pattern (v2):**
+```autohotkey
+Loop Files "*.ahk" {
+    ; code
+}
+```
+
+**Why:** AutoHotkey v2 removed the comma separator from Loop Files syntax.
+
+**Change:**
+- v1: `Loop Files, Pattern [, Mode]`
+- v2: `Loop Files Pattern [, Mode]`
+
+**Example:**
+```autohotkey
+; v1 (wrong)
+Loop Files, A_ScriptDir . "\*.json" {
+    files.Push(A_LoopFilePath)
+}
+
+; v2 (correct)
+Loop Files A_ScriptDir . "\*.json" {
+    files.Push(A_LoopFilePath)
+}
+```
+
 ## Notes
 
 - All issues were found in actual debugging sessions

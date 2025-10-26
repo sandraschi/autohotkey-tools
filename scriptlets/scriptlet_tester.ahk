@@ -44,7 +44,7 @@ class ScriptletTester {
         }
         
         results := []
-        Loop Files, scriptletsDir . "\*.ahk" {
+        Loop Files scriptletsDir . "\*.ahk" {
             scriptPath := A_LoopFilePath
             scriptName := A_LoopFileName
             
@@ -104,5 +104,6 @@ Hotkey("^!t", (*) => ScriptletTester.TestAllScriptlets()
 
 ; Test specific scriptlet (you can change this)
 ; ScriptletTester.TestScriptlet(A_ScriptDir . "\scriptlets\system_monitor.ahk")
+
 
 

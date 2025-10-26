@@ -109,6 +109,14 @@ for i, line in lines {
     }
 }
 
+; Check 5e: Loop Files v1 syntax (detect comma after Files)
+for i, line in lines {
+    if (RegExMatch(line, "Loop Files,")) {
+        AddIssue("Incorrect Loop Files syntax - remove comma after 'Files' - use 'Loop Files Pattern' not 'Loop Files, Pattern'", "Error", i)
+        hasErrors := true
+    }
+}
+
 ; Check 6: String functions (v1 to v2 migration)
 for i, line in lines {
     if (RegExMatch(line, "StringReplace\s*\(")) {

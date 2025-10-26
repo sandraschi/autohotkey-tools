@@ -460,7 +460,7 @@ class MCPTroubleshooter {
             
             for pattern in patterns {
                 try {
-                    Loop Files, tempDir . "\" . pattern {
+                    Loop Files tempDir . "\" . pattern {
                         try FileDelete(A_LoopFileFullPath)
                         results .= "Deleted: " . A_LoopFileName . "`n"
                     }
@@ -585,5 +585,6 @@ Hotkey("F11", (*) => MCPTroubleshooter.Init()
 
 ; Initialize
 MCPTroubleshooter.Init()
+
 
 

@@ -141,7 +141,7 @@ class MCPLogAnalyzer {
         
         try {
             ; Look for MCP-related log files
-            Loop Files, this.logDir . "*.log" {
+            Loop Files this.logDir . "*.log" {
                 if (InStr(A_LoopFileName, "mcp") || InStr(A_LoopFileName, "server")) {
                     logFiles.Push(A_LoopFileFullPath)
                 }
@@ -157,7 +157,7 @@ class MCPLogAnalyzer {
             
         } catch {
             ; Fallback: look for any .log files
-            Loop Files, this.logDir . "*.log" {
+            Loop Files this.logDir . "*.log" {
                 logFiles.Push(A_LoopFileFullPath)
             }
         }
@@ -169,7 +169,7 @@ class MCPLogAnalyzer {
         logFiles := []
         
         try {
-            Loop Files, this.logDir . "*.log" {
+            Loop Files this.logDir . "*.log" {
                 logFiles.Push(A_LoopFileFullPath)
             }
         } catch {
