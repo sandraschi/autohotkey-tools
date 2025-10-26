@@ -484,15 +484,16 @@ class MCPLogAnalyzer {
         MsgBox(helpText, "MCP Log Analyzer Help", "Iconi")
     }
     
+    static CloseGUI(*) {
+        if (WinExist("MCP Log Analyzer")) {
+            WinClose("MCP Log Analyzer")
+        }
+    }
+    
     static SetupHotkeys(gui) {
         Hotkey("^!l", (*) => this.AnalyzeLatestLogs())
         Hotkey("F10", (*) => this.GenerateFixes())
-        
-        Hotkey("Escape", (*) => {
-            if (WinExist("MCP Log Analyzer")) {
-                WinClose("MCP Log Analyzer")
-            }
-        })
+        Hotkey("Escape", (*) => this.CloseGUI())
     }
 }
 
