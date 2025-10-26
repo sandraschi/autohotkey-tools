@@ -1,4 +1,4 @@
-#NoEnv
+﻿#NoEnv
 #SingleInstance Force
 #MaxHotkeysPerInterval 200
 SendMode Input
@@ -6,9 +6,9 @@ SetWorkingDir %A_ScriptDir%
 
 ; Snake Game
 ^!s::  ; Ctrl+Alt+S to start Snake
-    Gui, Snake:New, +AlwaysOnTop -Caption +ToolWindow
-    Gui, Color, 000000
-    Gui, Font, s12 cLime, Consolas
+    Gui( Snake:New, +AlwaysOnTop -Caption +ToolWindow
+    Gui( Color, 000000
+    Gui( Font, s12 cLime, Consolas
     
     ; Game variables
     gridSize := 20
@@ -19,19 +19,19 @@ SetWorkingDir %A_ScriptDir%
     direction := "right"
     
     ; Initialize snake
-    Loop, %snakeLength% {
+    Loop  %snakeLength% {
         snake.Insert({x: A_Index, y: 1})
     }
     
     ; Place first food
-    Random, foodX, 1, %gridWidth%
-    Random, foodY, 1, %gridHeight%
+    Random( foodX, 1, %gridWidth%
+    Random( foodY, 1, %gridHeight%
     
     ; Game loop
-    SetTimer, SnakeGameLoop, 150
+    SetTimer, SnakeGameLoop  150
     
     ; Show game window
-    Gui, Show, w600 h400, Snake Game
+    Gui( Show, w600 h400, Snake Game
     return
 
 SnakeGameLoop:
@@ -57,8 +57,8 @@ SnakeGameLoop:
     ; Check if food eaten
     if (headX = foodX && headY = foodY) {
         snakeLength++
-        Random, foodX, 1, %gridWidth%
-        Random, foodY, 1, %gridHeight%
+        Random( foodX, 1, %gridWidth%
+        Random( foodY, 1, %gridHeight%
     } else {
         snake.Pop()
     }
@@ -75,10 +75,10 @@ DrawSnakeGame() {
     
     ; Create game grid
     grid := ""
-    Loop, %gridHeight% {
+    Loop  %gridHeight% {
         y := A_Index
         row := ""
-        Loop, %gridWidth% {
+        Loop  %gridWidth% {
             x := A_Index
             cell := " "
             
@@ -131,7 +131,7 @@ JiggleMouse:
 
 ; Prank: Fake Error Message
 ^!e::  ; Ctrl+Alt+E for fake error
-    MsgBox, 16, Critical Error, Windows has encountered a critical error!`nError Code: 0x80070002`n`nYour computer will now explode in 10 seconds..., 10
+    MsgBox( Critical Error, Windows has encountered a critical error!`nError Code: 0x80070002`n`nYour computer will now explode in 10 seconds..., 10
     return
 
 ; Prank: Flip Screen

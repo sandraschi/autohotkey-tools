@@ -1,0 +1,9 @@
+MsgBox,
+Gui,
+Loop,
+Random,
+SetTimer,
+StringReplace,
+StringSplit,
+StringLen,
+^[a-zA-Z]+::

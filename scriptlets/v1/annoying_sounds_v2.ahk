@@ -1,4 +1,4 @@
-#Requires AutoHotkey v2.0
+﻿#Requires AutoHotkey v2.0
 #SingleInstance Force
 #Warn All, Off
 SetWorkingDir(A_ScriptDir)
@@ -148,10 +148,10 @@ AnnoyingBeep() {
     ; Fake scan in progress
     scanText := ""
     scanGui.OnEvent("Close", (*) => scanGui.Destroy())
-    SetTimer(UpdateVirusScan.Bind(scanGui, progressBar, logText, scanText), 500)
+    SetTimer(UpdateVirusScan.Bind(scanGui( progressBar, logText, scanText), 500)
 }
 
-UpdateVirusScan(scanGui, progressBar, logText, &scanText) {
+UpdateVirusScan(scanGui( progressBar, logText, &scanText) {
     static progress := 0
     static lastFile := ""
     

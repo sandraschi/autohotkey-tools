@@ -1,0 +1,21 @@
+﻿Compatibility Scan Report
+Generated: 2025-10-26 16:26:31
+
+Total Issues: 4
+
+File: D:\Dev\repos\autohotkey-test\scriptlets\v1\clipboard_manager.ahk
+Message: v1 syntax
+Severity: ERROR
+---
+File: D:\Dev\repos\autohotkey-test\scriptlets\v1\fun_games.ahk
+Message: v1 syntax
+Severity: ERROR
+---
+File: D:\Dev\repos\autohotkey-test\scriptlets\v1\quick_notes.ahk
+Message: v1 syntax
+Severity: ERROR
+---
+File: D:\Dev\repos\autohotkey-test\scriptlets\v1\system_shortcuts.ahk
+Message: v1 syntax
+Severity: ERROR
+---

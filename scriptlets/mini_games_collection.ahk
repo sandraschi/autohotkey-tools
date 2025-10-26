@@ -149,8 +149,10 @@ class MiniGames {
     }
     
     static GenerateFood() {
-        this.foodX := Random(0, 19) * 20
-        this.foodY := Random(0, 19) * 20
+        Random(this.foodX, 0, 19)
+        this.foodX *= 20
+        Random(this.foodY, 0, 19)
+        this.foodY *= 20
     }
     
     static GameOver() {
@@ -277,8 +279,9 @@ class MiniGames {
         }
         
         ; Shuffle
-        for i := this.memoryCards.Length to 2 {
-            j := Random(1, i)
+        for i := this.memoryCards.Length .. 2 {
+            j := 0
+            Random(j, 1, i)
             temp := this.memoryCards[i]
             this.memoryCards[i] := this.memoryCards[j]
             this.memoryCards[j] := temp
@@ -376,8 +379,11 @@ class MiniGames {
     static ResetBall() {
         this.ballX := 300
         this.ballY := 200
-        this.ballDX := Random(0, 1) ? 5 : -5
-        this.ballDY := Random(0, 1) ? 3 : -3
+        direction := 0
+        Random(direction, 0, 1)
+        this.ballDX := direction ? 5 : -5
+        Random(direction, 0, 1)
+        this.ballDY := direction ? 3 : -3
     }
     
     static SetupPongHotkeys() {
@@ -443,7 +449,9 @@ class MiniGames {
     
     static LaunchBall() {
         if (!this.ballLaunched) {
-            this.ballDX := Random(0, 1) ? 5 : -5
+            direction := 0
+            Random(direction, 0, 1)
+            this.ballDX := direction ? 5 : -5
             this.ballDY := -5
             this.ballLaunched := true
         }
@@ -503,8 +511,10 @@ class MiniGames {
         ; Place mines
         minesPlaced := 0
         while (minesPlaced < this.mineCount) {
-            x := Random(0, this.gridSize - 1)
-            y := Random(0, this.gridSize - 1)
+            x := 0
+            y := 0
+            Random(x, 0, this.gridSize - 1)
+            Random(y, 0, this.gridSize - 1)
             if (this.grid[y][x] != -1) {
                 this.grid[y][x] := -1
                 minesPlaced++
@@ -582,4 +592,589 @@ Hotkey("Escape", (*) => {
 
 ; Initialize
 MiniGames.Init()
+
+
+
+    }
+
+    
+
+    static StartPong(*) {
+
+        this.currentGame := "Pong"
+
+        this.gameGui.Close()
+
+        this.CreatePongGame()
+
+    }
+
+    
+
+    static CreatePongGame() {
+
+        this.gameGui := Gui("+Resize", "Pong Game")
+
+        
+
+        ; Game area
+
+        this.gameGui.Add("Text", "w600 h400 BackgroundBlack", "")
+
+        
+
+        ; Score
+
+        this.gameGui.Add("Text", "w600 h30", "Player: 0 | Computer: 0")
+
+        
+
+        ; Controls
+
+        this.gameGui.Add("Text", "w600 h30", "Controls: W/S for paddle | ESC: Menu")
+
+        
+
+        this.gameGui.Show("w620 h480")
+
+        
+
+        ; Initialize game
+
+        this.ballX := 300
+
+        this.ballY := 200
+
+        this.ballDX := 5
+
+        this.ballDY := 3
+
+        this.playerY := 150
+
+        this.computerY := 150
+
+        this.playerScore := 0
+
+        this.computerScore := 0
+
+        
+
+        SetTimer(this.PongGameLoop.Bind(this), 50)
+
+        this.SetupPongHotkeys()
+
+    }
+
+    
+
+    static PongGameLoop() {
+
+        ; Move ball
+
+        this.ballX += this.ballDX
+
+        this.ballY += this.ballDY
+
+        
+
+        ; Ball collision with walls
+
+        if (this.ballY <= 0 || this.ballY >= 400) {
+
+            this.ballDY := -this.ballDY
+
+        }
+
+        
+
+        ; Ball collision with paddles
+
+        if (this.ballX <= 20 && this.ballY >= this.playerY && this.ballY <= this.playerY + 100) {
+
+            this.ballDX := -this.ballDX
+
+        }
+
+        
+
+        if (this.ballX >= 580 && this.ballY >= this.computerY && this.ballY <= this.computerY + 100) {
+
+            this.ballDX := -this.ballDX
+
+        }
+
+        
+
+        ; Score
+
+        if (this.ballX < 0) {
+
+            this.computerScore++
+
+            this.ResetBall()
+
+        }
+
+        
+
+        if (this.ballX > 600) {
+
+            this.playerScore++
+
+            this.ResetBall()
+
+        }
+
+        
+
+        ; AI paddle
+
+        if (this.computerY + 50 < this.ballY) {
+
+            this.computerY += 3
+
+        } else if (this.computerY + 50 > this.ballY) {
+
+            this.computerY -= 3
+
+        }
+
+        
+
+        this.DrawPong()
+
+    }
+
+    
+
+    static DrawPong() {
+
+        ; Draw pong game
+
+        this.gameGui.Control["Text2"].Text := "Player: " . this.playerScore . " | Computer: " . this.computerScore
+
+    }
+
+    
+
+    static ResetBall() {
+
+        this.ballX := 300
+
+        this.ballY := 200
+
+        this.ballDX := Random(0, 1) ? 5 : -5
+
+        this.ballDY := Random(0, 1) ? 3 : -3
+
+    }
+
+    
+    
+    static SetupPongHotkeys() {
+
+        Hotkey("w", (*) => this.playerY -= 20
+
+        s::this.playerY += 20
+
+        Escape::this.I)nit()
+
+    }
+
+    
+    
+    static StartBreakout(*) {
+
+        this.currentGame := "Breakout"
+
+        this.gameGui.Close()
+
+        this.CreateBreakoutGame()
+
+    }
+
+    
+    
+    static CreateBreakoutGame() {
+
+        this.gameGui := Gui("+Resize", "Breakout Game")
+
+        
+        
+        ; Game area
+
+        this.gameGui.Add("Text", "w500 h400 BackgroundBlack", "")
+
+        
+        
+        ; Score and lives
+
+        this.gameGui.Add("Text", "w500 h30", "Score: 0 | Lives: 3")
+
+        
+        
+        ; Controls
+
+        this.gameGui.Add("Text", "w500 h30", "Controls: A/D for paddle | SPACE: Launch ball | ESC: Menu")
+
+        
+        
+        this.gameGui.Show("w520 h480")
+
+        
+        
+        ; Initialize game
+
+        this.ballX := 250
+
+        this.ballY := 300
+
+        this.ballDX := 0
+
+        this.ballDY := 0
+
+        this.paddleX := 200
+
+        this.score := 0
+
+        this.lives := 3
+
+        this.ballLaunched := false
+
+        
+        
+        this.GenerateBricks()
+
+        this.DrawBreakout()
+
+        this.SetupBreakoutHotkeys()
+
+    }
+
+    
+    
+    static GenerateBricks() {
+
+        this.bricks := []
+
+        Loop 5 {
+
+            Loop 10 {
+
+                this.bricks.Push({x: 50 + A_Index * 40, y: 50 + A_Index * 20, active: true})
+
+            }
+
+        }
+
+    }
+
+    
+    
+    static DrawBreakout() {
+
+        ; Draw breakout game
+
+    }
+
+    
+    
+    static SetupBreakoutHotkeys() {
+
+        Hotkey("a", (*) => this.paddleX -= 20
+
+        d::this.paddleX += 20
+
+        Space::this.Lau)nchBall()
+
+        Hotkey("Escape", (*) => this.I)nit()
+
+    }
+
+    
+    
+    static LaunchBall() {
+
+        if (!this.ballLaunched) {
+
+            this.ballDX := Random(0, 1) ? 5 : -5
+
+            this.ballDY := -5
+
+            this.ballLaunched := true
+
+        }
+
+    }
+
+    
+    
+    static StartMinesweeper(*) {
+
+        this.currentGame := "Minesweeper"
+
+        this.gameGui.Close()
+
+        this.CreateMinesweeperGame()
+
+    }
+
+    
+    
+    static CreateMinesweeperGame() {
+
+        this.gameGui := Gui("+Resize", "Minesweeper Game")
+
+        
+        
+        ; Game grid
+
+        this.gameGui.Add("Text", "w400 h400", "")
+
+        
+        
+        ; Game info
+
+        this.gameGui.Add("Text", "w400 h30", "Mines: 10 | Time: 0s | Status: Playing")
+
+        
+        
+        ; Controls
+
+        this.gameGui.Add("Text", "w400 h30", "Left Click: Reveal | Right Click: Flag | ESC: Menu")
+
+        
+        
+        this.gameGui.Show("w420 h480")
+
+        
+        
+        ; Initialize game
+
+        this.gridSize := 10
+
+        this.mineCount := 10
+
+        this.grid := []
+
+        this.revealed := []
+
+        this.flagged := []
+
+        this.gameWon := false
+
+        this.gameLost := false
+
+        this.startTime := A_TickCount
+
+        
+        
+        this.GenerateMinesweeperGrid()
+
+        this.DrawMinesweeper()
+
+        SetTimer(this.UpdateMinesweeperTimer.Bind(this), 1000)
+
+    }
+
+    
+    
+    static GenerateMinesweeperGrid() {
+
+        ; Initialize grid
+
+        Loop this.gridSize {
+
+            row := []
+
+            revealedRow := []
+
+            flaggedRow := []
+
+            Loop this.gridSize {
+
+                row.Push(0)
+
+                revealedRow.Push(false)
+
+                flaggedRow.Push(false)
+
+            }
+
+            this.grid.Push(row)
+
+            this.revealed.Push(revealedRow)
+
+            this.flagged.Push(flaggedRow)
+
+        }
+
+        
+        
+        ; Place mines
+
+        minesPlaced := 0
+
+        while (minesPlaced < this.mineCount) {
+
+            x := Random(0, this.gridSize - 1)
+
+            y := Random(0, this.gridSize - 1)
+
+            if (this.grid[y][x] != -1) {
+
+                this.grid[y][x] := -1
+
+                minesPlaced++
+
+            }
+
+        }
+
+        
+        
+        ; Calculate numbers
+
+        Loop this.gridSize {
+
+            y := A_Index - 1
+
+            Loop this.gridSize {
+
+                x := A_Index - 1
+
+                if (this.grid[y][x] != -1) {
+
+                    count := 0
+
+                    Loop 3 {
+
+                        dy := A_Index - 2
+
+                        Loop 3 {
+
+                            dx := A_Index - 2
+
+                            nx := x + dx
+
+                            ny := y + dy
+
+                            if (nx >= 0 && nx < this.gridSize && ny >= 0 && ny < this.gridSize) {
+
+                                if (this.grid[ny][nx] = -1) {
+
+                                    count++
+
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                    this.grid[y][x] := count
+
+                }
+
+            }
+
+        }
+
+    }
+
+    
+    
+    static DrawMinesweeper() {
+
+        ; Draw minesweeper grid
+
+    }
+
+    
+    
+    static UpdateMinesweeperTimer() {
+
+        elapsed := (A_TickCount - this.startTime) // 1000
+
+        this.gameGui.Control["Text2"].Text := "Mines: " . this.mineCount . " | Time: " . elapsed . "s | Status: " . (this.gameWon ? "Won!" : this.gameLost ? "Lost!" : "Playing")
+
+    }
+
+}
+
+
+
+; Hotkeys
+
+^!Hotkey("g", (*) => Mi)niGames.Init()
+
+#Hotkey("s", (*) => Mi)niGames.StartSnake()
+
+#Hotkey("t", (*) => Mi)niGames.StartTetris()
+
+#Hotkey("m", (*) => Mi)niGames.StartMemory()
+
+
+
+; Snake game controls (only active when snake game is running)
+
+Hotkey("Up", (*) => {
+
+    if (Mi)niGames.currentGame = "Snake") {
+
+        MiniGames.direction := "up"
+
+    }
+
+}
+
+Hotkey("Down", (*) => {
+
+    if (Mi)niGames.currentGame = "Snake") {
+
+        MiniGames.direction := "down"
+
+    }
+
+}
+
+Hotkey("Left", (*) => {
+
+    if (Mi)niGames.currentGame = "Snake") {
+
+        MiniGames.direction := "left"
+
+    }
+
+}
+
+Hotkey("Right", (*) => {
+
+    if (Mi)niGames.currentGame = "Snake") {
+
+        MiniGames.direction := "right"
+
+    }
+
+}
+
+Hotkey("Escape", (*) => {
+
+    if (Mi)niGames.currentGame = "Snake") {
+
+        MiniGames.Init()
+
+    }
+
+}
+
+
+
+; Initialize
+
+MiniGames.Init()
+
+
+
 

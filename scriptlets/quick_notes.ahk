@@ -354,7 +354,7 @@ ToggleWindow(*) {
 }
 
 ; Handle window resizing
-GuiSize(thisGui, MinMax, Width, Height) {
+GuiSize(thisGui( MinMax, Width, Height) {
     global editNotes, statusBar
     
     if (MinMax = -1)  ; Window is minimized
@@ -709,7 +709,7 @@ ToggleWindow(*) {
 
 ; Handle window resizing
 
-GuiSize(thisGui, MinMax, Width, Height) {
+GuiSize(thisGui( MinMax, Width, Height) {
 
     global editNotes, statusBar
 

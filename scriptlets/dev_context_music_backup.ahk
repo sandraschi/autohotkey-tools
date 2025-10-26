@@ -47,7 +47,7 @@ TriumphantTracks := ["pomp_and_circumstance.mp3", "ride_of_the_valkyries.mp3"]
 
 ; Play a random track from a list
 PlayTrack(trackList) {
-    Random, rand, 1, % trackList.MaxIndex()
+    Random( rand, 1, % trackList.MaxIndex()
     track := trackList[rand]
     
     ; First try Plex
@@ -87,7 +87,7 @@ PlayPlexTrack(trackName) {
 CheckBuildStatus() {
     ; This would check your build system
     ; For now, we'll just return a random status
-    Random, status, 1, 10
+    Random( status, 1, 10
     if (status > 7) {
         PlayTrack(BuildFailureTracks)
         TrayTip, Build Status, Build failed! Playing sad music..., , 1
@@ -102,7 +102,7 @@ CheckBuildStatus() {
 CheckRepoHealth() {
     ; This would check git status, number of changes, etc.
     ; For now, we'll just return a random status
-    Random, status, 1, 10
+    Random( status, 1, 10
     if (status > 8) {
         PlayTrack(RepoBadTracks)
         TrayTip, Repository Health, Critical issues found! Playing dramatic music..., , 1
@@ -177,7 +177,7 @@ CheckTime() {
 
 ; Generate random number between min and max
 Random(min, max) {
-    Random, r, min, max
+    Random( r, min, max
     return r
 }
 
@@ -241,7 +241,7 @@ ExitScript:
 
 ShowLauncher:
     ; You could add a GUI launcher here
-    MsgBox, 64, Dev Context Music, Use the tray menu or hotkeys to control music.`n`nHotkeys:`n- Ctrl+Alt+S: Sad March`n- Ctrl+Alt+T: Triumphant Music`n- Ctrl+Alt+B: Betty Boop`n- Ctrl+Alt+C: Classical Music
+    MsgBox(, Dev Context Music, Use the tray menu or hotkeys to control music.`n`nHotkeys:`n- Ctrl+Alt+S: Sad March`n- Ctrl+Alt+T: Triumphant Music`n- Ctrl+Alt+B: Betty Boop`n- Ctrl+Alt+C: Classical Music
     return
 
 ; ========================================

@@ -1,0 +1,252 @@
+# AutoHotkey Development Rules
+
+## Rule #1: AutoHotkey v2 Syntax Only - NO v1 ALLOWED
+- **MANDATORY**: All scriptlets MUST be written in AutoHotkey v2 syntax from the start
+- **FORBIDDEN**: Never write v1 syntax and "fix later" - this creates technical debt
+- **REQUIRED**: Use `#Requires AutoHotkey v2.0+` directive in every scriptlet
+- **ENFORCED**: The linter will catch and flag any v1 incompatibilities
+
+## AutoHotkey v2 Syntax Requirements
+
+### Function Calls
+```autohotkey
+# CORRECT v2:
+FormatTime(timestamp, A_Now, "yyyy-MM-dd HH:mm:ss")
+FileRead(content, "file.txt")
+MsgBox("Message", "Title", "0x30")
+
+# WRONG v1 (FORBIDDEN):
+FormatTime timestamp,, "yyyy-MM-dd HH:mm:ss"
+FileRead fileContent, fileToCheck
+MsgBox, 0x30, Title, Message
+```
+
+### Hotkeys
+```autohotkey
+# CORRECT v2:
+Hotkey("^!c", (*) => Function())
+Hotkey("F7", (*) => ClassName.Method())
+
+# WRONG v1 (FORBIDDEN):
+^!c::Function()
+F7::ClassName.Method()
+```
+
+### For Loops
+```autohotkey
+# CORRECT v2:
+for i := 1 .. 10
+for i := array.Length .. 1
+for item in array
+
+# WRONG v1 (FORBIDDEN):
+for i := 1 to 10
+Loop, 10
+```
+
+### Random Function
+```autohotkey
+# CORRECT v2:
+Random(value, 1, 100)
+Random(direction, 0, 1)
+
+# WRONG v1 (FORBIDDEN):
+value := Random(1, 100)
+Random(min, max)
+```
+
+### Variable Declarations
+```autohotkey
+# CORRECT v2:
+var := "value"
+static var := "value"
+local var := "value"
+
+# WRONG v1 (FORBIDDEN):
+var = value
+```
+
+## Error Handling and Logging Requirements
+
+### Mandatory Error Handling
+Every scriptlet MUST include comprehensive error handling:
+
+```autohotkey
+# REQUIRED: Try-catch blocks for all file operations
+try {
+    FileRead(content, "file.txt")
+} catch as e {
+    this.AppendLog("File read error: " . e.Message)
+    return false
+}
+
+# REQUIRED: Try-catch blocks for all GUI operations
+try {
+    this.gui.Show()
+} catch as e {
+    this.AppendLog("GUI error: " . e.Message)
+}
+
+# REQUIRED: Try-catch blocks for all system operations
+try {
+    Run("command.exe")
+} catch as e {
+    this.AppendLog("System command error: " . e.Message)
+}
+```
+
+### Mandatory Logging System
+Every scriptlet MUST implement a logging system:
+
+```autohotkey
+class ScriptletName {
+    static logArea := ""
+    
+    static AppendLog(message) {
+        timestamp := FormatTime(A_Now, "HH:mm:ss")
+        logMessage := "[" . timestamp . "] " . message . "`n"
+        
+        if (this.logArea) {
+            this.logArea.Text .= logMessage
+            this.logArea.Focus()
+            Send("^{End}")
+        }
+        
+        ; Also log to file
+        try {
+            FileAppend(logMessage, "scriptlet.log", "UTF-8")
+        } catch {
+            ; Ignore file logging errors
+        }
+    }
+}
+```
+
+## Code Quality Standards
+
+### Class Structure Requirements
+- **MANDATORY**: All scriptlets MUST use class-based structure
+- **REQUIRED**: Include `static Init()` method
+- **REQUIRED**: Include `static CreateGUI()` method for GUI scriptlets
+- **REQUIRED**: Include `static AppendLog()` method for logging
+
+### GUI Requirements
+- **MANDATORY**: Use modern GUI syntax with proper event handling
+- **REQUIRED**: Include error handling for all GUI operations
+- **REQUIRED**: Include status bar or log area for user feedback
+
+### Hotkey Requirements
+- **MANDATORY**: Use `Hotkey()` function with proper syntax
+- **REQUIRED**: Include `Escape` key to close GUI
+- **REQUIRED**: Include emergency stop hotkey (`F9`) for infinite loops
+
+## File Organization Standards
+
+### Required Header
+Every scriptlet MUST start with:
+```autohotkey
+#Requires AutoHotkey v2.0+
+#SingleInstance Force
+
+; ==============================================================================
+; Scriptlet Name
+; @name: Scriptlet Name
+; @version: 1.0.0
+; @description: Brief description
+; @category: category
+; @author: Sandra
+; @hotkeys: ^!c, ^!v, ^!h
+; @enabled: true
+; ==============================================================================
+```
+
+### Required Footer
+Every scriptlet MUST end with:
+```autohotkey
+; Initialize the scriptlet
+ScriptletName.Init()
+```
+
+## Testing Requirements
+
+### Pre-commit Testing
+- **MANDATORY**: Run linter before committing any scriptlet
+- **REQUIRED**: Fix ALL linter errors before submission
+- **REQUIRED**: Test all hotkeys and GUI interactions
+- **REQUIRED**: Verify error handling works correctly
+
+### Linter Compliance
+- **ZERO TOLERANCE**: No v1 syntax errors allowed
+- **MANDATORY**: All FormatTime calls must have first parameter
+- **MANDATORY**: All Random calls must use proper v2 syntax
+- **MANDATORY**: All hotkeys must use Hotkey() function
+
+## Performance Requirements
+
+### Memory Management
+- **REQUIRED**: Use `static` variables for class-wide data
+- **REQUIRED**: Use `local` variables for function-scoped data
+- **REQUIRED**: Clean up resources in error handlers
+
+### Resource Cleanup
+- **MANDATORY**: Close files and connections in error handlers
+- **REQUIRED**: Clean up GUI resources on exit
+- **REQUIRED**: Stop timers and monitoring on error
+
+## Documentation Requirements
+
+### Inline Comments
+- **REQUIRED**: Comment all complex logic
+- **REQUIRED**: Document all public methods
+- **REQUIRED**: Explain error handling strategies
+
+### User Documentation
+- **REQUIRED**: Document all hotkeys in header
+- **REQUIRED**: Include usage examples
+- **REQUIRED**: Document error scenarios
+
+## Enforcement
+
+### Automated Checks
+- **LINTER**: Will catch and flag ALL v1 incompatibilities
+- **BUILD**: Will fail if any v1 syntax is detected
+- **REVIEW**: Will reject any scriptlet with v1 syntax
+
+### Manual Review
+- **CODE REVIEW**: All scriptlets must pass manual review
+- **TESTING**: All scriptlets must be tested before deployment
+- **DOCUMENTATION**: All scriptlets must have proper documentation
+
+## Examples of FORBIDDEN Patterns
+
+```autohotkey
+# NEVER DO THESE (v1 syntax):
+FormatTime timestamp,, "format"
+FileRead content, file
+MsgBox, 0x30, Title, Message
+^!c::Function()
+for i := 1 to 10
+value := Random(1, 100)
+var = value
+```
+
+## Examples of REQUIRED Patterns
+
+```autohotkey
+# ALWAYS DO THESE (v2 syntax):
+FormatTime(timestamp, A_Now, "format")
+content := FileRead("file")
+MsgBox("Message", "Title", "0x30")
+Hotkey("^!c", (*) => Function())
+for i := 1 .. 10
+Random(value, 1, 100)
+var := "value"
+```
+
+## Summary
+
+**Rule #1: Write scriptlets in v2 syntax from the start. NO v1 allowed.**
+**Rule #2: Include comprehensive error handling and logging.**
+**Rule #3: Follow all code quality and testing requirements.**
+
+Any violation of these rules will result in immediate rejection of the scriptlet.

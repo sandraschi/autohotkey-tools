@@ -1,4 +1,4 @@
-#Requires AutoHotkey v2.0
+﻿#Requires AutoHotkey v2.0
 #SingleInstance Force
 #Warn
 
@@ -67,7 +67,7 @@ class ClassicPranks {
         speedY := Random(-5, 5)
         
         ; Create bug (simple circle for now)
-        bugGui.Add("Text", "x0 y0 w50 h50 cLime", "🐞")
+        bugGui.Add("Text", "x0 y0 w50 h50 cLime", "ðŸž")
         bugGui.Show("x" . x . " y" . y . " w50 h50")
         
         ; Make window semi-transparent
@@ -75,7 +75,7 @@ class ClassicPranks {
         
         ; Store bug info
         bug := {
-            gui: bugGui,
+            gui: bugGui(
             x: x,
             y: y,
             speedX: speedX,
@@ -179,15 +179,15 @@ class ClassicPranks {
         sendBtn := elizaGui.Add("Button", "x520 y330 w70 h25", "&Send")
         
         ; Event handlers
-        sendBtn.OnEvent("Click", (*) => this.ElizaSend(elizaGui, chatDisplay, userInput))
-        userInput.OnEvent("Change", (*) => this.ElizaRespond(elizaGui, chatDisplay, userInput))
+        sendBtn.OnEvent("Click", (*) => this.ElizaSend(elizaGui( chatDisplay, userInput))
+        userInput.OnEvent("Change", (*) => this.ElizaRespond(elizaGui( chatDisplay, userInput))
         
         elizaGui.Show("w600 h400")
         
         TrayTip("ELIZA Started!", "Your virtual therapist is ready to listen!", 2)
     }
     
-    static ElizaSend(gui, chatDisplay, userInput) {
+    static ElizaSend(Gui( chatDisplay, userInput) {
         if (userInput.Text = "") {
             return
         }
@@ -203,7 +203,7 @@ class ClassicPranks {
         userInput.Focus()
     }
     
-    static ElizaRespond(gui, chatDisplay, userInput) {
+    static ElizaRespond(Gui( chatDisplay, userInput) {
         ; This could be enhanced to respond on Enter key
     }
     

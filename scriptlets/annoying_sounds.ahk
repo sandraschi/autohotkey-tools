@@ -35,7 +35,7 @@ SetWorkingDir %A_ScriptDir%
 PlayElevatorMusic:
     ; This would be replaced with actual music playing code
     ; For now, we'll just play some random notes
-    Random, note, 1, 7
+    Random( note, 1, 7
     notes := [262, 294, 330, 349, 392, 440, 494]  ; C4 to B4
     SoundBeep, % notes[note], 200
     return
@@ -58,22 +58,22 @@ PlayElevatorMusic:
     return
 
 RandomSound:
-    Random, soundType, 1, 5
+    Random( soundType, 1, 5
     
     if (soundType = 1) {
         ; Windows exclamation
         SoundPlay, *16
     } else if (soundType = 2) {
         ; Beep
-        Random, freq, 200, 2000
-        Random, dur, 100, 500
+        Random( freq, 200, 2000
+        Random( dur, 100, 500
         SoundBeep, %freq%, %dur%
     } else if (soundType = 3) {
         ; System sound
         SoundPlay, %A_WinDir%\Media\Windows Notify.wav
     } else if (soundType = 4) {
         ; Random note
-        Random, note, 1, 12
+        Random( note, 1, 12
         freq := 220 * (2 ** (note/12))  ; Equal temperament from A3
         SoundBeep, %freq%, 300
     } else {
@@ -100,8 +100,8 @@ RandomSound:
     return
 
 AnnoyingBeep:
-    Random, freq, 100, 2000
-    Random, dur, 50, 200
+    Random( freq, 100, 2000
+    Random( dur, 50, 200
     SoundBeep, %freq%, %dur%
     return
 
@@ -135,15 +135,15 @@ AnnoyingBeep:
 ; 5. FAKE VIRUS SCAN
 ; ========================================
 ^!Hotkey("v", (*) =>   ; Ctrl+Alt+V for fake virus sca)n
-    Gui, VirusScan:New, +AlwaysOnTop -Caption +ToolWindow
-    Gui, Color, 000000
-    Gui, Font, s12 cLime, Consolas
+    Gui( VirusScan:New, +AlwaysOnTop -Caption +ToolWindow
+    Gui( Color, 000000
+    Gui( Font, s12 cLime, Consolas
     
-    Gui, Add, Text, x10 y10 w380 h20, Scanning for viruses...
-    Gui, Add, Progress, x10 y40 w380 h20 cRed vScanProgress, 0
-    Gui, Add, Text, x10 y70 w380 h300 vScanLog, Starting system scan...`n
+    Gui( Add, Text, x10 y10 w380 h20, Scanning for viruses...
+    Gui( Add, Progress, x10 y40 w380 h20 cRed vScanProgress, 0
+    Gui( Add, Text, x10 y70 w380 h300 vScanLog, Starting system scan...`n
     
-    Gui, Show, w400 h400, Windows Defender
+    Gui( Show, w400 h400, Windows Defender
     
     ; Fake scan in progress
     scanText := ""
@@ -171,7 +171,7 @@ UpdateVirusScan:
     ; Add fake log entries
     if (Mod(progress, 10) = 0) {
         files := ["C:\Windows\System32\kernel32.dll", "C:\Program Files\Common Files\system.ini", "C:\Users\Public\Documents\passwords.txt", "C:\Windows\Temp\tempfile.tmp", "C:\ProgramData\Microsoft\Windows\Start Menu\startup\suspicious.exe"]
-        Random, rand, 1, files.MaxIndex()
+        Random( rand, 1, files.MaxIndex()
         lastFile := files[rand]
         scanText .= "Scanning: " lastFile "`n"
         
@@ -187,7 +187,7 @@ UpdateVirusScan:
     return
 
 VirusScanGuiClose:
-    Gui, VirusScan:Destroy
+    Gui( VirusScan:Destroy
     return
 
 ; ========================================
@@ -214,8 +214,8 @@ VirusScanGuiClose:
     return
 
 KeySound:
-    Random, pitch, 100, 1000
-    Random, duration, 10, 30
+    Random( pitch, 100, 1000
+    Random( duration, 10, 30
     SoundBeep, %pitch%, %duration%
     return
 
@@ -225,7 +225,7 @@ KeySound:
 
 ; Generate random number between min and max
 Random(min, max) {
-    Random, r, min, max
+    Random( r, min, max
     return r
 }
 
@@ -242,7 +242,7 @@ GuiClose:
     SetTimer, AnnoyingBeep, Off
     
     ; Close all GUIs
-    Gui, VirusScan:Destroy
+    Gui( VirusScan:Destroy
     
     ; Turn off keyboard sounds
     Hotkey, *~$a, Off

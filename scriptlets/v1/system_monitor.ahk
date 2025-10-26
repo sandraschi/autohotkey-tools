@@ -1,4 +1,4 @@
-#NoEnv
+﻿#NoEnv
 #SingleInstance Force
 #Persistent
 #SingleInstance ignore
@@ -9,48 +9,48 @@ SetBatchLines -1
 updateInterval := 1000  ; Update every second
 
 ; Create the GUI
-Gui, +AlwaysOnTop +Resize +ToolWindow
-Gui, Font, s10, Consolas
+Gui( +AlwaysOnTop +Resize +ToolWindow
+Gui( Font, s10, Consolas
 
 ; CPU Usage
-Gui, Add, Text, x10 y10 w100 h20, CPU Usage:
-Gui, Add, Progress, x120 y10 w200 h20 vCPUProgress BackgroundEEEEEE
-Gui, Add, Text, x330 y10 w40 h20 vCPUPercent, 0`%
+Gui( Add, Text, x10 y10 w100 h20, CPU Usage:
+Gui( Add, Progress, x120 y10 w200 h20 vCPUProgress BackgroundEEEEEE
+Gui( Add, Text, x330 y10 w40 h20 vCPUPercent, 0`%
 
 ; Memory Usage
-Gui, Add, Text, x10 y40 w100 h20, Memory Usage:
-Gui, Add, Progress, x120 y40 w200 h20 vMemProgress BackgroundEEEEEE
-Gui, Add, Text, x330 y40 w80 h20 vMemPercent, 0`%
+Gui( Add, Text, x10 y40 w100 h20, Memory Usage:
+Gui( Add, Progress, x120 y40 w200 h20 vMemProgress BackgroundEEEEEE
+Gui( Add, Text, x330 y40 w80 h20 vMemPercent, 0`%
 
 ; Disk Usage
-Gui, Add, Text, x10 y70 w100 h20, C:\ Usage:
-Gui, Add, Progress, x120 y70 w200 h20 vDiskProgress BackgroundEEEEEE
-Gui, Add, Text, x330 y70 w80 h20 vDiskPercent, 0`%
+Gui( Add, Text, x10 y70 w100 h20, C:\ Usage:
+Gui( Add, Progress, x120 y70 w200 h20 vDiskProgress BackgroundEEEEEE
+Gui( Add, Text, x330 y70 w80 h20 vDiskPercent, 0`%
 
 ; Network
-Gui, Add, Text, x10 y100 w100 h20, Network:
-Gui, Add, Text, x120 y100 w300 h20 vNetworkInfo, Download: 0 KB/s  Upload: 0 KB/s
+Gui( Add, Text, x10 y100 w100 h20, Network:
+Gui( Add, Text, x120 y100 w300 h20 vNetworkInfo, Download: 0 KB/s  Upload: 0 KB/s
 
 ; Process List
-Gui, Add, Text, x10 y130 w100 h20, Top Processes:
-Gui, Add, ListView, x10 y150 w400 h200 vProcessList, Process|CPU`%|Memory (MB)
+Gui( Add, Text, x10 y130 w100 h20, Top Processes:
+Gui( Add, ListView, x10 y150 w400 h200 vProcessList, Process|CPU`%|Memory (MB)
 LV_ModifyCol(1, 200)
 LV_ModifyCol(2, 80)
 LV_ModifyCol(3, 80)
 
 ; System Info
-Gui, Add, Text, x10 y360 w400 h20 vSystemInfo, 
+Gui( Add, Text, x10 y360 w400 h20 vSystemInfo, 
 
 ; Buttons
-Gui, Add, Button, x10 y390 w100 h30 vRefreshBtn gRefresh, &Refresh
-Gui, Add, Button, x120 y390 w100 h30 vExitBtn gExitApp, E&xit
+Gui( Add, Button, x10 y390 w100 h30 vRefreshBtn gRefresh, &Refresh
+Gui( Add, Button, x120 y390 w100 h30 vExitBtn gExitApp, E&xit
 
 ; Initial update
 GoSub, UpdateSystemInfo
 SetTimer, UpdateSystemInfo, %updateInterval%
 
 ; Show the GUI
-Gui, Show, w430 h430, System Monitor
+Gui( Show, w430 h430, System Monitor
 return
 
 UpdateSystemInfo:

@@ -147,7 +147,43 @@ for i, line in lines {
     }
 }
 
-; Check 13: SetWorkingDir syntax
+; Check 13: Random function syntax (v1 to v2 migration)
+for i, line in lines {
+    if (RegExMatch(line, "\w+\s*:=\s*Random\s*\(")) {
+        AddIssue("Incorrect Random() syntax - use Random(var, min, max) instead of var := Random(min, max)", "Error", i)
+        hasErrors := true
+    }
+    if (RegExMatch(line, "Random\s*\(\s*\d+\s*,\s*\d+\s*\)")) {
+        AddIssue("Found Random(min, max) - use Random(var, min, max) to assign to variable", "Error", i)
+        hasErrors := true
+    }
+}
+
+; Check 14: For loop 'to' syntax (v1 to v2 migration)
+for i, line in lines {
+    if (RegExMatch(line, "for\s+\w+\s*:=\s*\w+.*\s+to\s+")) {
+        AddIssue("Found 'to' in for loop - use '..' instead (v2 syntax)", "Error", i)
+        hasErrors := true
+    }
+}
+
+; Check 15: FormatTime missing first parameter (v1 to v2 migration)
+for i, line in lines {
+    if (RegExMatch(line, "FormatTime\s*\(\s*,\s*")) {
+        AddIssue("FormatTime missing first parameter - use FormatTime(var, , format) or FormatTime(var, A_Now, format)", "Error", i)
+        hasErrors := true
+    }
+}
+
+; Check 16: Malformed hotkey syntax (v1 to v2 migration)
+for i, line in lines {
+    if (InStr(line, "^!Hotkey") || InStr(line, "^+Hotkey") || RegExMatch(line, "[\^!+#]+Hotkey\s*\(")) {
+        AddIssue("Malformed hotkey syntax - use Hotkey('^!w', (*) => Function()) instead of ^!Hotkey()", "Error", i)
+        hasErrors := true
+    }
+}
+
+; Check 18: SetWorkingDir syntax
 for i, line in lines {
     if (RegExMatch(line, "SetWorkingDir\s+\w+")) {
         AddIssue("Incorrect SetWorkingDir syntax - use SetWorkingDir(path)", "Error", i)
@@ -215,6 +251,37 @@ if (issues.Length = 0) {
 reportFile := A_ScriptDir "\lint_report.txt"
 try FileDelete(reportFile)
 FileAppend(report, reportFile, "UTF-8")
+
+; Show completion popup with script name
+scriptName := RegExReplace(fileToCheck, ".*\\", "")  ; Extract filename from path
+if (issues.Length = 0) {
+    TrayTip("Linting Complete: " . scriptName, "✅ No issues found!", "Iconi")
+} else {
+    errorCount := 0
+    warningCount := 0
+    suggestionCount := 0
+    
+    for issue in issues {
+        switch issue.severity {
+            case "Error":
+                errorCount++
+            case "Warning":
+                warningCount++
+            case "Suggestion":
+                suggestionCount++
+        }
+    }
+    
+    statusText := "Found " . errorCount . " errors"
+    if (warningCount > 0) {
+        statusText .= ", " . warningCount . " warnings"
+    }
+    if (suggestionCount > 0) {
+        statusText .= ", " . suggestionCount . " suggestions"
+    }
+    
+    TrayTip("Linting Complete: " . scriptName, statusText, "Icon!")
+}
 
 ; Show summary
 if (hasErrors) {

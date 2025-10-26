@@ -1,6 +1,8 @@
-﻿Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\workflow_automator_pro.ahk
-Generated: 2025-10-24 10:17:00
-Total Lines: 436
+﻿Lint Report for: D:\Dev\repos\autohotkey-test\ScriptletCOMBridge.ahk
+Generated: 2025-10-24 16:31:21
+Total Lines: 441
 
 Issues found:
-  No issues found! 🎉
+
+WARNINGS (1):
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets

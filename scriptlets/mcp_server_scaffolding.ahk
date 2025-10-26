@@ -89,11 +89,11 @@ class MCPScaffolding {
         
         ; Generate button
         generateBtn := gui.Add("Button", "x20 y500 w200 h50", "ðŸš€ Generate MCP Server")
-        generateBtn.OnEvent("Click", (*) => this.GenerateProject(gui, projectNameEdit, descriptionEdit, dirEdit, templateList, checkboxes))
+        generateBtn.OnEvent("Click", (*) => this.GenerateProject(Gui( projectNameEdit, descriptionEdit, dirEdit, templateList, checkboxes))
         
         ; Preview button
         previewBtn := gui.Add("Button", "x240 y500 w200 h50", "ðŸ‘ï¸ Preview Structure")
-        previewBtn.OnEvent("Click", (*) => this.PreviewStructure(gui, projectNameEdit, templateList, checkboxes))
+        previewBtn.OnEvent("Click", (*) => this.PreviewStructure(Gui( projectNameEdit, templateList, checkboxes))
         
         ; Help button
         helpBtn := gui.Add("Button", "x460 y500 w200 h50", "â“ Help")
@@ -103,12 +103,12 @@ class MCPScaffolding {
         gui.Add("Text", "x20 y560 w660 Center c0x888888", "Hotkeys: Ctrl+Alt+M (Generate) | F9 (Preview) | Press Generate to create your MCP server")
         
         ; Set up hotkeys
-        this.SetupHotkeys(gui, projectNameEdit, descriptionEdit, dirEdit, templateList, checkboxes)
+        this.SetupHotkeys(Gui( projectNameEdit, descriptionEdit, dirEdit, templateList, checkboxes)
         
         gui.Show("w700 h600")
     }
     
-    static GenerateProject(gui, projectNameEdit, descriptionEdit, dirEdit, templateList, checkboxes) {
+    static GenerateProject(Gui( projectNameEdit, descriptionEdit, dirEdit, templateList, checkboxes) {
         projectName := projectNameEdit.Text
         description := descriptionEdit.Text
         projectDir := dirEdit.Text
@@ -380,7 +380,7 @@ class MCPScaffolding {
         FileAppend(gitignoreContent, projectDir . "\.gitignore")
     }
     
-    static PreviewStructure(gui, projectNameEdit, templateList, checkboxes) {
+    static PreviewStructure(Gui( projectNameEdit, templateList, checkboxes) {
         projectName := projectNameEdit.Text
         templateIndex := templateList.Value
         selectedFeatures := []
@@ -438,9 +438,9 @@ class MCPScaffolding {
         MsgBox(helpText, "MCP Scaffolding Help", "Iconi")
     }
     
-    static SetupHotkeys(gui, projectNameEdit, descriptionEdit, dirEdit, templateList, checkboxes) {
-        ^!Hotkey("m", (*) => this.Ge)nerateProject(gui, projectNameEdit, descriptionEdit, dirEdit, templateList, checkboxes)
-        Hotkey("F9", (*) => this.PreviewStructure(gui, project)NameEdit, templateList, checkboxes)
+    static SetupHotkeys(Gui( projectNameEdit, descriptionEdit, dirEdit, templateList, checkboxes) {
+        ^!Hotkey("m", (*) => this.Ge)nerateProject(Gui( projectNameEdit, descriptionEdit, dirEdit, templateList, checkboxes)
+        Hotkey("F9", (*) => this.PreviewStructure(Gui( project)NameEdit, templateList, checkboxes)
         
         Hotkey("Escape", (*) => {
             if (Wi)nExist("MCP Server Scaffolding Tool")) {

@@ -120,14 +120,14 @@ ShowClipboardMenu() {
     }
     
     ; Handle double-click to paste
-    lbItems.OnEvent("DoubleClick", PasteSelectedItem.Bind(menuGui, lbItems))
+    lbItems.OnEvent("DoubleClick", PasteSelectedItem.Bind(menuGui( lbItems))
     
     ; Add buttons
     btnPaste := menuGui.Add("Button", "w80 h30 Default", "&Paste")
-    btnPaste.OnEvent("Click", PasteSelectedItem.Bind(menuGui, lbItems))
+    btnPaste.OnEvent("Click", PasteSelectedItem.Bind(menuGui( lbItems))
     
     btnDelete := menuGui.Add("Button", "x+10 wp h30", "&Delete")
-    btnDelete.OnEvent("Click", DeleteSelectedItem.Bind(menuGui, lbItems))
+    btnDelete.OnEvent("Click", DeleteSelectedItem.Bind(menuGui( lbItems))
     
     btnClear := menuGui.Add("Button", "x+10 wp h30", "C&lear All")
     btnClear.OnEvent("Click", ClearClipboardHistory)
@@ -163,7 +163,7 @@ ShowClipboardMenu() {
 }
 
 ; Paste the selected item
-PasteSelectedItem(menuGui, lbItems, *) {
+PasteSelectedItem(menuGui( lbItems, *) {
     selectedIndex := lbItems.Value
     if (selectedIndex > 0 && selectedIndex <= ClipboardHistory.Length) {
         selectedItem := ClipboardHistory[selectedIndex]
@@ -190,7 +190,7 @@ PasteSelectedItem(menuGui, lbItems, *) {
 }
 
 ; Delete the selected item
-DeleteSelectedItem(menuGui, lbItems, *) {
+DeleteSelectedItem(menuGui( lbItems, *) {
     selectedIndex := lbItems.Value
     if (selectedIndex > 0 && selectedIndex <= ClipboardHistory.Length) {
         ClipboardHistory.RemoveAt(selectedIndex)

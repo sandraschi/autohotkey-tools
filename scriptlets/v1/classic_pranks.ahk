@@ -1,4 +1,4 @@
-#NoEnv
+﻿#NoEnv
 #SingleInstance Force
 #MaxHotkeysPerInterval 200
 #Persistent
@@ -12,18 +12,18 @@ SetWorkingDir %A_ScriptDir%
     bugCount := bugCount >= 10 ? 10 : bugCount + 1
     
     ; Create bug GUI
-    Gui, BugGui%bugCount%:New, +AlwaysOnTop -Caption +ToolWindow +E0x20
-    Gui, Color, 000000
+    Gui( BugGui%bugCount%:New, +AlwaysOnTop -Caption +ToolWindow +E0x20
+    Gui( Color, 000000
     
     ; Random bug position and speed
-    Random, x, 0, % A_ScreenWidth - 50
-    Random, y, 0, % A_ScreenHeight - 50
-    Random, xSpeed, 1, 5
-    Random, ySpeed, 1, 5
+    Random( x, 0, % A_ScreenWidth - 50
+    Random( y, 0, % A_ScreenHeight - 50
+    Random( xSpeed, 1, 5
+    Random( ySpeed, 1, 5
     
     ; Create bug (simple circle for now)
-    Gui, Add, Text, x0 y0 w50 h50 cLime, 🐞
-    Gui, Show, x%x% y%y% w50 h50, Bug%bugCount%
+    Gui( Add, Text, x0 y0 w50 h50 cLime, ðŸž
+    Gui( Show, x%x% y%y% w50 h50, Bug%bugCount%
     WinSet, Transparent, 200, Bug%bugCount%
     
     ; Start bug movement
@@ -70,10 +70,10 @@ MoveBug10:
     WinMove, Bug%bugNum%,, % bug%bugNum%_x, % bug%bugNum%_y
     
     ; Random direction changes
-    Random, rand, 1, 100
+    Random( rand, 1, 100
     if (rand = 1) {
-        Random, bug%bugNum%_xSpeed, -5, 5
-        Random, bug%bugNum%_ySpeed, -5, 5
+        Random( bug%bugNum%_xSpeed, -5, 5
+        Random( bug%bugNum%_ySpeed, -5, 5
     }
     return
 
@@ -81,9 +81,9 @@ MoveBug10:
 ; 2. FUNNY FAKE BSOD
 ; ========================================
 ^!f::  ; Ctrl+Alt+F for funny BSOD
-    Gui, BSOD:New, +AlwaysOnTop -Caption +ToolWindow
-    Gui, Color, 0000FF
-    Gui, Font, s12 cWhite, Lucida Console
+    Gui( BSOD:New, +AlwaysOnTop -Caption +ToolWindow
+    Gui( Color, 0000FF
+    Gui( Font, s12 cWhite, Lucida Console
     
     funnyMessages := ["SYSTEM_CRITICAL_ERROR: Too many cookies in the cookie jar!"
                     , "KERNEL_PANIC: Missing semicolon on line 42"
@@ -91,10 +91,10 @@ MoveBug10:
                     , "PAGE_FAULT_IN_NONPAGED_AREA: It's not you, it's me"
                     , "CRITICAL_PROCESS_DIED: Your cat walked on the keyboard"]
     
-    Random, rand, 1, % funnyMessages.MaxIndex()
+    Random( rand, 1, % funnyMessages.MaxIndex()
     errorMsg := funnyMessages[rand]
     
-    Gui, Add, Text, x20 y20 w600 h400, 
+    Gui( Add, Text, x20 y20 w600 h400, 
     (
     A problem has been detected and Windows has been shut down to prevent damage
     to your computer.
@@ -116,7 +116,7 @@ MoveBug10:
     Contact your system administrator or technical support group for further
     assistance.
     )
-    Gui, Show, w640 h480, Windows - No Disk
+    Gui( Show, w640 h480, Windows - No Disk
     
     ; Make it look more real by making it hard to close
     WinSet, Style, -0xC00000, A  ; Remove close button
@@ -126,17 +126,17 @@ MoveBug10:
 ; 3. ELIZA THERAPIST
 ; ========================================
 ^!e::  ; Ctrl+Alt+E for ELIZA
-    Gui, Eliza:New, +AlwaysOnTop +Resize -MaximizeBox, ELIZA Therapist
-    Gui, Color, F0F0F0
-    Gui, Font, s10, Consolas
+    Gui( Eliza:New, +AlwaysOnTop +Resize -MaximizeBox, ELIZA Therapist
+    Gui( Color, F0F0F0
+    Gui( Font, s10, Consolas
     
     ; Chat display
-    Gui, Add, Edit, x10 y10 w580 h300 vChatDisplay ReadOnly, ELIZA: Hello, I am ELIZA, your virtual therapist.`nELIZA: How are you feeling today?`n`n
+    Gui( Add, Edit, x10 y10 w580 h300 vChatDisplay ReadOnly, ELIZA: Hello, I am ELIZA, your virtual therapist.`nELIZA: How are you feeling today?`n`n
     ; User input
-    Gui, Add, Edit, x10 w500 h80 vUserInput gElizaRespond
-    Gui, Add, Button, x520 y330 w70 h25 gElizaSend, &Send
+    Gui( Add, Edit, x10 w500 h80 vUserInput gElizaRespond
+    Gui( Add, Button, x520 y330 w70 h25 gElizaSend, &Send
     
-    Gui, Show, w600 h400
+    Gui( Show, w600 h400
     
     ; Initialize ELIZA responses
     responses := []
@@ -159,7 +159,7 @@ MoveBug10:
     return
 
 ElizaSend:
-    Gui, Submit, NoHide
+    Gui( Submit, NoHide
     GuiControl,, UserInput
     GuiControlGet, chat,, ChatDisplay
     GuiControl,, ChatDisplay, %chat%You: %UserInput%`n
@@ -167,7 +167,7 @@ ElizaSend:
     return
 
 ElizaRespond:
-    Gui, Submit, NoHide
+    Gui( Submit, NoHide
     if (UserInput = "")
         return
     
@@ -184,7 +184,7 @@ ElizaRespond:
                 rest := Trim(rest, " .!?")
                 response := Format(responseArray[1], rest)
             } else {
-                Random, rand, 1, % responseArray.MaxIndex()
+                Random( rand, 1, % responseArray.MaxIndex()
                 response := responseArray[rand]
             }
             
@@ -197,7 +197,7 @@ ElizaRespond:
     
     ; If no pattern matched, use default response
     if (!responseFound) {
-        Random, rand, 1, % defaultResponses.MaxIndex()
+        Random( rand, 1, % defaultResponses.MaxIndex()
         response := defaultResponses[rand]
         GuiControlGet, chat,, ChatDisplay
         GuiControl,, ChatDisplay, %chat%ELIZA: %response%`n`n
@@ -211,8 +211,8 @@ ElizaRespond:
 ; 4. SUDOKU GAME
 ; ========================================
 ^!s::  ; Ctrl+Alt+S for Sudoku
-    Gui, Sudoku:New, +AlwaysOnTop, Sudoku
-    Gui, Font, s16, Consolas
+    Gui( Sudoku:New, +AlwaysOnTop, Sudoku
+    Gui( Font, s16, Consolas
     
     ; Create 9x9 grid
     gridSize := 40
@@ -227,19 +227,19 @@ ElizaRespond:
             if (Mod(row-1, 3) = 0)
                 options .= " +0x100"  ; Top border
             
-            Gui, Add, Edit, %options% Center Limit1 Number
+            Gui( Add, Edit, %options% Center Limit1 Number
         }
     }
     
     ; Add buttons
-    Gui, Add, Button, x10 y370 gNewGame, &New Game
-    Gui, Add, Button, x120 y370 gCheckSolution, &Check Solution
-    Gui, Add, Button, x240 y370 gSolvePuzzle, &Solve
+    Gui( Add, Button, x10 y370 gNewGame, &New Game
+    Gui( Add, Button, x120 y370 gCheckSolution, &Check Solution
+    Gui( Add, Button, x240 y370 gSolvePuzzle, &Solve
     
     ; Generate a new puzzle
     Gosub, NewGame
     
-    Gui, Show, w400 h420
+    Gui( Show, w400 h420
     return
 
 NewGame:
@@ -274,18 +274,18 @@ NewGame:
 
 CheckSolution:
     ; This would check if the current board is a valid solution
-    MsgBox, 64, Sudoku, Solution checking not implemented yet!
+    MsgBox(, Sudoku, Solution checking not implemented yet!
     return
 
 SolvePuzzle:
     ; This would solve the current puzzle
-    MsgBox, 64, Sudoku, Auto-solve not implemented yet!
+    MsgBox(, Sudoku, Auto-solve not implemented yet!
     return
 
 CellClick:
     ; Highlight the clicked cell
     GuiControlGet, focused, FocusV
-    Gui, Font, s16 cBlue
+    Gui( Font, s16 cBlue
     GuiControl, Font, %focused%
     return
 
@@ -302,25 +302,25 @@ Speak(text) {
 
 ; Clean up
 GuiClose:
-    Gui, Destroy
+    Gui( Destroy
     return
 
 ElizaGuiClose:
-    Gui, Eliza:Destroy
+    Gui( Eliza:Destroy
     return
 
 SudokuGuiClose:
-    Gui, Sudoku:Destroy
+    Gui( Sudoku:Destroy
     return
 
 BSODGuiClose:
-    Gui, BSOD:Destroy
+    Gui( BSOD:Destroy
     return
 
 ; Close all bug windows
 ^!x::  ; Ctrl+Alt+X to clean up all bugs
     loop 10 {
-        Gui, BugGui%A_Index%:Destroy
+        Gui( BugGui%A_Index%:Destroy
         SetTimer, MoveBug%A_Index%, Off
     }
     bugCount := 0

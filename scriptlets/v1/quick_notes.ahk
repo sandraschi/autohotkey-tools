@@ -1,4 +1,4 @@
-#NoEnv
+﻿#NoEnv
 #SingleInstance Force
 #Persistent
 SetWorkingDir %A_ScriptDir%
@@ -10,32 +10,32 @@ fontSize := 12
 fontName := "Segoe UI"
 
 ; Create the GUI
-Gui, +AlwaysOnTop +Resize
-Gui, Font, s%fontSize%, %fontName%
+Gui( +AlwaysOnTop +Resize
+Gui( Font, s%fontSize%, %fontName%
 
 ; Title
-Gui, Add, Text, x10 y10 w200 h20, Quick Notes
+Gui( Add, Text, x10 y10 w200 h20, Quick Notes
 
 ; Date/Time button
-Gui, Add, Button, x220 y5 w80 h25 gInsertDateTime, &Now
+Gui( Add, Button, x220 y5 w80 h25 gInsertDateTime, &Now
 
 ; Notes edit control
-Gui, Add, Edit, x10 y40 w380 h300 vNotesEdit +Multi +WantTab
+Gui( Add, Edit, x10 y40 w380 h300 vNotesEdit +Multi +WantTab
 
 ; Buttons
-Gui, Add, Button, x10 y350 w80 h30 gSaveNotes, &Save
-Gui, Add, Button, x100 y350 w80 h30 gClearNotes, C&lear
-Gui, Add, Button, x190 y350 w100 h30 gToggleAlwaysOnTop, &Always on Top
-Gui, Add, Button, x300 y350 w90 h30 gExitApp, E&xit
+Gui( Add, Button, x10 y350 w80 h30 gSaveNotes, &Save
+Gui( Add, Button, x100 y350 w80 h30 gClearNotes, C&lear
+Gui( Add, Button, x190 y350 w100 h30 gToggleAlwaysOnTop, &Always on Top
+Gui( Add, Button, x300 y350 w90 h30 gExitApp, E&xit
 
 ; Status bar
-Gui, Add, StatusBar,, Ready
+Gui( Add, StatusBar,, Ready
 
 ; Load existing notes
 LoadNotes()
 
 ; Show the GUI
-Gui, Show, w400 h400, Quick Notes
+Gui( Show, w400 h400, Quick Notes
 return
 
 ; Hotkey to show/hide the notes window
@@ -64,7 +64,7 @@ LoadNotes() {
 }
 
 SaveNotes:
-    Gui, Submit, NoHide
+    Gui( Submit, NoHide
     
     ; Create backup of existing file if it exists
     if (FileExist(notesFile)) {
@@ -85,7 +85,7 @@ SaveNotes:
 return
 
 ClearNotes:
-    MsgBox, 4, Clear Notes, Are you sure you want to clear all notes?
+    MsgBox( Clear Notes, Are you sure you want to clear all notes?
     IfMsgBox Yes
     {
         GuiControl,, NotesEdit, 
@@ -132,7 +132,7 @@ return
 
 GuiClose:
     ; Ask to save before closing
-    Gui, Submit, NoHide
+    Gui( Submit, NoHide
     if (NotesEdit != "") {
         MsgBox, 4, Save Changes?, Do you want to save your changes before exiting?
         IfMsgBox Yes

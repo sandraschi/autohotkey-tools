@@ -11,7 +11,7 @@
 #Warn LocalSameAsGlobal, Off
 
 SendMode "Input"
-SetWorkingDir A_ScriptDir
+SetWorkingDir(A_ScriptDir)
 
 ; ==============================================================================
 ; INITIALIZATION
@@ -38,27 +38,90 @@ StartHTTPServer() {
         CreateHelperScripts()
         
         ; Create PowerShell server script
-        CreatePowerShellServer()
+        if (!CreatePowerShellServer()) {
+            LogActivity("ERROR: Failed to create PowerShell server script")
+            MsgBox("Failed to create PowerShell server script. Check bridge.log for details.", "Error", "0x10")
+            return
+        }
         
         ; Start PowerShell HTTP server
-        Run('powershell.exe -WindowStyle Hidden -ExecutionPolicy Bypass -File "' A_Temp '\scriptlet_server.ps1"', , 'Hide')
+        tempPath := EnvGet("TEMP") '\scriptlet_server.ps1'
+        LogActivity("Starting PowerShell server from: " . tempPath)
+        
+        ; Check if server is already running and kill it
+        try {
+            ; Kill any existing PowerShell processes running the server
+            Run('taskkill /f /im powershell.exe /fi "WINDOWTITLE eq scriptlet_server*"', , 'Hide')
+            
+            ; Try to kill processes using port 8765 (with error handling for privilege issues)
+            Run('powershell -Command "try { Get-NetTCPConnection -LocalPort 8765 | ForEach-Object { if ($_.OwningProcess -ne 4) { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue } } } catch { Write-Host \"Port cleanup completed with some errors\" }"', , 'Hide')
+            
+            Sleep(2000)
+        } catch {
+            ; Ignore kill errors
+        }
+        
+        ; Start the server
+        try {
+            LogActivity("Executing PowerShell server script...")
+            Run('powershell.exe -WindowStyle Hidden -ExecutionPolicy Bypass -File "' tempPath '"', , 'Hide')
+            LogActivity("PowerShell server command executed")
+        } catch as e {
+            LogActivity("ERROR: Failed to start PowerShell server: " . e.Message)
+            MsgBox("Failed to start PowerShell server: " . e.Message, "Error", "0x10")
+            return
+        }
+        
+        ; Wait a moment for server to start
+        Sleep(2000)
+        LogActivity("Waiting for server to start...")
+        
+        ; Check if server started successfully
+        try {
+            ; Test if server is responding
+            Run('powershell.exe -Command "try { Invoke-WebRequest -Uri http://localhost:8765/scriptlets -TimeoutSec 5 | Out-Null; Write-Host SUCCESS } catch { Write-Host FAILED }"', , 'Hide')
+        } catch {
+            ; Server test failed, but continue
+        }
         
         TrayTip('HTTP server started on port 8765', 'Scriptlet Bridge', '1')
         
     } catch as e {
-        MsgBox('Failed to start HTTP server: ' A_LastError, 'Error', '0x10')
+        MsgBox('Failed to start HTTP server: ' . e.Message, 'Error', '0x10')
     }
 }
 
 CreatePowerShellServer() {
     ; Delete existing server script
-    FileDelete(A_Temp '\scriptlet_server.ps1')
+    tempPath := EnvGet("TEMP") '\scriptlet_server.ps1'
+    try {
+        FileDelete(tempPath)
+        LogActivity("Deleted existing PowerShell script: " . tempPath)
+    } catch as e {
+        LogActivity("Warning: Could not delete existing script: " . e.Message)
+    }
     
     ; Define the PowerShell script content using a continuation section
     psScript := ''
-    psScript .= "`$listener = New-Object System.Net.HttpListener`n"
-    psScript .= "`$listener.Prefixes.Add('http://localhost:8765/')`n"
-    psScript .= "`$listener.Start()`n`n"
+    psScript .= "`$port = 3000`n"
+    psScript .= "`$listener = `$null`n"
+    psScript .= "for (`$i = 0; `$i -lt 10; `$i++) {`n"
+    psScript .= "    try {`n"
+    psScript .= "        `$listener = New-Object System.Net.HttpListener`n"
+    psScript .= "        `$listener.Prefixes.Add('http://*:' + `$port + '/')`n"
+    psScript .= "        `$listener.Start()`n"
+    psScript .= "        Write-Host 'HTTP server started successfully on port ' + `$port`n"
+    psScript .= "        break`n"
+    psScript .= "    } catch {`n"
+    psScript .= "        Write-Host 'Port ' + `$port + ' in use, trying next port...'`n"
+    psScript .= "        `$port++`n"
+    psScript .= "        if (`$listener) { `$listener.Close(); `$listener = `$null }`n"
+    psScript .= "    }`n"
+    psScript .= "}`n"
+    psScript .= "if (-not `$listener) {`n"
+    psScript .= "    Write-Host 'Failed to start HTTP server on any port'`n"
+    psScript .= "    exit 1`n"
+    psScript .= "}`n`n"
     psScript .= "while (`$listener.IsListening) {`n"
     psScript .= "    try {`n"
     psScript .= "        `$context = `$listener.GetContext()`n"
@@ -81,24 +144,40 @@ CreatePowerShellServer() {
     psScript .= "        } elseif (`$url -match '/stop/(.+)') {`n"
     psScript .= "            `$scriptName = `$matches[1]`n"
     psScript .= "            `$result = & '" . A_ScriptDir . "\StopScriptlet.bat' `$scriptName`n"
+        psScript .= "        } elseif (`$url -eq '/') {`n"
+        psScript .= "            `$result = 'Scriptlet Bridge Server v2.0 - Use /status, /scriptlets, /exit endpoints'`n"
     psScript .= "        } elseif (`$url -eq '/status') {`n"
     psScript .= "            `$result = 'Server running'`n"
+        psScript .= "        } elseif (`$url -eq '/exit') {`n"
+        psScript .= "            `$result = 'Server shutting down...'`n"
+        psScript .= "            Write-Host 'Received exit command - shutting down server'`n"
+        psScript .= "            `$listener.Stop()`n"
+        psScript .= "            break`n"
         psScript .= "        } elseif (`$url -eq '/scriptlets') {`n"
     psScript .= "            `$scriptletsDir = '" . A_ScriptDir . "\scriptlets'`n"
     psScript .= "            `$scriptlets = @()`n"
     psScript .= "            if (Test-Path `$scriptletsDir) {`n"
     psScript .= "                `$files = Get-ChildItem `$scriptletsDir -Filter '*.ahk' -Recurse`n"
-    psScript .= "                foreach (`$file in `$files) {`n"
+    psScript .= "                                                foreach (`$file in `$files) {`n"
+                psScript .= "                    `$category = 'utilities'`n"
+                psScript .= "                    `$filename = `$file.BaseName.ToLower()`n"
+                psScript .= "                    if (`$filename -like '*office*' -or `$filename -like '*outlook*' -or `$filename -like '*onenote*' -or `$filename -like '*teams*' -or `$filename -like '*word*' -or `$filename -like '*excel*') { `$category = 'office' }`n"
+                psScript .= "                    elseif (`$filename -like '*game*' -or `$filename -like '*chess*' -or `$filename -like '*snake*' -or `$filename -like '*tetris*' -or `$filename -like '*pong*' -or `$filename -like '*minesweeper*' -or `$filename -like '*sudoku*' -or `$filename -like '*pacman*' -or `$filename -like '*frogger*' -or `$filename -like '*qbert*' -or `$filename -like '*mini_games*' -or `$filename -like '*breakout*' -or `$filename -like '*memory*' -or `$filename -like '*classic_*' -or `$filename -like '*fun_games*' -or `$filename -like '*game_starter*') { `$category = 'games' }`n"
+                psScript .= "                    elseif (`$filename -like '*prank*' -or `$filename -like '*corporate*' -or `$filename -like '*fun*' -or `$filename -like '*annoying*' -or `$filename -like '*sound*') { `$category = 'fun' }`n"
+                psScript .= "                    elseif (`$filename -like '*git*' -or `$filename -like '*repo*' -or `$filename -like '*code*' -or `$filename -like '*debug*' -or `$filename -like '*linter*' -or `$filename -like '*dev*' -or `$filename -like '*mcp*') { `$category = 'development' }`n"
+                psScript .= "                    elseif (`$filename -like '*system*' -or `$filename -like '*window*' -or `$filename -like '*clipboard*' -or `$filename -like '*volume*' -or `$filename -like '*media*' -or `$filename -like '*monitor*') { `$category = 'system' }`n"
+                psScript .= "                    elseif (`$filename -like '*note*' -or `$filename -like '*quick*' -or `$filename -like '*text*' -or `$filename -like '*launch*' -or `$filename -like '*clipboard*' -or `$filename -like '*workflow*') { `$category = 'productivity' }`n"
     psScript .= "                    `$scriptlets += @{`n"
     psScript .= "                        id = `$file.BaseName`n"
     psScript .= "                        name = `$file.BaseName -replace '_', ' ' -replace '-', ' '`n"
     psScript .= "                        path = `$file.FullName`n"
-    psScript .= "                        category = 'utilities'`n"
+                psScript .= "                        category = `$category`n"
     psScript .= "                        enabled = `$true`n"
     psScript .= "                        running = `$false`n"
     psScript .= "                    }`n"
     psScript .= "                }`n"
     psScript .= "            }`n"
+    psScript .= "            `$scriptlets = `$scriptlets | Sort-Object -Property name`n"
     psScript .= "            `$result = (`$scriptlets | ConvertTo-Json -Depth 3)`n"
     psScript .= "        }`n`n"
     psScript .= "        `$buffer = [System.Text.Encoding]::UTF8.GetBytes(`$result)`n"
@@ -113,7 +192,18 @@ CreatePowerShellServer() {
     psScript .= "`$listener.Stop()`n"
     
     ; Write the PowerShell script to file
-    FileAppend(psScript, A_Temp '\scriptlet_server.ps1')
+    tempPath := EnvGet("TEMP") '\scriptlet_server.ps1'
+    try {
+        FileAppend(psScript, tempPath)
+        LogActivity("Successfully created PowerShell script: " . tempPath)
+        LogActivity("Script size: " . StrLen(psScript) . " characters")
+    } catch as e {
+        LogActivity("ERROR: Failed to create PowerShell script: " . e.Message)
+        LogActivity("Temp path: " . tempPath)
+        MsgBox("Failed to create PowerShell server script: " . e.Message, "Error", "0x10")
+        return false
+    }
+    return true
 }
 
 ; ==============================================================================
@@ -198,7 +288,7 @@ CreateStopScript() {
 ; ==============================================================================
 
 LogActivity(message) {
-    timestamp := FormatTime(, 'yyyy-MM-dd HH:mm:ss')
+    timestamp := FormatTime(A_Now, 'yyyy-MM-dd HH:mm:ss')
     try {
         FileAppend('[' timestamp '] ' message '`n', A_ScriptDir '\bridge.log')
     } catch as e {
@@ -239,7 +329,8 @@ ExitBridge(*) {
     
     ; Clean up temporary files
     try {
-        FileDelete(A_Temp '\scriptlet_server.ps1')
+        tempPath := EnvGet("TEMP") '\scriptlet_server.ps1'
+        FileDelete(tempPath)
         FileDelete(A_ScriptDir '\RunScriptlet.bat')
         FileDelete(A_ScriptDir '\StopScriptlet.bat')
     } catch as e {
@@ -357,3 +448,22 @@ class ScriptletManager {
 
 LogActivity("Scriptlet COM Bridge v1.0 started")
 TrayTip("Bridge started successfully!`nClick tray icon to open launcher.", "Scriptlet Bridge", '1')
+
+; ==============================================================================
+; HOTKEYS
+; ==============================================================================
+
+; Exit server gracefully (Ctrl+Alt+E)
+Hotkey("^!e", (*) => ExitServer())
+
+ExitServer() {
+    try {
+        ; Call the exit endpoint
+        Run('powershell -Command "try { Invoke-WebRequest -Uri http://localhost:8765/exit -TimeoutSec 5 | Out-Null } catch { Write-Host \"Server exit command sent\" }"', , 'Hide')
+        LogActivity("Exit command sent to server")
+        TrayTip("Server exit command sent", "Scriptlet Bridge", '1')
+    } catch as e {
+        LogActivity("Failed to send exit command: " . e.Message)
+        MsgBox("Failed to send exit command: " . e.Message, "Error", "0x10")
+    }
+}
