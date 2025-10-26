@@ -103,7 +103,7 @@ CreatePowerShellServer() {
     
     ; Define the PowerShell script content using a continuation section
     psScript := ''
-    psScript .= "`$port = 3000`n"
+    psScript .= "`$port = 8765`n"
     psScript .= "`$listener = `$null`n"
     psScript .= "for (`$i = 0; `$i -lt 10; `$i++) {`n"
     psScript .= "    try {`n"
