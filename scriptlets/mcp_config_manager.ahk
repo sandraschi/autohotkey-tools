@@ -556,21 +556,22 @@ class MCPConfigManager {
         MsgBox(helpText, "MCP Config Manager Help", "Iconi")
     }
     
-    static SetupHotkeys(gui) {
-        Hotkey("^!c", (*) => this.LoadConfig()
-        Hotkey("F12", (*) => this.ValidateJSON()
-        
-        Hotkey("Escape", (*) => {
-            if (WinExist("MCP Config Manager")) {
-                WinClose("MCP Config Manager")
-            }
+    static CloseGUI(*) {
+        if (WinExist("MCP Config Manager")) {
+            WinClose("MCP Config Manager")
         }
+    }
+    
+    static SetupHotkeys(gui) {
+        Hotkey("^!c", (*) => this.LoadConfig())
+        Hotkey("F12", (*) => this.ValidateJSON())
+        Hotkey("Escape", (*) => this.CloseGUI())
     }
 }
 
 ; Hotkeys
-Hotkey("^!c", (*) => MCPConfigManager.Init()
-Hotkey("F12", (*) => MCPConfigManager.Init()
+Hotkey("^!c", (*) => MCPConfigManager.Init())
+Hotkey("F12", (*) => MCPConfigManager.Init())
 
 ; Initialize
 MCPConfigManager.Init()
