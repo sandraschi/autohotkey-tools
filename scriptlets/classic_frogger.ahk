@@ -387,9 +387,10 @@ class FroggerGame {
 }
 
 ; Hotkeys
-^!Hotkey("f", (*) => FroggerGame.Init()
+Hotkey("^!f", (*) => FroggerGame.Init()
 Hotkey("F6", (*) => FroggerGame.Init()
 
 ; Initialize
 FroggerGame.Init()
+
 

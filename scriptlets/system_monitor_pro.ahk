@@ -371,7 +371,7 @@ class SystemMonitorPro {
     
     static SetupHotkeys() {
         ; Main hotkey
-        ^!Hotkey("m", (*) => this.CreateGUI()
+        Hotkey("^!m", (*) => this.CreateGUI()
         
         ; Alerts hotkey
         F10::this.ShowAlerts()
@@ -387,6 +387,7 @@ class SystemMonitorPro {
 
 ; Initialize
 SystemMonitorPro.Init()
+
 
 
 

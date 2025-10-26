@@ -216,7 +216,7 @@ class GameStarter {
     
     static SetupHotkeys() {
         ; Main hotkey
-        ^!Hotkey("g", (*) => this.CreateGamePopup()
+        Hotkey("^!g", (*) => this.CreateGamePopup()
         
         ; Close with Escape
         Escape::{
@@ -237,6 +237,7 @@ class GameStarter {
 
 ; Initialize
 GameStarter.Init()
+
 
 
 

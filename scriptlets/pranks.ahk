@@ -5,7 +5,7 @@ SendMode "Input"
 SetWorkingDir A_ScriptDir
 
 ; Prank: Fake Typing
-^!Hotkey("t", (*) =>  {  ; Ctrl+Alt+T to toggle fake typing
+Hotkey("^!t", (*) =>  {  ; Ctrl+Alt+T to toggle fake typing
     static typing := false
     typing := !typing
     if (typing) {
@@ -34,7 +34,7 @@ FakeTyping() {
 }
 
 ; Prank: Random Mouse Clicks
-^!Hotkey("m", (*) =>  {  ; Ctrl+Alt+M to toggle random mouse clicks
+Hotkey("^!m", (*) =>  {  ; Ctrl+Alt+M to toggle random mouse clicks
     static clicking := false
     clicking := !clicking
     if (clicking) {
@@ -54,7 +54,7 @@ RandomClick() {
 }
 
 ; Prank: Invert Mouse Buttons
-^!Hotkey("i", (*) =>  {  ; Ctrl+Alt+I to invert mouse buttons
+Hotkey("^!i", (*) =>  {  ; Ctrl+Alt+I to invert mouse buttons
     static inverted := false
     inverted := !inverted
     if (inverted) {
@@ -68,7 +68,7 @@ RandomClick() {
 }
 
 ; Prank: Fake BSOD
-^!Hotkey("b", (*) =>  {  ; Ctrl+Alt+B for fake BSOD
+Hotkey("^!b", (*) =>  {  ; Ctrl+Alt+B for fake BSOD
     bsod := Gui("+AlwaysOnTop -Caption +ToolWindow", "Windows - No Disk")
     bsod.BackColor := "0000AA"
     bsod.SetFont("s12 cWhite", "Lucida Console")
@@ -95,7 +95,7 @@ RandomClick() {
 }
 
 ; Prank: Fake Update
-^!Hotkey("u", (*) =>  {  ; Ctrl+Alt+U for fake Windows update
+Hotkey("^!u", (*) =>  {  ; Ctrl+Alt+U for fake Windows update
     updateGui := Gui("-Caption +ToolWindow +AlwaysOnTop", "Windows Update")
     updateGui.BackColor := "0078D7"
     updateGui.SetFont("s12 cWhite", "Segoe UI")
@@ -141,12 +141,12 @@ RandomClick() {
 }
 
 ; Prank: Fake Error Message
-^!Hotkey("e", (*) =>  {  ; Ctrl+Alt+E for fake error
+Hotkey("^!e", (*) =>  {  ; Ctrl+Alt+E for fake error
     MsgBox("Error 0x80070002: The system cannot find the file specified.",  "Windows - Application Error",  "Icon!"
 }
 
 ; Prank: Fake Shutdown
-^!Hotkey("s", (*) =>  {  ; Ctrl+Alt+S for fake shutdown
+Hotkey("^!s", (*) =>  {  ; Ctrl+Alt+S for fake shutdown
     shutdownGui := Gui("-Caption +ToolWindow +AlwaysOnTop", "Windows")
     shutdownGui.BackColor := "000000"
     shutdownGui.SetFont("s12 cWhite", "Segoe UI")
@@ -184,4 +184,5 @@ ExitFunc(ExitReason, ExitCode) {
     DllCall("SwapMouseButton", "UInt", 0)
     return 0
 }
+
 

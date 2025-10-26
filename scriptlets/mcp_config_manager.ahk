@@ -557,7 +557,7 @@ class MCPConfigManager {
     }
     
     static SetupHotkeys(gui) {
-        ^!Hotkey("c", (*) => this.LoadConfig()
+        Hotkey("^!c", (*) => this.LoadConfig()
         Hotkey("F12", (*) => this.ValidateJSON()
         
         Hotkey("Escape", (*) => {
@@ -569,9 +569,10 @@ class MCPConfigManager {
 }
 
 ; Hotkeys
-^!Hotkey("c", (*) => MCPConfigManager.Init()
+Hotkey("^!c", (*) => MCPConfigManager.Init()
 Hotkey("F12", (*) => MCPConfigManager.Init()
 
 ; Initialize
 MCPConfigManager.Init()
+
 

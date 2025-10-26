@@ -568,7 +568,7 @@ class MCPTroubleshooter {
     }
     
     static SetupHotkeys(gui) {
-        ^!Hotkey("t", (*) => this.CheckConfig()
+        Hotkey("^!t", (*) => this.CheckConfig()
         Hotkey("F11", (*) => this.FixConfigIssues()
         
         Hotkey("Escape", (*) => {
@@ -580,9 +580,10 @@ class MCPTroubleshooter {
 }
 
 ; Hotkeys
-^!Hotkey("t", (*) => MCPTroubleshooter.Init()
+Hotkey("^!t", (*) => MCPTroubleshooter.Init()
 Hotkey("F11", (*) => MCPTroubleshooter.Init()
 
 ; Initialize
 MCPTroubleshooter.Init()
+
 

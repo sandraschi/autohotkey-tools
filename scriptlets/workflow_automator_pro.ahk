@@ -426,10 +426,11 @@ class WorkflowAutomator {
 }
 
 ; Hotkeys
-^!Hotkey("w", (*) => WorkflowAutomator.Init()
-^!Hotkey("r", (*) => WorkflowAutomator.GenerateReport()
-^!Hotkey("t", (*) => WorkflowAutomator.ExecuteWorkflow("Daily Report")
+Hotkey("^!w", (*) => WorkflowAutomator.Init()
+Hotkey("^!r", (*) => WorkflowAutomator.GenerateReport()
+Hotkey("^!t", (*) => WorkflowAutomator.ExecuteWorkflow("Daily Report")
 
 ; Initialize
 WorkflowAutomator.Init()
+
 

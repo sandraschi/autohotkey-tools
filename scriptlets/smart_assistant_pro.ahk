@@ -1,4 +1,4 @@
-﻿; ==============================================================================
+; ==============================================================================
 ; Smart Assistant Pro
 ; @name: Smart Assistant Pro
 ; @version: 1.0.0
@@ -358,10 +358,11 @@ class SmartAssistant {
 }
 
 ; Hotkeys
-^!Hotkey("a", (*) => SmartAssistant.Init()
+Hotkey("^!a", (*) => SmartAssistant.Init()
 #Hotkey("v", (*) => SmartAssistant.ToggleVoice()
-^!Hotkey("s", (*) => SmartAssistant.StartWorkSession()
+Hotkey("^!s", (*) => SmartAssistant.StartWorkSession()
 
 ; Initialize
 SmartAssistant.Init()
+
 

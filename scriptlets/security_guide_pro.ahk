@@ -934,9 +934,10 @@ Remember: Security is everyone's responsibility!
 }
 
 ; Hotkeys
-^!Hotkey("s", (*) => SecurityGuide.Init()
+Hotkey("^!s", (*) => SecurityGuide.Init()
 Hotkey("F2", (*) => SecurityGuide.Init()
 
 ; Initialize
 SecurityGuide.Init()
+
 

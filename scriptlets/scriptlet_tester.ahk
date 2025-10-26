@@ -99,9 +99,10 @@ class ScriptletTester {
 }
 
 ; Hotkeys
-^!Hotkey("t", (*) => ScriptletTester.TestAllScriptlets()
+Hotkey("^!t", (*) => ScriptletTester.TestAllScriptlets()
 ^!f::ScriptletTester.ShowQuickFix()
 
 ; Test specific scriptlet (you can change this)
 ; ScriptletTester.TestScriptlet(A_ScriptDir . "\scriptlets\system_monitor.ahk")
+
 

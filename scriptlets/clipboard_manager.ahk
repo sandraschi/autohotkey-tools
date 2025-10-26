@@ -314,7 +314,7 @@ MoveWindow(*) {
 #Hotkey("v", (*) =>  ShowClipboardMenu()
 
 ; Ctrl+Alt+V: Paste previous clipboard item
-^!Hotkey("v", (*) =>  PastePreviousItem()
+Hotkey("^!v", (*) =>  PastePreviousItem()
 
 ; Ctrl+Alt+Shift+C: Clear clipboard history
 ^!+c:: ClearClipboardHistory()
@@ -327,4 +327,5 @@ ExitFunc(ExitReason, ExitCode) {
     SaveClipboardHistory()
     return 0
 }
+
 

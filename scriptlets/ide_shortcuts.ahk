@@ -1,4 +1,4 @@
-﻿#Requires AutoHotkey v2.0
+#Requires AutoHotkey v2.0
 #SingleInstance Force
 #Warn
 
@@ -51,81 +51,81 @@ IDE_SHORTCUTS := Map(
 ; VS Code specific shortcuts
 #HotIf WinActive("ahk_exe code.exe")
     ; Format Document
-    ^!Hotkey("l", (*) =>  Send("^k^f")
+    Hotkey("^!l", (*) =>  Send("^k^f")
     
     ; Comment/Uncomment Line
     ^/:: Send("^k^c")
     ^+/:: Send("^k^u")
     
     ; Duplicate Line
-    ^Hotkey("d", (*) =>  Send("^d")
+    Hotkey("^d", (*) =>  Send("^d")
     
     ; Move Line Up/Down
     !Hotkey("Up", (*) =>  Send("!{Up}")
     !Hotkey("Down", (*) =>  Send("!{Down}")
     
     ; Find in Files
-    ^+Hotkey("f", (*) =>  Send("^+f")
+    Hotkey("^+f", (*) =>  Send("^+f")
     
     ; Toggle Terminal
     ^`:: Send("^`")
     
     ; Toggle Sidebar
-    ^Hotkey("b", (*) =>  Send("^b")
+    Hotkey("^b", (*) =>  Send("^b")
     
     ; Command Palette
-    ^+Hotkey("p", (*) =>  Send("^+p")
+    Hotkey("^+p", (*) =>  Send("^+p")
 #HotIf
 
 ; IntelliJ specific shortcuts
 #HotIf WinActive("ahk_exe idea64.exe")
     ; Reformat Code
-    ^!Hotkey("l", (*) =>  Send("^!l")
+    Hotkey("^!l", (*) =>  Send("^!l")
     
     ; Comment Line
     ^/:: Send("^/")
     
     ; Duplicate Line
-    ^Hotkey("d", (*) =>  Send("^d")
+    Hotkey("^d", (*) =>  Send("^d")
     
     ; Move Line Up/Down
-    ^+Hotkey("Up", (*) =>  Send("^+{Up}")
-    ^+Hotkey("Down", (*) =>  Send("^+{Down}")
+    Hotkey("^+Up", (*) =>  Send("^+{Up}")
+    Hotkey("^+Down", (*) =>  Send("^+{Down}")
     
     ; Find in Files
-    ^+Hotkey("f", (*) =>  Send("^+f")
+    Hotkey("^+f", (*) =>  Send("^+f")
     
     ; Find Action
-    ^+Hotkey("a", (*) =>  Send("^+a")
+    Hotkey("^+a", (*) =>  Send("^+a")
     
     ; Recent Files
-    ^Hotkey("e", (*) =>  Send("^e")
+    Hotkey("^e", (*) =>  Send("^e")
 #HotIf
 
 ; Visual Studio specific shortcuts
 #HotIf WinActive("ahk_exe devenv.exe")
     ; Format Document
-    ^k^Hotkey("d", (*) =>  Send("^k^d")
+    ^kHotkey("^d", (*) =>  Send("^k^d")
     
     ; Comment/Uncomment Selection
-    ^k^Hotkey("c", (*) =>  Send("^k^c")
-    ^k^Hotkey("u", (*) =>  Send("^k^u")
+    ^kHotkey("^c", (*) =>  Send("^k^c")
+    ^kHotkey("^u", (*) =>  Send("^k^u")
     
     ; Duplicate Line
-    ^Hotkey("d", (*) =>  Send("^d")
+    Hotkey("^d", (*) =>  Send("^d")
     
     ; Move Line Up/Down
     !Hotkey("Up", (*) =>  Send("!{Up}")
     !Hotkey("Down", (*) =>  Send("!{Down}")
     
     ; Find in Files
-    ^+Hotkey("f", (*) =>  Send("^+f")
+    Hotkey("^+f", (*) =>  Send("^+f")
     
     ; Quick Launch
     ^,:: Send("^,")
     
     ; Solution Explorer
-    ^!Hotkey("l", (*) =>  Send("^!l")
+    Hotkey("^!l", (*) =>  Send("^!l")
 #HotIf
 
 ; =============================================================================
@@ -171,4 +171,5 @@ SetWorkingDir A_ScriptDir
 ; Show a notification when the script loads
 TrayTip "IDE Shortcuts", "IDE Shortcuts script loaded", "Iconi"
 SetTimer () => TrayTip(), 2000  ; Hide after 2 seconds
+
 

@@ -111,7 +111,7 @@ Ready to explore? Use the navigation menu to learn about specific components!
 ### **Hotkeys**
 ```autohotkey
 #Hotkey("Space", (*) => Run('notepad.exe')  ; Win+Space opens Notepad
-^!Hotkey("s", (*) => Send('Hello World')   ; Ctrl+Alt+S types 'Hello World'
+Hotkey("^!s", (*) => Send('Hello World')   ; Ctrl+Alt+S types 'Hello World'
 ```
 
 ### **Variables**
@@ -1068,9 +1068,10 @@ If everything is working correctly, you should see:
 
 ; Hotkeys
 Hotkey("F1", (*) => HelpSystem.Init()
-^!Hotkey("h", (*) => HelpSystem.Init()
+Hotkey("^!h", (*) => HelpSystem.Init()
 ^!?::HelpSystem.Init()
 
 ; Initialize
 HelpSystem.Init()
+
 

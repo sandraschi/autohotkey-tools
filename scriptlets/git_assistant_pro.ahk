@@ -1,4 +1,4 @@
-﻿; ==============================================================================
+; ==============================================================================
 ; Git Assistant Pro
 ; @name: Git Assistant Pro
 ; @version: 1.0.0
@@ -302,10 +302,11 @@ class GitAssistant {
 }
 
 ; Hotkeys
-^!Hotkey("g", (*) => GitAssistant.Init()
-^!Hotkey("commit", (*) => GitAssistant.GitCommit()
-^!Hotkey("branch", (*) => GitAssistant.CreateBranch()
+Hotkey("^!g", (*) => GitAssistant.Init()
+Hotkey("^!commit", (*) => GitAssistant.GitCommit()
+Hotkey("^!branch", (*) => GitAssistant.CreateBranch()
 
 ; Initialize
 GitAssistant.Init()
+
 

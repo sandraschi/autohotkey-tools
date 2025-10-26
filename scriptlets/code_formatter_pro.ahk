@@ -469,10 +469,11 @@ StringRepeat(str, count) {
 }
 
 ; Hotkeys
-^!Hotkey("f", (*) => CodeFormatter.FormatCode()
+Hotkey("^!f", (*) => CodeFormatter.FormatCode()
 ^!b::CodeFormatter.BeautifyCode()
 ^!c::CodeFormatter.Init()
 
 ; Initialize
 CodeFormatter.Init()
+
 

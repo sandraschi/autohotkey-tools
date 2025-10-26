@@ -314,10 +314,10 @@ class AICodeAssistant {
     
     static SetupHotkeys() {
         ; Main hotkey
-        ^!Hotkey("a", (*) => this.CreateGUI()
+        Hotkey("^!a", (*) => this.CreateGUI()
         
         ; Instant suggestions
-        ^!Hotkey("i", (*) => this.AnalyzeCode()
+        Hotkey("^!i", (*) => this.AnalyzeCode()
         
         ; Close with Escape
         Hotkey("Escape", (*) => {
@@ -330,4 +330,5 @@ class AICodeAssistant {
 
 ; Initialize
 AICodeAssistant.Init()
+
 

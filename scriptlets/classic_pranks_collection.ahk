@@ -355,7 +355,7 @@ class ClassicPranks {
     
     static SetupHotkeys() {
         ; Main hotkey
-        ^!Hotkey("p", (*) => this.CreateGUI()
+        Hotkey("^!p", (*) => this.CreateGUI()
         
         ; Emergency stop
         Hotkey("F9", (*) => this.StopAllPranksnks()
@@ -371,6 +371,7 @@ class ClassicPranks {
 
 ; Initialize
 ClassicPranks.Init()
+
 
 
 

@@ -888,8 +888,8 @@ ClearChatHotkey() {
 ; =============================================================================
 #HotIf WinActive(APP_TITLE)
 {
-    ^Hotkey("Enter", (*) => SendMessageHotkey()
-    ^Hotkey("N", (*) => LoadModelsHotkey()
+    Hotkey("^Enter", (*) => SendMessageHotkey()
+    Hotkey("^N", (*) => LoadModelsHotkey()
     ^T::ToggleThemeHotkey()
     ^L::ClearChatHotkey()
     Escape::ExitApp()
@@ -898,3 +898,4 @@ ClearChatHotkey() {
 
 ; Initialize
 ; Script end
+

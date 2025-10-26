@@ -195,7 +195,7 @@ class GitHubRepoManager {
     
     static SetupHotkeys() {
         ; Main hotkey
-        ^!Hotkey("g", (*) => this.CreateGUI()
+        Hotkey("^!g", (*) => this.CreateGUI()
         
         ; Refresh hotkey
         ^!r::this.RefreshRepositories()
@@ -211,6 +211,7 @@ class GitHubRepoManager {
 
 ; Initialize
 GitHubRepoManager.Init()
+
 
 
 

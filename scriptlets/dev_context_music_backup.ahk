@@ -118,28 +118,28 @@ CheckRepoHealth() {
 ; ========================================
 
 ; Play a sad march
-^!Hotkey("s", (*) =>   ; Ctrl+Alt+S for sad march
+Hotkey("^!s", (*) =>   ; Ctrl+Alt+S for sad march
     PlayTrack(SadMarches)
     TrayTip, Mood Music, Playing a sad march..., , 1
     SetTimer, RemoveTrayTip, -3000
     return
 
 ; Play a triumphant piece
-^!Hotkey("t", (*) =>   ; Ctrl+Alt+T for triumphant music
+Hotkey("^!t", (*) =>   ; Ctrl+Alt+T for triumphant music
     PlayTrack(TriumphantTracks)
     TrayTip, Mood Music, Playing something triumphant!, , 1
     SetTimer, RemoveTrayTip, -3000
     return
 
 ; Play a random Betty Boop cartoon (Plex)
-^!Hotkey("b", (*) =>   ; Ctrl+Alt+B for Betty Boop
+Hotkey("^!b", (*) =>   ; Ctrl+Alt+B for Betty Boop
     PlayPlexTrack("Betty Boop")
     TrayTip, Plex, Playing Betty Boop..., , 1
     SetTimer, RemoveTrayTip, -3000
     return
 
 ; Play a random classical piece
-^!Hotkey("c", (*) =>   ; Ctrl+Alt+C for classical
+Hotkey("^!c", (*) =>   ; Ctrl+Alt+C for classical
     allClassical := [].Append(BuildSuccessTracks, BuildFailureTracks, SadMarches, TriumphantTracks)
     PlayTrack(allClassical)
     TrayTip, Classical Music, Playing a classical piece..., , 1
@@ -254,4 +254,5 @@ SetTimer, RemoveTrayTip, -3000
 
 ; Initial time check
 Gosub, CheckTime
+
 

@@ -536,8 +536,8 @@ class MCPDevelopmentCycle {
     }
     
     static SetupHotkeys(gui) {
-        ^!Hotkey("d", (*) => this.StartDevelopment()
-        ^Hotkey("F12", (*) => this.ProgressReport()
+        Hotkey("^!d", (*) => this.StartDevelopment()
+        Hotkey("^F12", (*) => this.ProgressReport()
         
         Escape::{
             if (WinExist("MCP Development Cycle")) {
@@ -548,9 +548,10 @@ class MCPDevelopmentCycle {
 }
 
 ; Hotkeys
-^!Hotkey("d", (*) => MCPDevelopmentCycle.Init()
-^Hotkey("F12", (*) => MCPDevelopmentCycle.Init()
+Hotkey("^!d", (*) => MCPDevelopmentCycle.Init()
+Hotkey("^F12", (*) => MCPDevelopmentCycle.Init()
 
 ; Initialize
 MCPDevelopmentCycle.Init()
+
 

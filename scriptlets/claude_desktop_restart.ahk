@@ -212,10 +212,10 @@ class ClaudeRestart {
     
     static SetupHotkeys() {
         ; Intelligent restart
-        ^!Hotkey("r", (*) => this.IntelligentRestart()
+        Hotkey("^!r", (*) => this.IntelligentRestart()
         
         ; Emergency restart
-        ^!Hotkey("x", (*) => this.EmergencyRestart()
+        Hotkey("^!x", (*) => this.EmergencyRestart()
         
         ; Config reload
         Hotkey("F8", (*) => this.ConfigReload()
@@ -230,10 +230,11 @@ class ClaudeRestart {
 }
 
 ; Hotkeys
-^!Hotkey("r", (*) => ClaudeRestart.IntelligentRestart()
-^!Hotkey("x", (*) => ClaudeRestart.EmergencyRestart()
+Hotkey("^!r", (*) => ClaudeRestart.IntelligentRestart()
+Hotkey("^!x", (*) => ClaudeRestart.EmergencyRestart()
 Hotkey("F8", (*) => ClaudeRestart.ConfigReload()
 
 ; Initialize
 ClaudeRestart.Init()
+
 

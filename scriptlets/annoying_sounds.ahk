@@ -8,7 +8,7 @@ SetWorkingDir %A_ScriptDir%
 ; ========================================
 ; 1. ELEVATOR MUSIC PLAYER
 ; ========================================
-^!Hotkey("m", (*) =>   ; Ctrl+Alt+M for elevator music
+Hotkey("^!m", (*) =>   ; Ctrl+Alt+M for elevator music
     static musicPlaying := false
     
     if (!musicPlaying) {
@@ -43,7 +43,7 @@ PlayElevatorMusic:
 ; ========================================
 ; 2. RANDOM SOUND EFFECTS
 ; ========================================
-^!Hotkey("s", (*) =>   ; Ctrl+Alt+S for random sound effects
+Hotkey("^!s", (*) =>   ; Ctrl+Alt+S for random sound effects
     static soundsOn := false
     soundsOn := !soundsOn
     
@@ -85,7 +85,7 @@ RandomSound:
 ; ========================================
 ; 3. ANNOYING BEEP GENERATOR
 ; ========================================
-^!Hotkey("b", (*) =>   ; Ctrl+Alt+B for annoying beeps
+Hotkey("^!b", (*) =>   ; Ctrl+Alt+B for annoying beeps
     static beepOn := false
     beepOn := !beepOn
     
@@ -108,7 +108,7 @@ AnnoyingBeep:
 ; ========================================
 ; 4. RICKROLL (OF COURSE!)
 ; ========================================
-^!Hotkey("r", (*) =>   ; Ctrl+Alt+R for Rickroll
+Hotkey("^!r", (*) =>   ; Ctrl+Alt+R for Rickroll
     ; This would open the YouTube video in the default browser
     Run, https://www.youtube.com/watch?v=dQw4w9WgXcQ
     
@@ -134,7 +134,7 @@ AnnoyingBeep:
 ; ========================================
 ; 5. FAKE VIRUS SCAN
 ; ========================================
-^!Hotkey("v", (*) =>   ; Ctrl+Alt+V for fake virus scan
+Hotkey("^!v", (*) =>   ; Ctrl+Alt+V for fake virus scan
     Gui( VirusScan:New, +AlwaysOnTop -Caption +ToolWindow
     Gui( Color, 000000
     Gui( Font, s12 cLime, Consolas
@@ -193,7 +193,7 @@ VirusScanGuiClose:
 ; ========================================
 ; 6. KEYBOARD SOUNDS
 ; ========================================
-^!Hotkey("k", (*) =>   ; Ctrl+Alt+K for keyboard sounds
+Hotkey("^!k", (*) =>   ; Ctrl+Alt+K for keyboard sounds
     static kbSoundsOn := false
     kbSoundsOn := !kbSoundsOn
     
@@ -252,4 +252,5 @@ GuiClose:
     
     ExitApp
     return
+
 

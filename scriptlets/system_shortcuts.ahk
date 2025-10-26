@@ -27,7 +27,7 @@ OPEN_DEVICE_MANAGER := "^!+m"     ; Ctrl+Alt+Shift+M - Device Manager
 OPEN_DISK_CLEANUP := "^!+d"       ; Ctrl+Alt+Shift+D - Disk Cleanup
 
 ; Help Screen
-^+Hotkey("h", (*) => ShowHelp()  ; Ctrl+Shift+H - Show help screen
+Hotkey("^+h", (*) => ShowHelp()  ; Ctrl+Shift+H - Show help screen
 
 ; =============================================================================
 ; FUNCTIONS
@@ -390,4 +390,5 @@ ExitFunc(ExitReason, ExitCode) {
     ; Clean up any resources if needed
     return 0
 }
+
 

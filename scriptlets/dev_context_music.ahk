@@ -165,28 +165,28 @@ CheckRepoHealth() {
 ; ========================================
 
 ; Play a sad march
-^!Hotkey("s", (*) =>  {  ; Ctrl+Alt+S for sad march
+Hotkey("^!s", (*) =>  {  ; Ctrl+Alt+S for sad march
     PlayContextSound("sad_march")
     TrayTip("Playing a sad march... 🎵", "Mood Music", 1)
     SetTimer(() => TrayTip(), -3000)
 }
 
 ; Play a triumphant piece
-^!Hotkey("t", (*) =>  {  ; Ctrl+Alt+T for triumphant music
+Hotkey("^!t", (*) =>  {  ; Ctrl+Alt+T for triumphant music
     PlayContextSound("triumphant")
     TrayTip("Playing something triumphant! 🎺", "Mood Music", 1)
     SetTimer(() => TrayTip(), -3000)
 }
 
 ; Play a random Betty Boop cartoon
-^!Hotkey("b", (*) =>  {  ; Ctrl+Alt+B for Betty Boop
+Hotkey("^!b", (*) =>  {  ; Ctrl+Alt+B for Betty Boop
     PlayContextSound("betty_boop")
     TrayTip("Betty Boop beep-a-boop! 🎭", "Plex", 1)
     SetTimer(() => TrayTip(), -3000)
 }
 
 ; Play a classical piece
-^!Hotkey("c", (*) =>  {  ; Ctrl+Alt+C for classical
+Hotkey("^!c", (*) =>  {  ; Ctrl+Alt+C for classical
     PlayContextSound("classical")
     TrayTip("Playing a classical piece... 🎼", "Classical Music", 1)
     SetTimer(() => TrayTip(), -3000)
@@ -287,4 +287,5 @@ SetTimer(() => TrayTip(), -4000)
 
 ; Initial time check
 CheckTime()
+
 

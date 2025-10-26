@@ -399,10 +399,10 @@ class AHDebugHelper {
     }
     
     static SetupHotkeys() {
-        ^!Hotkey("d", (*) => this.Init()
+        Hotkey("^!d", (*) => this.Init()
         Hotkey("F3", (*) => this.ListVariables()
         ^!v::this.ListLines()
-        ^!Hotkey("k", (*) => this.KeyHistory()
+        Hotkey("^!k", (*) => this.KeyHistory()
         
         Escape::{
             if (WinExist("AutoHotkey Debug Helper")) {
@@ -420,3 +420,4 @@ Hotkey("^!k", (*) => AHDebugHelper.KeyHistory())
 
 ; Initialize
 AHDebugHelper.Init()
+

@@ -305,9 +305,10 @@ class PongGame {
 }
 
 ; Hotkeys
-^!Hotkey("p", (*) => PongGame.Init()
+Hotkey("^!p", (*) => PongGame.Init()
 Hotkey("F5", (*) => PongGame.Init()
 
 ; Initialize
 PongGame.Init()
+
 

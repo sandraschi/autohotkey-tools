@@ -439,7 +439,7 @@ class MCPScaffolding {
     }
     
     static SetupHotkeys(Gui( projectNameEdit, descriptionEdit, dirEdit, templateList, checkboxes) {
-        ^!Hotkey("m", (*) => this.GenerateProject(Gui( projectNameEdit, descriptionEdit, dirEdit, templateList, checkboxes)
+        Hotkey("^!m", (*) => this.GenerateProject(Gui( projectNameEdit, descriptionEdit, dirEdit, templateList, checkboxes)
         Hotkey("F9", (*) => this.PreviewStructure(Gui( projectNameEdit, templateList, checkboxes)
         
         Hotkey("Escape", (*) => {
@@ -451,9 +451,10 @@ class MCPScaffolding {
 }
 
 ; Hotkeys
-^!Hotkey("m", (*) => MCPScaffolding.Init()
+Hotkey("^!m", (*) => MCPScaffolding.Init()
 Hotkey("F9", (*) => MCPScaffolding.Init()
 
 ; Initialize
 MCPScaffolding.Init()
+
 

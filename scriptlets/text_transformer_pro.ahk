@@ -251,11 +251,12 @@ Base64Decode(text) {
 }
 
 ; Hotkeys
-^!Hotkey("t", (*) => TextTransformer.Init()
-^!Hotkey("u", (*) => TextTransformer.ToUpperCase()
-^!Hotkey("l", (*) => TextTransformer.ToLowerCase()
-^!Hotkey("s", (*) => TextTransformer.ToSnakeCase()
+Hotkey("^!t", (*) => TextTransformer.Init()
+Hotkey("^!u", (*) => TextTransformer.ToUpperCase()
+Hotkey("^!l", (*) => TextTransformer.ToLowerCase()
+Hotkey("^!s", (*) => TextTransformer.ToSnakeCase()
 
 ; Initialize
 TextTransformer.Init()
+
 
