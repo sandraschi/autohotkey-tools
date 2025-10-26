@@ -101,6 +101,14 @@ for i, line in lines {
     }
 }
 
+; Check 5d: InputBox v1 syntax (detect & variable reference)
+for i, line in lines {
+    if (RegExMatch(line, "InputBox\(&")) {
+        AddIssue("Incorrect InputBox syntax - use InputBox(Prompt, Title) returning object with .Result and .Value", "Error", i)
+        hasErrors := true
+    }
+}
+
 ; Check 6: String functions (v1 to v2 migration)
 for i, line in lines {
     if (RegExMatch(line, "StringReplace\s*\(")) {

@@ -222,7 +222,9 @@ class MCPConfigManager {
             }
             backupText .= "`nEnter backup number to restore:"
             
-            InputBox(&backupNum, "Restore Backup", backupText)
+            result := InputBox(backupText, "Restore Backup")
+            if (result.Result != "OK" || result.Value = "") return
+            backupNum := Integer(result.Value)
             
             if (backupNum >= 1 && backupNum <= backups.Length) {
                 selectedBackup := backups[backupNum]
@@ -247,16 +249,20 @@ class MCPConfigManager {
     static AddServer(*) {
         try {
             ; Show add server dialog
-            serverName := InputBox(&name, "Add MCP Server", "Enter server name:")
-            if (name = "") return
+            result := InputBox("Enter server name:", "Add MCP Server")
+            if (result.Result != "OK" || result.Value = "") return
+            name := result.Value
             
-            serverCommand := InputBox(&command, "Add MCP Server", "Enter command (e.g., python):")
-            if (command = "") return
+            result := InputBox("Enter command (e.g., python):", "Add MCP Server")
+            if (result.Result != "OK" || result.Value = "") return
+            command := result.Value
             
-            serverArgs := InputBox(&args, "Add MCP Server", "Enter arguments (e.g., main.py):")
-            if (args = "") return
+            result := InputBox("Enter arguments (e.g., main.py):", "Add MCP Server")
+            if (result.Result != "OK" || result.Value = "") return
+            args := result.Value
             
-            serverCwd := InputBox(&cwd, "Add MCP Server", "Enter working directory (optional):")
+            result := InputBox("Enter working directory (optional):", "Add MCP Server")
+            cwd := (result.Result = "OK" ? result.Value : "")
             
             ; Create server configuration
             serverConfig := "    `"" . name . "`": {`n"
@@ -321,8 +327,9 @@ class MCPConfigManager {
                 return
             }
             
-            newName := InputBox(&name, "Duplicate Server", "Enter new server name:")
-            if (name = "") return
+            result := InputBox("Enter new server name:", "Duplicate Server")
+            if (result.Result != "OK" || result.Value = "") return
+            name := result.Value
             
             this.DuplicateServerInConfig(selectedServer, name)
             MsgBox("Server duplicated as '" . name . "'!", "Server Duplicated", "Iconi")

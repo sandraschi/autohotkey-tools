@@ -134,9 +134,48 @@ static SetupHotkeys(gui) {
 }
 ```
 
+## InputBox Function Syntax
+
+### Issue 4: InputBox Variable Reference
+
+**Incorrect Pattern (v1):**
+```autohotkey
+InputBox(&outputVar, "Title", "Prompt")
+if (outputVar = "") return
+```
+
+**Correct Pattern (v2):**
+```autohotkey
+result := InputBox("Prompt", "Title")
+if (result.Result != "OK" || result.Value = "") return
+outputVar := result.Value
+```
+
+**Why:** AutoHotkey v2 changed `InputBox` from using output variable references to returning an object.
+
+**v2 InputBox returns an InputBoxObject with:**
+- `.Result` - "OK" or "Cancel"
+- `.Value` - The text entered by the user
+
+**Parameter Order:**
+- v1: `InputBox(&Var, Title, Prompt, Options, Default)`
+- v2: `InputBox(Prompt, Title, Options, Default)`
+
+**Example Fix:**
+```autohotkey
+; v1 (wrong)
+name := InputBox(&output, "Enter Name:", "What is your name?")
+if (output = "") return
+
+; v2 (correct)
+result := InputBox("What is your name?", "Enter Name:")
+if (result.Result != "OK" || result.Value = "") return
+name := result.Value
+```
+
 ## Notes
 
-- All three issues were found in actual debugging sessions
+- All issues were found in actual debugging sessions
 - These patterns cause runtime errors in AutoHotkey v2
 - The linter now prevents these issues from being committed
 - When in doubt, extract lambda logic to named methods for clarity
