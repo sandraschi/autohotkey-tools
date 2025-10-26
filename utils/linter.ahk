@@ -74,6 +74,33 @@ for i, line in lines {
 }
 }
 
+; Check 5a: Hotkey with missing closing parenthesis
+for i, line in lines {
+    if (RegExMatch(line, "Hotkey\([^\)]+\)\s*$") && !InStr(line, "))")) {
+        ; Check if the line doesn't have proper closing
+        if (RegExMatch(line, "Hotkey\([^\)]+\(\s*$")) {
+            AddIssue("Missing closing parenthesis in Hotkey() call - should end with `))`", "Error", i)
+            hasErrors := true
+        }
+    }
+}
+
+; Check 5b: Using prefix modifiers with Hotkey()
+for i, line in lines {
+    if (RegExMatch(line, "[\^#!+]+Hotkey\(")) {
+        AddIssue("Incorrect hotkey prefix - use Hotkey(\"^!key\", ...) instead of ^!Hotkey(\"key\", ...)", "Error", i)
+        hasErrors := true
+    }
+}
+
+; Check 5c: Multi-line lambda blocks (detect => followed by { on same line)
+for i, line in lines {
+    if (RegExMatch(line, "=\>\s*\{") && !RegExMatch(line, "\)\s*\)\s*$")) {
+        AddIssue("Multi-line lambda block detected - extract to separate function or use single-line lambda", "Error", i)
+        hasErrors := true
+    }
+}
+
 ; Check 6: String functions (v1 to v2 migration)
 for i, line in lines {
     if (RegExMatch(line, "StringReplace\s*\(")) {
