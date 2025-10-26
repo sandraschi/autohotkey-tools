@@ -109,6 +109,16 @@ for i, line in lines {
     }
 }
 
+; Check 5d2: InputBox parameter order (check for title-like strings before prompt-like strings)
+for i, line in lines {
+    if (RegExMatch(line, "InputBox\(\"[^\"]+\"[^,]*,\"[^\"]+\"[^,]*,") && InStr(line, "InputBox")) {
+        ; Check if it looks like title is before prompt (heuristic: short strings before longer ones)
+        if (RegExMatch(line, "InputBox\(\"[^\"]{0,20}\",\s*\"[^\"]{20,}\"")) {
+            AddIssue("Possible InputBox parameter order issue - v2 order is InputBox(Prompt, Title), not InputBox(Title, Prompt)", "Warning", i)
+        }
+    }
+}
+
 ; Check 5e: Loop Files v1 syntax (detect comma after Files)
 for i, line in lines {
     if (RegExMatch(line, "Loop Files,")) {

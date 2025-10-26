@@ -157,9 +157,11 @@ outputVar := result.Value
 - `.Result` - "OK" or "Cancel"
 - `.Value` - The text entered by the user
 
-**Parameter Order:**
+**Parameter Order (CRITICAL):**
 - v1: `InputBox(&Var, Title, Prompt, Options, Default)`
 - v2: `InputBox(Prompt, Title, Options, Default)`
+
+**Important:** The parameter order is reversed! In v2, Prompt comes FIRST.
 
 **Example Fix:**
 ```autohotkey
