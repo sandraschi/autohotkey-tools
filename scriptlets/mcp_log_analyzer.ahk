@@ -485,7 +485,7 @@ class MCPLogAnalyzer {
     }
     
     static SetupHotkeys(gui) {
-        ^!Hotkey("l", (*) => this.AnalyzeLatestLogs())
+        Hotkey("^!l", (*) => this.AnalyzeLatestLogs())
         Hotkey("F10", (*) => this.GenerateFixes())
         
         Hotkey("Escape", (*) => {
@@ -497,7 +497,7 @@ class MCPLogAnalyzer {
 }
 
 ; Hotkeys
-^!Hotkey("l", (*) => MCPLogAnalyzer.Init())
+Hotkey("^!l", (*) => MCPLogAnalyzer.Init())
 Hotkey("F10", (*) => MCPLogAnalyzer.Init())
 
 ; Initialize
