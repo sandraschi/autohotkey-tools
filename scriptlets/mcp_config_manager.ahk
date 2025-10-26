@@ -206,7 +206,7 @@ class MCPConfigManager {
             ; List available backups
             backups := []
             Loop Files, this.backupDir . "\*.json" {
-                backups.Push(A_LoopFileFullPath)
+                backups.Push(A_LoopFilePath)
             }
             
             if (backups.Length = 0) {
@@ -222,7 +222,7 @@ class MCPConfigManager {
             }
             backupText .= "`nEnter backup number to restore:"
             
-            result := InputBox(backupText, "Restore Backup")
+            result := InputBox("Enter backup number:", backupText, "Restore Backup")
             if (result.Result != "OK" || result.Value = "") return
             backupNum := Integer(result.Value)
             
