@@ -398,17 +398,18 @@ class AHDebugHelper {
         MsgBox(helpText, "AutoHotkey Debug Helper Help", "Iconi")
     }
     
-    static SetupHotkeys() {
-        Hotkey("^!d", (*) => this.Init()
-        Hotkey("F3", (*) => this.ListVariables()
-        ^!v::this.ListLines()
-        Hotkey("^!k", (*) => this.KeyHistory()
-        
-        Escape::{
-            if (WinExist("AutoHotkey Debug Helper")) {
-                WinClose("AutoHotkey Debug Helper")
-            }
+    static CloseGUI(*) {
+        if (WinExist("AutoHotkey Debug Helper")) {
+            WinClose("AutoHotkey Debug Helper")
         }
+    }
+    
+    static SetupHotkeys() {
+        Hotkey("^!d", (*) => this.Init())
+        Hotkey("F3", (*) => this.ListVariables())
+        Hotkey("^!v", (*) => this.ListLines())
+        Hotkey("^!k", (*) => this.KeyHistory())
+        Hotkey("Escape", (*) => this.CloseGUI())
     }
 }
 

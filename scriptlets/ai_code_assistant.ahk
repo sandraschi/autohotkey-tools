@@ -312,19 +312,21 @@ class AICodeAssistant {
         return code
     }
     
+    static CloseGUI(*) {
+        if (WinExist("AI Code Assistant")) {
+            WinClose("AI Code Assistant")
+        }
+    }
+    
     static SetupHotkeys() {
         ; Main hotkey
-        Hotkey("^!a", (*) => this.CreateGUI()
+        Hotkey("^!a", (*) => this.CreateGUI())
         
         ; Instant suggestions
-        Hotkey("^!i", (*) => this.AnalyzeCode()
+        Hotkey("^!i", (*) => this.AnalyzeCode())
         
         ; Close with Escape
-        Hotkey("Escape", (*) => {
-            if (WinExist("AI Code Assistant")) {
-                WinClose("AI Code Assistant")
-            }
-        }
+        Hotkey("Escape", (*) => this.CloseGUI())
     }
 }
 
