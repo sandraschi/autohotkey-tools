@@ -485,20 +485,20 @@ class MCPLogAnalyzer {
     }
     
     static SetupHotkeys(gui) {
-        ^!Hotkey("l", (*) => this.AnalyzeLatestLogs()
-        Hotkey("F10", (*) => this.GenerateFixes()
+        ^!Hotkey("l", (*) => this.AnalyzeLatestLogs())
+        Hotkey("F10", (*) => this.GenerateFixes())
         
         Hotkey("Escape", (*) => {
             if (WinExist("MCP Log Analyzer")) {
                 WinClose("MCP Log Analyzer")
             }
-        }
+        })
     }
 }
 
 ; Hotkeys
-^!Hotkey("l", (*) => MCPLogAnalyzer.Init()
-Hotkey("F10", (*) => MCPLogAnalyzer.Init()
+^!Hotkey("l", (*) => MCPLogAnalyzer.Init())
+Hotkey("F10", (*) => MCPLogAnalyzer.Init())
 
 ; Initialize
 MCPLogAnalyzer.Init()
