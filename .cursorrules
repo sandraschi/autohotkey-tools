@@ -270,6 +270,33 @@ AutoHotkey.exe script.ahk
 - **REQUIRED**: Always check file exists before running
 - **ENFORCED**: Running without `/ErrorStdOut` is considered a critical error
 
+## MANDATORY V2 COMPLIANCE CHECKLIST
+
+Before writing ANY code, AI must verify:
+1. ✅ Is using modern v2 syntax (not v1 leftovers)
+2. ✅ Using StrUpper() not .ToUpper()
+3. ✅ Using StrLower() not .ToLower()
+4. ✅ Using FormatTime(OUTPUT, INPUT, FORMAT) not FormatTime OUTPUT,,FORMAT
+5. ✅ Using MsgBox("text", "title", "flags") not MsgBox, flags, title, text
+6. ✅ Using Gui() not Gui, Add
+7. ✅ Using Hotkey() function not ^!c:: syntax
+8. ✅ All function calls use parentheses
+9. ✅ No comma-separated command syntax
+10. ✅ Using for i in array not Loop Array or for i := 1 to 10
+
+## STRICT PROHIBITIONS
+
+❌ NEVER use: FormatTime output,, format  (missing parentheses and commas)
+❌ NEVER use: MsgBox, flags, title, text  (comma syntax)
+❌ NEVER use: FileRead var, file  (comma syntax)
+❌ NEVER use: StringReplace, StringSplit, StringLen  (use StrReplace, StrSplit, StrLen)
+❌ NEVER use: Gui, Add (v1 command syntax)
+❌ NEVER use: ^!c::  (v1 hotkey syntax)
+❌ NEVER use: for i := 1 to 10  (use for i in Range(1, 10))
+❌ NEVER use: .ToUpper() or .ToLower() methods
+❌ NEVER use: Random(min, max) - must be Random(OUTPUT, min, max)
+❌ NEVER use: any v1 syntax patterns
+
 ## Summary
 
 **Rule #1: Write scriptlets in v2 syntax from the start. NO v1 allowed.**
@@ -277,5 +304,6 @@ AutoHotkey.exe script.ahk
 **Rule #3: Follow all code quality and testing requirements.**
 **Rule #4: ALWAYS use /ErrorStdOut when running AutoHotkey scripts.**
 **Rule #5: Use StrUpper() and StrLower(), NOT .ToUpper() or .ToLower() methods.**
+**Rule #6: RUN LINTER after every scriptlet creation to catch v1 syntax.**
 
 Any violation of these rules will result in immediate rejection of the scriptlet.
