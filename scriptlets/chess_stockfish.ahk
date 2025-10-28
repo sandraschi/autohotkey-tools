@@ -187,8 +187,8 @@ class ChessGame {
                     ; Set background color
                     bgColor := isLight ? "0xF0D9B5" : "0xB58863"
                     
-                    ; Set text color
-                    textColor := (piece != "" && piece = piece.ToUpper()) ? "0x000000" : "0xFFFFFF"
+                    ; Set text color - uppercase = white pieces, lowercase = black pieces
+                    textColor := (piece != "" && piece = StrUpper(piece)) ? "0x000000" : "0xFFFFFF"
                     
                     ; Create square button
                     square := this.gameGui.Add("Button", "x" . x . " y" . y . " w" . boardSize . " h" . boardSize . " Background" . bgColor . " +Border", "")
@@ -397,7 +397,7 @@ class ChessGame {
                         if (piece != "") {
                             sym := pieceSymbols[piece]
                             square.Text := sym ? sym : piece
-                            textColor := (piece = piece.ToUpper()) ? "0x000000" : "0xFFFFFF"
+                            textColor := (piece = StrUpper(piece)) ? "0x000000" : "0xFFFFFF"
                             square.SetFont("s24 c" . textColor, "Arial")
                         } else {
                             square.Text := ""
@@ -517,7 +517,7 @@ class ChessGame {
         }
         
         ; Check if it's the player's piece
-        isWhite := (piece = piece.ToUpper())
+        isWhite := (piece = StrUpper(piece))
         if ((isWhite && this.currentPlayer != "white") || (!isWhite && this.currentPlayer != "black")) {
             return false
         }
