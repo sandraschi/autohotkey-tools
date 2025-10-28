@@ -79,7 +79,7 @@ for i, line in lines {
     if (RegExMatch(line, "Hotkey\([^\)]+\)\s*$") && !InStr(line, "))")) {
         ; Check if the line doesn't have proper closing
         if (RegExMatch(line, "Hotkey\([^\)]+\(\s*$")) {
-            AddIssue("Missing closing parenthesis in Hotkey() call - should end with `))`", "Error", i)
+            AddIssue("Missing closing parenthesis in Hotkey() call - should end with ``))``", "Error", i)
             hasErrors := true
         }
     }
@@ -88,7 +88,7 @@ for i, line in lines {
 ; Check 5b: Using prefix modifiers with Hotkey()
 for i, line in lines {
     if (RegExMatch(line, "[\^#!+]+Hotkey\(")) {
-        AddIssue("Incorrect hotkey prefix - use Hotkey(\"^!key\", ...) instead of ^!Hotkey(\"key\", ...)", "Error", i)
+        AddIssue("Incorrect hotkey prefix - use Hotkey with key string in quotes instead of prefixing Hotkey()", "Error", i)
         hasErrors := true
     }
 }
@@ -111,11 +111,9 @@ for i, line in lines {
 
 ; Check 5d2: InputBox parameter order (check for title-like strings before prompt-like strings)
 for i, line in lines {
-    if (RegExMatch(line, "InputBox\(\"[^\"]+\"[^,]*,\"[^\"]+\"[^,]*,") && InStr(line, "InputBox")) {
-        ; Check if it looks like title is before prompt (heuristic: short strings before longer ones)
-        if (RegExMatch(line, "InputBox\(\"[^\"]{0,20}\",\s*\"[^\"]{20,}\"")) {
-            AddIssue("Possible InputBox parameter order issue - v2 order is InputBox(Prompt, Title), not InputBox(Title, Prompt)", "Warning", i)
-        }
+    if (InStr(line, "InputBox``")) {
+        ; Just warn about potential parameter order issues
+        AddIssue("Check InputBox parameter order - v2 order is InputBox(Prompt, Title)", "Warning", i)
     }
 }
 
@@ -320,7 +318,11 @@ for i, line in lines {
     if (RegExMatch(line, "Loop\s*$")) {
         ; Check next few lines for break condition
         hasBreak := false
-        for j := i+1 to Min(i+20, lines.Length) {
+        endLine := Min(i+20, lines.Length)
+        Loop (endLine - i) {
+            j := i + A_Index
+            if (j > lines.Length)
+                break
             if (InStr(lines[j], "break")) {
                 hasBreak := true
                 break
@@ -337,7 +339,11 @@ for i, line in lines {
     if (RegExMatch(line, "FileRead\s*\(|FileAppend\s*\(|FileDelete\s*\(")) {
         ; Check if surrounded by try-catch
         hasTry := false
-        for j := Max(1, i-5) to i-1 {
+        startLine := Max(1, i-5)
+        Loop (i - startLine) {
+            j := startLine + A_Index - 1
+            if (j >= i)
+                break
             if (InStr(lines[j], "try")) {
                 hasTry := true
                 break

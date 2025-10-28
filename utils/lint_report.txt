@@ -1,8 +1,0 @@
-﻿Lint Report for: D:\Dev\repos\autohotkey-test\ScriptletCOMBridge.ahk
-Generated: 2025-10-24 16:31:21
-Total Lines: 441
-
-Issues found:
-
-WARNINGS (1):
-  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
