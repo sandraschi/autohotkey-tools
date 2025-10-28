@@ -198,41 +198,92 @@ class ChessGame {
                 return
             }
             
-            ; This is a simplified board drawing
-            ; In a real implementation, you'd use GDI+ for proper graphics
-            ; For now, we'll show the current position in text format
+            ; Unicode chess pieces
+            pieceSymbols := Map(
+                "r", "♜", "R", "♖",  ; Rooks
+                "n", "♞", "N", "♘",  ; Knights
+                "b", "♝", "B", "♗",  ; Bishops
+                "q", "♛", "Q", "♕",  ; Queens
+                "k", "♚", "K", "♔",  ; Kings
+                "p", "♟", "P", "♙"   ; Pawns
+            )
             
-            boardText := "Current Position:`n`n"
+            boardText := "`n`n  "  ; Top spacing and file labels
             
-            ; Display board
+            ; File labels (a-h)
+            letters := ["a", "b", "c", "d", "e", "f", "g", "h"]
+            for letter in letters {
+                boardText .= letter . "   "
+            }
+            boardText .= "`n"
+            
+            ; Draw chess board with alternating colors
             Loop 8 {
                 row := 9 - A_Index
+                
+                ; Rank label (1-8)
                 boardText .= (row) . " "
+                
                 Loop 8 {
-                    piece := ChessGame.board[row][A_Index]
-                    if (piece = "") {
-                        boardText .= ". "
+                    col := A_Index
+                    piece := ChessGame.board[row][col]
+                    
+                    ; Determine square color (light/dark checkered pattern)
+                    isLight := ((row + col) & 1) = 0  ; Even sum = light square
+                    
+                    ; Use Unicode box drawing for alternating colors
+                    if (isLight) {
+                        boardText .= "["
                     } else {
-                        boardText .= piece . " "
+                        boardText .= "("
+                    }
+                    
+                    ; Display piece or empty square
+                    if (piece = "") {
+                        if (isLight) {
+                            boardText .= "·"
+                        } else {
+                            boardText .= "·"
+                        }
+                    } else {
+                        sym := pieceSymbols[piece]
+                        boardText .= sym ? sym : piece
+                    }
+                    
+                    if (isLight) {
+                        boardText .= "] "
+                    } else {
+                        boardText .= ") "
                     }
                 }
-                boardText .= "`n"
+                
+                ; Rank label again
+                boardText .= row . "`n"
             }
             
-            boardText .= "  a b c d e f g h`n`n"
-            boardText .= "Current Player: " . this.currentPlayer . "`n"
-            boardText .= "Game Mode: " . this.gameMode . "`n"
+            ; Bottom file labels
+            boardText .= "  "
+            for letter in letters {
+                boardText .= letter . "   "
+            }
+            boardText .= "`n`n"
+            
+            ; Status information
+            boardText .= "Current Player: " . this.currentPlayer . "    "
+            boardText .= "Mode: " . this.gameMode . "`n"
             
             if (this.checkStatus.white) {
-                boardText .= "White is in CHECK!`n"
+                boardText .= "⚠️  WHITE IS IN CHECK!`n"
             }
             if (this.checkStatus.black) {
-                boardText .= "Black is in CHECK!`n"
+                boardText .= "⚠️  BLACK IS IN CHECK!`n"
             }
             
             if (this.gameOver) {
-                boardText .= "GAME OVER - " . this.winner . " WINS!`n"
+                boardText .= "`n🎉 GAME OVER - " . this.winner . " WINS! 🎉`n"
             }
+            
+            boardText .= "`nGame Status: " . (this.gameRunning ? "Active" : "Not Started")
             
             if (this.guiControls.Has("BoardText")) {
                 this.guiControls["BoardText"].Text := boardText
