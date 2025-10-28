@@ -1,0 +1,110 @@
+========================================
+V1 UI SYNTAX ISSUES FOUND
+========================================
+
+Date: 2025-10-28
+
+========================================
+ISSUES FOUND IN ACTIVE SCRIPTS
+========================================
+
+❌ volume_control.ahk - Line 42, 47
+   Issue: Using v1 Progress command syntax
+   Code: Progress, B1 W200 H80 WM400 WS400...
+   Fix: Use Progress gui control instead
+
+❌ ScriptletLauncher.ahk - Line 65
+   Issue: Using v1 command syntax for StatusBar
+   Code: Gui( Add, StatusBar,, Ready
+   Fix: Use gui.Add("StatusBar", ...) method
+
+========================================
+ISSUES IN V1 FOLDER (Expected - Legacy)
+========================================
+
+These are in junk/v1/ directory and are old v1 scripts:
+- annoying_sounds.ahk - Progress command
+- ScriptletLauncher.ahk - StatusBar command
+- quick_notes.ahk - StatusBar command
+- system_monitor.ahk - Progress controls
+- sudoku.ahk - Progress controls
+- pranks.ahk - Progress controls
+- ollama_chatbot.ahk - StatusBar
+- media_controls.ahk - Progress command
+- volume_control.ahk - Progress command
+
+========================================
+UI ELEMENTS VERIFIED AS CORRECT
+========================================
+
+✅ Gui() - All using v2 function syntax
+✅ .Add() - All using method syntax
+✅ .Show(), .Hide(), .Close() - All correct
+✅ InputBox - Fixed (10 instances in 4 files)
+✅ SetTimer - Using function syntax
+✅ MsgBox - Using function syntax
+✅ ToolTip - Using function syntax
+✅ OnEvent() - All using v2 arrow functions
+✅ TextBox, Edit, DropDown, Button - All correct
+
+========================================
+V1 SYNTAX PATTERNS TO WATCH FOR
+========================================
+
+1. Gui, Add / Gui Add - Wrong
+   ✅ Use: gui.Add("Type", options)
+
+2. ControlGet, / GuiControlGet, - Wrong
+   ✅ Use: control.Text or control.Value
+
+3. Progress, B1 W200... - Wrong  
+   ✅ Use: gui.Add("Progress", options)
+
+4. SetTimer UpdateFunction - Wrong
+   ✅ Use: SetTimer(UpdateFunction, period)
+
+5. StatusBar, - Wrong
+   ✅ Use: gui.Add("StatusBar", text)
+
+6. InputBox().Result/.Value - Wrong
+   ✅ Use: input := InputBox(...) directly
+
+========================================
+FIXES NEEDED
+========================================
+
+File: scriptlets/volume_control.ahk
+Issue: v1 Progress command
+Lines: 42, 47
+Code:
+    Progress, B1 W200 H80 WM400 WS400, %message%, , Volume, Arial
+    Progress, Off
+
+Should be:
+    progressGui := Gui("+ToolWindow", "Volume")
+    progressGui.Add("Text", "Center", message)
+    progressGui.Show("NoActivate")
+    Sleep(delay)
+    progressGui.Close()
+
+OR use ToolTip() instead.
+
+File: scriptlets/ScriptletLauncher.ahk  
+Issue: v1 command syntax
+Line: 65
+Code: Gui( Add, StatusBar,, Ready
+
+Should be:
+    gui.Add("StatusBar", , "Ready")
+
+========================================
+STATUS
+========================================
+
+Files with issues: 2 active scriptlets
+Issues found: 2
+Legacy v1 files: Multiple (in junk/v1/)
+All other UI elements: ✅ Correct v2 syntax
+
+========================================
+

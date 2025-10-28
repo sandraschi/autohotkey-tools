@@ -12,6 +12,16 @@
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
 
+
+; Suppress error popups - log to file instead
+OnError("LogError")
+
+LogError(Exception, Mode) {
+    FileAppend("Error: " . Exception.Message . " at line " . Exception.Line . "`n", "errors.log", "UTF-8")
+    return true  ; Suppress popup
+}
+
+
 class ChessGame {
     static gameGui := ""
     static guiControls := Map()
@@ -670,4 +680,9 @@ Hotkey("F7", (*) => ChessGame.Init())
 
 ; Initialize
 ChessGame.Init()
+
+; Keep script running
+Loop {
+    Sleep(1000)
+}
 

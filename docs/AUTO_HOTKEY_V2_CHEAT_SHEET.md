@@ -454,3 +454,86 @@ Before you write ANY code, ask:
 8. ✅ Am I using `static` for class-wide variables?
 
 If any answer is NO, fix it before continuing! 🎯
+
+---
+
+## 📝 InputBox - User Input
+
+### ❌ v1: Returns Object with Properties
+```autohotkey
+# WRONG (v1 syntax):
+result := InputBox("Enter name:", "Name")
+if (result.Result = "OK") {
+    name := result.Value
+}
+
+# WRONG:
+name := InputBox("Enter name:", "Name").Value
+```
+
+### ✅ v2: Returns String Directly
+```autohotkey
+# CORRECT (v2 syntax):
+name := InputBox("Enter name:", "Name")
+if (name = "") {
+    ; User cancelled or entered nothing
+    return
+}
+
+# Empty string means cancelled or no input
+userInput := InputBox("Prompt text", "Title")
+if (userInput != "") {
+    ; Process input
+}
+```
+
+**Key Points:**
+- InputBox returns the string value directly (not an object)
+- Empty string ("") = user cancelled or empty input
+- No .Result property in v2
+- No .Value property in v2
+- Simple string comparison for validation
+
+---
+
+## 🛡️ ERROR HANDLING - OnError
+
+### ❌ v1: No OnError Function
+AutoHotkey v1 did not have OnError() function.
+
+### ✅ v2: OnError with TWO Parameters
+```autohotkey
+# REQUIRED: OnError signature in v2 takes TWO parameters
+OnError("ErrorHandler")
+
+ErrorHandler(Exception, Mode) {
+    ; Exception object has properties: Message, Line, What, File, Extra
+    FileAppend("Error at line " . Exception.Line . ": " . Exception.Message . "`n", "errors.log", "UTF-8")
+    return true  ; Returning true suppresses the default error popup
+}
+
+# CRITICAL: The function MUST accept two parameters: (Exception, Mode)
+# Do NOT use: ErrorHandler(Exception) - WRONG!
+# Use: ErrorHandler(Exception, Mode) - CORRECT!
+```
+
+**Key Points:**
+- First parameter: `Exception` object with `.Message`, `.Line`, `.What`, `.File`, `.Extra` properties
+- Second parameter: `Mode` (usually ignored but required in signature)
+- Return `true` to suppress popup, return `false` to show default popup
+- Must be called at the TOP of your script before any code that might error
+
+**Example for suppressing all error popups:**
+```autohotkey
+#Requires AutoHotkey v2.0+
+
+OnError("LogError")
+
+LogError(Exception, Mode) {
+    ; Log to file
+    FileAppend("[" . A_Now . "] " . Exception.Message . " at line " . Exception.Line . "`n", "error.log", "UTF-8")
+    return true  ; Suppress popup
+}
+
+; Your code here...
+```

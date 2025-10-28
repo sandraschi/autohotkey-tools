@@ -1,4 +1,4 @@
-; ==============================================================================
+﻿; ==============================================================================
 ; Smart Assistant Pro
 ; @name: Smart Assistant Pro
 ; @version: 1.0.0
@@ -11,6 +11,17 @@
 
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
+
+
+; Suppress error popups - log to file instead
+OnError("LogError")
+
+LogError(Exception, Mode) {
+    FileAppend("Error: " . Exception.Message . " at line " . Exception.Line . "
+", "errors.log", "UTF-8")
+    return true  ; Suppress popup
+}
+
 
 class SmartAssistant {
     static commands := Map()
@@ -244,16 +255,16 @@ class SmartAssistant {
     }
     
     static SearchWeb(*) {
-        searchTerm := InputBox("Enter search term:", "Web Search").Result
-        if (searchTerm) {
+        searchTerm := InputBox("Enter search term:", "Web Search")
+        if (searchTerm != "") {
             Run("msedge.exe https://www.google.com/search?q=" . searchTerm)
             this.AppendOutput("Searching for: " . searchTerm)
         }
     }
     
     static CreateNote(*) {
-        noteContent := InputBox("Enter note content:", "Create Note").Result
-        if (noteContent) {
+        noteContent := InputBox("Enter note content:", "Create Note")
+        if (noteContent != "") {
             timestamp := FormatTime(, "yyyy-MM-dd HH:mm:ss")
             noteFile := "Notes_" . FormatTime(, "yyyyMMdd") . ".txt"
             
@@ -267,8 +278,8 @@ class SmartAssistant {
     }
     
     static SetReminder(*) {
-        reminderText := InputBox("Enter reminder:", "Set Reminder").Result
-        if (reminderText) {
+        reminderText := InputBox("Enter reminder:", "Set Reminder")
+        if (reminderText != "") {
             ; In a real implementation, this would set a system reminder
             this.AppendOutput("Reminder set: " . reminderText)
             ToolTip("Reminder: " . reminderText)

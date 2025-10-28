@@ -12,6 +12,14 @@
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
 
+; Suppress error popups - log to file instead
+OnError("LogError")
+
+LogError(Exception, Mode) {
+    FileAppend("Error: " . Exception.Message . " at line " . Exception.Line . "`n", "mcp_config_errors.log", "UTF-8")
+    return true  ; Suppress popup
+}
+
 class MCPConfigManager {
     static claudeConfig := ""
     static backupDir := ""
@@ -237,9 +245,9 @@ class MCPConfigManager {
             }
             backupText .= "`nEnter backup number to restore:"
             
-            ibResult := InputBox(backupText, "Restore Backup")
-            if (ibResult.Result != "OK" || ibResult.Value = "") return
-            backupNum := Integer(ibResult.Value)
+            backupInput := InputBox(backupText, "Restore Backup")
+            if (backupInput = "") return
+            backupNum := Integer(backupInput)
             
             if (backupNum >= 1 && backupNum <= backups.Length) {
                 selectedBackup := backups[backupNum]
@@ -264,20 +272,17 @@ class MCPConfigManager {
     static AddServer(*) {
         try {
             ; Show add server dialog
-            result := InputBox("Enter server name:", "Add MCP Server")
-            if (result.Result != "OK" || result.Value = "") return
-            name := result.Value
+            name := InputBox("Enter server name:", "Add MCP Server")
+            if (name = "") return
             
-            result := InputBox("Enter command (e.g., python):", "Add MCP Server")
-            if (result.Result != "OK" || result.Value = "") return
-            command := result.Value
+            command := InputBox("Enter command (e.g., python):", "Add MCP Server")
+            if (command = "") return
             
-            result := InputBox("Enter arguments (e.g., main.py):", "Add MCP Server")
-            if (result.Result != "OK" || result.Value = "") return
-            args := result.Value
+            args := InputBox("Enter arguments (e.g., main.py):", "Add MCP Server")
+            if (args = "") return
             
-            result := InputBox("Enter working directory (optional):", "Add MCP Server")
-            cwd := (result.Result = "OK" ? result.Value : "")
+            cwd := InputBox("Enter working directory (optional):", "Add MCP Server")
+            if (cwd = "") cwd := ""
             
             ; Create server configuration
             serverConfig := "    `"" . name . "`": {`n"
@@ -342,9 +347,8 @@ class MCPConfigManager {
                 return
             }
             
-            result := InputBox("Enter new server name:", "Duplicate Server")
-            if (result.Result != "OK" || result.Value = "") return
-            name := result.Value
+            name := InputBox("Enter new server name:", "Duplicate Server")
+            if (name = "") return
             
             this.DuplicateServerInConfig(selectedServer, name)
             MsgBox("Server duplicated as '" . name . "'!", "Server Duplicated", "Iconi")
@@ -619,4 +623,8 @@ Hotkey("F12", (*) => MCPConfigManager.Init())
 ; Initialize
 MCPConfigManager.Init()
 
+; Keep script running
+Loop {
+    Sleep(1000)
+}
 

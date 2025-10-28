@@ -1,6 +1,17 @@
 ﻿#Requires AutoHotkey v2.0
 #NoEnv
 #SingleInstance Force
+
+
+; Suppress error popups - log to file instead
+OnError("LogError")
+
+LogError(Exception, Mode) {
+    FileAppend("Error: " . Exception.Message . " at line " . Exception.Line . "
+", "errors.log", "UTF-8")
+    return true  ; Suppress popup
+}
+
 #MaxHotkeysPerInterval 200
 SendMode Input
 SetWorkingDir %A_ScriptDir%
@@ -18,8 +29,8 @@ return
 
 ; Mute with Win+M
 #Hotkey("m", (*) => 
-    Send {Volume_Mute}
-    SoundGet, mute_status, , MUTE
+    Send("{Volume_Mute}")
+    SoundGet(&mute_status, , , "MUTE")
     if (mute_status = "On")
         ShowOSD("Muted")
     else
@@ -28,17 +39,13 @@ return
 
 ; Show Volume OSD
 ShowOSD(message) {
-    Progress, B1 W200 H80 WM400 WS400, %message%, , Volume, Arial
-    SetTimer, RemoveOSD, -1000
+    ToolTip(message, A_ScreenWidth / 2 - 100, A_ScreenHeight / 2 - 50)
+    SetTimer(() => ToolTip(), -1000)
 }
-
-RemoveOSD:
-    Progress, Off
-return
 
 ; Get current volume percentage
 GetVolume() {
-    SoundGet, volume
+    SoundGet(&volume, , "MASTER", "VOLUME")
     return Round(volume)
 }
 

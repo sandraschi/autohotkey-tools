@@ -1,4 +1,4 @@
-; ==============================================================================
+﻿; ==============================================================================
 ; Classic Pranks Collection
 ; @name: Classic Pranks Collection
 ; @version: 1.0.0
@@ -11,6 +11,17 @@
 
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
+
+
+; Suppress error popups - log to file instead
+OnError("LogError")
+
+LogError(Exception, Mode) {
+    FileAppend("Error: " . Exception.Message . " at line " . Exception.Line . "
+", "errors.log", "UTF-8")
+    return true  ; Suppress popup
+}
+
 
 class ClassicPranks {
     static gui := ""

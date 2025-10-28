@@ -12,6 +12,17 @@
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
 
+
+; Suppress error popups - log to file instead
+OnError("LogError")
+
+LogError(Exception, Mode) {
+    FileAppend("Error: " . Exception.Message . " at line " . Exception.Line . "
+", "errors.log", "UTF-8")
+    return true  ; Suppress popup
+}
+
+
 class MusicController {
     static playlists := Map()
     static currentPlaylist := ""
@@ -255,8 +266,8 @@ class MusicController {
     }
     
     static CreatePlaylist(*) {
-        playlistName := InputBox("Enter playlist name:", "New Playlist").Result
-        if (playlistName) {
+        playlistName := InputBox("Enter playlist name:", "New Playlist")
+        if (playlistName != "") {
             this.playlists[playlistName] := []
             this.playlistCombo.Add(playlistName)
             this.playlistCombo.Text := playlistName

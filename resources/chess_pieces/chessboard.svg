@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800">
+  <!-- Chess board with 8x8 squares -->
+  
+  <!-- Define colors -->
+  <defs>
+    <style>
+      .light-square { fill: #f0d9b5; }
+      .dark-square { fill: #b58863; }
+      .light-square-coord { fill: #b58863; font-family: Arial, sans-serif; font-weight: bold; }
+      .dark-square-coord { fill: #f0d9b5; font-family: Arial, sans-serif; font-weight: bold; }
+    </style>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="800" height="800" fill="#8b7355"/>
+  
+  <!-- Chess squares - 8x8 grid -->
+  <!-- Columns: a-h (1-8), Rows: 8-1 (top to bottom) -->
+  <!-- Loop through 8 rows -->
+  <!-- Row 8 (top, white pieces start here) -->
+  <rect class="light-square" x="0" y="0" width="100" height="100"/>    <!-- a8 -->
+  <rect class="dark-square" x="100" y="0" width="100" height="100"/>   <!-- b8 -->
+  <rect class="light-square" x="200" y="0" width="100" height="100"/>  <!-- c8 -->
+  <rect class="dark-square" x="300" y="0" width="100" height="100"/>   <!-- d8 -->
+  <rect class="light-square" x="400" y="0" width="100" height="100"/>  <!-- e8 -->
+  <rect class="dark-square" x="500" y="0" width="100" height="100"/>   <!-- f8 -->
+  <rect class="light-square" x="600" y="0" width="100" height="100"/>  <!-- g8 -->
+  <rect class="dark-square" x="700" y="0" width="100" height="100"/>  <!-- h8 -->
+  
+  <!-- Row 7 -->
+  <rect class="dark-square" x="0" y="100" width="100" height="100"/>   <!-- a7 -->
+  <rect class="light-square" x="100" y="100" width="100" height="100"/> <!-- b7 -->
+  <rect class="dark-square" x="200" y="100" width="100" height="100"/>  <!-- c7 -->
+  <rect class="light-square" x="300" y="100" width="100" height="100"/> <!-- d7 -->
+  <rect class="dark-square" x="400" y="100" width="100" height="100"/>  <!-- e7 -->
+  <rect class="light-square" x="500" y="100" width="100" height="100"/> <!-- f7 -->
+  <rect class="dark-square" x="600" y="100" width="100" height="100"/>  <!-- g7 -->
+  <rect class="light-square" x="700" y="100" width="100" height="100"/> <!-- h7 -->
+  
+  <!-- Row 6 -->
+  <rect class="light-square" x="0" y="200" width="100" height="100"/>   <!-- a6 -->
+  <rect class="dark-square" x="100" y="200" width="100" height="100"/>  <!-- b6 -->
+  <rect class="light-square" x="200" y="200" width="100" height="100"/>  <!-- c6 -->
+  <rect class="dark-square" x="300" y="200" width="100" height="100"/>  <!-- d6 -->
+  <rect class="light-square" x="400" y="200" width="100" height="100"/>  <!-- e6 -->
+  <rect class="dark-square" x="500" y="200" width="100" height="100"/>  <!-- f6 -->
+  <rect class="light-square" x="600" y="200" width="100" height="100"/> <!-- g6 -->
+  <rect class="dark-square" x="700" y="200" width="100" height="100"/>  <!-- h6 -->
+  
+  <!-- Row 5 -->
+  <rect class="dark-square" x="0" y="300" width="100" height="100"/>    <!-- a5 -->
+  <rect class="light-square" x="100" y="300" width="100" height="100"/>  <!-- b5 -->
+  <rect class="dark-square" x="200" y="300" width="100" height="100"/>  <!-- c5 -->
+  <rect class="light-square" x="300" y="300" width="100" height="100"/> <!-- d5 -->
+  <rect class="dark-square" x="400" y="300" width="100" height="100"/>  <!-- e5 -->
+  <rect class="light-square" x="500" y="300" width="100" height="100"/> <!-- f5 -->
+  <rect class="dark-square" x="600" y="300" width="100" height="100"/> <!-- g5 -->
+  <rect class="light-square" x="700" y="300" width="100" height="100"/> <!-- h5 -->
+  
+  <!-- Row 4 -->
+  <rect class="light-square" x="0" y="400" width="100" height="100"/>   <!-- a4 -->
+  <rect class="dark-square" x="100" y="400" width="100" height="100"/>  <!-- b4 -->
+  <rect class="light-square" x="200" y="400" width="100" height="100"/> <!-- c4 -->
+  <rect class="dark-square" x="300" y="400" width="100" height="100"/>  <!-- d4 -->
+  <rect class="light-square" x="400" y="400" width="100" height="100"/> <!-- e4 -->
+  <rect class="dark-square" x="500" y="400" width="100" height="100"/>  <!-- f4 -->
+  <rect class="light-square" x="600" y="400" width="100" height="100"/>  <!-- g4 -->
+  <rect class="dark-square" x="700" y="400" width="100" height="100"/> <!-- h4 -->
+  
+  <!-- Row 3 -->
+  <rect class="dark-square" x="0" y="500" width="100" height="100"/>    <!-- a3 -->
+  <rect class="light-square" x="100" y="500" width="100" height="100"/> <!-- b3 -->
+  <rect class="dark-square" x="200" y="500" width="100" height="100"/>  <!-- c3 -->
+  <rect class="light-square" x="300" y="500" width="100" height="100"/> <!-- d3 -->
+  <rect class="dark-square" x="400" y="500" width="100" height="100"/>  <!-- e3 -->
+  <rect class="light-square" x="500" y="500" width="100" height="100"/>  <!-- f3 -->
+  <rect class="dark-square" x="600" y="500" width="100" height="100"/>  <!-- g3 -->
+  <rect class="light-square" x="700" y="500" width="100" height="100"/> <!-- h3 -->
+  
+  <!-- Row 2 (pawns) -->
+  <rect class="light-square" x="0" y="600" width="100" height="100"/>    <!-- a2 -->
+  <rect class="dark-square" x="100" y="600" width="100" height="100"/>   <!-- b2 -->
+  <rect class="light-square" x="200" y="600" width="100" height="100"/>  <!-- c2 -->
+  <rect class="dark-square" x="300" y="600" width="100" height="100"/>   <!-- d2 -->
+  <rect class="light-square" x="400" y="600" width="100" height="100"/>  <!-- e2 -->
+  <rect class="dark-square" x="500" y="600" width="100" height="100"/>  <!-- f2 -->
+  <rect class="light-square" x="600" y="600" width="100" height="100"/> <!-- g2 -->
+  <rect class="dark-square" x="700" y="600" width="100" height="100"/>  <!-- h2 -->
+  
+  <!-- Row 1 (bottom, white back rank) -->
+  <rect class="dark-square" x="0" y="700" width="100" height="100"/>     <!-- a1 -->
+  <rect class="light-square" x="100" y="700" width="100" height="100"/>  <!-- b1 -->
+  <rect class="dark-square" x="200" y="700" width="100" height="100"/>   <!-- c1 -->
+  <rect class="light-square" x="300" y="700" width="100" height="100"/> <!-- d1 -->
+  <rect class="dark-square" x="400" y="700" width="100" height="100"/>  <!-- e1 -->
+  <rect class="light-square" x="500" y="700" width="100" height="100"/> <!-- f1 -->
+  <rect class="dark-square" x="600" y="700" width="100" height="100"/>  <!-- g1 -->
+  <rect class="light-square" x="700" y="700" width="100" height="100"/> <!-- h1 -->
+  
+  <!-- Border -->
+  <rect x="0" y="0" width="800" height="800" fill="none" stroke="#6b5030" stroke-width="4"/>
+  
+  <!-- Rank labels (1-8 on left side) -->
+  <text class="dark-square-coord" x="10" y="50" font-size="20">8</text>
+  <text class="light-square-coord" x="10" y="150" font-size="20">7</text>
+  <text class="dark-square-coord" x="10" y="250" font-size="20">6</text>
+  <text class="light-square-coord" x="10" y="350" font-size="20">5</text>
+  <text class="dark-square-coord" x="10" y="450" font-size="20">4</text>
+  <text class="light-square-coord" x="10" y="550" font-size="20">3</text>
+  <text class="dark-square-coord" x="10" y="650" font-size="20">2</text>
+  <text class="light-square-coord" x="10" y="750" font-size="20">1</text>
+  
+  <!-- File labels (a-h on bottom) -->
+  <text class="light-square-coord" x="50" y="790" font-size="20">a</text>
+  <text class="dark-square-coord" x="150" y="790" font-size="20">b</text>
+  <text class="light-square-coord" x="250" y="790" font-size="20">c</text>
+  <text class="dark-square-coord" x="350" y="790" font-size="20">d</text>
+  <text class="light-square-coord" x="450" y="790" font-size="20">e</text>
+  <text class="dark-square-coord" x="550" y="790" font-size="20">f</text>
+  <text class="light-square-coord" x="650" y="790" font-size="20">g</text>
+  <text class="dark-square-coord" x="750" y="790" font-size="20">h</text>
+  
+</svg>
+

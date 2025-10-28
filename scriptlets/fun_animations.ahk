@@ -1,6 +1,17 @@
-#Requires AutoHotkey v2.0
+﻿#Requires AutoHotkey v2.0
 #NoEnv
 #SingleInstance Force
+
+
+; Suppress error popups - log to file instead
+OnError("LogError")
+
+LogError(Exception, Mode) {
+    FileAppend("Error: " . Exception.Message . " at line " . Exception.Line . "
+", "errors.log", "UTF-8")
+    return true  ; Suppress popup
+}
+
 #MaxHotkeysPerInterval 200
 SendMode Input
 SetWorkingDir %A_ScriptDir%

@@ -1,0 +1,6 @@
+﻿Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\chess_stockfish.ahk
+Generated: 2025-10-28 18:32:35
+Total Lines: 500
+
+Issues found:
+  No issues found! 🎉

@@ -1,5 +1,16 @@
 ﻿#Requires AutoHotkey v2.0
 #SingleInstance Force
+
+
+; Suppress error popups - log to file instead
+OnError("LogError")
+
+LogError(Exception, Mode) {
+    FileAppend("Error: " . Exception.Message . " at line " . Exception.Line . "
+", "errors.log", "UTF-8")
+    return true  ; Suppress popup
+}
+
 #Warn
 
 ; =============================================================================
@@ -399,7 +410,7 @@ ExitFunc(ExitReason, ExitCode) {
 SearchNotes() {
     global editNotes
     
-    searchTerm := InputBox("Enter search term:", "Search Notes").Value
+    searchTerm := InputBox("Enter search term:", "Search Notes")
     if (searchTerm = "") {
         return
     }
@@ -799,7 +810,7 @@ SearchNotes() {
 
     
 
-    searchTerm := InputBox("Enter search term:", "Search Notes").Value
+    searchTerm := InputBox("Enter search term:", "Search Notes")
 
     if (searchTerm = "") {
 
