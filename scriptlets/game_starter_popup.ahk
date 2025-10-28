@@ -14,12 +14,28 @@
 
 class GameStarter {
     static gui := ""
+    static guiControls := Map()
     static gameList := []
     static selectedGame := ""
+    static debugMode := false
     
     static Init() {
         this.LoadGameList()
         this.SetupHotkeys()
+    }
+    
+    static LogDebug(message) {
+        if (this.debugMode) {
+            OutputDebug("[GameStarter] " . message)
+        }
+    }
+    
+    static ValidateGUI() {
+        if (this.gui = "") {
+            this.LogDebug("GUI instance not available")
+            return false
+        }
+        return true
     }
     
     static LoadGameList() {
@@ -39,9 +55,12 @@ class GameStarter {
     }
     
     static CreateGamePopup() {
-        if (this.gui) {
-            this.gui.Destroy()
-        }
+        try {
+            if (this.gui) {
+                this.gui.Destroy()
+                this.gui := ""
+                this.guiControls.Clear()
+            }
         
         this.gui := Gui("+AlwaysOnTop +ToolWindow -Caption", "Game Starter")
         this.gui.BackColor := "0x1a1a1a"
@@ -120,6 +139,12 @@ class GameStarter {
         
         ; Add fade-in animation
         this.AnimateIn()
+        this.LogDebug("Game popup created successfully")
+        
+        } catch as e {
+            this.LogDebug("Error creating game popup: " . e.Message)
+            MsgBox("Error creating popup: " . e.Message, "Error", "Iconx")
+        }
     }
     
     static AnimateIn() {
@@ -195,11 +220,17 @@ class GameStarter {
     }
     
     static ClosePopup(*) {
-        if (this.gui) {
-            this.AnimateOut()
-            Sleep(200)
-            this.gui.Destroy()
-            this.gui := ""
+        try {
+            if (this.gui) {
+                this.AnimateOut()
+                Sleep(200)
+                this.gui.Destroy()
+                this.gui := ""
+                this.guiControls.Clear()
+                this.LogDebug("Game popup closed successfully")
+            }
+        } catch as e {
+            this.LogDebug("Error closing popup: " . e.Message)
         }
     }
     
@@ -237,6 +268,7 @@ class GameStarter {
 
 ; Initialize
 GameStarter.Init()
+
 
 
 

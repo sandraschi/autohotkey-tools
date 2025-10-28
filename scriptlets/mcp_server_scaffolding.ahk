@@ -89,11 +89,11 @@ class MCPScaffolding {
         
         ; Generate button
         generateBtn := gui.Add("Button", "x20 y500 w200 h50", "🚀 Generate MCP Server")
-        generateBtn.OnEvent("Click", (*) => this.GenerateProject(Gui( projectNameEdit, descriptionEdit, dirEdit, templateList, checkboxes))
+        generateBtn.OnEvent("Click", (*) => MCPScaffolding.GenerateProject(projectNameEdit, descriptionEdit, dirEdit, templateList, checkboxes))
         
         ; Preview button
         previewBtn := gui.Add("Button", "x240 y500 w200 h50", "👁️ Preview Structure")
-        previewBtn.OnEvent("Click", (*) => this.PreviewStructure(Gui( projectNameEdit, templateList, checkboxes))
+        previewBtn.OnEvent("Click", (*) => MCPScaffolding.PreviewStructure(projectNameEdit, templateList, checkboxes))
         
         ; Help button
         helpBtn := gui.Add("Button", "x460 y500 w200 h50", "❓ Help")

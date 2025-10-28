@@ -1,0 +1,25 @@
+﻿Compatibility Scan Report
+Generated: 2025-10-28 18:06:57
+
+Total Issues: 5
+
+File: D:\Dev\repos\autohotkey-test\scriptlets\macro_recorder_pro.ahk
+Message: v1 syntax
+Severity: ERROR
+---
+File: D:\Dev\repos\autohotkey-test\scriptlets\v1\clipboard_manager.ahk
+Message: v1 syntax
+Severity: ERROR
+---
+File: D:\Dev\repos\autohotkey-test\scriptlets\v1\fun_games.ahk
+Message: v1 syntax
+Severity: ERROR
+---
+File: D:\Dev\repos\autohotkey-test\scriptlets\v1\quick_notes.ahk
+Message: v1 syntax
+Severity: ERROR
+---
+File: D:\Dev\repos\autohotkey-test\scriptlets\v1\system_shortcuts.ahk
+Message: v1 syntax
+Severity: ERROR
+---

@@ -283,13 +283,8 @@ class PongGame {
         }
         
         ; Game controls
-        Hotkey("Space", (*) => {
-            if (PongGame.gameRunning) {
-                PongGame.gameRunning := false
-            } else {
-                PongGame.StartGame()
-            }
-        }
+        ; NOTE: Space hotkey disabled to avoid interfering with typing
+        ; Users should use the GUI buttons or other controls
         
         Hotkey("r", (*) => PongGame.Init()
         Hotkey("m", (*) => PongGame.ShowSettings()

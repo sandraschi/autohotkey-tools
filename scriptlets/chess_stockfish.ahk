@@ -14,6 +14,7 @@
 
 class ChessGame {
     static gameGui := ""
+    static guiControls := Map()
     static gameRunning := false
     static board := []
     static selectedSquare := ""
@@ -26,6 +27,7 @@ class ChessGame {
     static checkStatus := {white: false, black: false}
     static gameOver := false
     static winner := ""
+    static debugMode := false
     
     static Init() {
         this.gameRunning := false
@@ -124,17 +126,35 @@ class ChessGame {
         this.gameMode := "human_vs_human"
     }
     
-    static CreateGameGUI() {
-        if (this.gameGui) {
-            this.gameGui.Close()
+    static LogDebug(message) {
+        if (this.debugMode) {
+            OutputDebug("[ChessGame] " . message)
         }
-        
-        this.gameGui := Gui("+Resize +MinSize800x600", "Chess Game - Click to move pieces")
-        this.gameGui.BackColor := "0x8B4513"
-        this.gameGui.SetFont("s12 cWhite Bold", "Arial")
-        
-        ; Game area with board display
-        this.gameGui.Add("Text", "x10 y10 w780 h450 Border Center vBoardText Center", "Click 'Start Game' to begin")
+    }
+    
+    static ValidateGUI() {
+        if (this.gameGui = "") {
+            this.LogDebug("GUI instance not available")
+            return false
+        }
+        return true
+    }
+    
+    static CreateGameGUI() {
+        try {
+            if (this.gameGui) {
+                this.gameGui.Close()
+                this.gameGui := ""
+                this.guiControls.Clear()
+            }
+            
+            this.gameGui := Gui("+Resize +MinSize800x600", "Chess Game - Click to move pieces")
+            this.gameGui.BackColor := "0x8B4513"
+            this.gameGui.SetFont("s12 cWhite Bold", "Arial")
+            
+            ; Game area with board display
+            boardText := this.gameGui.Add("Text", "x10 y10 w780 h450 Border Center Center", "Click 'Start Game' to begin")
+            this.guiControls["BoardText"] := boardText
         
         ; Status display
         this.gameGui.Add("Text", "x50 y470 w200 h30", "Current Player: " . this.currentPlayer)
@@ -153,6 +173,13 @@ class ChessGame {
         this.SetupHotkeys()
         
         this.gameGui.Show("w800 h600")
+        this.LogDebug("Chess GUI created successfully")
+        
+        } catch as e {
+            this.LogDebug("Error creating Chess GUI: " . e.Message)
+            MsgBox("Error creating GUI: " . e.Message, "Error", "Iconx")
+            throw
+        }
     }
     
     static StartGame(*) {
@@ -163,54 +190,55 @@ class ChessGame {
     }
     
     static DrawBoard() {
-        if (!this.gameGui) {
-            return
-        }
-        
-        ; This is a simplified board drawing
-        ; In a real implementation, you'd use GDI+ for proper graphics
-        ; For now, we'll show the current position in text format
-        
-        boardText := "Current Position:`n`n"
-        
-        ; Display board
-        Loop 8 {
-            row := 9 - A_Index
-            boardText .= (row) . " "
-            Loop 8 {
-                piece := ChessGame.board[row][A_Index]
-                if (piece = "") {
-                    boardText .= "Â· "
-                } else {
-                    boardText .= piece . " "
-                }
-            }
-            boardText .= "`n"
-        }
-        
-        boardText .= "  a b c d e f g h`n`n"
-        boardText .= "Current Player: " . this.currentPlayer . "`n"
-        boardText .= "Game Mode: " . this.gameMode . "`n"
-        
-        if (this.checkStatus.white) {
-            boardText .= "White is in CHECK!`n"
-        }
-        if (this.checkStatus.black) {
-            boardText .= "Black is in CHECK!`n"
-        }
-        
-        if (this.gameOver) {
-            boardText .= "GAME OVER - " . this.winner . " WINS!`n"
-        }
-        
         try {
-            this.gameGui.Control["BoardText"].Text := boardText
-            OutputDebug("BoardText updated successfully")
-            OutputDebug("Board text length: " . StrLen(boardText))
+            if (!this.ValidateGUI()) {
+                return
+            }
+            
+            ; This is a simplified board drawing
+            ; In a real implementation, you'd use GDI+ for proper graphics
+            ; For now, we'll show the current position in text format
+            
+            boardText := "Current Position:`n`n"
+            
+            ; Display board
+            Loop 8 {
+                row := 9 - A_Index
+                boardText .= (row) . " "
+                Loop 8 {
+                    piece := ChessGame.board[row][A_Index]
+                    if (piece = "") {
+                        boardText .= "Â· "
+                    } else {
+                        boardText .= piece . " "
+                    }
+                }
+                boardText .= "`n"
+            }
+            
+            boardText .= "  a b c d e f g h`n`n"
+            boardText .= "Current Player: " . this.currentPlayer . "`n"
+            boardText .= "Game Mode: " . this.gameMode . "`n"
+            
+            if (this.checkStatus.white) {
+                boardText .= "White is in CHECK!`n"
+            }
+            if (this.checkStatus.black) {
+                boardText .= "Black is in CHECK!`n"
+            }
+            
+            if (this.gameOver) {
+                boardText .= "GAME OVER - " . this.winner . " WINS!`n"
+            }
+            
+            if (this.guiControls.Has("BoardText")) {
+                this.guiControls["BoardText"].Text := boardText
+                this.LogDebug("BoardText updated successfully")
+            } else {
+                this.LogDebug("BoardText control not found")
+            }
         } catch as e {
-            ; Control might not exist yet
-            OutputDebug("DrawBoard error: " . e.Message)
-            MsgBox("Error updating board: " . e.Message, "Debug", "Iconx")
+            this.LogDebug("DrawBoard error: " . e.Message)
         }
     }
     
@@ -430,7 +458,8 @@ class ChessGame {
     
     static SetupHotkeys() {
         ; Game controls
-        Hotkey("Space", (*) => this.ToggleGame())
+        ; NOTE: Space hotkey disabled to avoid interfering with typing
+        ; Users should use the GUI buttons or mouse to interact
         Hotkey("r", (*) => ChessGame.Init())
         Hotkey("m", (*) => ChessGame.ShowInstructions())
         
@@ -447,9 +476,16 @@ class ChessGame {
     }
     
     static QuitGame(*) {
-        ChessGame.gameRunning := false
-        if (ChessGame.gameGui) {
-            ChessGame.gameGui.Close()
+        try {
+            this.gameRunning := false
+            if (this.gameGui) {
+                this.gameGui.Close()
+                this.gameGui := ""
+                this.guiControls.Clear()
+                this.LogDebug("Chess game closed successfully")
+            }
+        } catch as e {
+            this.LogDebug("Error closing chess game: " . e.Message)
         }
     }
 }

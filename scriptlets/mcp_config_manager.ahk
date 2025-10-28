@@ -18,6 +18,8 @@ class MCPConfigManager {
     static configData := ""
     static debugMode := false
     static debugLog := []
+    static guiInstance := ""
+    static guiControls := Map()
     
     static Init() {
         this.claudeConfig := A_AppData . "\Claude\claude_desktop_config.json"
@@ -36,65 +38,80 @@ class MCPConfigManager {
         }
     }
     
+    static ValidateGUI() {
+        if (this.guiInstance = "") {
+            this.LogDebug("GUI instance not available")
+            return false
+        }
+        return true
+    }
+    
     static CreateGUI() {
-        gui := Gui("+Resize +MinSize800x600", "MCP Config Manager")
-        gui.BackColor := "0x1a1a1a"
-        gui.SetFont("s10 cWhite", "Segoe UI")
-        
-        ; Title
-        gui.Add("Text", "x20 y20 w760 Center Bold", "⚙️ MCP Config Manager")
-        gui.Add("Text", "x20 y50 w760 Center c0xcccccc", "Manage Claude Desktop MCP configuration with validation and backup")
-        
-        ; Configuration file section
-        gui.Add("Text", "x20 y90 w760 Bold", "📁 Configuration File")
-        gui.Add("Text", "x20 y115 w150", "Config Path:")
-        gui.Add("Text", "x180 y115 w580 c0xcccccc", this.claudeConfig)
-        
-        ; File operations
-        gui.Add("Button", "x20 y150 w150 h40", "📖 Load Config").OnEvent("Click", this.LoadConfig.Bind(this))
-        gui.Add("Button", "x190 y150 w150 h40", "💾 Save Config").OnEvent("Click", this.SaveConfig.Bind(this))
-        gui.Add("Button", "x360 y150 w150 h40", "📋 Backup Config").OnEvent("Click", this.BackupConfig.Bind(this))
-        gui.Add("Button", "x530 y150 w150 h40", "🔄 Restore Config").OnEvent("Click", this.RestoreConfig.Bind(this))
-        
-        ; MCP Servers section
-        gui.Add("Text", "x20 y210 w760 Bold", "🖥️ MCP Servers")
-        
-        ; Server list
-        serverList := gui.Add("ListBox", "x20 y240 w400 h200")
-        
-        ; Server controls
-        gui.Add("Button", "x440 y240 w150 h40", "➕ Add Server").OnEvent("Click", this.AddServer.Bind(this))
-        gui.Add("Button", "x610 y240 w150 h40", "✏️ Edit Server").OnEvent("Click", this.EditServer.Bind(this))
-        gui.Add("Button", "x440 y290 w150 h40", "🗑️ Remove Server").OnEvent("Click", this.RemoveServer.Bind(this))
-        gui.Add("Button", "x610 y290 w150 h40", "📋 Duplicate Server").OnEvent("Click", this.DuplicateServer.Bind(this))
-        gui.Add("Button", "x440 y340 w150 h40", "✅ Test Server").OnEvent("Click", this.TestServer.Bind(this))
-        gui.Add("Button", "x610 y340 w150 h40", "📊 Server Info").OnEvent("Click", this.ServerInfo.Bind(this))
-        
-        ; Configuration editor
-        gui.Add("Text", "x20 y460 w760 Bold", "✏️ Configuration Editor")
-        
-        ; JSON editor
-        configEdit := gui.Add("Edit", "x20 y490 w760 h100 Multi VScroll", "")
-        configEdit.BackColor := "0x2d2d2d"
-        configEdit.SetFont("s9 cWhite", "Consolas")
-        
-        ; Validation and actions
-        gui.Add("Button", "x20 y600 w150 h40", "✅ Validate JSON").OnEvent("Click", this.ValidateJSON.Bind(this))
-        gui.Add("Button", "x190 y600 w150 h40", "🎨 Format JSON").OnEvent("Click", this.FormatJSON.Bind(this))
-        gui.Add("Button", "x360 y600 w150 h40", "🔄 Reset to Default").OnEvent("Click", this.ResetToDefault.Bind(this))
-        gui.Add("Button", "x530 y600 w150 h40", "❓ Help").OnEvent("Click", this.ShowHelp.Bind(this))
-        
-        ; Status
-        gui.Add("Text", "x20 y650 w760 Center c0x888888", "Hotkeys: Ctrl+Alt+C (Load Config) | F12 (Validate) | Press Load Config to start")
-        
-        ; Store references
-        gui.serverList := serverList
-        gui.configEdit := configEdit
-        
-        ; Set up hotkeys
-        this.SetupHotkeys(gui)
-        
-        gui.Show("w800 h700")
+        try {
+            ; Store the GUI instance at class level
+            this.guiInstance := Gui("+Resize +MinSize800x600", "MCP Config Manager")
+            this.guiInstance.BackColor := "0x1a1a1a"
+            this.guiInstance.SetFont("s10 cWhite", "Segoe UI")
+            
+            ; Title
+            this.guiInstance.Add("Text", "x20 y20 w760 Center Bold", "⚙️ MCP Config Manager")
+            this.guiInstance.Add("Text", "x20 y50 w760 Center c0xcccccc", "Manage Claude Desktop MCP configuration with validation and backup")
+            
+            ; Configuration file section
+            this.guiInstance.Add("Text", "x20 y90 w760 Bold", "📁 Configuration File")
+            this.guiInstance.Add("Text", "x20 y115 w150", "Config Path:")
+            this.guiInstance.Add("Text", "x180 y115 w580 c0xcccccc", this.claudeConfig)
+            
+            ; File operations
+            this.guiInstance.Add("Button", "x20 y150 w150 h40", "📖 Load Config").OnEvent("Click", this.LoadConfig.Bind(this))
+            this.guiInstance.Add("Button", "x190 y150 w150 h40", "💾 Save Config").OnEvent("Click", this.SaveConfig.Bind(this))
+            this.guiInstance.Add("Button", "x360 y150 w150 h40", "📋 Backup Config").OnEvent("Click", this.BackupConfig.Bind(this))
+            this.guiInstance.Add("Button", "x530 y150 w150 h40", "🔄 Restore Config").OnEvent("Click", this.RestoreConfig.Bind(this))
+            
+            ; MCP Servers section
+            this.guiInstance.Add("Text", "x20 y210 w760 Bold", "🖥️ MCP Servers")
+            
+            ; Server list
+            serverList := this.guiInstance.Add("ListBox", "x20 y240 w400 h200")
+            this.guiControls["serverList"] := serverList
+            
+            ; Server controls
+            this.guiInstance.Add("Button", "x440 y240 w150 h40", "➕ Add Server").OnEvent("Click", this.AddServer.Bind(this))
+            this.guiInstance.Add("Button", "x610 y240 w150 h40", "✏️ Edit Server").OnEvent("Click", this.EditServer.Bind(this))
+            this.guiInstance.Add("Button", "x440 y290 w150 h40", "🗑️ Remove Server").OnEvent("Click", this.RemoveServer.Bind(this))
+            this.guiInstance.Add("Button", "x610 y290 w150 h40", "📋 Duplicate Server").OnEvent("Click", this.DuplicateServer.Bind(this))
+            this.guiInstance.Add("Button", "x440 y340 w150 h40", "✅ Test Server").OnEvent("Click", this.TestServer.Bind(this))
+            this.guiInstance.Add("Button", "x610 y340 w150 h40", "📊 Server Info").OnEvent("Click", this.ServerInfo.Bind(this))
+            
+            ; Configuration editor
+            this.guiInstance.Add("Text", "x20 y460 w760 Bold", "✏️ Configuration Editor")
+            
+            ; JSON editor
+            configEdit := this.guiInstance.Add("Edit", "x20 y490 w760 h100 Multi VScroll", "")
+            configEdit.BackColor := "0x2d2d2d"
+            configEdit.SetFont("s9 cWhite", "Consolas")
+            this.guiControls["configEdit"] := configEdit
+            
+            ; Validation and actions
+            this.guiInstance.Add("Button", "x20 y600 w150 h40", "✅ Validate JSON").OnEvent("Click", this.ValidateJSON.Bind(this))
+            this.guiInstance.Add("Button", "x190 y600 w150 h40", "🎨 Format JSON").OnEvent("Click", this.FormatJSON.Bind(this))
+            this.guiInstance.Add("Button", "x360 y600 w150 h40", "🔄 Reset to Default").OnEvent("Click", this.ResetToDefault.Bind(this))
+            this.guiInstance.Add("Button", "x530 y600 w150 h40", "❓ Help").OnEvent("Click", this.ShowHelp.Bind(this))
+            
+            ; Status
+            this.guiInstance.Add("Text", "x20 y650 w760 Center c0x888888", "Hotkeys: Ctrl+Alt+C (Load Config) | F12 (Validate) | Press Load Config to start")
+            
+            ; Set up hotkeys
+            this.SetupHotkeys()
+            
+            this.guiInstance.Show("w800 h700")
+            this.LogDebug("GUI created successfully")
+            
+        } catch as e {
+            this.LogDebug("Error creating GUI: " . e.Message)
+            MsgBox("Error creating GUI: " . e.Message, "Error", "Iconx")
+            throw
+        }
     }
     
     static LoadConfig(*) {
@@ -119,15 +136,13 @@ class MCPConfigManager {
             this.LogDebug("Config loaded successfully, size: " . StrLen(configContent) . " characters")
             
             ; Update GUI
-            if (WinExist("MCP Config Manager")) {
-                WinActivate("MCP Config Manager")
-                ; Update config editor
-                try {
-                    gui := GuiFromHwnd(WinGetID("MCP Config Manager"))
-                    gui.configEdit.Text := configContent
-                } catch {
-                    ; Handle GUI update error
+            try {
+                if (this.guiInstance != "" && this.guiControls.Has("configEdit")) {
+                    this.guiControls["configEdit"].Text := configContent
+                    this.LogDebug("Config editor updated")
                 }
+            } catch as e {
+                this.LogDebug("Error updating config editor: " . e.Message)
             }
             
             ; Parse and display servers
@@ -222,9 +237,9 @@ class MCPConfigManager {
             }
             backupText .= "`nEnter backup number to restore:"
             
-            result := InputBox(backupText, "Restore Backup", "", "")
-            if (result.Result != "OK" || result.Value = "") return
-            backupNum := Integer(result.Value)
+            ibResult := InputBox(backupText, "Restore Backup")
+            if (ibResult.Result != "OK" || ibResult.Value = "") return
+            backupNum := Integer(ibResult.Value)
             
             if (backupNum >= 1 && backupNum <= backups.Length) {
                 selectedBackup := backups[backupNum]
@@ -440,13 +455,13 @@ class MCPConfigManager {
             }
             
             ; Update server list in GUI
-            if (WinExist("MCP Config Manager")) {
-                try {
-                    gui := GuiFromHwnd(WinGetID("MCP Config Manager"))
-                    gui.serverList.Text := servers.Join("`n")
-                } catch {
-                    ; Handle GUI update error
+            try {
+                if (this.guiInstance != "" && this.guiControls.Has("serverList")) {
+                    this.guiControls["serverList"].Text := servers.Join("`n")
+                    this.LogDebug("Server list updated with " . servers.Length . " servers")
                 }
+            } catch as e {
+                this.LogDebug("Error updating server list: " . e.Message)
             }
             
         } catch as e {
@@ -455,15 +470,24 @@ class MCPConfigManager {
     }
     
     static GetSelectedServer() {
-        ; This would get the selected server from the GUI
-        ; For now, return first server if any exist
+        ; Get the selected server from the GUI
         try {
-            if (WinExist("MCP Config Manager")) {
-                gui := GuiFromHwnd(WinGetID("MCP Config Manager"))
-                return gui.serverList.Text
+            if (this.guiInstance != "" && this.guiControls.Has("serverList")) {
+                selection := this.guiControls["serverList"].Text
+                if (selection != "") {
+                    ; Get the selected line
+                    try {
+                        selectedLine := this.guiControls["serverList"].SelectedText
+                        return selectedLine
+                    } catch {
+                        ; If no selection, return first line
+                        lines := StrSplit(this.guiControls["serverList"].Text, "`n")
+                        return lines.Length > 0 ? lines[1] : ""
+                    }
+                }
             }
-        } catch {
-            ; Handle error
+        } catch as e {
+            this.LogDebug("Error getting selected server: " . e.Message)
         }
         return ""
     }
@@ -564,12 +588,24 @@ class MCPConfigManager {
     }
     
     static CloseGUI(*) {
-        if (WinExist("MCP Config Manager")) {
-            WinClose("MCP Config Manager")
+        try {
+            if (this.guiInstance != "") {
+                this.guiInstance.Close()
+                this.guiInstance := ""
+                this.guiControls.Clear()
+                this.LogDebug("GUI closed successfully")
+            } else {
+                ; Fallback to WindowClose if instance not available
+                if (WinExist("MCP Config Manager")) {
+                    WinClose("MCP Config Manager")
+                }
+            }
+        } catch as e {
+            this.LogDebug("Error closing GUI: " . e.Message)
         }
     }
     
-    static SetupHotkeys(gui) {
+    static SetupHotkeys() {
         Hotkey("^!c", (*) => this.LoadConfig())
         Hotkey("F12", (*) => this.ValidateJSON())
         Hotkey("Escape", (*) => this.CloseGUI())

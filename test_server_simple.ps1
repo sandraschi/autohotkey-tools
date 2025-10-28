@@ -36,7 +36,9 @@ while ($listener.IsListening) {
             }
         } elseif ($url -eq '/status') {
             $result = 'Server running'
+            $response.ContentType = 'text/plain; charset=utf-8'
         } elseif ($url -eq '/scriptlets') {
+            $response.ContentType = 'application/json; charset=utf-8'
             $scriptletsDir = "D:\Dev\repos\autohotkey-test\scriptlets"
             $scriptlets = @()
             if (Test-Path $scriptletsDir) {
@@ -80,6 +82,7 @@ while ($listener.IsListening) {
         }
 
         $buffer = [System.Text.Encoding]::UTF8.GetBytes($result)
+        $response.ContentEncoding = [System.Text.Encoding]::UTF8
         $response.ContentLength64 = $buffer.Length
         $response.OutputStream.Write($buffer, 0, $buffer.Length)
         $response.Close()

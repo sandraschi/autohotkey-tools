@@ -365,13 +365,8 @@ class FroggerGame {
         }
         
         ; Game controls
-        Hotkey("Space", (*) => {
-            if (FroggerGame.gameRunning) {
-                FroggerGame.gameRunning := false
-            } else {
-                FroggerGame.StartGame()
-            }
-        }
+        ; NOTE: Space hotkey disabled to avoid interfering with typing
+        ; Users should use the GUI buttons or other controls
         
         Hotkey("r", (*) => FroggerGame.Init()
         Hotkey("m", (*) => FroggerGame.ShowInstructions())

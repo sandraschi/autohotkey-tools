@@ -179,8 +179,8 @@ class ClassicPranks {
         sendBtn := elizaGui.Add("Button", "x520 y330 w70 h25", "&Send")
         
         ; Event handlers
-        sendBtn.OnEvent("Click", (*) => this.ElizaSend(elizaGui( chatDisplay, userInput))
-        userInput.OnEvent("Change", (*) => this.ElizaRespond(elizaGui( chatDisplay, userInput))
+        sendBtn.OnEvent("Click", (*) => ClassicPranks.ElizaSend(chatDisplay, userInput))
+        userInput.OnEvent("Change", (*) => ClassicPranks.ElizaRespond(chatDisplay, userInput))
         
         elizaGui.Show("w600 h400")
         
@@ -237,9 +237,9 @@ class ClassicPranks {
         solveBtn := sudokuGui.Add("Button", "x240 y370", "&Solve")
         
         ; Event handlers
-        newGameBtn.OnEvent("Click", (*) => this.NewSudokuGame(sudokuGui))
-        checkBtn.OnEvent("Click", (*) => this.CheckSudokuSolution(sudokuGui))
-        solveBtn.OnEvent("Click", (*) => this.SolveSudoku(sudokuGui))
+        newGameBtn.OnEvent("Click", (*) => ClassicPranks.NewSudokuGame(sudokuGui))
+        checkBtn.OnEvent("Click", (*) => ClassicPranks.CheckSudokuSolution(sudokuGui))
+        solveBtn.OnEvent("Click", (*) => ClassicPranks.SolveSudoku(sudokuGui))
         
         ; Generate a new puzzle
         this.NewSudokuGame(sudokuGui)

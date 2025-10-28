@@ -24,48 +24,38 @@ class MiniGames {
         this.gameGui := Gui("+Resize", "Mini Games Collection")
         
         ; Title
-        this.gameGui.AddText("w550 h40 Center", "🎮 Mini Games Collection")
+        this.gameGui.AddText("w400 h40 Center", "🎮 Mini Games Collection")
         
         ; Game selection
-        this.gameGui.AddText("w550 h20 Center", "Choose a game:")
+        this.gameGui.AddText("w400 h20 Center", "Choose a game:")
         
-        ; Row 1
-        snakeBtn := this.gameGui.AddButton("x20 y60 w100 h60", "🐍 Snake`nClassic")
-        pongBtn := this.gameGui.AddButton("x130 y60 w100 h60", "🏓 Pong`nClassic")
-        pacmanBtn := this.gameGui.AddButton("x240 y60 w100 h60", "👻 Pac-Man`nArcade")
-        froggerBtn := this.gameGui.AddButton("x350 y60 w100 h60", "🐸 Frogger`nArcade")
-        sudokuBtn := this.gameGui.AddButton("x460 y60 w100 h60", "🔢 Sudoku`nPuzzle")
+        ; Game buttons
+        snakeBtn := this.gameGui.AddButton("x50 y60 w100 h60", "🐍 Snake`nClassic Snake Game")
+        tetrisBtn := this.gameGui.AddButton("x160 y60 w100 h60", "🧩 Tetris`nBlock Puzzle Game")
+        memoryBtn := this.gameGui.AddButton("x270 y60 w100 h60", "🧠 Memory`nCard Matching Game")
         
         snakeBtn.OnEvent("Click", this.StartSnake.Bind(this))
-        pongBtn.OnEvent("Click", this.StartPong.Bind(this))
-        pacmanBtn.OnEvent("Click", this.StartPacman.Bind(this))
-        froggerBtn.OnEvent("Click", this.StartFrogger.Bind(this))
-        sudokuBtn.OnEvent("Click", this.StartSudoku.Bind(this))
-        
-        ; Row 2
-        tetrisBtn := this.gameGui.AddButton("x20 y130 w100 h60", "🧩 Tetris`nPuzzle")
-        qbertBtn := this.gameGui.AddButton("x130 y130 w100 h60", "🐸 Q*bert`nArcade")
-        chessBtn := this.gameGui.AddButton("x240 y130 w100 h60", "♟️ Chess`nStrategy")
-        memoryBtn := this.gameGui.AddButton("x350 y130 w100 h60", "🧠 Memory`nCard")
-        breakoutBtn := this.gameGui.AddButton("x460 y130 w100 h60", "💥 Breakout`nComing Soon")
-        
         tetrisBtn.OnEvent("Click", this.StartTetris.Bind(this))
-        qbertBtn.OnEvent("Click", this.StartQbert.Bind(this))
-        chessBtn.OnEvent("Click", this.StartChess.Bind(this))
         memoryBtn.OnEvent("Click", this.StartMemory.Bind(this))
+        
+        ; Additional games
+        pongBtn := this.gameGui.AddButton("x50 y130 w100 h60", "🏓 Pong`nClassic Arcade Game")
+        breakoutBtn := this.gameGui.AddButton("x160 y130 w100 h60", "💥 Breakout`nBrick Breaking Game")
+        minesweeperBtn := this.gameGui.AddButton("x270 y130 w100 h60", "💣 Minesweeper`nLogic Puzzle Game")
+        
+        pongBtn.OnEvent("Click", this.StartPong.Bind(this))
         breakoutBtn.OnEvent("Click", this.StartBreakout.Bind(this))
+        minesweeperBtn.OnEvent("Click", this.StartMinesweeper.Bind(this))
         
         ; Instructions
-        this.gameGui.AddText("w550 h40 x20 y200", "Instructions:`n• Most games open in new windows`n• Use game-specific controls`n• Press Ctrl+Alt+G to reopen this menu")
+        this.gameGui.AddText("w400 h60", "Instructions:`n• Use arrow keys to control`n• Press ESC to return to main menu`n• Press F1 for game-specific help")
         
-        this.gameGui.Show("w590 h260")
+        this.gameGui.Show("w420 h250")
     }
     
     static StartSnake(*) {
         this.currentGame := "Snake"
-        if (this.gameGui) {
-            this.gameGui.Hide()
-        }
+        this.gameGui.Close()
         this.CreateSnakeGame()
     }
     
@@ -148,8 +138,10 @@ class MiniGames {
     }
     
     static GenerateFood() {
-        this.foodX := Random(0, 19) * 20
-        this.foodY := Random(0, 19) * 20
+        Random(&this.foodX, 0, 19)
+        this.foodX *= 20
+        Random(&this.foodY, 0, 19)
+        this.foodY *= 20
     }
     
     static GameOver() {
@@ -163,111 +155,23 @@ class MiniGames {
     }
     
     static StartTetris(*) {
-        if (this.gameGui) {
-            this.gameGui.Hide()
-        }
-        try {
-            Run(A_AhkPath . " `"" . A_ScriptDir . "\tetris_classic.ahk`"")
-        } catch as e {
-            MsgBox("Error launching Tetris: " . e.Message, "Error", "Icon!")
-            this.Init()
-        }
+        MsgBox("Tetris game - Coming soon!", "Mini Games", "Icon!")
     }
     
     static StartMemory(*) {
-        if (this.gameGui) {
-            this.gameGui.Hide()
-        }
-        MsgBox("Memory game not implemented yet.`n`nTry one of the other games!", "Mini Games", "Icon!")
-        this.Init()
+        MsgBox("Memory game - Coming soon!", "Mini Games", "Icon!")
     }
     
     static StartPong(*) {
-        if (this.gameGui) {
-            this.gameGui.Hide()
-        }
-        try {
-            Run(A_AhkPath . " `"" . A_ScriptDir . "\classic_pong.ahk`"")
-        } catch as e {
-            MsgBox("Error launching Pong: " . e.Message, "Error", "Icon!")
-            this.Init()
-        }
+        MsgBox("Pong game - Coming soon!", "Mini Games", "Icon!")
     }
     
     static StartBreakout(*) {
-        if (this.gameGui) {
-            this.gameGui.Hide()
-        }
-        MsgBox("Breakout game not implemented yet.`n`nTry one of the other games!", "Mini Games", "Icon!")
-        this.Init()
+        MsgBox("Breakout game - Coming soon!", "Mini Games", "Icon!")
     }
     
     static StartMinesweeper(*) {
-        if (this.gameGui) {
-            this.gameGui.Hide()
-        }
-        MsgBox("Minesweeper game not implemented yet.`n`nTry one of the other games!", "Mini Games", "Icon!")
-        this.Init()
-    }
-    
-    static StartPacman(*) {
-        if (this.gameGui) {
-            this.gameGui.Hide()
-        }
-        try {
-            Run(A_AhkPath . " `"" . A_ScriptDir . "\pacman_game.ahk`"")
-        } catch as e {
-            MsgBox("Error launching Pac-Man: " . e.Message, "Error", "Icon!")
-            this.Init()
-        }
-    }
-    
-    static StartFrogger(*) {
-        if (this.gameGui) {
-            this.gameGui.Hide()
-        }
-        try {
-            Run(A_AhkPath . " `"" . A_ScriptDir . "\classic_frogger.ahk`"")
-        } catch as e {
-            MsgBox("Error launching Frogger: " . e.Message, "Error", "Icon!")
-            this.Init()
-        }
-    }
-    
-    static StartSudoku(*) {
-        if (this.gameGui) {
-            this.gameGui.Hide()
-        }
-        try {
-            Run(A_AhkPath . " `"" . A_ScriptDir . "\sudoku.ahk`"")
-        } catch as e {
-            MsgBox("Error launching Sudoku: " . e.Message, "Error", "Icon!")
-            this.Init()
-        }
-    }
-    
-    static StartQbert(*) {
-        if (this.gameGui) {
-            this.gameGui.Hide()
-        }
-        try {
-            Run(A_AhkPath . " `"" . A_ScriptDir . "\qbert_game.ahk`"")
-        } catch as e {
-            MsgBox("Error launching Q*bert: " . e.Message, "Error", "Icon!")
-            this.Init()
-        }
-    }
-    
-    static StartChess(*) {
-        if (this.gameGui) {
-            this.gameGui.Hide()
-        }
-        try {
-            Run(A_AhkPath . " `"" . A_ScriptDir . "\chess_stockfish.ahk`"")
-        } catch as e {
-            MsgBox("Error launching Chess: " . e.Message, "Error", "Icon!")
-            this.Init()
-        }
+        MsgBox("Minesweeper game - Coming soon!", "Mini Games", "Icon!")
     }
 }
 
@@ -306,8 +210,8 @@ Esc:: {
     }
 }
 
-; Initialize - removed duplicate call
-; The GUI is initialized by the hotkeys
+; Initialize
+MiniGames.Init()
 
 
 

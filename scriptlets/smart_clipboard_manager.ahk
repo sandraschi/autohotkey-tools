@@ -106,10 +106,10 @@ class SmartClipboard {
         titleBtn := this.gui.Add("Button", "x190 y10 w80 h25", "Title")
         trimBtn := this.gui.Add("Button", "x280 y10 w80 h25", "Trim")
         
-        upperBtn.OnEvent("Click", (*) => this.ApplyFormat("upper"))
-        lowerBtn.OnEvent("Click", (*) => this.ApplyFormat("lower"))
-        titleBtn.OnEvent("Click", (*) => this.ApplyFormat("title"))
-        trimBtn.OnEvent("Click", (*) => this.ApplyFormat("trim"))
+        upperBtn.OnEvent("Click", (*) => ClipboardManager.ApplyFormat("upper"))
+        lowerBtn.OnEvent("Click", (*) => ClipboardManager.ApplyFormat("lower"))
+        titleBtn.OnEvent("Click", (*) => ClipboardManager.ApplyFormat("title"))
+        trimBtn.OnEvent("Click", (*) => ClipboardManager.ApplyFormat("trim"))
         
         ; Log area
         this.gui.Add("Text", "w800 h20", "Activity Log:")

@@ -30,6 +30,7 @@ COLOR_NOTE := 0x808080
 global guiSudoku
 global statusBar
 global cellControls := Map()
+global guiControls := Map()
 
 ; Game state
 global board := []
@@ -43,6 +44,7 @@ global difficulty := "medium"
 global showHints := true
 global showMistakes := true
 global noteMode := false
+global debugMode := false
 
 ; Control references
 global difficultyDDL
@@ -56,21 +58,42 @@ global showMistakesCB
 CreateGUI()
 
 ; =============================================================================
+; HELPER FUNCTIONS
+; =============================================================================
+LogDebug(message) {
+    global debugMode
+    if (debugMode) {
+        OutputDebug("[Sudoku] " . message)
+    }
+}
+
+ValidateGUI() {
+    global guiSudoku
+    if (guiSudoku = "") {
+        LogDebug("GUI instance not available")
+        return false
+    }
+    return true
+}
+
+; =============================================================================
 ; GUI CREATION
 ; =============================================================================
 CreateGUI() {
-    global guiSudoku, statusBar, selectedCell, cellControls
+    global guiSudoku, statusBar, selectedCell, cellControls, guiControls
     
-    ; Create main window
-    guiSudoku := Gui("+Resize +MinSize500x600", APP_TITLE)
-    guiSudoku.OnEvent("Close", (*) => ExitApp())
-    guiSudoku.SetFont("s10", "Segoe UI")
-    
-    ; Initialize selected cell
-    selectedCell := {row: 0, col: 0}
-    
-    ; Initialize cell controls map
-    cellControls := Map()
+    try {
+        ; Create main window
+        guiSudoku := Gui("+Resize +MinSize500x600", APP_TITLE)
+        guiSudoku.OnEvent("Close", (*) => ExitApp())
+        guiSudoku.SetFont("s10", "Segoe UI")
+        
+        ; Initialize selected cell
+        selectedCell := {row: 0, col: 0}
+        
+        ; Initialize cell controls map
+        cellControls := Map()
+        guiControls := Map()
     
     ; Create game board
     CreateBoard()
@@ -80,6 +103,7 @@ CreateGUI() {
     
     ; Status bar
     statusBar := guiSudoku.Add("StatusBar", , "Ready")
+    guiControls["statusBar"] := statusBar
     
     ; Initialize hotkeys
     InitHotkeys()
@@ -89,6 +113,13 @@ CreateGUI() {
     
     ; Generate initial puzzle
     GeneratePuzzle()
+    LogDebug("Sudoku GUI created successfully")
+    
+    } catch as e {
+        LogDebug("Error creating Sudoku GUI: " . e.Message)
+        MsgBox("Error creating GUI: " . e.Message, "Error", "Iconx")
+        throw
+    }
 }
 
 CreateBoard() {

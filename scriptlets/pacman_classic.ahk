@@ -426,8 +426,8 @@ class PacmanGame {
         Hotkey("Left", (*) => this.SetDirection("left")
         Hotkey("Right", (*) => this.SetDirection("right")
         
-        ; Start game
-        Hotkey("Space", (*) => this.StartGame()
+        ; Start game - NOTE: Space hotkey disabled to avoid interfering with typing
+        ; Users should use GUI buttons or other controls
         
         ; Pause/Resume
         p::{
@@ -452,6 +452,7 @@ class PacmanGame {
 
 ; Initialize
 PacmanGame.Init()
+
 
 
 
