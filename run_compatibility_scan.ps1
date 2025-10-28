@@ -32,7 +32,7 @@ Write-Host ""
 
 # Run the scanner
 try {
-    & $ahkPath.Source $scannerScript
+    & $ahkPath.Source '/ErrorStdOut' $scannerScript
     $exitCode = $LASTEXITCODE
     
     Write-Host ""

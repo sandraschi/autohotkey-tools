@@ -244,6 +244,133 @@ for i, line in lines {
     }
 }
 
+; Check 19: Arrow function event handler issues (this.Method in arrow functions)
+for i, line in lines {
+    if (RegExMatch(line, "\.OnEvent\([^\)]+\(\s*\)\s*=>\s*this\.")) {
+        AddIssue("Arrow function using 'this' - change 'this.Method()' to 'ClassName.Method()' or use bound method", "Error", i)
+        hasErrors := true
+    }
+}
+
+; Check 20: FileDelete syntax
+for i, line in lines {
+    if (RegExMatch(line, "FileDelete\s+.*,.*true")) {
+        AddIssue("FileDelete with Recycle parameter - in v2 use FileRecycle() instead", "Warning", i)
+        hasWarnings := true
+    }
+}
+
+; Check 21: Clipboard operations
+for i, line in lines {
+    if (RegExMatch(line, "Clipboard\s*:=\s*")) {
+        AddIssue("Clipboard assignment - use ClipboardAll or Clipboard := text", "Warning", i)
+    }
+}
+
+; Check 22: Mouse operations with v1 syntax
+for i, line in lines {
+    if (RegExMatch(line, "MouseMove\s*,\s*\w+\s*,\s*\w+")) {
+        AddIssue("Old MouseMove syntax - use MouseMove(x, y, speed, relative)", "Error", i)
+        hasErrors := true
+    }
+}
+
+; Check 23: KeyWait syntax
+for i, line in lines {
+    if (RegExMatch(line, "KeyWait\s+\w+,.*,.*")) {
+        AddIssue("KeyWait with options - use KeyWait(key, options)", "Warning", i)
+    }
+}
+
+; Check 24: Check for missing class structure (should have class for complex scriptlets)
+lineCount := lines.Length
+classCount := 0
+methodCount := 0
+
+for i, line in lines {
+    if (RegExMatch(line, "^class\s+\w+")) {
+        classCount++
+    }
+    if (RegExMatch(line, "static\s+\w+\s*\(")) {
+        methodCount++
+    }
+}
+
+if (lineCount > 50 && classCount = 0) {
+    AddIssue("Large script without class structure - consider using class-based organization", "Suggestion")
+}
+
+; Check 25: Detect potential null variable dereference
+for i, line in lines {
+    if (RegExMatch(line, "\.\w+\s*\.\w+\s*\.\w+\s*\.\w+")) {
+        AddIssue("Deep chaining detected - consider adding null checks", "Warning", i)
+    }
+}
+
+; Check 26: Check for deprecated Sleep syntax
+for i, line in lines {
+    if (RegExMatch(line, "Sleep\s+\w+\s*,")) {
+        AddIssue("Sleep with comma - use Sleep(ms) not Sleep(ms,)", "Error", i)
+        hasErrors := true
+    }
+}
+
+; Check 27: Detect potential infinite loops
+for i, line in lines {
+    if (RegExMatch(line, "Loop\s*$")) {
+        ; Check next few lines for break condition
+        hasBreak := false
+        for j := i+1 to Min(i+20, lines.Length) {
+            if (InStr(lines[j], "break")) {
+                hasBreak := true
+                break
+            }
+        }
+        if (!hasBreak) {
+            AddIssue("Loop without break condition detected - check for infinite loop", "Warning", i)
+        }
+    }
+}
+
+; Check 28: Check for proper error handling in file operations
+for i, line in lines {
+    if (RegExMatch(line, "FileRead\s*\(|FileAppend\s*\(|FileDelete\s*\(")) {
+        ; Check if surrounded by try-catch
+        hasTry := false
+        for j := Max(1, i-5) to i-1 {
+            if (InStr(lines[j], "try")) {
+                hasTry := true
+                break
+            }
+        }
+        if (!hasTry) {
+            AddIssue("File operation without try-catch - consider adding error handling", "Suggestion", i)
+        }
+    }
+}
+
+; Check 29: Check for proper GUI event handlers
+for i, line in lines {
+    if (RegExMatch(line, "\.Add.*OnEvent")) {
+        if (RegExMatch(line, "\(\*\s*\)\s*=>\s*[\w\.]+\(")) {
+            ; Check if it's using proper class reference
+            if (!RegExMatch(line, "ClassName\.") && !RegExMatch(line, "this\.")) {
+                AddIssue("OnEvent callback should use class name or proper binding", "Warning", i)
+            }
+        }
+    }
+}
+
+; Check 30: Check for variable naming consistency
+for i, line in lines {
+    if (RegExMatch(line, "^\s*[a-zA-Z_][a-zA-Z0-9_]*\s*:=\s*")) {
+        varName := RegExReplace(line, "^\s*([a-zA-Z_][a-zA-Z0-9_]*).*", "$1")
+        if (StrLen(varName) < 2) {
+            AddIssue("Very short variable name - consider using more descriptive names", "Suggestion", i)
+        }
+    }
+}
+
 ; Generate comprehensive report
 report := "Lint Report for: " . fileToCheck . "`n"
 report .= "Generated: " . FormatTime(A_Now, "yyyy-MM-dd HH:mm:ss") . "`n"
