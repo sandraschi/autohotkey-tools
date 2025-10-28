@@ -175,6 +175,9 @@ class ChessGame {
         this.gameGui.Show("w800 h600")
         this.LogDebug("Chess GUI created successfully")
         
+        ; Draw initial board
+        this.DrawBoard()
+        
         } catch as e {
             this.LogDebug("Error creating Chess GUI: " . e.Message)
             MsgBox("Error creating GUI: " . e.Message, "Error", "Iconx")
@@ -208,7 +211,7 @@ class ChessGame {
                 Loop 8 {
                     piece := ChessGame.board[row][A_Index]
                     if (piece = "") {
-                        boardText .= "Â· "
+                        boardText .= ". "
                     } else {
                         boardText .= piece . " "
                     }
