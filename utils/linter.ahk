@@ -377,6 +377,25 @@ for i, line in lines {
     }
 }
 
+; Check 31: Check for problematic hotkeys (undecorated single chars, common system combos)
+for i, line in lines {
+    ; Check for undecorated single character hotkeys like "a::", "b::" (must use ^a, !b, etc.)
+    if (RegExMatch(line, "^[a-z]::", &match)) {
+        AddIssue("Undecorated single character hotkey detected - use modifiers like ^a, !b, +c instead of a::", "Error", i)
+        hasErrors := true
+    }
+    
+    ; Check for common system hotkeys that should not be overridden
+    commonHotkeys := ["^c", "^v", "^x", "^z", "^a", "^f", "^s", "^p", "!f4", "^!del", "^esc"]
+    for idx, hkey in commonHotkeys {
+        ; Simple check for the hotkey string in the line
+        if (InStr(line, hkey) && !InStr(line, "Off")) {
+            AddIssue("Warning: Possibly overriding common system hotkey: " . hkey . " - may interfere with normal operation", "Warning", i)
+            hasWarnings := true
+        }
+    }
+}
+
 ; Generate comprehensive report
 report := "Lint Report for: " . fileToCheck . "`n"
 report .= "Generated: " . FormatTime(A_Now, "yyyy-MM-dd HH:mm:ss") . "`n"

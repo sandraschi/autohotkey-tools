@@ -243,10 +243,34 @@ Random(value, 1, 100)
 var := "value"
 ```
 
+## Debugging and Running Requirements
+
+### MANDATORY: Use /ErrorStdOut for ALL AutoHotkey executions
+- **CRITICAL**: ALWAYS run AutoHotkey scripts with `/ErrorStdOut` flag to suppress error popups
+- **FORBIDDEN**: Running AutoHotkey without `/ErrorStdOut` is strictly prohibited
+- **EXAMPLE**: `AutoHotkey.exe '/ErrorStdOut' script.ahk`
+- **REASON**: Error popups block terminal output and make debugging impossible
+
+### Error Output Format
+```
+CORRECT:
+AutoHotkey.exe '/ErrorStdOut' script.ahk
+
+WRONG (FORBIDDEN):
+AutoHotkey.exe script.ahk
+```
+
+### When Testing/Running Scriptlets
+- **MANDATORY**: Always use `/ErrorStdOut` when running any `.ahk` file
+- **REQUIRED**: Use full absolute paths to avoid file not found errors
+- **REQUIRED**: Always check file exists before running
+- **ENFORCED**: Running without `/ErrorStdOut` is considered a critical error
+
 ## Summary
 
 **Rule #1: Write scriptlets in v2 syntax from the start. NO v1 allowed.**
 **Rule #2: Include comprehensive error handling and logging.**
 **Rule #3: Follow all code quality and testing requirements.**
+**Rule #4: ALWAYS use /ErrorStdOut when running AutoHotkey scripts.**
 
 Any violation of these rules will result in immediate rejection of the scriptlet.
