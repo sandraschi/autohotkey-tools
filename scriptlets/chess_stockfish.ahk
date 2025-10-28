@@ -148,41 +148,108 @@ class ChessGame {
                 this.guiControls.Clear()
             }
             
-            this.gameGui := Gui("+Resize +MinSize800x600", "Chess Game - Click to move pieces")
-            this.gameGui.BackColor := "0x8B4513"
-            this.gameGui.SetFont("s12 cWhite Bold", "Arial")
+            this.gameGui := Gui("+Resize +MinSize650x700", "Chess Game")
+            this.gameGui.BackColor := "0x2A1F1F"
+            this.gameGui.SetFont("s10 Bold", "Arial")
             
-            ; Game area with board display
-            boardText := this.gameGui.Add("Text", "x10 y10 w780 h450 Border Center Center", "Click 'Start Game' to begin")
-            this.guiControls["BoardText"] := boardText
-        
+            ; Create visual chess board using buttons
+            boardSize := 50  ; Size of each square
+            startX := 40
+            startY := 40
+            
+            ; Unicode chess pieces
+            pieceSymbols := Map(
+                "r", "♜", "R", "♖",  ; Rooks
+                "n", "♞", "N", "♘",  ; Knights
+                "b", "♝", "B", "♗",  ; Bishops
+                "q", "♛", "Q", "♕",  ; Queens
+                "k", "♚", "K", "♔",  ; Kings
+                "p", "♟", "P", "♙"   ; Pawns
+            )
+            
+            ; Create 8x8 grid of buttons for the chess board
+            Loop 8 {
+                row := A_Index
+                Loop 8 {
+                    col := A_Index
+                    
+                    ; Determine square color (alternating light/dark)
+                    isLight := ((row + col) & 1) = 0
+                    
+                    ; Calculate position
+                    x := startX + (col - 1) * boardSize
+                    y := startY + (row - 1) * boardSize
+                    
+                    ; Get piece on this square
+                    boardRow := 9 - row
+                    piece := ChessGame.board[boardRow][col]
+                    
+                    ; Set background color
+                    bgColor := isLight ? "0xF0D9B5" : "0xB58863"
+                    
+                    ; Set text color
+                    textColor := (piece != "" && piece = piece.ToUpper()) ? "0x000000" : "0xFFFFFF"
+                    
+                    ; Create square button
+                    square := this.gameGui.Add("Button", "x" . x . " y" . y . " w" . boardSize . " h" . boardSize . " Background" . bgColor . " +Border", "")
+                    
+                    ; Set piece symbol
+                    if (piece != "") {
+                        sym := pieceSymbols[piece]
+                        square.Text := sym ? sym : piece
+                        square.SetFont("s24 c" . textColor, "Arial")
+                    }
+                    
+                    ; Store reference and bind click event
+                    squareKey := "square" . row . col
+                    this.guiControls[squareKey] := square
+                    square.OnEvent("Click", this.SquareClicked.Bind(this, row, col))
+                    
+                    ; Add tooltip with coordinates
+                    square.ToolTip := Chr(96 + col) . row
+                }
+            }
+            
+            ; Status bar at bottom
+            this.gameGui.Add("Text", "x40 y460 w400 h25 cWhite vStatusText", "Current Player: " . this.currentPlayer . " | Mode: " . this.gameMode)
+            
+            ; Control buttons
+            this.gameGui.Add("Button", "x460 y460 w80 h30", "New Game").OnEvent("Click", ChessGame.NewGame)
+            this.gameGui.Add("Button", "x550 y460 w80 h30", "Reset").OnEvent("Click", ChessGame.ResetGame)
+            
         ; Status display
-        this.gameGui.Add("Text", "x50 y470 w200 h30", "Current Player: " . this.currentPlayer)
-        this.gameGui.Add("Text", "x300 y470 w200 h30", "Mode: " . this.gameMode)
-        this.gameGui.Add("Text", "x550 y470 w200 h30", "Captured: " . this.capturedPieces.white.Length . "/" . this.capturedPieces.black.Length)
-        
-        ; Controls info
-        this.gameGui.Add("Text", "x10 y510 w780 h20 Center", "Click pieces to move | SPACE: Start | R: Reset | M: Menu")
-        
-        ; Menu buttons
-        this.gameGui.Add("Button", "x300 y540 w100 h40", "Start Game").OnEvent("Click", this.StartGame.Bind(this))
-        this.gameGui.Add("Button", "x410 y540 w100 h40", "Game Mode").OnEvent("Click", this.ShowGameMode.Bind(this))
-        this.gameGui.Add("Button", "x520 y540 w100 h40", "Instructions").OnEvent("Click", this.ShowInstructions.Bind(this))
+        this.gameGui.Add("Text", "x10 y500 w400 h20 cWhite", "Click a piece to select, then click destination square")
         
         ; Set up hotkeys
         this.SetupHotkeys()
         
-        this.gameGui.Show("w800 h600")
+        this.gameGui.Show("w600 h530")
         this.LogDebug("Chess GUI created successfully")
-        
-        ; Draw initial board
-        this.DrawBoard()
         
         } catch as e {
             this.LogDebug("Error creating Chess GUI: " . e.Message)
             MsgBox("Error creating GUI: " . e.Message, "Error", "Iconx")
             throw
         }
+    }
+    
+    static SquareClicked(row, col, ctrl, info) {
+        ; Handle square click
+        this.LogDebug("Square clicked: row=" . row . " col=" . col)
+        ; TODO: Implement move logic
+    }
+    
+    static NewGame(*) {
+        this.gameRunning := false
+        this.InitializeBoard()
+        this.DrawBoardGUI()
+        this.LogDebug("New game started")
+    }
+    
+    static ResetGame(*) {
+        this.InitializeBoard()
+        this.DrawBoardGUI()
+        this.LogDebug("Game reset")
     }
     
     static StartGame(*) {
@@ -293,6 +360,59 @@ class ChessGame {
             }
         } catch as e {
             this.LogDebug("DrawBoard error: " . e.Message)
+        }
+    }
+    
+    static DrawBoardGUI() {
+        ; Update the visual board by redrawing all squares
+        try {
+            pieceSymbols := Map(
+                "r", "♜", "R", "♖",  ; Rooks
+                "n", "♞", "N", "♘",  ; Knights
+                "b", "♝", "B", "♗",  ; Bishops
+                "q", "♛", "Q", "♕",  ; Queens
+                "k", "♚", "K", "♔",  ; Kings
+                "p", "♟", "P", "♙"   ; Pawns
+            )
+            
+            Loop 8 {
+                row := A_Index
+                Loop 8 {
+                    col := A_Index
+                    
+                    ; Determine square color
+                    isLight := ((row + col) & 1) = 0
+                    bgColor := isLight ? "0xF0D9B5" : "0xB58863"
+                    
+                    ; Get piece
+                    boardRow := 9 - row
+                    piece := ChessGame.board[boardRow][col]
+                    
+                    ; Get square button
+                    squareKey := "square" . row . col
+                    if (this.guiControls.Has(squareKey)) {
+                        square := this.guiControls[squareKey]
+                        
+                        ; Update piece symbol
+                        if (piece != "") {
+                            sym := pieceSymbols[piece]
+                            square.Text := sym ? sym : piece
+                            textColor := (piece = piece.ToUpper()) ? "0x000000" : "0xFFFFFF"
+                            square.SetFont("s24 c" . textColor, "Arial")
+                        } else {
+                            square.Text := ""
+                        }
+                    }
+                }
+            }
+            
+            ; Update status text
+            if (this.guiControls.Has("StatusText")) {
+                statusText := "Current Player: " . this.currentPlayer . " | Mode: " . this.gameMode
+                this.guiControls["StatusText"].Text := statusText
+            }
+        } catch as e {
+            this.LogDebug("DrawBoardGUI error: " . e.Message)
         }
     }
     
