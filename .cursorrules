@@ -14,11 +14,15 @@
 FormatTime(timestamp, A_Now, "yyyy-MM-dd HH:mm:ss")
 FileRead(content, "file.txt")
 MsgBox("Message", "Title", "0x30")
+StrUpper(text)  ; Convert to uppercase
+StrLower(text)  ; Convert to lowercase
 
 # WRONG v1 (FORBIDDEN):
 FormatTime timestamp,, "yyyy-MM-dd HH:mm:ss"
 FileRead fileContent, fileToCheck
 MsgBox, 0x30, Title, Message
+text.ToUpper()  ; DOES NOT EXIST in v2!
+text.ToLower()  ; DOES NOT EXIST in v2!
 ```
 
 ### Hotkeys
@@ -272,5 +276,6 @@ AutoHotkey.exe script.ahk
 **Rule #2: Include comprehensive error handling and logging.**
 **Rule #3: Follow all code quality and testing requirements.**
 **Rule #4: ALWAYS use /ErrorStdOut when running AutoHotkey scripts.**
+**Rule #5: Use StrUpper() and StrLower(), NOT .ToUpper() or .ToLower() methods.**
 
 Any violation of these rules will result in immediate rejection of the scriptlet.

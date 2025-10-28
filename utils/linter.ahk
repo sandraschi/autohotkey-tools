@@ -396,6 +396,18 @@ for i, line in lines {
     }
 }
 
+; Check 32: Check for ToUpper() method (invalid in AutoHotkey v2)
+for i, line in lines {
+    if (RegExMatch(line, "\.ToUpper\(\)")) {
+        AddIssue("Found .ToUpper() method - use StrUpper() instead of .ToUpper()", "Error", i)
+        hasErrors := true
+    }
+    if (RegExMatch(line, "\.ToLower\(\)")) {
+        AddIssue("Found .ToLower() method - use StrLower() instead of .ToLower()", "Error", i)
+        hasErrors := true
+    }
+}
+
 ; Generate comprehensive report
 report := "Lint Report for: " . fileToCheck . "`n"
 report .= "Generated: " . FormatTime(A_Now, "yyyy-MM-dd HH:mm:ss") . "`n"
