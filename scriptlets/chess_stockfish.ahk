@@ -1,4 +1,4 @@
-﻿; ==============================================================================
+; ==============================================================================
 ; Chess Game with Stockfish Integration
 ; @name: Chess Game with Stockfish Integration
 ; @version: 1.0.0
@@ -14,11 +14,11 @@
 
 
 ; Suppress error popups - log to file instead
-OnError("LogError")
+OnError(LogError)
 
-LogError(Exception, Mode) {
-    FileAppend("Error: " . Exception.Message . " at line " . Exception.Line . "`n", "errors.log", "UTF-8")
-    return true  ; Suppress popup
+LogError(Thrown, Mode) {
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n", "errors.log", "UTF-8"`n        FileAppend(errorMsg
+    return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 
 
@@ -159,7 +159,7 @@ class ChessGame {
             }
             
             this.gameGui := Gui("+Resize +MinSize650x700", "Chess Game")
-            this.gameGui.BackColor := "0x2A1F1F"
+            this.gameGui.BackColor := "2A1F1F"
             this.gameGui.SetFont("s10 Bold", "Arial")
             
             ; Create visual chess board using buttons

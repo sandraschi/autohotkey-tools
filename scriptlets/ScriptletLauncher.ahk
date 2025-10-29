@@ -1,12 +1,12 @@
-﻿#Requires AutoHotkey v2.0+
+#Requires AutoHotkey v2.0+
 #SingleInstance Force
 
 ; Suppress error popups - log to file instead
-OnError("LogError")
+OnError(LogError)
 
-LogError(Exception, Mode) {
-    FileAppend("Error: " . Exception.Message . " at line " . Exception.Line . "`n", "errors.log", "UTF-8")
-    return true  ; Suppress popup
+LogError(Thrown, Mode) {
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n", "errors.log", "UTF-8"`n        FileAppend(errorMsg
+    return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 
 class ScriptletLauncher {
@@ -28,12 +28,12 @@ class ScriptletLauncher {
     static CreateGUI() {
         this.gui := Gui("+Resize", "Scriptlet Launcher")
         this.gui.BackColor := "1E1E1E"
-        this.gui.SetFont("s10 cWhite", "Segoe UI")
+        this.gui.SetFont("s10 cFFFFFF", "Segoe UI")
         
         ; Header
         this.gui.Add("Picture", "x10 y10 w48 h48", A_WinDir . "\System32\SHELL32.dll")
         title := this.gui.Add("Text", "x68 y15 w300 h30 Center", "Scriptlet Launcher")
-        title.SetFont("s16 Bold cWhite")
+        title.SetFont("s16 Bold cFFFFFF")
         this.gui.Add("Text", "x70 y45 w300 h20 Center cSilver", "v1.0 - Manage your AHK scripts")
         
         ; Create tab control

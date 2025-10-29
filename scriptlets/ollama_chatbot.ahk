@@ -1,14 +1,14 @@
-﻿#Requires AutoHotkey v2.0+
+#Requires AutoHotkey v2.0+
 #SingleInstance Force
 
 
 ; Suppress error popups - log to file instead
-OnError("LogError")
+OnError(LogError)
 
-LogError(Exception, Mode) {
-    FileAppend("Error: " . Exception.Message . " at line " . Exception.Line . "
-", "errors.log", "UTF-8")
-    return true  ; Suppress popup
+LogError(Thrown, Mode) {
+    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
+", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 
 #Warn All, MsgBox
@@ -87,7 +87,7 @@ CreateGUI() {
     ApplyTheme(currentTheme)
     
     ; Chat display - use plain text display for better compatibility
-    chatDisplay := guiMain.Add("Edit", "x10 y10 w780 h500 +ReadOnly +VScroll +Multi")
+    chatDisplay := guiMain.Add("Edit", "x10 y10 w780 h500 +ReadOnly VScroll +Multi")
     chatDisplay.SetFont("s10", "Segoe UI")
     
     ; Input area

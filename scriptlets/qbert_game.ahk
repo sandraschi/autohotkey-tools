@@ -1,14 +1,14 @@
-﻿#Requires AutoHotkey v2.0+
+#Requires AutoHotkey v2.0+
 #SingleInstance Force
 
 
 ; Suppress error popups - log to file instead
-OnError("LogError")
+OnError(LogError)
 
-LogError(Exception, Mode) {
-    FileAppend("Error: " . Exception.Message . " at line " . Exception.Line . "
-", "errors.log", "UTF-8")
-    return true  ; Suppress popup
+LogError(Thrown, Mode) {
+    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
+", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 
 
@@ -56,7 +56,7 @@ class QbertGame {
         this.canvas := this.gui.Add("Text", "w900 h700 BackgroundBlack Center", "")
         
         ; Score and status
-        this.statusBar := this.gui.Add("Text", "w900 h20 Background0xE0E0E0", "Score: 0 | Level: 1 | Lives: 3")
+        this.statusBar := this.gui.Add("Text", "w900 h20 BackgroundE0E0E0", "Score: 0 | Level: 1 | Lives: 3")
         
         ; Control buttons
         controlPanel := this.gui.Add("Text", "w900 h40")
@@ -73,7 +73,7 @@ class QbertGame {
         
         ; Log area
         this.gui.Add("Text", "w900 h20", "Game Log:")
-        this.logArea := this.gui.Add("Edit", "w900 h100 +VScroll +HScroll ReadOnly", "")
+        this.logArea := this.gui.Add("Edit", "w900 h100 VScroll HScroll ReadOnly", "")
         
         this.gui.Show("w920 h900")
         this.gui.OnEvent("Close", this.ExitGame.Bind(this))

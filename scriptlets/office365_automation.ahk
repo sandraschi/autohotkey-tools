@@ -1,14 +1,14 @@
-﻿#Requires AutoHotkey v2.0
+#Requires AutoHotkey v2.0
 #SingleInstance Force
 
 
 ; Suppress error popups - log to file instead
-OnError("LogError")
+OnError(LogError)
 
-LogError(Exception, Mode) {
-    FileAppend("Error: " . Exception.Message . " at line " . Exception.Line . "
-", "errors.log", "UTF-8")
-    return true  ; Suppress popup
+LogError(Thrown, Mode) {
+    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
+", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 
 #MaxHotkeysPerInterval 200
@@ -40,110 +40,110 @@ class Office365Automation {
     
     static CreateGUI() {
         this.gui := Gui("+Resize +MinSize800x700", "Office 365 Automation Suite")
-        this.gui.BackColor := "0x1a1a1a"
-        this.gui.SetFont("s12 cWhite Bold", "Segoe UI")
+        this.gui.BackColor := "1a1a1a"
+        this.gui.SetFont("s12 cFFFFFF Bold", "Segoe UI")
         
         ; Title
         this.gui.Add("Text", "x20 y20 w760 Center Bold", "🏢 Office 365 Automation Suite")
-        this.gui.Add("Text", "x20 y50 w760 Center c0xcccccc", "Automate common Office 365 tasks and workflows")
+        this.gui.Add("Text", "x20 y50 w760 Center ", "Automate common Office 365 tasks and workflows")
         
         ; Outlook Automation
         this.gui.Add("Text", "x20 y90 w760 Bold", "📧 Outlook Automation")
         
-        outlookBtn1 := this.gui.Add("Button", "x20 y120 w180 h50 Background0x4a4a4a", "📬 Quick Email Reply")
-        outlookBtn1.SetFont("s10 cWhite", "Segoe UI")
+        outlookBtn1 := this.gui.Add("Button", "x20 y120 w180 h50 Background4a4a4a", "📬 Quick Email Reply")
+        outlookBtn1.SetFont("s10 cFFFFFF", "Segoe UI")
         outlookBtn1.OnEvent("Click", this.QuickEmailReply.Bind(this))
         
-        outlookBtn2 := this.gui.Add("Button", "x220 y120 w180 h50 Background0x4a4a4a", "📅 Schedule Meeting")
-        outlookBtn2.SetFont("s10 cWhite", "Segoe UI")
+        outlookBtn2 := this.gui.Add("Button", "x220 y120 w180 h50 Background4a4a4a", "📅 Schedule Meeting")
+        outlookBtn2.SetFont("s10 cFFFFFF", "Segoe UI")
         outlookBtn2.OnEvent("Click", this.ScheduleMeeting.Bind(this))
         
-        outlookBtn3 := this.gui.Add("Button", "x420 y120 w180 h50 Background0x4a4a4a", "📋 Email Templates")
-        outlookBtn3.SetFont("s10 cWhite", "Segoe UI")
+        outlookBtn3 := this.gui.Add("Button", "x420 y120 w180 h50 Background4a4a4a", "📋 Email Templates")
+        outlookBtn3.SetFont("s10 cFFFFFF", "Segoe UI")
         outlookBtn3.OnEvent("Click", this.EmailTemplates.Bind(this))
         
-        outlookBtn4 := this.gui.Add("Button", "x620 y120 w180 h50 Background0x4a4a4a", "🗂️ Auto-Organize")
-        outlookBtn4.SetFont("s10 cWhite", "Segoe UI")
+        outlookBtn4 := this.gui.Add("Button", "x620 y120 w180 h50 Background4a4a4a", "🗂️ Auto-Organize")
+        outlookBtn4.SetFont("s10 cFFFFFF", "Segoe UI")
         outlookBtn4.OnEvent("Click", this.AutoOrganize.Bind(this))
         
         ; OneNote Automation
         this.gui.Add("Text", "x20 y190 w760 Bold", "📝 OneNote Automation")
         
-        onenoteBtn1 := this.gui.Add("Button", "x20 y220 w180 h50 Background0x4a4a4a", "📄 Quick Note")
-        onenoteBtn1.SetFont("s10 cWhite", "Segoe UI")
+        onenoteBtn1 := this.gui.Add("Button", "x20 y220 w180 h50 Background4a4a4a", "📄 Quick Note")
+        onenoteBtn1.SetFont("s10 cFFFFFF", "Segoe UI")
         onenoteBtn1.OnEvent("Click", this.QuickNote.Bind(this))
         
-        onenoteBtn2 := this.gui.Add("Button", "x220 y220 w180 h50 Background0x4a4a4a", "📋 Meeting Notes")
-        onenoteBtn2.SetFont("s10 cWhite", "Segoe UI")
+        onenoteBtn2 := this.gui.Add("Button", "x220 y220 w180 h50 Background4a4a4a", "📋 Meeting Notes")
+        onenoteBtn2.SetFont("s10 cFFFFFF", "Segoe UI")
         onenoteBtn2.OnEvent("Click", this.MeetingNotes.Bind(this))
         
-        onenoteBtn3 := this.gui.Add("Button", "x420 y220 w180 h50 Background0x4a4a4a", "🔍 Search Notes")
-        onenoteBtn3.SetFont("s10 cWhite", "Segoe UI")
+        onenoteBtn3 := this.gui.Add("Button", "x420 y220 w180 h50 Background4a4a4a", "🔍 Search Notes")
+        onenoteBtn3.SetFont("s10 cFFFFFF", "Segoe UI")
         onenoteBtn3.OnEvent("Click", this.SearchNotes.Bind(this))
         
-        onenoteBtn4 := this.gui.Add("Button", "x620 y220 w180 h50 Background0x4a4a4a", "📊 Note Statistics")
-        onenoteBtn4.SetFont("s10 cWhite", "Segoe UI")
+        onenoteBtn4 := this.gui.Add("Button", "x620 y220 w180 h50 Background4a4a4a", "📊 Note Statistics")
+        onenoteBtn4.SetFont("s10 cFFFFFF", "Segoe UI")
         onenoteBtn4.OnEvent("Click", this.NoteStatistics.Bind(this))
         
         ; Teams Automation
         this.gui.Add("Text", "x20 y290 w760 Bold", "💬 Microsoft Teams Automation")
         
-        teamsBtn1 := this.gui.Add("Button", "x20 y320 w180 h50 Background0x4a4a4a", "📞 Quick Call")
-        teamsBtn1.SetFont("s10 cWhite", "Segoe UI")
+        teamsBtn1 := this.gui.Add("Button", "x20 y320 w180 h50 Background4a4a4a", "📞 Quick Call")
+        teamsBtn1.SetFont("s10 cFFFFFF", "Segoe UI")
         teamsBtn1.OnEvent("Click", this.QuickCall.Bind(this))
         
-        teamsBtn2 := this.gui.Add("Button", "x220 y320 w180 h50 Background0x4a4a4a", "💬 Auto-Reply")
-        teamsBtn2.SetFont("s10 cWhite", "Segoe UI")
+        teamsBtn2 := this.gui.Add("Button", "x220 y320 w180 h50 Background4a4a4a", "💬 Auto-Reply")
+        teamsBtn2.SetFont("s10 cFFFFFF", "Segoe UI")
         teamsBtn2.OnEvent("Click", this.TeamsAutoReply.Bind(this))
         
-        teamsBtn3 := this.gui.Add("Button", "x420 y320 w180 h50 Background0x4a4a4a", "📅 Meeting Status")
-        teamsBtn3.SetFont("s10 cWhite", "Segoe UI")
+        teamsBtn3 := this.gui.Add("Button", "x420 y320 w180 h50 Background4a4a4a", "📅 Meeting Status")
+        teamsBtn3.SetFont("s10 cFFFFFF", "Segoe UI")
         teamsBtn3.OnEvent("Click", this.MeetingStatus.Bind(this))
         
-        teamsBtn4 := this.gui.Add("Button", "x620 y320 w180 h50 Background0x4a4a4a", "🎯 Focus Mode")
-        teamsBtn4.SetFont("s10 cWhite", "Segoe UI")
+        teamsBtn4 := this.gui.Add("Button", "x620 y320 w180 h50 Background4a4a4a", "🎯 Focus Mode")
+        teamsBtn4.SetFont("s10 cFFFFFF", "Segoe UI")
         teamsBtn4.OnEvent("Click", this.FocusMode.Bind(this))
         
         ; Word & Excel Automation
         this.gui.Add("Text", "x20 y390 w760 Bold", "📄 Word & Excel Automation")
         
-        officeBtn1 := this.gui.Add("Button", "x20 y420 w180 h50 Background0x4a4a4a", "📝 Document Templates")
-        officeBtn1.SetFont("s10 cWhite", "Segoe UI")
+        officeBtn1 := this.gui.Add("Button", "x20 y420 w180 h50 Background4a4a4a", "📝 Document Templates")
+        officeBtn1.SetFont("s10 cFFFFFF", "Segoe UI")
         officeBtn1.OnEvent("Click", this.DocumentTemplates.Bind(this))
         
-        officeBtn2 := this.gui.Add("Button", "x220 y420 w180 h50 Background0x4a4a4a", "📊 Excel Shortcuts")
-        officeBtn2.SetFont("s10 cWhite", "Segoe UI")
+        officeBtn2 := this.gui.Add("Button", "x220 y420 w180 h50 Background4a4a4a", "📊 Excel Shortcuts")
+        officeBtn2.SetFont("s10 cFFFFFF", "Segoe UI")
         officeBtn2.OnEvent("Click", this.ExcelShortcuts.Bind(this))
         
-        officeBtn3 := this.gui.Add("Button", "x420 y420 w180 h50 Background0x4a4a4a", "🔄 Auto-Save")
-        officeBtn3.SetFont("s10 cWhite", "Segoe UI")
+        officeBtn3 := this.gui.Add("Button", "x420 y420 w180 h50 Background4a4a4a", "🔄 Auto-Save")
+        officeBtn3.SetFont("s10 cFFFFFF", "Segoe UI")
         officeBtn3.OnEvent("Click", this.AutoSave.Bind(this))
         
-        officeBtn4 := this.gui.Add("Button", "x620 y420 w180 h50 Background0x4a4a4a", "📋 Clipboard Sync")
-        officeBtn4.SetFont("s10 cWhite", "Segoe UI")
+        officeBtn4 := this.gui.Add("Button", "x620 y420 w180 h50 Background4a4a4a", "📋 Clipboard Sync")
+        officeBtn4.SetFont("s10 cFFFFFF", "Segoe UI")
         officeBtn4.OnEvent("Click", this.ClipboardSync.Bind(this))
         
         ; Advanced Features
         this.gui.Add("Text", "x20 y490 w760 Bold", "⚡ Advanced Features")
         
-        advancedBtn1 := this.gui.Add("Button", "x20 y520 w180 h50 Background0x4a4a4a", "🤖 AI Assistant")
-        advancedBtn1.SetFont("s10 cWhite", "Segoe UI")
+        advancedBtn1 := this.gui.Add("Button", "x20 y520 w180 h50 Background4a4a4a", "🤖 AI Assistant")
+        advancedBtn1.SetFont("s10 cFFFFFF", "Segoe UI")
         advancedBtn1.OnEvent("Click", this.AIAssistant.Bind(this))
         
-        advancedBtn2 := this.gui.Add("Button", "x220 y520 w180 h50 Background0x4a4a4a", "📈 Analytics")
-        advancedBtn2.SetFont("s10 cWhite", "Segoe UI")
+        advancedBtn2 := this.gui.Add("Button", "x220 y520 w180 h50 Background4a4a4a", "📈 Analytics")
+        advancedBtn2.SetFont("s10 cFFFFFF", "Segoe UI")
         advancedBtn2.OnEvent("Click", this.ProductivityAnalytics.Bind(this))
         
-        advancedBtn3 := this.gui.Add("Button", "x420 y520 w180 h50 Background0x4a4a4a", "🔧 Settings")
-        advancedBtn3.SetFont("s10 cWhite", "Segoe UI")
+        advancedBtn3 := this.gui.Add("Button", "x420 y520 w180 h50 Background4a4a4a", "🔧 Settings")
+        advancedBtn3.SetFont("s10 cFFFFFF", "Segoe UI")
         advancedBtn3.OnEvent("Click", this.Settings.Bind(this))
         
-        advancedBtn4 := this.gui.Add("Button", "x620 y520 w180 h50 Background0x4a4a4a", "❓ Help")
-        advancedBtn4.SetFont("s10 cWhite", "Segoe UI")
+        advancedBtn4 := this.gui.Add("Button", "x620 y520 w180 h50 Background4a4a4a", "❓ Help")
+        advancedBtn4.SetFont("s10 cFFFFFF", "Segoe UI")
         advancedBtn4.OnEvent("Click", this.Help.Bind(this))
         
         ; Status bar
-        statusText := this.gui.Add("Text", "x20 y590 w760 h30 Center c0x888888", "Ready - Office 365 apps initialized")
+        statusText := this.gui.Add("Text", "x20 y590 w760 h30 Center ", "Ready - Office 365 apps initialized")
         statusText.Name := "StatusText"
         
         this.gui.Show("w800 h630")
@@ -537,10 +537,10 @@ class Office365Automation {
             
             ; Check if in a meeting
             if (this.IsInMeeting()) {
-                statusGui.Add("Text", "w280 Center c0x00aa00", "🔴 Currently in a meeting")
+                statusGui.Add("Text", "w280 Center ", "🔴 Currently in a meeting")
                 statusGui.Add("Text", "w280 Center", "Meeting: " . this.GetCurrentMeeting())
             } else {
-                statusGui.Add("Text", "w280 Center c0x888888", "🟢 No active meeting")
+                statusGui.Add("Text", "w280 Center ", "🟢 No active meeting")
             }
             
             ; Next meeting
@@ -753,7 +753,7 @@ class Office365Automation {
                 aiGui.Add("Text", "w380 h20", "• " . feature)
             }
             
-            aiGui.Add("Text", "w380 Center c0x888888", "`nComing soon...")
+            aiGui.Add("Text", "w380 Center ", "`nComing soon...")
             
             aiGui.Show("w420 h250")
         } catch as e {

@@ -1,14 +1,14 @@
-﻿#Requires AutoHotkey v2.0
+#Requires AutoHotkey v2.0
 #SingleInstance Force
 
 
 ; Suppress error popups - log to file instead
-OnError("LogError")
+OnError(LogError)
 
-LogError(Exception, Mode) {
-    FileAppend("Error: " . Exception.Message . " at line " . Exception.Line . "
-", "errors.log", "UTF-8")
-    return true  ; Suppress popup
+LogError(Thrown, Mode) {
+    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
+", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 
 #MaxHotkeysPerInterval 200
@@ -82,7 +82,7 @@ Hotkey("^!i", (*) =>  {  ; Ctrl+Alt+I to invert mouse buttons
 Hotkey("^!b", (*) =>  {  ; Ctrl+Alt+B for fake BSOD
     bsod := Gui("+AlwaysOnTop -Caption +ToolWindow", "Windows - No Disk")
     bsod.BackColor := "0000AA"
-    bsod.SetFont("s12 cWhite", "Lucida Console")
+    bsod.SetFont("s12 cFFFFFF", "Lucida Console")
     
     bsodText := ""
     bsodText .= "A problem has been detected and Windows has been shut down to prevent damage`n"
@@ -109,7 +109,7 @@ Hotkey("^!b", (*) =>  {  ; Ctrl+Alt+B for fake BSOD
 Hotkey("^!u", (*) =>  {  ; Ctrl+Alt+U for fake Windows update
     updateGui := Gui("-Caption +ToolWindow +AlwaysOnTop", "Windows Update")
     updateGui.BackColor := "0078D7"
-    updateGui.SetFont("s12 cWhite", "Segoe UI")
+    updateGui.SetFont("s12 cFFFFFF", "Segoe UI")
     
     updateGui.Add("Text", "x20 y20 w600 h30", "Windows is installing updates...")
     progress := updateGui.Add("Progress", "x20 y60 w600 h30 cGreen vProgress", 0)
@@ -160,7 +160,7 @@ Hotkey("^!e", (*) =>  {  ; Ctrl+Alt+E for fake error
 Hotkey("^!s", (*) =>  {  ; Ctrl+Alt+S for fake shutdown
     shutdownGui := Gui("-Caption +ToolWindow +AlwaysOnTop", "Windows")
     shutdownGui.BackColor := "000000"
-    shutdownGui.SetFont("s12 cWhite", "Segoe UI")
+    shutdownGui.SetFont("s12 cFFFFFF", "Segoe UI")
     
     shutdownGui.Add("Text", "x20 y20 w600 h30", "Shutting down...")
     shutdownGui.Show("w640 h480")

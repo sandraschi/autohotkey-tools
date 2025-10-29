@@ -537,3 +537,74 @@ LogError(Exception, Mode) {
 
 ; Your code here...
 ```
+
+---
+
+## 🔧 GUI CONTROL CONVERSION
+
+### ❌ v1: GuiControl Command
+```autohotkey
+# WRONG:
+GuiControl,, ControlName, NewValue
+GuiControlGet, output,, ControlName
+```
+
+### ✅ v2: Direct Property Access
+```autohotkey
+# CORRECT:
+control.Text := "NewValue"
+value := control.Text
+
+# For progress bars:
+progressBar.Value := 50
+```
+
+---
+
+## 📱 MENU COMMANDS
+
+### ❌ v1: Menu Command Syntax
+```autohotkey
+# WRONG:
+Menu, Tray, NoStandard
+Menu, Tray, Add, Item, Label
+Menu, Tray, Default, Item
+```
+
+### ✅ v2: Menu Object
+```autohotkey
+# CORRECT:
+A_TrayMenu.Delete()
+A_TrayMenu.Add("Item", (*) => Function())
+A_TrayMenu.Default := "Item"
+A_IconTip := "Tooltip text"
+```
+
+---
+
+## ⏰ TIMER HANDLERS
+
+### ❌ v1: Label References
+```autohotkey
+# WRONG:
+SetTimer, UpdateFunction, 1000
+
+UpdateFunction:
+    DoSomething()
+return
+```
+
+### ✅ v2: Arrow Functions
+```autohotkey
+# CORRECT:
+SetTimer(() => UpdateFunction(), 1000)
+
+UpdateFunction() {
+    DoSomething()
+}
+```
+
+---
+
+**📚 For complete v1→v2 migration patterns, see:**  
+`docs/Complete_V1_to_V2_Migration_Guide.md`

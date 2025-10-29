@@ -1,4 +1,4 @@
-﻿; ==============================================================================
+; ==============================================================================
 ; Text Transformer Pro
 ; @name: Text Transformer Pro
 ; @version: 1.0.0
@@ -14,12 +14,12 @@
 
 
 ; Suppress error popups - log to file instead
-OnError("LogError")
+OnError(LogError)
 
-LogError(Exception, Mode) {
-    FileAppend("Error: " . Exception.Message . " at line " . Exception.Line . "
-", "errors.log", "UTF-8")
-    return true  ; Suppress popup
+LogError(Thrown, Mode) {
+    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
+", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 
 
@@ -33,7 +33,7 @@ class TextTransformer {
         
         ; Input area
         this.gui.Add("Text", "w600 h20", "Input Text:")
-        this.inputArea := this.gui.Add("Edit", "w600 h150 +VScroll", "")
+        this.inputArea := this.gui.Add("Edit", "w600 h150 VScroll", "")
         
         ; Transform buttons
         buttonPanel := this.gui.Add("Text", "w600 h40")
@@ -71,7 +71,7 @@ class TextTransformer {
         
         ; Output area
         this.gui.Add("Text", "w600 h20", "Output Text:")
-        this.outputArea := this.gui.Add("Edit", "w600 h150 +VScroll ReadOnly", "")
+        this.outputArea := this.gui.Add("Edit", "w600 h150 VScroll ReadOnly", "")
         
         ; Action buttons
         actionPanel := this.gui.Add("Text", "w600 h40")

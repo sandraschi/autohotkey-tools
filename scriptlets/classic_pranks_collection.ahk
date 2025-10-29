@@ -1,4 +1,4 @@
-﻿; ==============================================================================
+; ==============================================================================
 ; Classic Pranks Collection
 ; @name: Classic Pranks Collection
 ; @version: 1.0.0
@@ -14,12 +14,13 @@
 
 
 ; Suppress error popups - log to file instead
-OnError("LogError")
+OnError(LogError)
 
-LogError(Exception, Mode) {
-    FileAppend("Error: " . Exception.Message . " at line " . Exception.Line . "
+LogError(Thrown, Mode) {
+    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
 ", "errors.log", "UTF-8")
-    return true  ; Suppress popup
+`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 
 
@@ -34,71 +35,71 @@ class ClassicPranks {
     
     static CreateGUI() {
         this.gui := Gui("+Resize +MinSize600x500", "Classic Pranks Collection")
-        this.gui.BackColor := "0x1a1a1a"
-        this.gui.SetFont("s12 cWhite Bold", "Segoe UI")
+        this.gui.BackColor := "1a1a1a"
+        this.gui.SetFont("s12 cFFFFFF Bold", "Segoe UI")
         
         ; Title
         this.gui.Add("Text", "x20 y20 w560 Center Bold", "🎭 Classic Pranks Collection")
-        this.gui.Add("Text", "x20 y50 w560 Center c0xcccccc", "Harmless computer pranks and classic jokes")
+        this.gui.Add("Text", "x20 y50 w560 Center ", "Harmless computer pranks and classic jokes")
         
         ; Warning
-        this.gui.Add("Text", "x20 y80 w560 Center c0xffaa00 Bold", "⚠️ Use responsibly! These are harmless pranks.")
+        this.gui.Add("Text", "x20 y80 w560 Center  Bold", "⚠️ Use responsibly! These are harmless pranks.")
         
         ; Prank categories
         this.gui.Add("Text", "x20 y120 w560 Bold", "🎯 Classic Pranks")
         
         ; Desktop pranks
-        this.gui.Add("Text", "x20 y150 w560 Bold c0x888888", "🖥️ Desktop Pranks")
+        this.gui.Add("Text", "x20 y150 w560 Bold ", "🖥️ Desktop Pranks")
         
-        desktopBtn1 := this.gui.Add("Button", "x20 y180 w250 h40 Background0x4a4a4a", "🔄 Flip Screen")
-        desktopBtn1.SetFont("s10 cWhite", "Segoe UI")
+        desktopBtn1 := this.gui.Add("Button", "x20 y180 w250 h40 Background4a4a4a", "🔄 Flip Screen")
+        desktopBtn1.SetFont("s10 cFFFFFF", "Segoe UI")
         desktopBtn1.OnEvent("Click", this.FlipScreen.Bind(this))
         
-        desktopBtn2 := this.gui.Add("Button", "x290 y180 w250 h40 Background0x4a4a4a", "🖼️ Fake Blue Screen")
-        desktopBtn2.SetFont("s10 cWhite", "Segoe UI")
+        desktopBtn2 := this.gui.Add("Button", "x290 y180 w250 h40 Background4a4a4a", "🖼️ Fake Blue Screen")
+        desktopBtn2.SetFont("s10 cFFFFFF", "Segoe UI")
         desktopBtn2.OnEvent("Click", this.FakeBlueScreen.Bind(this))
         
-        desktopBtn3 := this.gui.Add("Button", "x20 y230 w250 h40 Background0x4a4a4a", "📱 Fake Phone Call")
-        desktopBtn3.SetFont("s10 cWhite", "Segoe UI")
+        desktopBtn3 := this.gui.Add("Button", "x20 y230 w250 h40 Background4a4a4a", "📱 Fake Phone Call")
+        desktopBtn3.SetFont("s10 cFFFFFF", "Segoe UI")
         desktopBtn3.OnEvent("Click", this.FakePhoneCall.Bind(this))
         
-        desktopBtn4 := this.gui.Add("Button", "x290 y230 w250 h40 Background0x4a4a4a", "🎭 Fake Windows Update")
-        desktopBtn4.SetFont("s10 cWhite", "Segoe UI")
+        desktopBtn4 := this.gui.Add("Button", "x290 y230 w250 h40 Background4a4a4a", "🎭 Fake Windows Update")
+        desktopBtn4.SetFont("s10 cFFFFFF", "Segoe UI")
         desktopBtn4.OnEvent("Click", this.FakeWindowsUpdate.Bind(this))
         
         ; Mouse pranks
-        this.gui.Add("Text", "x20 y290 w560 Bold c0x888888", "🖱️ Mouse Pranks")
+        this.gui.Add("Text", "x20 y290 w560 Bold ", "🖱️ Mouse Pranks")
         
-        mouseBtn1 := this.gui.Add("Button", "x20 y320 w250 h40 Background0x4a4a4a", "🔄 Reverse Mouse")
-        mouseBtn1.SetFont("s10 cWhite", "Segoe UI")
+        mouseBtn1 := this.gui.Add("Button", "x20 y320 w250 h40 Background4a4a4a", "🔄 Reverse Mouse")
+        mouseBtn1.SetFont("s10 cFFFFFF", "Segoe UI")
         mouseBtn1.OnEvent("Click", this.ReverseMouse.Bind(this))
         
-        mouseBtn2 := this.gui.Add("Button", "x290 y320 w250 h40 Background0x4a4a4a", "🎯 Mouse Jitter")
-        mouseBtn2.SetFont("s10 cWhite", "Segoe UI")
+        mouseBtn2 := this.gui.Add("Button", "x290 y320 w250 h40 Background4a4a4a", "🎯 Mouse Jitter")
+        mouseBtn2.SetFont("s10 cFFFFFF", "Segoe UI")
         mouseBtn2.OnEvent("Click", this.MouseJitter.Bind(this))
         
-        mouseBtn3 := this.gui.Add("Button", "x20 y370 w250 h40 Background0x4a4a4a", "🖱️ Mouse Trail")
-        mouseBtn3.SetFont("s10 cWhite", "Segoe UI")
+        mouseBtn3 := this.gui.Add("Button", "x20 y370 w250 h40 Background4a4a4a", "🖱️ Mouse Trail")
+        mouseBtn3.SetFont("s10 cFFFFFF", "Segoe UI")
         mouseBtn3.OnEvent("Click", this.MouseTrail.Bind(this))
         
-        mouseBtn4 := this.gui.Add("Button", "x290 y370 w250 h40 Background0x4a4a4a", "🎪 Random Clicks")
-        mouseBtn4.SetFont("s10 cWhite", "Segoe UI")
+        mouseBtn4 := this.gui.Add("Button", "x290 y370 w250 h40 Background4a4a4a", "🎪 Random Clicks")
+        mouseBtn4.SetFont("s10 cFFFFFF", "Segoe UI")
         mouseBtn4.OnEvent("Click", this.RandomClicks.Bind(this))
         
         ; Keyboard pranks
-        this.gui.Add("Text", "x20 y430 w560 Bold c0x888888", "⌨️ Keyboard Pranks")
+        this.gui.Add("Text", "x20 y430 w560 Bold ", "⌨️ Keyboard Pranks")
         
-        keyboardBtn1 := this.gui.Add("Button", "x20 y460 w250 h40 Background0x4a4a4a", "🔄 Swap Keys")
-        keyboardBtn1.SetFont("s10 cWhite", "Segoe UI")
+        keyboardBtn1 := this.gui.Add("Button", "x20 y460 w250 h40 Background4a4a4a", "🔄 Swap Keys")
+        keyboardBtn1.SetFont("s10 cFFFFFF", "Segoe UI")
         keyboardBtn1.OnEvent("Click", this.SwapKeys.Bind(this))
         
-        keyboardBtn2 := this.gui.Add("Button", "x290 y460 w250 h40 Background0x4a4a4a", "🎭 Fake Typing")
-        keyboardBtn2.SetFont("s10 cWhite", "Segoe UI")
+        keyboardBtn2 := this.gui.Add("Button", "x290 y460 w250 h40 Background4a4a4a", "🎭 Fake Typing")
+        keyboardBtn2.SetFont("s10 cFFFFFF", "Segoe UI")
         keyboardBtn2.OnEvent("Click", this.FakeTyping.Bind(this))
         
         ; Emergency stop
-        stopBtn := this.gui.Add("Button", "x20 y520 w540 h40 Background0xaa0000", "🛑 EMERGENCY STOP ALL PRANKS")
-        stopBtn.SetFont("s12 cWhite Bold", "Segoe UI")
+        stopBtn := this.gui.Add("Button", "x20 y520 w540 h40 Backgroundaa0000", "🛑 EMERGENCY STOP ALL PRANKS")
+        stopBtn.SetFont("s12 cFFFFFF Bold", "Segoe UI")
         stopBtn.OnEvent("Click", this.StopAllPranks.Bind(this))
         
         this.gui.Show("w600 h580")
@@ -135,8 +136,8 @@ class ClassicPranks {
         try {
             ; Create fake blue screen
             bsGui := Gui("+AlwaysOnTop -Caption", "Fake Blue Screen")
-            bsGui.BackColor := "0x0000AA"
-            bsGui.SetFont("s12 cWhite", "Courier New")
+            bsGui.BackColor := "0000AA"
+            bsGui.SetFont("s12 cFFFFFF", "Courier New")
             
             bsGui.Add("Text", "x50 y50 w500 Center", "A problem has been detected and Windows has been shut down")
             bsGui.Add("Text", "x50 y80 w500 Center", "to prevent damage to your computer.")
@@ -162,19 +163,19 @@ class ClassicPranks {
         try {
             ; Create fake phone call popup
             callGui := Gui("+AlwaysOnTop -Caption", "Fake Phone Call")
-            callGui.BackColor := "0x2d2d2d"
-            callGui.SetFont("s14 cWhite Bold", "Segoe UI")
+            callGui.BackColor := "2d2d2d"
+            callGui.SetFont("s14 cFFFFFF Bold", "Segoe UI")
             
             callGui.Add("Text", "x20 y20 w300 Center", "📞 Incoming Call")
             callGui.Add("Text", "x20 y60 w300 Center", "Unknown Number")
             callGui.Add("Text", "x20 y100 w300 Center", "555-0123")
             
-            answerBtn := callGui.Add("Button", "x50 y150 w100 h40 Background0x00aa00", "Answer")
-            answerBtn.SetFont("s12 cWhite Bold", "Segoe UI")
+            answerBtn := callGui.Add("Button", "x50 y150 w100 h40 Background00aa00", "Answer")
+            answerBtn.SetFont("s12 cFFFFFF Bold", "Segoe UI")
             answerBtn.OnEvent("Click", () => callGui.Destroy())
             
-            declineBtn := callGui.Add("Button", "x170 y150 w100 h40 Background0xaa0000", "Decline")
-            declineBtn.SetFont("s12 cWhite Bold", "Segoe UI")
+            declineBtn := callGui.Add("Button", "x170 y150 w100 h40 Backgroundaa0000", "Decline")
+            declineBtn.SetFont("s12 cFFFFFF Bold", "Segoe UI")
             declineBtn.OnEvent("Click", () => callGui.Destroy())
             
             callGui.Show("w340 h220")
@@ -191,8 +192,8 @@ class ClassicPranks {
         try {
             ; Create fake Windows update
             updateGui := Gui("+AlwaysOnTop -Caption", "Fake Windows Update")
-            updateGui.BackColor := "0x0078d4"
-            updateGui.SetFont("s12 cWhite", "Segoe UI")
+            updateGui.BackColor := "0078d4"
+            updateGui.SetFont("s12 cFFFFFF", "Segoe UI")
             
             updateGui.Add("Text", "x20 y20 w400 Center Bold", "Windows Update")
             updateGui.Add("Text", "x20 y60 w400 Center", "Installing updates...")
@@ -267,7 +268,7 @@ class ClassicPranks {
                 MouseGetPos(&x, &y)
                 ; Create small window at mouse position
                 trailGui := Gui("+AlwaysOnTop -Caption +ToolWindow", "")
-                trailGui.BackColor := "0x00ff00"
+                trailGui.BackColor := "00ff00"
                 trailGui.Show("x" . x . " y" . y . " w4 h4")
                 
                 ; Fade out after 1 second
@@ -382,6 +383,9 @@ class ClassicPranks {
 
 ; Initialize
 ClassicPranks.Init()
+
+
+
 
 
 

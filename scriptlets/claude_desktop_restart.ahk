@@ -1,4 +1,4 @@
-﻿; ==============================================================================
+; ==============================================================================
 ; Claude Desktop Restart Helper
 ; @name: Claude Desktop Restart Helper
 ; @version: 1.0.0
@@ -14,12 +14,12 @@
 
 
 ; Suppress error popups - log to file instead
-OnError("LogError")
+OnError(LogError)
 
-LogError(Exception, Mode) {
-    FileAppend("Error: " . Exception.Message . " at line " . Exception.Line . "
-", "errors.log", "UTF-8")
-    return true  ; Suppress popup
+LogError(Thrown, Mode) {
+    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
+", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 
 
@@ -71,12 +71,12 @@ class ClaudeRestart {
     
     static CreateGUI() {
         gui := Gui("+Resize +MinSize600x400", "Claude Desktop Restart Helper")
-        gui.BackColor := "0x2d2d2d"
-        gui.SetFont("s10 cWhite", "Segoe UI")
+        gui.BackColor := "2d2d2d"
+        gui.SetFont("s10 cFFFFFF", "Segoe UI")
         
         ; Title
         gui.Add("Text", "x20 y20 w560 Center Bold", "🚀 Claude Desktop Restart Helper")
-        gui.Add("Text", "x20 y50 w560 Center c0xcccccc", "Intelligent restart with graceful shutdown and fallback")
+        gui.Add("Text", "x20 y50 w560 Center ", "Intelligent restart with graceful shutdown and fallback")
         
         ; Status section
         gui.Add("Text", "x20 y90 w560 Bold", "📊 Status Information")
@@ -89,18 +89,18 @@ class ClaudeRestart {
         
         ; Intelligent Restart
         gui.Add("Button", "x20 y230 w200 h50", "Intelligent Restart").OnEvent("Click", this.IntelligentRestart.Bind(this))
-        gui.Add("Text", "x240 y240 w340 c0xcccccc", "Graceful shutdown → Force kill → Restart")
+        gui.Add("Text", "x240 y240 w340 ", "Graceful shutdown → Force kill → Restart")
         
         ; Emergency Restart
         gui.Add("Button", "x20 y290 w200 h50", "Emergency Restart").OnEvent("Click", this.EmergencyRestart.Bind(this))
-        gui.Add("Text", "x240 y300 w340 c0xcccccc", "Force kill all processes → Clean restart")
+        gui.Add("Text", "x240 y300 w340 ", "Force kill all processes → Clean restart")
         
         ; Config Reload
         gui.Add("Button", "x20 y350 w200 h50", "Config Reload").OnEvent("Click", this.ConfigReload.Bind(this))
-        gui.Add("Text", "x240 y360 w340 c0xcccccc", "Validate config → Restart Claude")
+        gui.Add("Text", "x240 y360 w340 ", "Validate config → Restart Claude")
         
         ; Controls
-        gui.Add("Text", "x20 y420 w560 Center c0x888888", "Hotkeys: Ctrl+Alt+R (Intelligent) | Ctrl+Alt+X (Emergency) | F8 (Config Reload)")
+        gui.Add("Text", "x20 y420 w560 Center ", "Hotkeys: Ctrl+Alt+R (Intelligent) | Ctrl+Alt+X (Emergency) | F8 (Config Reload)")
         
         ; Set up hotkeys
         this.SetupHotkeys()

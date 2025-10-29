@@ -1,4 +1,4 @@
-﻿; ==============================================================================
+; ==============================================================================
 ; Tetris Classic
 ; @name: Tetris Classic
 ; @version: 1.0.0
@@ -14,12 +14,12 @@
 
 
 ; Suppress error popups - log to file instead
-OnError("LogError")
+OnError(LogError)
 
-LogError(Exception, Mode) {
-    FileAppend("Error: " . Exception.Message . " at line " . Exception.Line . "
-", "errors.log", "UTF-8")
-    return true  ; Suppress popup
+LogError(Thrown, Mode) {
+    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
+", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 
 
@@ -74,22 +74,22 @@ class TetrisGame {
     
     static CreateGUI() {
         this.gui := Gui("+Resize -MaximizeBox", "Tetris Classic")
-        this.gui.BackColor := "0x1a1a1a"
-        this.gui.SetFont("s12 cWhite Bold", "Segoe UI")
+        this.gui.BackColor := "1a1a1a"
+        this.gui.SetFont("s12 cFFFFFF Bold", "Segoe UI")
         
         ; Title
         this.gui.Add("Text", "x20 y20 w400 Center Bold", "🎮 Tetris Classic")
         
         ; Game area
-        this.canvas := this.gui.Add("Text", "x20 y60 w200 h400 Background0x000000 Border", "")
-        this.canvas.SetFont("s8 cWhite", "Courier New")
+        this.canvas := this.gui.Add("Text", "x20 y60 w200 h400 Background000000 Border", "")
+        this.canvas.SetFont("s8 cFFFFFF", "Courier New")
         
         ; Next piece area
-        this.gui.Add("Text", "x240 y60 w120 h80 Background0x000000 Border", "Next:")
-        this.gui.Add("Text", "x250 y90 w100 h50 Background0x000000", "")
+        this.gui.Add("Text", "x240 y60 w120 h80 Background000000 Border", "Next:")
+        this.gui.Add("Text", "x250 y90 w100 h50 Background000000", "")
         
         ; Score area
-        this.gui.Add("Text", "x240 y160 w120 h200 Background0x2d2d2d", "")
+        this.gui.Add("Text", "x240 y160 w120 h200 Background2d2d2d", "")
         scoreText := this.gui.Add("Text", "x250 y180 w100 Center", "Score: 0")
         levelText := this.gui.Add("Text", "x250 y210 w100 Center", "Level: 1")
         linesText := this.gui.Add("Text", "x250 y240 w100 Center", "Lines: 0")
@@ -104,8 +104,8 @@ class TetrisGame {
         this.gui.Add("Text", "x250 y410 w100", "R Restart")
         
         ; Start button
-        startBtn := this.gui.Add("Button", "x250 y450 w100 h40 Background0x4a4a4a", "Start Game")
-        startBtn.SetFont("s10 cWhite Bold", "Segoe UI")
+        startBtn := this.gui.Add("Button", "x250 y450 w100 h40 Background4a4a4a", "Start Game")
+        startBtn.SetFont("s10 cFFFFFF Bold", "Segoe UI")
         startBtn.OnEvent("Click", this.StartGame.Bind(this))
         
         ; Store references

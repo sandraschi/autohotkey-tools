@@ -1,4 +1,4 @@
-﻿; ==============================================================================
+; ==============================================================================
 ; Help System Pro
 ; @name: Help System Pro
 ; @version: 1.0.0
@@ -14,12 +14,12 @@
 
 
 ; Suppress error popups - log to file instead
-OnError("LogError")
+OnError(LogError)
 
-LogError(Exception, Mode) {
-    FileAppend("Error: " . Exception.Message . " at line " . Exception.Line . "
-", "errors.log", "UTF-8")
-    return true  ; Suppress popup
+LogError(Thrown, Mode) {
+    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
+", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 
 
@@ -1034,7 +1034,7 @@ If everything is working correctly, you should see:
         this.gui.MenuBar.Add("&Help", helpMenu)
         
         ; Toolbar
-        toolbar := this.gui.Add("Text", "w800 h40 Background0xF0F0F0")
+        toolbar := this.gui.Add("Text", "w800 h40 BackgroundF0F0F0")
         
         ; Navigation buttons
         overviewBtn := this.gui.Add("Button", "x10 y8 w80 h25", "Overview")
@@ -1054,10 +1054,10 @@ If everything is working correctly, you should see:
         faqBtn.OnEvent("Click", this.ShowTopic.Bind(this, "faq"))
         
         ; Content area
-        this.contentArea := this.gui.Add("Edit", "w800 h500 +VScroll +HScroll ReadOnly", "")
+        this.contentArea := this.gui.Add("Edit", "w800 h500 VScroll HScroll ReadOnly", "")
         
         ; Status bar
-        this.statusBar := this.gui.Add("Text", "w800 h20 Background0xE0E0E0", "Help System Ready - Use navigation buttons or menu to explore topics")
+        this.statusBar := this.gui.Add("Text", "w800 h20 BackgroundE0E0E0", "Help System Ready - Use navigation buttons or menu to explore topics")
         
         this.gui.Show("w820 h600")
         this.ShowTopic("overview")

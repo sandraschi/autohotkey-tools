@@ -2,11 +2,11 @@
 #SingleInstance Force
 
 ; Suppress error popups - log to file instead
-OnError("LogError")
+OnError(LogError)
 
-LogError(Exception, Mode) {
-    FileAppend("Error: " . Exception.Message . " at line " . Exception.Line . "`n", "puzzle_errors.log", "UTF-8")
-    return true  ; Suppress popup
+LogError(Thrown, Mode) {
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n", "puzzle_errors.log", "UTF-8"`n        FileAppend(errorMsg`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 
 ; ==============================================================================

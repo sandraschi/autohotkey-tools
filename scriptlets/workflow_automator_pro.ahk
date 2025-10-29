@@ -1,4 +1,4 @@
-﻿; ==============================================================================
+; ==============================================================================
 ; Workflow Automator Pro
 ; @name: Workflow Automator Pro
 ; @version: 1.0.0
@@ -14,12 +14,12 @@
 
 
 ; Suppress error popups - log to file instead
-OnError("LogError")
+OnError(LogError)
 
-LogError(Exception, Mode) {
-    FileAppend("Error: " . Exception.Message . " at line " . Exception.Line . "
-", "errors.log", "UTF-8")
-    return true  ; Suppress popup
+LogError(Thrown, Mode) {
+    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
+", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 
 
@@ -132,14 +132,14 @@ class WorkflowAutomator {
         
         ; Trigger monitoring
         this.gui.Add("Text", "w700 h20", "Trigger Monitoring:")
-        this.monitorArea := this.gui.Add("Edit", "w700 h100 +VScroll +HScroll ReadOnly", "")
+        this.monitorArea := this.gui.Add("Edit", "w700 h100 VScroll HScroll ReadOnly", "")
         
         ; Log area
         this.gui.Add("Text", "w700 h20", "Workflow Log:")
-        this.logArea := this.gui.Add("Edit", "w700 h150 +VScroll +HScroll ReadOnly", "")
+        this.logArea := this.gui.Add("Edit", "w700 h150 VScroll HScroll ReadOnly", "")
         
         ; Status bar
-        this.statusBar := this.gui.Add("Text", "w700 h20 Background0xE0E0E0", "Ready - Monitoring " . this.activeWorkflows.Length . " workflows")
+        this.statusBar := this.gui.Add("Text", "w700 h20 BackgroundE0E0E0", "Ready - Monitoring " . this.activeWorkflows.Length . " workflows")
         
         this.gui.Show("w720 h600")
         this.UpdateWorkflowList()

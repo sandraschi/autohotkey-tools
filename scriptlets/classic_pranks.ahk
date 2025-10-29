@@ -1,14 +1,14 @@
-﻿#Requires AutoHotkey v2.0
+#Requires AutoHotkey v2.0
 #SingleInstance Force
 
 
 ; Suppress error popups - log to file instead
-OnError("LogError")
+OnError(LogError)
 
-LogError(Exception, Mode) {
-    FileAppend("Error: " . Exception.Message . " at line " . Exception.Line . "
-", "errors.log", "UTF-8")
-    return true  ; Suppress popup
+LogError(Thrown, Mode) {
+    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
+", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 
 #Warn
@@ -69,7 +69,7 @@ class ClassicPranks {
     static CreateBug(*) {
         this.bugCount++
         bugGui := Gui("+AlwaysOnTop -Caption +ToolWindow +E0x20", "Bug" . this.bugCount)
-        bugGui.BackColor := "0x000000"
+        bugGui.BackColor := "000000"
         
         ; Random position and speed
         x := Random(0, A_ScreenWidth - 50)
@@ -126,8 +126,8 @@ class ClassicPranks {
     
     static FakeBSOD(*) {
         bsodGui := Gui("+AlwaysOnTop -Caption +ToolWindow", "Fake BSOD")
-        bsodGui.BackColor := "0x0000FF"
-        bsodGui.SetFont("s12 cWhite", "Lucida Console")
+        bsodGui.BackColor := "0000FF"
+        bsodGui.SetFont("s12 cFFFFFF", "Lucida Console")
         
         funnyMessages := [
             "SYSTEM_CRITICAL_ERROR: Too many cookies in the cookie jar!",
@@ -178,7 +178,7 @@ class ClassicPranks {
     
     static StartEliza(*) {
         elizaGui := Gui("+AlwaysOnTop +Resize -MaximizeBox", "ELIZA Therapist")
-        elizaGui.BackColor := "0xF0F0F0"
+        elizaGui.BackColor := "F0F0F0"
         elizaGui.SetFont("s10", "Consolas")
         
         ; Chat display

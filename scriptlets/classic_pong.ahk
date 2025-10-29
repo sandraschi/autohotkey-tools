@@ -1,4 +1,4 @@
-﻿; ==============================================================================
+; ==============================================================================
 ; Classic Pong Game
 ; @name: Classic Pong Game
 ; @version: 1.0.0
@@ -14,12 +14,12 @@
 
 
 ; Suppress error popups - log to file instead
-OnError("LogError")
+OnError(LogError)
 
-LogError(Exception, Mode) {
-    FileAppend("Error: " . Exception.Message . " at line " . Exception.Line . "
-", "errors.log", "UTF-8")
-    return true  ; Suppress popup
+LogError(Thrown, Mode) {
+    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
+", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 
 
@@ -57,8 +57,8 @@ class PongGame {
         }
         
         this.gameGui := Gui("+Resize +MinSize800x600", "Classic Pong - Press SPACE to start")
-        this.gameGui.BackColor := "0x000000"
-        this.gameGui.SetFont("s16 cWhite Bold", "Arial")
+        this.gameGui.BackColor := "000000"
+        this.gameGui.SetFont("s16 cFFFFFF Bold", "Arial")
         
         ; Game area
         this.gameGui.Add("Text", "x10 y10 w780 h580 Border Center", "PONG")
@@ -195,7 +195,7 @@ class PongGame {
         }
         
         ; Clear screen
-        this.gameGui.BackColor := "0x000000"
+        this.gameGui.BackColor := "000000"
         
         ; Draw paddles and ball using simple rectangles
         ; This is a simplified version - in a real implementation you'd use GDI+

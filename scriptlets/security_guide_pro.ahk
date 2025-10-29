@@ -1,4 +1,4 @@
-﻿; ==============================================================================
+; ==============================================================================
 ; Security Guide Pro
 ; @name: Security Guide Pro
 ; @version: 1.0.0
@@ -14,12 +14,12 @@
 
 
 ; Suppress error popups - log to file instead
-OnError("LogError")
+OnError(LogError)
 
-LogError(Exception, Mode) {
-    FileAppend("Error: " . Exception.Message . " at line " . Exception.Line . "
-", "errors.log", "UTF-8")
-    return true  ; Suppress popup
+LogError(Thrown, Mode) {
+    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
+", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 
 
@@ -906,7 +906,7 @@ Remember: Security is everyone's responsibility!
         this.gui.MenuBar.Add("&Security", securityMenu)
         
         ; Toolbar
-        toolbar := this.gui.Add("Text", "w900 h50 Background0xF0F0F0")
+        toolbar := this.gui.Add("Text", "w900 h50 BackgroundF0F0F0")
         
         ; Navigation buttons
         overviewBtn := this.gui.Add("Button", "x10 y10 w100 h30", "🚨 Overview")
@@ -922,10 +922,10 @@ Remember: Security is everyone's responsibility!
         aiBtn.OnEvent("Click", this.ShowTopic.Bind(this, "aisafety"))
         
         ; Content area
-        this.contentArea := this.gui.Add("Edit", "w900 h550 +VScroll +HScroll ReadOnly", "")
+        this.contentArea := this.gui.Add("Edit", "w900 h550 VScroll HScroll ReadOnly", "")
         
         ; Status bar
-        this.statusBar := this.gui.Add("Text", "w900 h30 Background0xE0E0E0", "Security Guide Ready - Select a topic to learn about AutoHotkey security")
+        this.statusBar := this.gui.Add("Text", "w900 h30 BackgroundE0E0E0", "Security Guide Ready - Select a topic to learn about AutoHotkey security")
         
         this.gui.Show("w920 h700")
         this.ShowTopic("overview")

@@ -1,4 +1,4 @@
-﻿; ==============================================================================
+; ==============================================================================
 ; MCP Troubleshooter
 ; @name: MCP Troubleshooter
 ; @version: 1.0.0
@@ -14,12 +14,12 @@
 
 
 ; Suppress error popups - log to file instead
-OnError("LogError")
+OnError(LogError)
 
-LogError(Exception, Mode) {
-    FileAppend("Error: " . Exception.Message . " at line " . Exception.Line . "
+LogError(Thrown, Mode) {
+    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
 ", "errors.log", "UTF-8")
-    return true  ; Suppress popup
+    return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 
 
@@ -35,17 +35,17 @@ class MCPTroubleshooter {
     
     static CreateGUI() {
         gui := Gui("+Resize +MinSize900x700", "MCP Troubleshooter")
-        gui.BackColor := "0x1a1a1a"
-        gui.SetFont("s10 cWhite", "Segoe UI")
+        gui.BackColor := "1a1a1a"
+        gui.SetFont("s10 cFFFFFF", "Segoe UI")
         
         ; Title
         gui.Add("Text", "x20 y20 w860 Center Bold", "🔧 MCP Troubleshooter")
-        gui.Add("Text", "x20 y50 w860 Center c0xcccccc", "Smart MCP troubleshooting with automated fixes and diagnostics")
+        gui.Add("Text", "x20 y50 w860 Center ", "Smart MCP troubleshooting with automated fixes and diagnostics")
         
         ; Configuration section
         gui.Add("Text", "x20 y90 w860 Bold", "⚙️ Configuration")
         gui.Add("Text", "x20 y115 w150", "Claude Config:")
-        gui.Add("Text", "x180 y115 w680 c0xcccccc", this.claudeConfig)
+        gui.Add("Text", "x180 y115 w680 ", this.claudeConfig)
         
         ; Quick diagnostics
         gui.Add("Text", "x20 y150 w860 Bold", "🔍 Quick Diagnostics")
@@ -84,7 +84,7 @@ class MCPTroubleshooter {
         
         ; Results display
         resultsEdit := gui.Add("Edit", "x20 y580 w860 h80 ReadOnly Multi VScroll", "")
-        resultsEdit.BackColor := "0x2d2d2d"
+        resultsEdit.BackColor := "2d2d2d"
         
         ; Action buttons
         gui.Add("Button", "x20 y670 w150 h40", "💾 Save Report").OnEvent("Click", this.SaveReport.Bind(this))
@@ -92,7 +92,7 @@ class MCPTroubleshooter {
         gui.Add("Button", "x360 y670 w150 h40", "❓ Help").OnEvent("Click", this.ShowHelp.Bind(this))
         
         ; Status
-        gui.Add("Text", "x20 y720 w860 Center c0x888888", "Hotkeys: Ctrl+Alt+T (Troubleshoot) | F11 (Quick Fix) | Press Check Config to start")
+        gui.Add("Text", "x20 y720 w860 Center ", "Hotkeys: Ctrl+Alt+T (Troubleshoot) | F11 (Quick Fix) | Press Check Config to start")
         
         ; Store references
         gui.serverList := serverList

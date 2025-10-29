@@ -1,4 +1,4 @@
-﻿; ==============================================================================
+; ==============================================================================
 ; MCP Log Analyzer
 ; @name: MCP Log Analyzer
 ; @version: 1.0.0
@@ -14,12 +14,12 @@
 
 
 ; Suppress error popups - log to file instead
-OnError("LogError")
+OnError(LogError)
 
-LogError(Exception, Mode) {
-    FileAppend("Error: " . Exception.Message . " at line " . Exception.Line . "
-", "errors.log", "UTF-8")
-    return true  ; Suppress popup
+LogError(Thrown, Mode) {
+    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
+", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 
 
@@ -36,19 +36,19 @@ class MCPLogAnalyzer {
     
     static CreateGUI() {
         gui := Gui("+Resize +MinSize800x600", "MCP Log Analyzer")
-        gui.BackColor := "0x1a1a1a"
-        gui.SetFont("s10 cWhite", "Segoe UI")
+        gui.BackColor := "1a1a1a"
+        gui.SetFont("s10 cFFFFFF", "Segoe UI")
         
         ; Title
         gui.Add("Text", "x20 y20 w760 Center Bold", "📊 MCP Log Analyzer")
-        gui.Add("Text", "x20 y50 w760 Center c0xcccccc", "Analyze Claude Desktop MCP logs for startup issues and errors")
+        gui.Add("Text", "x20 y50 w760 Center ", "Analyze Claude Desktop MCP logs for startup issues and errors")
         
         ; Configuration section
         gui.Add("Text", "x20 y90 w760 Bold", "⚙️ Configuration")
         gui.Add("Text", "x20 y115 w150", "Log Directory:")
-        gui.Add("Text", "x180 y115 w580 c0xcccccc", this.logDir)
+        gui.Add("Text", "x180 y115 w580 ", this.logDir)
         gui.Add("Text", "x20 y140 w150", "Claude Config:")
-        gui.Add("Text", "x180 y140 w580 c0xcccccc", this.claudeConfig)
+        gui.Add("Text", "x180 y140 w580 ", this.claudeConfig)
         
         ; Analysis options
         gui.Add("Text", "x20 y180 w760 Bold", "🔍 Analysis Options")
@@ -78,7 +78,7 @@ class MCPLogAnalyzer {
         gui.Add("Button", "x360 y540 w150 h40", "❓ Help").OnEvent("Click", this.ShowHelp.Bind(this))
         
         ; Status
-        gui.Add("Text", "x20 y590 w760 Center c0x888888", "Hotkeys: Ctrl+Alt+L (Analyze) | F10 (Generate Fixes) | Press Analyze to start")
+        gui.Add("Text", "x20 y590 w760 Center ", "Hotkeys: Ctrl+Alt+L (Analyze) | F10 (Generate Fixes) | Press Analyze to start")
         
         ; Store references for later use
         gui.resultsList := resultsList

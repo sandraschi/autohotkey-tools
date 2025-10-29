@@ -1,14 +1,14 @@
-﻿#Requires AutoHotkey v2.0+
+#Requires AutoHotkey v2.0+
 #SingleInstance Force
 
 
 ; Suppress error popups - log to file instead
-OnError("LogError")
+OnError(LogError)
 
-LogError(Exception, Mode) {
-    FileAppend("Error: " . Exception.Message . " at line " . Exception.Line . "
-", "errors.log", "UTF-8")
-    return true  ; Suppress popup
+LogError(Thrown, Mode) {
+    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
+", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 
 
@@ -124,10 +124,10 @@ class SmartClipboard {
         
         ; Log area
         this.gui.Add("Text", "w800 h20", "Activity Log:")
-        this.logArea := this.gui.Add("Edit", "w800 h150 +VScroll +HScroll ReadOnly", "")
+        this.logArea := this.gui.Add("Edit", "w800 h150 VScroll HScroll ReadOnly", "")
         
         ; Status bar
-        this.statusBar := this.gui.Add("Text", "w800 h20 Background0xE0E0E0", "Ready - Monitoring clipboard changes")
+        this.statusBar := this.gui.Add("Text", "w800 h20 BackgroundE0E0E0", "Ready - Monitoring clipboard changes")
         
         this.gui.Show("w820 h700")
         this.UpdateHistoryList()

@@ -4,8 +4,8 @@ set AHK_PATH="C:\Program Files\AutoHotkey\v2\AutoHotkey64.exe"
 set SCRIPT_PATH="D:\Dev\repos\autohotkey-test\scriptlets\%SCRIPT_NAME%"
 
 if exist %SCRIPT_PATH% (
-    start "" %AHK_PATH% %SCRIPT_PATH%
-    echo SUCCESS: Started %SCRIPT_NAME%
+    start "" %AHK_PATH% /ErrorStdOut %SCRIPT_PATH%
+    echo SUCCESS: Started %SCRIPT_NAME% with ErrorStdOut
 ) else (
     echo ERROR: Script not found - %SCRIPT_NAME%
 )

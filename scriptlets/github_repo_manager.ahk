@@ -1,4 +1,4 @@
-﻿; ==============================================================================
+; ==============================================================================
 ; GitHub Repository Manager
 ; @name: GitHub Repository Manager
 ; @version: 1.0.0
@@ -14,12 +14,12 @@
 
 
 ; Suppress error popups - log to file instead
-OnError("LogError")
+OnError(LogError)
 
-LogError(Exception, Mode) {
-    FileAppend("Error: " . Exception.Message . " at line " . Exception.Line . "
-", "errors.log", "UTF-8")
-    return true  ; Suppress popup
+LogError(Thrown, Mode) {
+    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
+", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 
 
@@ -49,12 +49,12 @@ class GitHubRepoManager {
     
     static CreateGUI() {
         this.gui := Gui("+Resize +MinSize800x600", "GitHub Repository Manager")
-        this.gui.BackColor := "0x1a1a1a"
-        this.gui.SetFont("s10 cWhite", "Segoe UI")
+        this.gui.BackColor := "1a1a1a"
+        this.gui.SetFont("s10 cFFFFFF", "Segoe UI")
         
         ; Title
         this.gui.Add("Text", "x20 y20 w760 Center Bold", "🐙 GitHub Repository Manager")
-        this.gui.Add("Text", "x20 y50 w760 Center c0xcccccc", "Manage and display GitHub repositories for @" . this.username)
+        this.gui.Add("Text", "x20 y50 w760 Center ", "Manage and display GitHub repositories for @" . this.username)
         
         ; Profile info
         this.gui.Add("Text", "x20 y90 w760 Bold", "👤 Profile Information")
@@ -68,24 +68,24 @@ class GitHubRepoManager {
         ; Actions
         this.gui.Add("Text", "x20 y190 w760 Bold", "⚡ Actions")
         
-        refreshBtn := this.gui.Add("Button", "x20 y220 w150 h40 Background0x4a4a4a", "🔄 Refresh List")
-        refreshBtn.SetFont("s10 cWhite", "Segoe UI")
+        refreshBtn := this.gui.Add("Button", "x20 y220 w150 h40 Background4a4a4a", "🔄 Refresh List")
+        refreshBtn.SetFont("s10 cFFFFFF", "Segoe UI")
         refreshBtn.OnEvent("Click", this.RefreshRepositories.Bind(this))
         
-        exportBtn := this.gui.Add("Button", "x190 y220 w150 h40 Background0x4a4a4a", "📋 Export URLs")
-        exportBtn.SetFont("s10 cWhite", "Segoe UI")
+        exportBtn := this.gui.Add("Button", "x190 y220 w150 h40 Background4a4a4a", "📋 Export URLs")
+        exportBtn.SetFont("s10 cFFFFFF", "Segoe UI")
         exportBtn.OnEvent("Click", this.ExportURLs.Bind(this))
         
-        openProfileBtn := this.gui.Add("Button", "x360 y220 w150 h40 Background0x4a4a4a", "🌐 Open Profile")
-        openProfileBtn.SetFont("s10 cWhite", "Segoe UI")
+        openProfileBtn := this.gui.Add("Button", "x360 y220 w150 h40 Background4a4a4a", "🌐 Open Profile")
+        openProfileBtn.SetFont("s10 cFFFFFF", "Segoe UI")
         openProfileBtn.OnEvent("Click", this.OpenProfile.Bind(this))
         
         ; Repository list
         this.gui.Add("Text", "x20 y280 w760 Bold", "📚 Repositories")
         
         repoList := this.gui.Add("ListBox", "x20 y310 w760 h250")
-        repoList.SetFont("s9 cWhite", "Consolas")
-        repoList.BackColor := "0x2d2d2d"
+        repoList.SetFont("s9 cFFFFFF", "Consolas")
+        repoList.BackColor := "2d2d2d"
         
         ; Populate list
         this.PopulateRepositoryList()
@@ -93,8 +93,8 @@ class GitHubRepoManager {
         ; Repository details
         this.gui.Add("Text", "x20 y580 w760 Bold", "📖 Repository Details")
         
-        detailsText := this.gui.Add("Text", "x20 y610 w760 h60 c0xcccccc", "Select a repository to view details...")
-        detailsText.SetFont("s9 cWhite", "Segoe UI")
+        detailsText := this.gui.Add("Text", "x20 y610 w760 h60 ", "Select a repository to view details...")
+        detailsText.SetFont("s9 cFFFFFF", "Segoe UI")
         
         ; Store references
         this.gui.repoList := repoList

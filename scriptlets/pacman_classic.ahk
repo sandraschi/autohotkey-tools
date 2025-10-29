@@ -1,4 +1,4 @@
-﻿; ==============================================================================
+; ==============================================================================
 ; Pacman Classic
 ; @name: Pacman Classic
 ; @version: 1.0.0
@@ -14,12 +14,12 @@
 
 
 ; Suppress error popups - log to file instead
-OnError("LogError")
+OnError(LogError)
 
-LogError(Exception, Mode) {
-    FileAppend("Error: " . Exception.Message . " at line " . Exception.Line . "
-", "errors.log", "UTF-8")
-    return true  ; Suppress popup
+LogError(Thrown, Mode) {
+    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
+", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 
 
@@ -101,24 +101,24 @@ class PacmanGame {
     
     static CreateGUI() {
         this.gui := Gui("+Resize -MaximizeBox", "Pacman Classic")
-        this.gui.BackColor := "0x000000"
-        this.gui.SetFont("s12 cWhite Bold", "Segoe UI")
+        this.gui.BackColor := "000000"
+        this.gui.SetFont("s12 cFFFFFF Bold", "Segoe UI")
         
         ; Title
         this.gui.Add("Text", "x20 y20 w400 Center Bold cYellow", "👻 Pacman Classic")
         
         ; Game area
-        this.canvas := this.gui.Add("Text", "x20 y60 w400 h400 Background0x000000 Border", "")
-        this.canvas.SetFont("s8 cWhite", "Courier New")
+        this.canvas := this.gui.Add("Text", "x20 y60 w400 h400 Background000000 Border", "")
+        this.canvas.SetFont("s8 cFFFFFF", "Courier New")
         
         ; Score area
-        this.gui.Add("Text", "x20 y480 w400 h60 Background0x2d2d2d", "")
+        this.gui.Add("Text", "x20 y480 w400 h60 Background2d2d2d", "")
         scoreText := this.gui.Add("Text", "x30 y490 w100", "Score: 0")
         livesText := this.gui.Add("Text", "x150 y490 w100", "Lives: 3")
         levelText := this.gui.Add("Text", "x270 y490 w100", "Level: 1")
         
         ; Controls
-        this.gui.Add("Text", "x30 y510 w350 c0xaaaaaa", "Controls: Arrow Keys = Move | Space = Start | P = Pause | R = Restart")
+        this.gui.Add("Text", "x30 y510 w350 ", "Controls: Arrow Keys = Move | Space = Start | P = Pause | R = Restart")
         
         ; Store references
         this.gui.scoreText := scoreText

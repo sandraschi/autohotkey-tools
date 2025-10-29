@@ -1,4 +1,4 @@
-﻿; ==============================================================================
+; ==============================================================================
 ; AutoHotkey Debug Helper
 ; @name: AutoHotkey Debug Helper
 ; @version: 1.0.0
@@ -14,12 +14,12 @@
 
 
 ; Suppress error popups - log to file instead
-OnError("LogError")
+OnError(LogError)
 
-LogError(Exception, Mode) {
-    FileAppend("Error: " . Exception.Message . " at line " . Exception.Line . "
+LogError(Thrown, Mode) {
+    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
 ", "errors.log", "UTF-8")
-    return true  ; Suppress popup
+    return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 
 
@@ -34,12 +34,12 @@ class AHDebugHelper {
     
     static CreateGUI() {
         gui := Gui("+Resize +MinSize800x600", "AutoHotkey Debug Helper")
-        gui.BackColor := "0x1a1a1a"
-        gui.SetFont("s10 cWhite", "Segoe UI")
+        gui.BackColor := "1a1a1a"
+        gui.SetFont("s10 cFFFFFF", "Segoe UI")
         
         ; Title
         gui.Add("Text", "x20 y20 w760 Center Bold", "🔧 AutoHotkey Debug Helper")
-        gui.Add("Text", "x20 y50 w760 Center c0xcccccc", "Comprehensive debugging tools for AutoHotkey v2 scripts")
+        gui.Add("Text", "x20 y50 w760 Center ", "Comprehensive debugging tools for AutoHotkey v2 scripts")
         
         ; Debug Controls
         gui.Add("Text", "x20 y90 w760 Bold", "🎯 Debug Controls")
@@ -74,8 +74,8 @@ class AHDebugHelper {
         gui.Add("Text", "x20 y370 w760 Bold", "📋 Debug Output")
         
         debugOutput := gui.Add("Edit", "x20 y400 w760 h150 ReadOnly Multi VScroll", "")
-        debugOutput.BackColor := "0x2d2d2d"
-        debugOutput.SetFont("s9 cWhite", "Consolas")
+        debugOutput.BackColor := "2d2d2d"
+        debugOutput.SetFont("s9 cFFFFFF", "Consolas")
         
         ; Actions
         gui.Add("Button", "x20 y560 w150 h40", "💾 Save Debug Log").OnEvent("Click", this.SaveDebugLog.Bind(this))
@@ -84,7 +84,7 @@ class AHDebugHelper {
         gui.Add("Button", "x530 y560 w150 h40", "❓ Help").OnEvent("Click", this.ShowHelp.Bind(this))
         
         ; Status
-        gui.Add("Text", "x20 y610 w760 Center c0x888888", "Hotkeys: Ctrl+Alt+D (Debug Mode) | F3 (List Vars) | Ctrl+Alt+V (List Lines) | Ctrl+Alt+K (Key History)")
+        gui.Add("Text", "x20 y610 w760 Center ", "Hotkeys: Ctrl+Alt+D (Debug Mode) | F3 (List Vars) | Ctrl+Alt+V (List Lines) | Ctrl+Alt+K (Key History)")
         
         ; Store references
         gui.scriptPathEdit := scriptPathEdit

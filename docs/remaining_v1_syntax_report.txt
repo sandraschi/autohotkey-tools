@@ -1,0 +1,57 @@
+========================================
+REMAINING V1 SYNTAX IN "V2" SCRIPTS
+========================================
+
+Files claiming v2.0 but using v1 syntax:
+
+1. fun_animations.ahk
+   - GuiControl,, commands
+   - SetTimer, with labels
+   - Needs: Full v1→v2 conversion
+
+2. annoying_sounds.ahk  
+   - GuiControl,, commands
+   - SetTimer, with labels
+   - Needs: Full v1→v2 conversion
+
+3. quick_notes.ahk
+   - SetTimer(AutoSave, 30000) - using label reference
+   - Needs: Convert to function reference
+
+4. dev_context_music_backup.ahk
+   - Menu, Tray commands
+   - Label handlers (PlaySadMarch:, etc.)
+   - Needs: Full v1→v2 conversion
+
+========================================
+CONVERSION PATTERNS NEEDED
+========================================
+
+GuiControl,, → control.Text or control.Value
+   v1: GuiControl,, ControlName, value
+   v2: control.Text := value
+
+SetTimer with labels → SetTimer with functions
+   v1: SetTimer, LabelName, period
+   v2: SetTimer(() => Function(), period)
+
+Menu, Tray → A_TrayMenu
+   v1: Menu, Tray, Add, Item, Label
+   v2: A_TrayMenu.Add("Item", (*) => Function())
+
+Label handlers → OnEvent handlers
+   v1: LabelName:
+   v2: Button.OnEvent("Click", (*) => Function())
+
+========================================
+ESTIMATED WORK
+========================================
+
+These 4 files need complete conversion from v1 to v2.
+They are essentially v1 scripts with #Requires v2.0 header.
+
+Recommendation: Convert these files to proper v2 syntax
+or move them to junk/v1/ folder if they're not used.
+
+========================================
+

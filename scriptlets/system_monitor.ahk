@@ -1,14 +1,14 @@
-﻿#Requires AutoHotkey v2.0
+#Requires AutoHotkey v2.0
 #SingleInstance Force
 
 
 ; Suppress error popups - log to file instead
-OnError("LogError")
+OnError(LogError)
 
-LogError(Exception, Mode) {
-    FileAppend("Error: " . Exception.Message . " at line " . Exception.Line . "
-", "errors.log", "UTF-8")
-    return true  ; Suppress popup
+LogError(Thrown, Mode) {
+    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
+", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 
 #Warn
@@ -46,8 +46,8 @@ CreateGUI() {
     
     ; Create main window
     guiMain := Gui("+Resize +MinSize700x500", "System Monitor v2.0")
-    guiMain.BackColor := "0x1E1E1E"
-    guiMain.SetFont("s9 cWhite", "Segoe UI")
+    guiMain.BackColor := "1E1E1E"
+    guiMain.SetFont("s9 cFFFFFF", "Segoe UI")
     guiMain.MarginX := 10
     guiMain.MarginY := 10
     
@@ -62,7 +62,7 @@ CreateGUI() {
     ; CPU Section
     guiMain.Add("GroupBox", "x10 y70 w330 h80", "CPU Usage")
     guiMain.Add("Text", "x20 y95 w60 h20 BackgroundTrans", "Usage:")
-    guiMain.Add("Progress", "x85 y95 w200 h20 vCpuMeter Background0x333333 c0x569CD6")
+    guiMain.Add("Progress", "x85 y95 w200 h20 vCpuMeter Background333333 ")
     guiMain.Add("Text", "x290 y95 w45 h20 vCpuText BackgroundTrans", "0%")
     guiMain.Add("Text", "x20 y120 w60 h20 BackgroundTrans", "Cores:")
     guiMain.Add("Text", "x85 y120 w200 h20 vCpuCores BackgroundTrans", "Getting info...")
@@ -70,7 +70,7 @@ CreateGUI() {
     ; Memory Section  
     guiMain.Add("GroupBox", "x350 y70 w340 h80", "Memory Usage")
     guiMain.Add("Text", "x360 y95 w60 h20 BackgroundTrans", "RAM:")
-    guiMain.Add("Progress", "x425 y95 w200 h20 vMemMeter Background0x333333 c0x4EC9B0")
+    guiMain.Add("Progress", "x425 y95 w200 h20 vMemMeter Background333333 ")
     guiMain.Add("Text", "x630 y95 w55 h20 vMemText BackgroundTrans", "0%")
     guiMain.Add("Text", "x360 y120 w300 h20 vMemDetails BackgroundTrans", "Getting info...")
     

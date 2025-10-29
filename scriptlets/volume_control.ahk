@@ -1,15 +1,15 @@
-﻿#Requires AutoHotkey v2.0
+#Requires AutoHotkey v2.0
 #NoEnv
 #SingleInstance Force
 
 
 ; Suppress error popups - log to file instead
-OnError("LogError")
+OnError(LogError)
 
-LogError(Exception, Mode) {
-    FileAppend("Error: " . Exception.Message . " at line " . Exception.Line . "
+LogError(Thrown, Mode) {
+    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
 ", "errors.log", "UTF-8")
-    return true  ; Suppress popup
+    return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 
 #MaxHotkeysPerInterval 200

@@ -1,4 +1,4 @@
-﻿; ==============================================================================
+; ==============================================================================
 ; MCP Server Scaffolding Tool
 ; @name: MCP Server Scaffolding Tool
 ; @version: 1.0.0
@@ -14,12 +14,12 @@
 
 
 ; Suppress error popups - log to file instead
-OnError("LogError")
+OnError(LogError)
 
-LogError(Exception, Mode) {
-    FileAppend("Error: " . Exception.Message . " at line " . Exception.Line . "
-", "errors.log", "UTF-8")
-    return true  ; Suppress popup
+LogError(Thrown, Mode) {
+    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
+", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 
 
@@ -35,12 +35,12 @@ class MCPScaffolding {
     
     static CreateGUI() {
         gui := Gui("+Resize +MinSize700x500", "MCP Server Scaffolding Tool")
-        gui.BackColor := "0x1a1a1a"
-        gui.SetFont("s10 cWhite", "Segoe UI")
+        gui.BackColor := "1a1a1a"
+        gui.SetFont("s10 cFFFFFF", "Segoe UI")
         
         ; Title
         gui.Add("Text", "x20 y20 w660 Center Bold", "🚀 MCP Server Scaffolding Tool")
-        gui.Add("Text", "x20 y50 w660 Center c0xcccccc", "Generate complete MCP server projects with FastMCP 2.12+ patterns")
+        gui.Add("Text", "x20 y50 w660 Center ", "Generate complete MCP server projects with FastMCP 2.12+ patterns")
         
         ; Project details section
         gui.Add("Text", "x20 y90 w660 Bold", "📋 Project Details")
@@ -111,7 +111,7 @@ class MCPScaffolding {
         helpBtn.OnEvent("Click", this.ShowHelp.Bind(this))
         
         ; Status
-        gui.Add("Text", "x20 y560 w660 Center c0x888888", "Hotkeys: Ctrl+Alt+M (Generate) | F9 (Preview) | Press Generate to create your MCP server")
+        gui.Add("Text", "x20 y560 w660 Center ", "Hotkeys: Ctrl+Alt+M (Generate) | F9 (Preview) | Press Generate to create your MCP server")
         
         ; Set up hotkeys
         this.SetupHotkeys(Gui( projectNameEdit, descriptionEdit, dirEdit, templateList, checkboxes)

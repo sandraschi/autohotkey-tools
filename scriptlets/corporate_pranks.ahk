@@ -1,14 +1,14 @@
-﻿#Requires AutoHotkey v2.0
+#Requires AutoHotkey v2.0
 #SingleInstance Force
 
 
 ; Suppress error popups - log to file instead
-OnError("LogError")
+OnError(LogError)
 
-LogError(Exception, Mode) {
-    FileAppend("Error: " . Exception.Message . " at line " . Exception.Line . "
-", "errors.log", "UTF-8")
-    return true  ; Suppress popup
+LogError(Thrown, Mode) {
+    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
+", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 
 #MaxHotkeysPerInterval 200
@@ -35,71 +35,71 @@ class CorporatePranks {
     
     static CreateGUI() {
         this.gui := Gui("+Resize +MinSize700x600", "Corporate Prank Generator")
-        this.gui.BackColor := "0x1a1a1a"
-        this.gui.SetFont("s12 cWhite Bold", "Segoe UI")
+        this.gui.BackColor := "1a1a1a"
+        this.gui.SetFont("s12 cFFFFFF Bold", "Segoe UI")
         
         ; Title
         this.gui.Add("Text", "x20 y20 w660 Center Bold", "🏢 Corporate Prank Generator")
-        this.gui.Add("Text", "x20 y50 w660 Center c0xcccccc", "Generate fake corporate announcements and meeting notifications")
+        this.gui.Add("Text", "x20 y50 w660 Center ", "Generate fake corporate announcements and meeting notifications")
         
         ; Warning
-        this.gui.Add("Text", "x20 y80 w660 Center c0xffaa00 Bold", "⚠️ Use responsibly! These are harmless corporate pranks.")
+        this.gui.Add("Text", "x20 y80 w660 Center  Bold", "⚠️ Use responsibly! These are harmless corporate pranks.")
         
         ; Corporate Announcements
         this.gui.Add("Text", "x20 y120 w660 Bold", "📢 Corporate Announcements")
         
         ; Elon Musk pranks
-        this.gui.Add("Text", "x20 y150 w660 Bold c0x888888", "🚀 Elon Musk Acquisition Pranks")
+        this.gui.Add("Text", "x20 y150 w660 Bold ", "🚀 Elon Musk Acquisition Pranks")
         
-        elonBtn1 := this.gui.Add("Button", "x20 y180 w300 h50 Background0x4a4a4a", "🚀 Elon bought the company!\nClean out your desks!")
-        elonBtn1.SetFont("s10 cWhite", "Segoe UI")
+        elonBtn1 := this.gui.Add("Button", "x20 y180 w300 h50 Background4a4a4a", "🚀 Elon bought the company!\nClean out your desks!")
+        elonBtn1.SetFont("s10 cFFFFFF", "Segoe UI")
         elonBtn1.OnEvent("Click", this.ElonAcquisition.Bind(this))
         
-        elonBtn2 := this.gui.Add("Button", "x340 y180 w300 h50 Background0x4a4a4a", "🤖 AI takeover complete\nAll humans terminated")
-        elonBtn2.SetFont("s10 cWhite", "Segoe UI")
+        elonBtn2 := this.gui.Add("Button", "x340 y180 w300 h50 Background4a4a4a", "🤖 AI takeover complete\nAll humans terminated")
+        elonBtn2.SetFont("s10 cFFFFFF", "Segoe UI")
         elonBtn2.OnEvent("Click", this.AITakeover.Bind(this))
         
-        elonBtn3 := this.gui.Add("Button", "x20 y240 w300 h50 Background0x4a4a4a", "🚗 Tesla integration\nFree Cybertrucks for all!")
-        elonBtn3.SetFont("s10 cWhite", "Segoe UI")
+        elonBtn3 := this.gui.Add("Button", "x20 y240 w300 h50 Background4a4a4a", "🚗 Tesla integration\nFree Cybertrucks for all!")
+        elonBtn3.SetFont("s10 cFFFFFF", "Segoe UI")
         elonBtn3.OnEvent("Click", this.TeslaIntegration.Bind(this))
         
-        elonBtn4 := this.gui.Add("Button", "x340 y240 w300 h50 Background0x4a4a4a", "🌍 Mars relocation\nPack your bags!")
-        elonBtn4.SetFont("s10 cWhite", "Segoe UI")
+        elonBtn4 := this.gui.Add("Button", "x340 y240 w300 h50 Background4a4a4a", "🌍 Mars relocation\nPack your bags!")
+        elonBtn4.SetFont("s10 cFFFFFF", "Segoe UI")
         elonBtn4.OnEvent("Click", this.MarsRelocation.Bind(this))
         
         ; Meeting Pranks
-        this.gui.Add("Text", "x20 y310 w660 Bold c0x888888", "📅 Meeting Pranks")
+        this.gui.Add("Text", "x20 y310 w660 Bold ", "📅 Meeting Pranks")
         
-        meetingBtn1 := this.gui.Add("Button", "x20 y340 w300 h50 Background0x4a4a4a", "📚 Drag Queen Story Hour\nCafeteria at 6pm")
-        meetingBtn1.SetFont("s10 cWhite", "Segoe UI")
+        meetingBtn1 := this.gui.Add("Button", "x20 y340 w300 h50 Background4a4a4a", "📚 Drag Queen Story Hour\nCafeteria at 6pm")
+        meetingBtn1.SetFont("s10 cFFFFFF", "Segoe UI")
         meetingBtn1.OnEvent("Click", this.DragQueenStoryHour.Bind(this))
         
-        meetingBtn2 := this.gui.Add("Button", "x340 y340 w300 h50 Background0x4a4a4a", "⚠️ CRUCIAL Meeting\n3pm - Everyone MUST attend")
-        meetingBtn2.SetFont("s10 cWhite", "Segoe UI")
+        meetingBtn2 := this.gui.Add("Button", "x340 y340 w300 h50 Background4a4a4a", "⚠️ CRUCIAL Meeting\n3pm - Everyone MUST attend")
+        meetingBtn2.SetFont("s10 cFFFFFF", "Segoe UI")
         meetingBtn2.OnEvent("Click", this.CrucialMeeting.Bind(this))
         
-        meetingBtn3 := this.gui.Add("Button", "x20 y400 w300 h50 Background0x4a4a4a", "🍕 Pizza Party Meeting\nMandatory attendance")
-        meetingBtn3.SetFont("s10 cWhite", "Segoe UI")
+        meetingBtn3 := this.gui.Add("Button", "x20 y400 w300 h50 Background4a4a4a", "🍕 Pizza Party Meeting\nMandatory attendance")
+        meetingBtn3.SetFont("s10 cFFFFFF", "Segoe UI")
         meetingBtn3.OnEvent("Click", this.PizzaPartyMeeting.Bind(this))
         
-        meetingBtn4 := this.gui.Add("Button", "x340 y400 w300 h50 Background0x4a4a4a", "🎭 Diversity Training\nDrag Queen Instructor")
-        meetingBtn4.SetFont("s10 cWhite", "Segoe UI")
+        meetingBtn4 := this.gui.Add("Button", "x340 y400 w300 h50 Background4a4a4a", "🎭 Diversity Training\nDrag Queen Instructor")
+        meetingBtn4.SetFont("s10 cFFFFFF", "Segoe UI")
         meetingBtn4.OnEvent("Click", this.DiversityTraining.Bind(this))
         
         ; Delayed Pranks
-        this.gui.Add("Text", "x20 y470 w660 Bold c0x888888", "⏰ Delayed Pranks (Show at 4pm)")
+        this.gui.Add("Text", "x20 y470 w660 Bold ", "⏰ Delayed Pranks (Show at 4pm)")
         
-        delayedBtn1 := this.gui.Add("Button", "x20 y500 w300 h50 Background0x4a4a4a", "⏰ Schedule 3pm Meeting\nShow at 4pm")
-        delayedBtn1.SetFont("s10 cWhite", "Segoe UI")
+        delayedBtn1 := this.gui.Add("Button", "x20 y500 w300 h50 Background4a4a4a", "⏰ Schedule 3pm Meeting\nShow at 4pm")
+        delayedBtn1.SetFont("s10 cFFFFFF", "Segoe UI")
         delayedBtn1.OnEvent("Click", this.ScheduleDelayedMeeting.Bind(this))
         
-        delayedBtn2 := this.gui.Add("Button", "x340 y500 w300 h50 Background0x4a4a4a", "📧 Email Bomb\nSend 100 fake emails")
-        delayedBtn2.SetFont("s10 cWhite", "Segoe UI")
+        delayedBtn2 := this.gui.Add("Button", "x340 y500 w300 h50 Background4a4a4a", "📧 Email Bomb\nSend 100 fake emails")
+        delayedBtn2.SetFont("s10 cFFFFFF", "Segoe UI")
         delayedBtn2.OnEvent("Click", this.EmailBomb.Bind(this))
         
         ; Emergency stop
-        stopBtn := this.gui.Add("Button", "x20 y570 w620 h40 Background0xaa0000", "🛑 EMERGENCY STOP ALL PRANKS")
-        stopBtn.SetFont("s12 cWhite Bold", "Segoe UI")
+        stopBtn := this.gui.Add("Button", "x20 y570 w620 h40 Backgroundaa0000", "🛑 EMERGENCY STOP ALL PRANKS")
+        stopBtn.SetFont("s12 cFFFFFF Bold", "Segoe UI")
         stopBtn.OnEvent("Click", this.StopAllPranks.Bind(this))
         
         this.gui.Show("w700 h620")
@@ -301,19 +301,19 @@ class CorporatePranks {
     static ShowCorporateAnnouncement(title, message) {
         try {
             announcementGui := Gui("+AlwaysOnTop -Caption", "Corporate Announcement")
-            announcementGui.BackColor := "0x0078d4"
-            announcementGui.SetFont("s14 cWhite Bold", "Segoe UI")
+            announcementGui.BackColor := "0078d4"
+            announcementGui.SetFont("s14 cFFFFFF Bold", "Segoe UI")
             
             ; Title
             announcementGui.Add("Text", "x20 y20 w600 Center Bold", title)
             
             ; Message
-            announcementGui.SetFont("s11 cWhite", "Segoe UI")
+            announcementGui.SetFont("s11 cFFFFFF", "Segoe UI")
             announcementGui.Add("Text", "x20 y60 w600 h400", message)
             
             ; Close button
-            closeBtn := announcementGui.Add("Button", "x250 y480 w120 h30 Background0xaa0000", "Close")
-            closeBtn.SetFont("s12 cWhite Bold", "Segoe UI")
+            closeBtn := announcementGui.Add("Button", "x250 y480 w120 h30 Backgroundaa0000", "Close")
+            closeBtn.SetFont("s12 cFFFFFF Bold", "Segoe UI")
             closeBtn.OnEvent("Click", () => announcementGui.Destroy())
             
             announcementGui.Show("w640 h530")
@@ -329,19 +329,19 @@ class CorporatePranks {
     static ShowMeetingNotification(title, message) {
         try {
             meetingGui := Gui("+AlwaysOnTop -Caption", "Meeting Notification")
-            meetingGui.BackColor := "0x2d2d2d"
-            meetingGui.SetFont("s14 cWhite Bold", "Segoe UI")
+            meetingGui.BackColor := "2d2d2d"
+            meetingGui.SetFont("s14 cFFFFFF Bold", "Segoe UI")
             
             ; Title
             meetingGui.Add("Text", "x20 y20 w600 Center Bold", title)
             
             ; Message
-            meetingGui.SetFont("s11 cWhite", "Segoe UI")
+            meetingGui.SetFont("s11 cFFFFFF", "Segoe UI")
             meetingGui.Add("Text", "x20 y60 w600 h400", message)
             
             ; Close button
-            closeBtn := meetingGui.Add("Button", "x250 y480 w120 h30 Background0xaa0000", "Close")
-            closeBtn.SetFont("s12 cWhite Bold", "Segoe UI")
+            closeBtn := meetingGui.Add("Button", "x250 y480 w120 h30 Backgroundaa0000", "Close")
+            closeBtn.SetFont("s12 cFFFFFF Bold", "Segoe UI")
             closeBtn.OnEvent("Click", () => meetingGui.Destroy())
             
             meetingGui.Show("w640 h530")

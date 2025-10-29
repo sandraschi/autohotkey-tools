@@ -1,4 +1,4 @@
-﻿; ==============================================================================
+; ==============================================================================
 ; Code Formatter Pro
 ; @name: Code Formatter Pro
 ; @version: 1.0.0
@@ -14,12 +14,13 @@
 
 
 ; Suppress error popups - log to file instead
-OnError("LogError")
+OnError(LogError)
 
-LogError(Exception, Mode) {
-    FileAppend("Error: " . Exception.Message . " at line " . Exception.Line . "
-", "errors.log", "UTF-8")
-    return true  ; Suppress popup
+LogError(Thrown, Mode) {
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
+    FileAppend(errorMsg, "errors.log", "UTF-8")
+    OutputDebug(errorMsg)  ; Enable LLM debugging
+    return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 
 
@@ -51,7 +52,7 @@ class CodeFormatter {
         this.gui.MenuBar.Add("&Edit", editMenu)
         
         ; Toolbar
-        toolbar := this.gui.Add("Text", "w800 h40 Background0xF0F0F0")
+        toolbar := this.gui.Add("Text", "w800 h40 BackgroundF0F0F0")
         
         ; Language selector
         this.gui.Add("Text", "x10 y10 w80 h20", "Language:")
@@ -72,14 +73,14 @@ class CodeFormatter {
         
         ; Input area
         this.gui.Add("Text", "w800 h20", "Input Code:")
-        this.inputArea := this.gui.Add("Edit", "w800 h250 +VScroll +HScroll", "")
+        this.inputArea := this.gui.Add("Edit", "w800 h250 VScroll HScroll", "")
         
         ; Output area
         this.gui.Add("Text", "w800 h20", "Formatted Code:")
-        this.outputArea := this.gui.Add("Edit", "w800 h250 +VScroll +HScroll ReadOnly", "")
+        this.outputArea := this.gui.Add("Edit", "w800 h250 VScroll HScroll ReadOnly", "")
         
         ; Status bar
-        this.statusBar := this.gui.Add("Text", "w800 h20 Background0xE0E0E0", "Ready")
+        this.statusBar := this.gui.Add("Text", "w800 h20 BackgroundE0E0E0", "Ready")
         
         ; Action buttons
         actionPanel := this.gui.Add("Text", "w800 h40")

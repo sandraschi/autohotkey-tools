@@ -1,4 +1,4 @@
-﻿; ==============================================================================
+; ==============================================================================
 ; Game Starter Popup
 ; @name: Game Starter Popup
 ; @version: 1.0.0
@@ -14,12 +14,12 @@
 
 
 ; Suppress error popups - log to file instead
-OnError("LogError")
+OnError(LogError)
 
-LogError(Exception, Mode) {
-    FileAppend("Error: " . Exception.Message . " at line " . Exception.Line . "
-", "errors.log", "UTF-8")
-    return true  ; Suppress popup
+LogError(Thrown, Mode) {
+    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
+", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 
 
@@ -74,20 +74,20 @@ class GameStarter {
             }
         
         this.gui := Gui("+AlwaysOnTop +ToolWindow -Caption", "Game Starter")
-        this.gui.BackColor := "0x1a1a1a"
-        this.gui.SetFont("s12 cWhite Bold", "Segoe UI")
+        this.gui.BackColor := "1a1a1a"
+        this.gui.SetFont("s12 cFFFFFF Bold", "Segoe UI")
         
         ; Title bar
-        titleBar := this.gui.Add("Text", "x0 y0 w400 h40 Center Background0x2d2d2d", "🎮 Game Starter")
-        titleBar.SetFont("s14 cWhite Bold", "Segoe UI")
+        titleBar := this.gui.Add("Text", "x0 y0 w400 h40 Center Background2d2d2d", "🎮 Game Starter")
+        titleBar.SetFont("s14 cFFFFFF Bold", "Segoe UI")
         
         ; Close button
-        closeBtn := this.gui.Add("Button", "x360 y5 w30 h30 Background0x444444", "✕")
-        closeBtn.SetFont("s10 cWhite Bold", "Segoe UI")
+        closeBtn := this.gui.Add("Button", "x360 y5 w30 h30 Background444444", "✕")
+        closeBtn.SetFont("s10 cFFFFFF Bold", "Segoe UI")
         closeBtn.OnEvent("Click", this.ClosePopup.Bind(this))
         
         ; Game list
-        this.gui.SetFont("s10 cWhite", "Segoe UI")
+        this.gui.SetFont("s10 cFFFFFF", "Segoe UI")
         
         ; Categories
         categories := {}
@@ -101,17 +101,17 @@ class GameStarter {
         yPos := 50
         for category, games in categories {
             ; Category header
-            this.gui.Add("Text", "x20 y" . yPos . " w360 Bold c0x888888", "📁 " . StrUpper(category))
+            this.gui.Add("Text", "x20 y" . yPos . " w360 Bold ", "📁 " . StrUpper(category))
             yPos += 25
             
             ; Games in category
             for game in games {
-                gameBtn := this.gui.Add("Button", "x20 y" . yPos . " w360 h35 Background0x2d2d2d", game.name)
-                gameBtn.SetFont("s10 cWhite", "Segoe UI")
+                gameBtn := this.gui.Add("Button", "x20 y" . yPos . " w360 h35 Background2d2d2d", game.name)
+                gameBtn.SetFont("s10 cFFFFFF", "Segoe UI")
                 gameBtn.OnEvent("Click", this.LaunchGame.Bind(this, game))
                 
                 ; Description
-                this.gui.Add("Text", "x40 y" . (yPos + 25) . " w340 c0xaaaaaa", game.description)
+                this.gui.Add("Text", "x40 y" . (yPos + 25) . " w340 ", game.description)
                 yPos += 60
             }
             yPos += 10
@@ -119,23 +119,23 @@ class GameStarter {
         
         ; Quick actions
         yPos += 20
-        this.gui.Add("Text", "x20 y" . yPos . " w360 Bold c0x888888", "⚡ Quick Actions")
+        this.gui.Add("Text", "x20 y" . yPos . " w360 Bold ", "⚡ Quick Actions")
         yPos += 25
         
         ; Random game button
-        randomBtn := this.gui.Add("Button", "x20 y" . yPos . " w170 h40 Background0x4a4a4a", "🎲 Random Game")
-        randomBtn.SetFont("s10 cWhite Bold", "Segoe UI")
+        randomBtn := this.gui.Add("Button", "x20 y" . yPos . " w170 h40 Background4a4a4a", "🎲 Random Game")
+        randomBtn.SetFont("s10 cFFFFFF Bold", "Segoe UI")
         randomBtn.OnEvent("Click", this.LaunchRandomGame.Bind(this))
         
         ; Refresh list button
-        refreshBtn := this.gui.Add("Button", "x210 y" . yPos . " w170 h40 Background0x4a4a4a", "🔄 Refresh")
-        refreshBtn.SetFont("s10 cWhite Bold", "Segoe UI")
+        refreshBtn := this.gui.Add("Button", "x210 y" . yPos . " w170 h40 Background4a4a4a", "🔄 Refresh")
+        refreshBtn.SetFont("s10 cFFFFFF Bold", "Segoe UI")
         refreshBtn.OnEvent("Click", this.RefreshList.Bind(this))
         
         yPos += 50
         
         ; Status bar
-        this.gui.Add("Text", "x20 y" . yPos . " w360 Center c0x888888", "Press Ctrl+Alt+G to open • Escape to close")
+        this.gui.Add("Text", "x20 y" . yPos . " w360 Center ", "Press Ctrl+Alt+G to open • Escape to close")
         
         ; Calculate height based on content
         totalHeight := yPos + 40

@@ -1,4 +1,4 @@
-﻿; ==============================================================================
+; ==============================================================================
 ; Smart Assistant Pro
 ; @name: Smart Assistant Pro
 ; @version: 1.0.0
@@ -14,12 +14,12 @@
 
 
 ; Suppress error popups - log to file instead
-OnError("LogError")
+OnError(LogError)
 
-LogError(Exception, Mode) {
-    FileAppend("Error: " . Exception.Message . " at line " . Exception.Line . "
-", "errors.log", "UTF-8")
-    return true  ; Suppress popup
+LogError(Thrown, Mode) {
+    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
+", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 
 
@@ -125,10 +125,10 @@ class SmartAssistant {
         
         ; Output area
         this.gui.Add("Text", "w600 h20", "Assistant Output:")
-        this.outputArea := this.gui.Add("Edit", "w600 h150 +VScroll +HScroll ReadOnly", "")
+        this.outputArea := this.gui.Add("Edit", "w600 h150 VScroll HScroll ReadOnly", "")
         
         ; Status bar
-        this.statusBar := this.gui.Add("Text", "w600 h20 Background0xE0E0E0", "Ready - Say 'Hey Assistant' to activate voice commands")
+        this.statusBar := this.gui.Add("Text", "w600 h20 BackgroundE0E0E0", "Ready - Say 'Hey Assistant' to activate voice commands")
         
         this.gui.Show("w620 h450")
         this.StartVoiceListener()

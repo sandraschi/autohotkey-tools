@@ -1,14 +1,14 @@
-﻿#Requires AutoHotkey v2.0
+#Requires AutoHotkey v2.0
 #SingleInstance Force
 
 
 ; Suppress error popups - log to file instead
-OnError("LogError")
+OnError(LogError)
 
-LogError(Exception, Mode) {
-    FileAppend("Error: " . Exception.Message . " at line " . Exception.Line . "
-", "errors.log", "UTF-8")
-    return true  ; Suppress popup
+LogError(Thrown, Mode) {
+    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
+", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 
 #Warn
@@ -213,7 +213,7 @@ DrawGrid() {
         lineWidth := (Mod(lineNum, 3) = 0) ? THICK_LINE : THIN_LINE
         
         guiSudoku.Add("Progress", "x" xPos " y" GRID_OFFSET_Y " w" lineWidth " h" (CELL_SIZE*9 + THICK_LINE*4) 
-            . " Background0x000000 -Smooth", 100)
+            . " Background000000 -Smooth", 100)
     }
     
     ; Draw horizontal lines
@@ -224,7 +224,7 @@ DrawGrid() {
         lineHeight := (Mod(lineNum, 3) = 0) ? THICK_LINE : THIN_LINE
         
         guiSudoku.Add("Progress", "x" GRID_OFFSET_X " y" yPos " w" (CELL_SIZE*9 + THICK_LINE*4) " h" lineHeight 
-            . " Background0x000000 -Smooth", 100)
+            . " Background000000 -Smooth", 100)
     }
 }
 
@@ -459,13 +459,13 @@ UpdateUI() {
                 
                 ; Style based on whether it's an original number or user input
                 if (original[i][j] != 0) {
-                    cellControl.SetFont("s16 Bold c0x0000FF", "Arial")  ; Blue for original numbers
+                    cellControl.SetFont("s16 Bold ", "Arial")  ; Blue for original numbers
                 } else {
                     ; Check for mistakes if enabled
                     if (showMistakes && cellValue != 0 && cellValue != solution[i][j]) {
-                        cellControl.SetFont("s16 Bold c0xFF0000", "Arial")  ; Red for mistakes
+                        cellControl.SetFont("s16 Bold ", "Arial")  ; Red for mistakes
                     } else {
-                        cellControl.SetFont("s16 c0x000000", "Arial")  ; Black for user input
+                        cellControl.SetFont("s16 ", "Arial")  ; Black for user input
                     }
                 }
             } else {
@@ -478,7 +478,7 @@ UpdateUI() {
                         noteText .= note . " "
                     }
                     cellControl.Text := Trim(noteText)
-                    cellControl.SetFont("s8 c0x808080", "Arial")  ; Gray for notes
+                    cellControl.SetFont("s8 ", "Arial")  ; Gray for notes
                 } else {
                     cellControl.Text := ""
                 }

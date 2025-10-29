@@ -1,14 +1,13 @@
-﻿#Requires AutoHotkey v2.0
+#Requires AutoHotkey v2.0
 #SingleInstance Force
 
 
 ; Suppress error popups - log to file instead
-OnError("LogError")
+OnError(LogError)
 
-LogError(Exception, Mode) {
-    FileAppend("Error: " . Exception.Message . " at line " . Exception.Line . "
-", "errors.log", "UTF-8")
-    return true  ; Suppress popup
+LogError(Thrown, Mode) {
+    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "`n", "errors.log", "UTF-8")
+    return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 
 #Warn
@@ -64,7 +63,7 @@ if !DirExist(backupDir) {
 CreateGUI()
 
 ; Set up auto-save timer (every 30 seconds)
-SetTimer(AutoSave, 30000)
+SetTimer(() => AutoSave(*), 30000)
 
 ; Global hotkey to show/hide the window
 Hotkey("^!n", ToggleWindow)
@@ -102,7 +101,7 @@ CreateGUI() {
     
     ; Notes edit control
     editNotes := guiMain.Add("Edit", 
-        "x10 y50 w780 h480 +Multi +VScroll +HScroll -Wrap " 
+        "x10 y50 w780 h480 +Multi VScroll HScroll -Wrap " 
         "Background" StrReplace(colors["editBg"], "0x", "") 
         " c" StrReplace(colors["editText"], "0x", ""))
     

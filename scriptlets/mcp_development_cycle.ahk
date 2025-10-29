@@ -1,4 +1,4 @@
-﻿; ==============================================================================
+; ==============================================================================
 ; MCP Development Cycle
 ; @name: MCP Development Cycle
 ; @version: 1.0.0
@@ -14,12 +14,12 @@
 
 
 ; Suppress error popups - log to file instead
-OnError("LogError")
+OnError(LogError)
 
-LogError(Exception, Mode) {
-    FileAppend("Error: " . Exception.Message . " at line " . Exception.Line . "
-", "errors.log", "UTF-8")
-    return true  ; Suppress popup
+LogError(Thrown, Mode) {
+    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
+", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 
 
@@ -101,12 +101,12 @@ class MCPDevelopmentCycle {
     
     static CreateGUI() {
         gui := Gui("+Resize +MinSize1000x800", "MCP Development Cycle")
-        gui.BackColor := "0x1a1a1a"
-        gui.SetFont("s10 cWhite", "Segoe UI")
+        gui.BackColor := "1a1a1a"
+        gui.SetFont("s10 cFFFFFF", "Segoe UI")
         
         ; Title
         gui.Add("Text", "x20 y20 w960 Center Bold", "🚀 MCP Development Cycle")
-        gui.Add("Text", "x20 y50 w960 Center c0xcccccc", "Orchestrate complete MCP development workflow from idea to deployment")
+        gui.Add("Text", "x20 y50 w960 Center ", "Orchestrate complete MCP development workflow from idea to deployment")
         
         ; Project section
         gui.Add("Text", "x20 y90 w960 Bold", "📋 Project Information")
@@ -121,7 +121,7 @@ class MCPDevelopmentCycle {
         
         ; Project directory
         gui.Add("Text", "x20 y155 w150", "Project Directory:")
-        gui.Add("Text", "x180 y155 w780 c0xcccccc", this.projectDir . "\my-mcp-project")
+        gui.Add("Text", "x180 y155 w780 ", this.projectDir . "\my-mcp-project")
         
         ; Development phases
         gui.Add("Text", "x20 y190 w960 Bold", "🔄 Development Phases")
@@ -132,7 +132,7 @@ class MCPDevelopmentCycle {
         ; Phase details
         gui.Add("Text", "x440 y220 w540 Bold", "Phase Details")
         phaseDetailsEdit := gui.Add("Edit", "x440 y250 w540 h200 ReadOnly Multi VScroll", "")
-        phaseDetailsEdit.BackColor := "0x2d2d2d"
+        phaseDetailsEdit.BackColor := "2d2d2d"
         
         ; Phase controls
         gui.Add("Button", "x440 y460 w150 h40", "▶️ Start Phase").OnEvent("Click", this.StartPhase.Bind(this))
@@ -151,7 +151,7 @@ class MCPDevelopmentCycle {
         gui.Add("Button", "x680 y670 w200 h50", "📈 Progress Report").OnEvent("Click", this.ProgressReport.Bind(this))
         
         ; Status
-        gui.Add("Text", "x20 y730 w960 Center c0x888888", "Hotkeys: Ctrl+Alt+D (Start Development) | Ctrl+F12 (Progress Report) | Select phase to view details")
+        gui.Add("Text", "x20 y730 w960 Center ", "Hotkeys: Ctrl+Alt+D (Start Development) | Ctrl+F12 (Progress Report) | Select phase to view details")
         
         ; Store references
         gui.projectNameEdit := projectNameEdit

@@ -13,11 +13,13 @@
 #SingleInstance Force
 
 ; Suppress error popups - log to file instead
-OnError("LogError")
+OnError(LogError)
 
-LogError(Exception, Mode) {
-    FileAppend("Error: " . Exception.Message . " at line " . Exception.Line . "`n", "mcp_config_errors.log", "UTF-8")
-    return true  ; Suppress popup
+LogError(Thrown, Mode) {
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
+    FileAppend(errorMsg, "mcp_config_errors.log", "UTF-8")
+    OutputDebug(errorMsg)  ; Enable LLM debugging
+    return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 
 class MCPConfigManager {
@@ -58,17 +60,19 @@ class MCPConfigManager {
         try {
             ; Store the GUI instance at class level
             this.guiInstance := Gui("+Resize +MinSize800x600", "MCP Config Manager")
-            this.guiInstance.BackColor := "0x1a1a1a"
-            this.guiInstance.SetFont("s10 cWhite", "Segoe UI")
+            this.guiInstance.BackColor := "1a1a1a"
+            this.guiInstance.SetFont("s10 cFFFFFF", "Segoe UI")
             
             ; Title
-            this.guiInstance.Add("Text", "x20 y20 w760 Center Bold", "⚙️ MCP Config Manager")
-            this.guiInstance.Add("Text", "x20 y50 w760 Center c0xcccccc", "Manage Claude Desktop MCP configuration with validation and backup")
+            titleText := this.guiInstance.Add("Text", "x20 y20 w760 Center", "⚙️ MCP Config Manager")
+            titleText.SetFont("Bold")
+            this.guiInstance.Add("Text", "x20 y50 w760 Center cCCCCCC", "Manage Claude Desktop MCP configuration with validation and backup")
             
             ; Configuration file section
-            this.guiInstance.Add("Text", "x20 y90 w760 Bold", "📁 Configuration File")
+            fileText := this.guiInstance.Add("Text", "x20 y90 w760", "📁 Configuration File")
+            fileText.SetFont("Bold")
             this.guiInstance.Add("Text", "x20 y115 w150", "Config Path:")
-            this.guiInstance.Add("Text", "x180 y115 w580 c0xcccccc", this.claudeConfig)
+            this.guiInstance.Add("Text", "x180 y115 w580 cCCCCCC", this.claudeConfig)
             
             ; File operations
             this.guiInstance.Add("Button", "x20 y150 w150 h40", "📖 Load Config").OnEvent("Click", this.LoadConfig.Bind(this))
@@ -77,7 +81,8 @@ class MCPConfigManager {
             this.guiInstance.Add("Button", "x530 y150 w150 h40", "🔄 Restore Config").OnEvent("Click", this.RestoreConfig.Bind(this))
             
             ; MCP Servers section
-            this.guiInstance.Add("Text", "x20 y210 w760 Bold", "🖥️ MCP Servers")
+            serverText := this.guiInstance.Add("Text", "x20 y210 w760", "🖥️ MCP Servers")
+            serverText.SetFont("Bold")
             
             ; Server list
             serverList := this.guiInstance.Add("ListBox", "x20 y240 w400 h200")
@@ -92,12 +97,12 @@ class MCPConfigManager {
             this.guiInstance.Add("Button", "x610 y340 w150 h40", "📊 Server Info").OnEvent("Click", this.ServerInfo.Bind(this))
             
             ; Configuration editor
-            this.guiInstance.Add("Text", "x20 y460 w760 Bold", "✏️ Configuration Editor")
+            editorText := this.guiInstance.Add("Text", "x20 y460 w760", "✏️ Configuration Editor")
+            editorText.SetFont("Bold")
             
             ; JSON editor
-            configEdit := this.guiInstance.Add("Edit", "x20 y490 w760 h100 Multi VScroll", "")
-            configEdit.BackColor := "0x2d2d2d"
-            configEdit.SetFont("s9 cWhite", "Consolas")
+            configEdit := this.guiInstance.Add("Edit", "x20 y490 w760 h100 Multi VScroll Background2d2d2d cFFFFFF", "")
+            configEdit.SetFont("s9", "Consolas")
             this.guiControls["configEdit"] := configEdit
             
             ; Validation and actions
@@ -107,7 +112,7 @@ class MCPConfigManager {
             this.guiInstance.Add("Button", "x530 y600 w150 h40", "❓ Help").OnEvent("Click", this.ShowHelp.Bind(this))
             
             ; Status
-            this.guiInstance.Add("Text", "x20 y650 w760 Center c0x888888", "Hotkeys: Ctrl+Alt+C (Load Config) | F12 (Validate) | Press Load Config to start")
+            this.guiInstance.Add("Text", "x20 y650 w760 Center c888888", "Hotkeys: Ctrl+Alt+C (Load Config) | F12 (Validate) | Press Load Config to start")
             
             ; Set up hotkeys
             this.SetupHotkeys()
@@ -128,8 +133,8 @@ class MCPConfigManager {
             
             if (!FileExist(this.claudeConfig)) {
                 this.LogDebug("Config file not found: " . this.claudeConfig)
-                MsgBox("Claude config file not found: " . this.claudeConfig . "`n`nWould you like to create a default configuration?", "Config Not Found", "Icon? YesNo")
-                if (A_LastError = "Yes") {
+                result := MsgBox("Claude config file not found: " . this.claudeConfig . "`n`nWould you like to create a default configuration?", "Config Not Found", "Icon? YesNo")
+                if (result = "Yes") {
                     this.LogDebug("Creating default config")
                     this.CreateDefaultConfig()
                 } else {
@@ -186,7 +191,10 @@ class MCPConfigManager {
             ; Create backup before saving
             this.CreateBackup()
             
-            ; Save config
+            ; Save config (overwrite if exists)
+            if (FileExist(this.claudeConfig)) {
+                FileDelete(this.claudeConfig)
+            }
             FileAppend(this.configData, this.claudeConfig)
             
             MsgBox("Configuration saved successfully!", "Config Saved", "Iconi")
@@ -246,8 +254,13 @@ class MCPConfigManager {
             backupText .= "`nEnter backup number to restore:"
             
             backupInput := InputBox(backupText, "Restore Backup")
-            if (backupInput = "") return
-            backupNum := Integer(backupInput)
+            if (backupInput.Result != "OK") {
+                return
+            }
+            if (backupInput.Value = "") {
+                return
+            }
+            backupNum := Integer(backupInput.Value)
             
             if (backupNum >= 1 && backupNum <= backups.Length) {
                 selectedBackup := backups[backupNum]
@@ -272,17 +285,35 @@ class MCPConfigManager {
     static AddServer(*) {
         try {
             ; Show add server dialog
-            name := InputBox("Enter server name:", "Add MCP Server")
-            if (name = "") return
+            nameInput := InputBox("Enter server name:", "Add MCP Server")
+            if (nameInput.Result != "OK") {
+                return
+            }
+            if (nameInput.Value = "") {
+                return
+            }
+            name := nameInput.Value
             
-            command := InputBox("Enter command (e.g., python):", "Add MCP Server")
-            if (command = "") return
+            commandInput := InputBox("Enter command (e.g., python):", "Add MCP Server")
+            if (commandInput.Result != "OK") {
+                return
+            }
+            if (commandInput.Value = "") {
+                return
+            }
+            command := commandInput.Value
             
-            args := InputBox("Enter arguments (e.g., main.py):", "Add MCP Server")
-            if (args = "") return
+            argsInput := InputBox("Enter arguments (e.g., main.py):", "Add MCP Server")
+            if (argsInput.Result != "OK") {
+                return
+            }
+            if (argsInput.Value = "") {
+                return
+            }
+            args := argsInput.Value
             
-            cwd := InputBox("Enter working directory (optional):", "Add MCP Server")
-            if (cwd = "") cwd := ""
+            cwdInput := InputBox("Enter working directory (optional):", "Add MCP Server")
+            cwd := (cwdInput.Result = "OK") ? cwdInput.Value : ""
             
             ; Create server configuration
             serverConfig := "    `"" . name . "`": {`n"
@@ -347,8 +378,14 @@ class MCPConfigManager {
                 return
             }
             
-            name := InputBox("Enter new server name:", "Duplicate Server")
-            if (name = "") return
+            nameInput := InputBox("Enter new server name:", "Duplicate Server")
+            if (nameInput.Result != "OK") {
+                return
+            }
+            if (nameInput.Value = "") {
+                return
+            }
+            name := nameInput.Value
             
             this.DuplicateServerInConfig(selectedServer, name)
             MsgBox("Server duplicated as '" . name . "'!", "Server Duplicated", "Iconi")
@@ -444,7 +481,9 @@ class MCPConfigManager {
     
     static ParseServers() {
         try {
-            if (this.configData = "") return
+            if (this.configData = "") {
+                return
+            }
             
             servers := []
             
@@ -507,6 +546,10 @@ class MCPConfigManager {
         defaultConfig .= "  }`n"
         defaultConfig .= "}`n"
         
+        ; Overwrite if exists
+        if (FileExist(this.claudeConfig)) {
+            FileDelete(this.claudeConfig)
+        }
         FileAppend(defaultConfig, this.claudeConfig)
         this.configData := defaultConfig
     }
@@ -514,11 +557,17 @@ class MCPConfigManager {
     static ValidateJSONContent(json) {
         try {
             ; Basic JSON validation
-            if (!InStr(json, "{")) return false
-            if (!InStr(json, "}")) return false
+            if (!InStr(json, "{")) {
+                return false
+            }
+            if (!InStr(json, "}")) {
+                return false
+            }
             
             ; Check for basic structure
-            if (!InStr(json, "mcpServers")) return false
+            if (!InStr(json, "mcpServers")) {
+                return false
+            }
             
             return true
         } catch {

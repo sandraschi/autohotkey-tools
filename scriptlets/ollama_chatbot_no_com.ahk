@@ -76,7 +76,7 @@ CreateGUI() {
     ApplyTheme(currentTheme)
     
     ; Chat display - use plain text display for better compatibility
-    chatDisplay := guiMain.Add("Edit", "x10 y10 w780 h500 +ReadOnly +VScroll +Multi")
+    chatDisplay := guiMain.Add("Edit", "x10 y10 w780 h500 +ReadOnly VScroll +Multi")
     chatDisplay.SetFont("s10", "Segoe UI")
     
     ; Input area
