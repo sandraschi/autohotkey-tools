@@ -250,6 +250,14 @@ Requirements:
 Generate complete project structure with all files.
 ```
 
+**Updated 2025-01-XX**: The scaffolding tool now:
+- ✅ Generates FastMCP 2.12+ servers with stdio transport compatibility
+- ✅ Includes standardized tools (`help`, `status`, `ping`) in every server
+- ✅ Creates organized `src/tools/` structure with separate modules
+- ✅ Adds `mcpb/` directory with build scripts and setup automation
+- ✅ All templates use FastMCP (no more old `mcp.server.Server`)
+- ✅ Ready-to-use Claude Desktop integration via stdio transport
+
 This generates 15+ project files with full implementation.
 
 ## 🚀 Strategic Assessment

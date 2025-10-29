@@ -55,6 +55,31 @@ The project includes a comprehensive linting infrastructure for AutoHotkey v2 de
   - Performance testing
   - Integration testing
 
+## 🚀 MCP Server Development
+
+### MCP Server Scaffolding Tool
+
+Generate complete MCP servers with FastMCP 2.12+ using the scaffolding tool:
+
+**Location**: `scriptlets/mcp_server_scaffolding.ahk`  
+**Hotkey**: `Ctrl+Alt+M` or `F9`
+
+**Features:**
+- ✅ FastMCP 2.12+ with stdio transport (Claude Desktop compatible)
+- ✅ Standard tools: `help()`, `status()`, `ping()`
+- ✅ Organized project structure with `src/tools/` modules
+- ✅ Build scripts and virtual environment setup
+- ✅ Complete Claude Desktop configuration
+
+**Quick Start:**
+1. Launch: `AutoHotkey.exe '/ErrorStdOut' scriptlets\mcp_server_scaffolding.ahk`
+2. Enter project name and description
+3. Select template (basic, advanced, file_ops, etc.)
+4. Choose features and destination
+5. Generate complete project
+
+**Documentation**: See [MCP_Server_Scaffolding_Guide.md](MCP_Server_Scaffolding_Guide.md) for complete guide.
+
 ## 📝 Development Workflow
 
 ### 1. Creating New Scriptlets

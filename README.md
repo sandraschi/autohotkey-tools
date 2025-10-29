@@ -21,7 +21,7 @@ Navigate through 84+ professional scriptlets including:
 - **Games**: Snake, Tetris, Sudoku, Chess (with Stockfish), Pong, Pac-Man, Q*bert, Frogger
 - **Development**: Git Assistant, Code Formatter, AI Code Assistant
 - **Productivity**: Clipboard Manager, Window Snapping, Volume Control
-- **MCP Integration**: Ollama Chatbot, MCP Config Manager, MCP Development Tools
+- **MCP Integration**: Ollama Chatbot, MCP Config Manager, MCP Server Scaffolding Tool, MCP Development Tools
 - **System**: System Monitor, Security Guide, Help System
 
 ### Key Files
@@ -37,6 +37,24 @@ Navigate through 84+ professional scriptlets including:
 - `utils/linter.ahk` - AutoHotkey v2 static analyzer
 - `utils/batch_debugger.ps1` - Batch syntax checking
 - `utils/compatibility_scanner.ahk` - v1→v2 migration scanner
+
+### MCP Server Scaffolding
+
+The **MCP Server Scaffolding Tool** (`scriptlets/mcp_server_scaffolding.ahk`) generates complete, production-ready MCP servers:
+
+**Features:**
+- FastMCP 2.12+ compatibility with stdio transport
+- Standard tools included: `help()`, `status()`, `ping()`
+- Organized project structure with `src/tools/` modules
+- Build scripts in `mcpb/` directory
+- Ready-to-use Claude Desktop integration
+
+**Usage**: Press `Ctrl+Alt+M` or `F9` to launch, or run:
+```powershell
+AutoHotkey.exe '/ErrorStdOut' scriptlets\mcp_server_scaffolding.ahk
+```
+
+See [docs/MCP_Server_Scaffolding_Guide.md](docs/MCP_Server_Scaffolding_Guide.md) for complete documentation.
 
 ## 🔒 Security
 
