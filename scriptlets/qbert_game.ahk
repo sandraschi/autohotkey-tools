@@ -6,8 +6,9 @@
 OnError(LogError)
 
 LogError(Thrown, Mode) {
-    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
-", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
+    FileAppend(errorMsg, "qbert_game_errors.log", "UTF-8")
+    OutputDebug(errorMsg)  ; Enable LLM debugging
     return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 
@@ -16,11 +17,19 @@ LogError(Thrown, Mode) {
 ; Q*bert Game
 ; @name: Q*bert Game
 ; @version: 1.0.0
-; @description: Classic Q*bert arcade game with jumping cubes and enemies
+; @description: Classic Q*bert arcade game with jumping cubes and enemies. Faithful recreation of the iconic 1982 arcade game with pyramid jumping mechanics.
+; @description: Features Q*bert character navigation across isometric pyramid, enemy avoidance, cube color changing, and level progression. Includes score tracking and lives system.
+; @description: Nostalgic arcade experience with smooth controls and authentic gameplay mechanics from the golden age of arcade gaming.
 ; @category: games
 ; @author: Sandra
 ; @hotkeys: ^!q, F9, Escape
 ; @enabled: true
+; @priority: 75
+; @tag: qbert, game, arcade, classic, retro, entertainment, nostalgic, puzzle
+; @cli: --level <num> - Start at specific level
+; @cli: --lives <count> - Set starting lives (default: 3)
+; @cli: --help - Show CLI usage and game options
+; @dependencies: 
 ; ==============================================================================
 
 class QbertGame {

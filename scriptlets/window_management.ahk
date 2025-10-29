@@ -1,17 +1,33 @@
-#Requires AutoHotkey v2.0
+#Requires AutoHotkey v2.0+
 #SingleInstance Force
 
+; ==============================================================================
+; Window Management
+; @name: Window Management
+; @version: 1.0.0
+; @description: Basic window management with snapping and organization. Simple window control with edge snapping and window switching.
+; @description: Provides window snapping to screen edges, window switching, and basic window organization. Lightweight alternative to advanced window managers.
+; @description: Essential productivity tool for users who want basic window management without complex features.
+; @category: utilities
+; @author: Sandra
+; @hotkeys: (configurable)
+; @enabled: true
+; @priority: 30
+; @tag: window-management, productivity, utilities, snapping, basic
+; @cli: --snap <direction> - Snap active window (left, right, top, bottom)
+; @cli: --help - Show CLI usage and window management options
+; @dependencies: 
+; ==============================================================================
 
-; Suppress error popups - log to file instead
+; Error handling - log to file instead of showing popups
 OnError(LogError)
 
 LogError(Thrown, Mode) {
-    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
-", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
+    FileAppend(errorMsg, "window_management_errors.log", "UTF-8")
+    OutputDebug(errorMsg)  ; Enable LLM debugging
     return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
-
-#Warn
 
 ; =============================================================================
 ; CONFIGURATION

@@ -2,11 +2,20 @@
 ; GitHub Repository Manager
 ; @name: GitHub Repository Manager
 ; @version: 1.0.0
-; @description: Manage and display GitHub repositories with URLs and stats
+; @description: Manage and display GitHub repositories with URLs, stats, and quick access. Browse your repositories with visual interface and direct links.
+; @description: Provides repository listing with descriptions, languages, star counts, and quick navigation. Includes search and filter capabilities for large repository collections.
+; @description: Essential tool for developers managing multiple GitHub repositories with easy access to project information and repository URLs.
 ; @category: development
 ; @author: Sandra
 ; @hotkeys: ^!g, Ctrl+Alt+R
 ; @enabled: true
+; @priority: 30
+; @tag: github, repository, development, git, version-control, productivity, management
+; @cli: --username <user> - Set GitHub username to manage
+; @cli: --list - List all repositories
+; @cli: --search <query> - Search repositories by name or description
+; @cli: --help - Show CLI usage and GitHub manager options
+; @dependencies: 
 ; ==============================================================================
 
 #Requires AutoHotkey v2.0+
@@ -17,8 +26,9 @@
 OnError(LogError)
 
 LogError(Thrown, Mode) {
-    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
-", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
+    FileAppend(errorMsg, "github_repo_manager_errors.log", "UTF-8")
+    OutputDebug(errorMsg)  ; Enable LLM debugging
     return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 
@@ -206,17 +216,17 @@ class GitHubRepoManager {
     
     static SetupHotkeys() {
         ; Main hotkey
-        Hotkey("^!g", (*) => this.CreateGUI()
+        Hotkey("^!g", (*) => this.CreateGUI())
         
         ; Refresh hotkey
-        ^!r::this.RefreshRepositories()
+        Hotkey("^!r", (*) => this.RefreshRepositories())
         
         ; Close with Escape
-        Escape::{
+        Hotkey("Escape", (*) => {
             if (WinExist("GitHub Repository Manager")) {
                 WinClose("GitHub Repository Manager")
             }
-        }
+        })
     }
 }
 

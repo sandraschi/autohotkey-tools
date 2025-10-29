@@ -2,11 +2,20 @@
 ; Music Controller Pro
 ; @name: Music Controller Pro
 ; @version: 1.0.0
-; @description: Advanced music control with playlist management and visualizer
+; @description: Advanced music control with playlist management and visualizer. Comprehensive music player with playlist support, visual effects, and global hotkeys.
+; @description: Provides customizable playlists, volume control, track navigation, and visual music visualization. Supports multiple playlist categories for different moods and activities.
+; @description: Essential media tool for managing music playback with intuitive controls and personalized playlist organization.
 ; @category: media
 ; @author: Sandra
 ; @hotkeys: #Space, #Left, #Right, #Up, #Down, #M
 ; @enabled: true
+; @priority: 35
+; @tag: music, media, playlist, controller, audio, entertainment, productivity
+; @cli: --playlist <name> - Load specific playlist
+; @cli: --play - Start playback
+; @cli: --volume <0-100> - Set volume percentage
+; @cli: --help - Show CLI usage and music control options
+; @dependencies: 
 ; ==============================================================================
 
 #Requires AutoHotkey v2.0+
@@ -17,8 +26,9 @@
 OnError(LogError)
 
 LogError(Thrown, Mode) {
-    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
-", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
+    FileAppend(errorMsg, "music_controller_pro_errors.log", "UTF-8")
+    OutputDebug(errorMsg)  ; Enable LLM debugging
     return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 

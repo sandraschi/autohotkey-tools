@@ -2,11 +2,20 @@
 ; Classic Pong Game
 ; @name: Classic Pong Game
 ; @version: 1.0.0
-; @description: Classic Pong arcade game with AI opponent and sound effects
+; @description: Classic Pong arcade game recreation with AI opponent and sound effects. The original arcade video game that started the gaming revolution.
+; @description: Features smooth ball physics, adjustable difficulty levels, score tracking, and responsive paddle controls. Includes single-player mode with intelligent AI opponent.
+; @description: Faithful recreation of the iconic 1972 arcade game with modern controls and nostalgic gameplay experience.
 ; @category: games
 ; @author: Sandra
 ; @hotkeys: ^!p, F5
 ; @enabled: true
+; @priority: 75
+; @tag: pong, game, arcade, classic, retro, entertainment, nostalgic, sports
+; @cli: --difficulty <easy|medium|hard|expert> - Set AI opponent difficulty level
+; @cli: --sound-off - Disable sound effects
+; @cli: --speed <1-10> - Set ball speed multiplier (default: 5)
+; @cli: --help - Show CLI usage and game options
+; @dependencies: 
 ; ==============================================================================
 
 #Requires AutoHotkey v2.0+
@@ -17,8 +26,9 @@
 OnError(LogError)
 
 LogError(Thrown, Mode) {
-    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
-", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
+    FileAppend(errorMsg, "classic_pong_errors.log", "UTF-8")
+    OutputDebug(errorMsg)  ; Enable LLM debugging
     return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 

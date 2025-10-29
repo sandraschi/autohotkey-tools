@@ -1,19 +1,34 @@
-#Requires AutoHotkey v2.0
+#Requires AutoHotkey v2.0+
 #SingleInstance Force
 
+; ==============================================================================
+; Pranks Collection
+; @name: Pranks Collection
+; @version: 1.0.0
+; @description: Collection of harmless prank features for entertainment. Includes fake typing, mouse jiggling, and other harmless prank effects.
+; @description: Provides harmless prank features like fake typing sounds, mouse jiggling, and screen effects. All pranks are reversible and designed for harmless fun.
+; @description: Entertainment tool for harmless pranks and fun interactions. Use responsibly and only with consenting participants.
+; @category: fun
+; @author: Sandra
+; @hotkeys: ^!t, ^!j
+; @enabled: false
+; @priority: 90
+; @tag: pranks, fun, entertainment, harmless, jokes
+; @cli: --enable <prank> - Enable specific prank feature
+; @cli: --list - List all available prank features
+; @cli: --help - Show CLI usage and prank options
+; @dependencies: 
+; ==============================================================================
 
-; Suppress error popups - log to file instead
+; Error handling - log to file instead of showing popups
 OnError(LogError)
 
 LogError(Thrown, Mode) {
-    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
-", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
+    FileAppend(errorMsg, "pranks_errors.log", "UTF-8")
+    OutputDebug(errorMsg)  ; Enable LLM debugging
     return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
-
-#MaxHotkeysPerInterval 200
-SendMode "Input"
-SetWorkingDir A_ScriptDir
 
 ; Prank: Fake Typing
 Hotkey("^!t", (*) =>  {  ; Ctrl+Alt+T to toggle fake typing

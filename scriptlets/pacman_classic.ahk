@@ -2,11 +2,19 @@
 ; Pacman Classic
 ; @name: Pacman Classic
 ; @version: 1.0.0
-; @description: Classic Pacman arcade game with ghosts and dots
+; @description: Classic Pacman arcade game with ghosts and dots. Faithful recreation of the iconic 1980 arcade game with maze navigation and ghost AI.
+; @description: Features classic Pacman gameplay with dot collection, power pellets, ghost AI, and score tracking. Includes multiple levels, lives system, and authentic gameplay mechanics.
+; @description: Nostalgic arcade experience with smooth controls and authentic gameplay from the golden age of arcade gaming.
 ; @category: games
 ; @author: Sandra
 ; @hotkeys: Arrow keys, Space, P, R
 ; @enabled: true
+; @priority: 75
+; @tag: pacman, game, arcade, classic, retro, entertainment, nostalgic, maze
+; @cli: --level <num> - Start at specific level
+; @cli: --lives <count> - Set starting lives (default: 3)
+; @cli: --help - Show CLI usage and game options
+; @dependencies: 
 ; ==============================================================================
 
 #Requires AutoHotkey v2.0+
@@ -17,8 +25,9 @@
 OnError(LogError)
 
 LogError(Thrown, Mode) {
-    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
-", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
+    FileAppend(errorMsg, "pacman_classic_errors.log", "UTF-8")
+    OutputDebug(errorMsg)  ; Enable LLM debugging
     return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 

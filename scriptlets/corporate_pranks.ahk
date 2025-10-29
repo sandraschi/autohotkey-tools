@@ -1,17 +1,15 @@
-#Requires AutoHotkey v2.0
+#Requires AutoHotkey v2.0+
 #SingleInstance Force
-
 
 ; Suppress error popups - log to file instead
 OnError(LogError)
 
 LogError(Thrown, Mode) {
-    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
-", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
+    FileAppend(errorMsg, "corporate_pranks_errors.log", "UTF-8")
+    OutputDebug(errorMsg)  ; Enable LLM debugging
     return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
-
-#MaxHotkeysPerInterval 200
 
 ; ==============================================================================
 ; Corporate Prank Generator

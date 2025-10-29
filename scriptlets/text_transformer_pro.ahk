@@ -2,11 +2,19 @@
 ; Text Transformer Pro
 ; @name: Text Transformer Pro
 ; @version: 1.0.0
-; @description: Advanced text manipulation with case conversion, formatting, and encoding
+; @description: Advanced text manipulation with case conversion, formatting, and encoding. Transform text with multiple conversion options and encoding support.
+; @description: Provides uppercase, lowercase, title case, sentence case, camelCase, PascalCase, and encoding conversions. Includes clipboard integration and bulk text processing capabilities.
+; @description: Essential text processing tool for developers and writers who need quick text transformations and encoding conversions.
 ; @category: utilities
 ; @author: Sandra
 ; @hotkeys: ^!t, ^!u, ^!l, ^!s
 ; @enabled: true
+; @priority: 20
+; @tag: text-transformation, utilities, case-conversion, formatting, encoding, productivity, clipboard
+; @cli: --transform <type> - Transform clipboard text (upper, lower, title, sentence, camel, pascal)
+; @cli: --encode <encoding> - Encode text (base64, url, html)
+; @cli: --help - Show CLI usage and transformation options
+; @dependencies: 
 ; ==============================================================================
 
 #Requires AutoHotkey v2.0+
@@ -17,8 +25,9 @@
 OnError(LogError)
 
 LogError(Thrown, Mode) {
-    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
-", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
+    FileAppend(errorMsg, "text_transformer_pro_errors.log", "UTF-8")
+    OutputDebug(errorMsg)  ; Enable LLM debugging
     return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 

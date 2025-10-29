@@ -1,27 +1,36 @@
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
 
-
-; Suppress error popups - log to file instead
-OnError(LogError)
-
-LogError(Thrown, Mode) {
-    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
-", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
-    return 1  ; Suppress popup (1 = suppress, 0 = show)
-}
-
-
 ; ==============================================================================
 ; Macro Recorder Pro
 ; @name: Macro Recorder Pro
 ; @version: 1.0.0
-; @description: Record and replay mouse/keyboard actions with v2 syntax
+; @description: Record and replay mouse/keyboard actions with v2 syntax. Capture user interactions and replay them automatically for task automation.
+; @description: Provides comprehensive macro recording with mouse movement, clicks, keystrokes, and timing preservation. Includes playback speed control, loop support, and macro editing capabilities.
+; @description: Essential automation tool for capturing repetitive workflows and replaying them with precise timing and action sequences for productivity enhancement.
 ; @category: automation
 ; @author: Sandra
 ; @hotkeys: ^!r, ^!p, ^!s, ^!t
 ; @enabled: true
+; @priority: 20
+; @tag: macro, recorder, automation, productivity, recording, playback, mouse, keyboard
+; @cli: --record - Start recording macro
+; @cli: --play <macro> - Play recorded macro
+; @cli: --speed <factor> - Set playback speed (0.1-10.0)
+; @cli: --loop <count> - Play macro multiple times
+; @cli: --help - Show CLI usage and recorder options
+; @dependencies: 
 ; ==============================================================================
+
+; Error handling - log to file instead of showing popups
+OnError(LogError)
+
+LogError(Thrown, Mode) {
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
+    FileAppend(errorMsg, "macro_recorder_pro_errors.log", "UTF-8")
+    OutputDebug(errorMsg)  ; Enable LLM debugging
+    return 1  ; Suppress popup (1 = suppress, 0 = show)
+}
 
 class MacroRecorder {
     static isRecording := false

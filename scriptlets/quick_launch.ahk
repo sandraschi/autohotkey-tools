@@ -1,13 +1,33 @@
-#Requires AutoHotkey v2.0
+#Requires AutoHotkey v2.0+
 #SingleInstance Force
 
+; ==============================================================================
+; Quick Launch
+; @name: Quick Launch
+; @version: 1.0.0
+; @description: Fast application and folder launcher with customizable hotkeys. Launch applications and open folders instantly with simple keyboard shortcuts.
+; @description: Provides configurable application shortcuts (Win+Key), folder shortcuts (Ctrl+Alt+Key), and system tools shortcuts (Win+Shift+Key). Easy to customize for your specific applications and workflows.
+; @description: Essential productivity tool for quick access to frequently used applications and folders without navigating menus or desktop icons.
+; @category: utilities
+; @author: Sandra
+; @hotkeys: (configurable - see CONFIGURATION section)
+; @enabled: true
+; @priority: 25
+; @tag: launcher, shortcuts, applications, folders, productivity, utilities, quick-access
+; @cli: --add-app <key> <path> - Add application shortcut
+; @cli: --add-folder <key> <path> - Add folder shortcut
+; @cli: --list - List all configured shortcuts
+; @cli: --help - Show CLI usage and launcher options
+; @dependencies: 
+; ==============================================================================
 
-; Suppress error popups - log to file instead
+; Error handling - log to file instead of showing popups
 OnError(LogError)
 
 LogError(Thrown, Mode) {
-    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
-", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
+    FileAppend(errorMsg, "quick_launch_errors.log", "UTF-8")
+    OutputDebug(errorMsg)  ; Enable LLM debugging
     return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 

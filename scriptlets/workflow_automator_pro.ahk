@@ -2,11 +2,20 @@
 ; Workflow Automator Pro
 ; @name: Workflow Automator Pro
 ; @version: 1.0.0
-; @description: Advanced workflow automation with triggers, conditions, and actions
-; @category: ai
+; @description: Advanced workflow automation with triggers, conditions, and actions. Create complex automation workflows with conditional logic and event triggers.
+; @description: Features trigger-based automation, conditional execution, multi-step workflows, and action chaining. Supports file monitoring, time-based triggers, and keyboard/mouse event triggers.
+; @description: Powerful automation tool for advanced users who need to create complex multi-step workflows with conditional logic and event-based triggers.
+; @category: automation
 ; @author: Sandra
 ; @hotkeys: ^!w, ^!r, ^!t
 ; @enabled: true
+; @priority: 10
+; @tag: automation, workflows, triggers, conditions, productivity, advanced, events
+; @cli: --create-workflow <name> - Create new workflow
+; @cli: --run-workflow <name> - Execute specific workflow
+; @cli: --list-workflows - List all configured workflows
+; @cli: --help - Show CLI usage and workflow options
+; @dependencies: 
 ; ==============================================================================
 
 #Requires AutoHotkey v2.0+
@@ -17,8 +26,9 @@
 OnError(LogError)
 
 LogError(Thrown, Mode) {
-    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
-", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
+    FileAppend(errorMsg, "workflow_automator_pro_errors.log", "UTF-8")
+    OutputDebug(errorMsg)  ; Enable LLM debugging
     return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 

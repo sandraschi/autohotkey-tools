@@ -2,11 +2,20 @@
 ; AutoHotkey Warning System
 ; @name: AutoHotkey Warning System
 ; @version: 1.0.0
-; @description: Shows warning messages about AutoHotkey security and capabilities
+; @description: Shows warning messages about AutoHotkey security and capabilities. Displays important security information about script execution risks.
+; @description: Warns users about AutoHotkey's powerful capabilities including file access, application control, keystroke injection, and system modification.
+; @description: Provides critical security awareness for users running AutoHotkey scripts, especially AI-generated or untrusted scripts.
 ; @category: utilities
 ; @author: Sandra
 ; @hotkeys: ^!w, F3
 ; @enabled: true
+; @priority: 1
+; @tag: security, warning, safety, awareness, utilities, education
+; @cli: --show-once - Show warning only once (default behavior)
+; @cli: --force-show - Force show warning even if already shown
+; @cli: --skip-warning - Skip warning display (use with caution)
+; @cli: --help - Show CLI usage and security information
+; @dependencies: 
 ; ==============================================================================
 
 #Requires AutoHotkey v2.0+
@@ -17,8 +26,9 @@
 OnError(LogError)
 
 LogError(Thrown, Mode) {
-    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
-", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
+    FileAppend(errorMsg, "autohotkey_warning_errors.log", "UTF-8")
+    OutputDebug(errorMsg)  ; Enable LLM debugging
     return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 

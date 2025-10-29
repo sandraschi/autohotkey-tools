@@ -1,17 +1,35 @@
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
 
+; ==============================================================================
+; Ollama Chatbot
+; @name: Ollama Chatbot
+; @version: 1.0.0
+; @description: Local LLM chatbot interface using Ollama API. Interactive chat interface for local language models running on Ollama.
+; @description: Features real-time chat with local LLMs, multiple model support, conversation history, and customizable UI themes. Supports Ollama API integration for local AI conversations.
+; @description: Essential tool for users running local language models who want a convenient chat interface without cloud dependencies.
+; @category: ai
+; @author: Sandra
+; @hotkeys: ^!o
+; @enabled: true
+; @priority: 50
+; @tag: ollama, chatbot, ai, llm, local, conversation, chat, language-model
+; @cli: --model <name> - Set default Ollama model
+; @cli: --url <url> - Set Ollama API URL (default: http://localhost:11434)
+; @cli: --theme <light|dark> - Set UI theme
+; @cli: --help - Show CLI usage and chatbot options
+; @dependencies: Ollama
+; ==============================================================================
 
 ; Suppress error popups - log to file instead
 OnError(LogError)
 
 LogError(Thrown, Mode) {
-    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
-", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
+    FileAppend(errorMsg, "ollama_chatbot_errors.log", "UTF-8")
+    OutputDebug(errorMsg)  ; Enable LLM debugging
     return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
-
-#Warn All, MsgBox
 
 ; =============================================================================
 ; CONFIGURATION
@@ -87,11 +105,11 @@ CreateGUI() {
     ApplyTheme(currentTheme)
     
     ; Chat display - use plain text display for better compatibility
-    chatDisplay := guiMain.Add("Edit", "x10 y10 w780 h500 +ReadOnly VScroll +Multi")
+    chatDisplay := guiMain.Add("Edit", "x10 y10 w780 h500 ReadOnly Multi VScroll")
     chatDisplay.SetFont("s10", "Segoe UI")
     
     ; Input area
-    userInputBox := guiMain.Add("Edit", "x10 y520 w680 h70 +Multi")
+    userInputBox := guiMain.Add("Edit", "x10 y520 w680 h70 Multi")
     userInputBox.OnEvent("Change", OnInputChange)
     userInputBox.SetFont("s10", "Segoe UI")
     
@@ -130,16 +148,20 @@ ApplyTheme(theme) {
     currentTheme := theme
     colors := COLORS.%theme%
     
-    guiMain.BackColor := colors.bg
+    ; Convert hex numbers to string format (e.g., 0xFFFFFF -> "FFFFFF")
+    bgColor := Format("{:06X}", colors.bg)
+    inputBgColor := Format("{:06X}", colors.inputBg)
     
-    ; Update chat display colors - convert hex to proper format
+    guiMain.BackColor := bgColor
+    
+    ; Update chat display colors - use proper format
     if (chatDisplay) {
-        chatDisplay.Opt("+Background" . Format("0x{:X}", colors.inputBg))
+        chatDisplay.BackColor := inputBgColor
     }
     
     ; Update input box colors
     if (userInputBox) {
-        userInputBox.Opt("+Background" . Format("0x{:X}", colors.inputBg))
+        userInputBox.BackColor := inputBgColor
     }
 }
 
@@ -264,6 +286,58 @@ SendMessage(ctrl, info) {
 ; =============================================================================
 ; OLLAMA API FUNCTIONS
 ; =============================================================================
+SendOllamaRequestGET(endpoint, timeout := 30000) {
+    static whr := 0
+    
+    ; Initialize WinHttpRequest if not already done
+    if (!whr) {
+        try {
+            whr := ComObject("WinHttp.WinHttpRequest.5.1")
+        } catch as e {
+            throw Error("Failed to initialize HTTP client: " . e.Message)
+        }
+    }
+    
+    try {
+        url := OLLAMA_URL . "/api/" . endpoint
+        
+        ; Configure GET request
+        whr.Open("GET", url, false)
+        whr.Option(6, false)  ; Disable auto-redirect
+        
+        ; Set timeouts (in milliseconds)
+        whr.SetTimeouts(timeout, timeout, timeout, timeout)
+        
+        ; Send request
+        try {
+            whr.Send()
+        } catch as e {
+            throw Error("Failed to send GET request: " . e.Message)
+        }
+        
+        ; Check response status
+        status := whr.Status
+        if (status != 200) {
+            errorMsg := "API GET request failed with status: " . status
+            try {
+                if (whr.ResponseText != "") {
+                    errorMsg .= "`nResponse: " . whr.ResponseText
+                }
+            }
+            throw Error(errorMsg)
+        }
+        
+        ; Parse and return response
+        try {
+            return JSON.Load(whr.ResponseText)
+        } catch as e {
+            throw Error("Failed to parse response: " . e.Message)
+        }
+    } catch as e {
+        throw Error("GET request failed: " . e.Message)
+    }
+}
+
 SendOllamaRequest(endpoint, data, timeout := 30000) {
     static whr := 0
     
@@ -322,8 +396,8 @@ LoadModels() {
     global models, modelSelector, selectedModel, statusBar
     
     try {
-        ; Get available models from Ollama
-        response := SendOllamaRequest("tags", {})
+        ; Get available models from Ollama (use GET request for /api/tags)
+        response := SendOllamaRequestGET("tags")
         
         if (!response.HasProp("models")) {
             throw Error("Invalid response format from Ollama API")

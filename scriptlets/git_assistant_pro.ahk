@@ -2,11 +2,20 @@
 ; Git Assistant Pro
 ; @name: Git Assistant Pro
 ; @version: 1.0.0
-; @description: Advanced Git workflow automation with commit templates and branch management
+; @description: Advanced Git workflow automation with commit templates and branch management. Streamlines Git operations with intelligent commit message generation and branch workflow helpers.
+; @description: Provides commit templates, branch pattern matching, repository detection, and common Git command shortcuts. Includes GUI for interactive commit creation and branch management.
+; @description: Essential tool for developers to maintain consistent Git workflows, improve commit message quality, and automate repetitive Git operations.
 ; @category: development
 ; @author: Sandra
 ; @hotkeys: ^!g, ^!commit, ^!branch
 ; @enabled: true
+; @priority: 15
+; @tag: git, development, version-control, workflow, automation, commit, branch, productivity
+; @cli: --commit <type> - Quick commit with template (feat, fix, docs, style, refactor, test, chore)
+; @cli: --branch <name> - Create or switch to branch with pattern
+; @cli: --status - Show repository status
+; @cli: --help - Show CLI usage and Git assistant options
+; @dependencies: Git command-line tool
 ; ==============================================================================
 
 #Requires AutoHotkey v2.0+
@@ -17,8 +26,9 @@
 OnError(LogError)
 
 LogError(Thrown, Mode) {
-    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
-", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
+    FileAppend(errorMsg, "git_assistant_pro_errors.log", "UTF-8")
+    OutputDebug(errorMsg)  ; Enable LLM debugging
     return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 

@@ -2,11 +2,19 @@
 ; Tetris Classic
 ; @name: Tetris Classic
 ; @version: 1.0.0
-; @description: Classic Tetris falling blocks puzzle game
+; @description: Classic Tetris falling blocks puzzle game. Faithful recreation of the iconic 1984 puzzle game with rotating tetrominoes and line clearing mechanics.
+; @description: Features classic Tetris gameplay with 7 different tetromino pieces, level progression, increasing speed, and score tracking. Includes pause, restart, and classic controls.
+; @description: Nostalgic puzzle game experience with authentic gameplay mechanics and addictive line-clearing action from the golden age of puzzle games.
 ; @category: games
 ; @author: Sandra
 ; @hotkeys: Arrow keys, Space, P, R
 ; @enabled: true
+; @priority: 75
+; @tag: tetris, game, puzzle, arcade, classic, retro, entertainment, nostalgic
+; @cli: --level <num> - Start at specific level
+; @cli: --speed <1-10> - Set game speed multiplier
+; @cli: --help - Show CLI usage and game options
+; @dependencies: 
 ; ==============================================================================
 
 #Requires AutoHotkey v2.0+
@@ -17,8 +25,9 @@
 OnError(LogError)
 
 LogError(Thrown, Mode) {
-    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
-", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
+    FileAppend(errorMsg, "tetris_classic_errors.log", "UTF-8")
+    OutputDebug(errorMsg)  ; Enable LLM debugging
     return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 

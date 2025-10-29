@@ -1,27 +1,35 @@
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
 
-
-; Suppress error popups - log to file instead
-OnError(LogError)
-
-LogError(Thrown, Mode) {
-    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
-", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
-    return 1  ; Suppress popup (1 = suppress, 0 = show)
-}
-
-
 ; ==============================================================================
 ; Macro Editor Pro
 ; @name: Macro Editor Pro
 ; @version: 1.0.0
-; @description: Edit and optimize recorded macros
+; @description: Edit and optimize recorded macros with advanced editing capabilities. Modify macro sequences, adjust timing, remove unnecessary actions, and optimize performance.
+; @description: Provides visual macro editor with action list manipulation, timing adjustment, action insertion/deletion, and macro validation. Supports batch editing and macro optimization suggestions.
+; @description: Essential tool for refining recorded macros, removing redundant actions, and creating efficient automation sequences from recorded inputs.
 ; @category: automation
 ; @author: Sandra
 ; @hotkeys: ^!e
 ; @enabled: true
+; @priority: 20
+; @tag: macro, editor, automation, productivity, recording, optimization, editing
+; @cli: --open <macro> - Open specific macro for editing
+; @cli: --optimize - Auto-optimize macro by removing redundant actions
+; @cli: --validate - Validate macro syntax and check for errors
+; @cli: --help - Show CLI usage and editor options
+; @dependencies: 
 ; ==============================================================================
+
+; Error handling - log to file instead of showing popups
+OnError(LogError)
+
+LogError(Thrown, Mode) {
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
+    FileAppend(errorMsg, "macro_editor_pro_errors.log", "UTF-8")
+    OutputDebug(errorMsg)  ; Enable LLM debugging
+    return 1  ; Suppress popup (1 = suppress, 0 = show)
+}
 
 class MacroEditor {
     static gui := ""

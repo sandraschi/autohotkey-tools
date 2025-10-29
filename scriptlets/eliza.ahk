@@ -1,17 +1,35 @@
-#Requires AutoHotkey v2.0
+#Requires AutoHotkey v2.0+
 #SingleInstance Force
 
+; ==============================================================================
+; ELIZA Chatbot
+; @name: ELIZA Therapist Chatbot
+; @version: 1.0.0
+; @description: Classic ELIZA chatbot recreation with Rogerian psychotherapy patterns. Provides a therapeutic conversation interface using pattern matching and keyword-based responses.
+; @description: Implements the original ELIZA algorithm with reflection, transformation, and keyword-based dialogue generation. Creates an engaging conversational experience with natural language processing.
+; @description: Educational and entertaining implementation of one of the earliest chatbots, demonstrating basic NLP and conversational AI principles.
+; @category: ai
+; @author: Sandra
+; @hotkeys: ^!e
+; @enabled: true
+; @priority: 80
+; @tag: eliza, chatbot, ai, conversation, therapy, classic, nlp, entertainment, psychology
+; @cli: --script <script_name> - Use specific ELIZA script (doctor, default)
+; @cli: --gui - Launch with GUI interface (default)
+; @cli: --console - Launch in console mode
+; @cli: --help - Show CLI usage and ELIZA options
+; @dependencies: 
+; ==============================================================================
 
-; Suppress error popups - log to file instead
+; Error handling - log to file instead of showing popups
 OnError(LogError)
 
 LogError(Thrown, Mode) {
-    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
-", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
+    FileAppend(errorMsg, "eliza_errors.log", "UTF-8")
+    OutputDebug(errorMsg)  ; Enable LLM debugging
     return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
-
-#Warn
 
 ; =============================================================================
 ; CONFIGURATION

@@ -2,11 +2,20 @@
 ; MCP Development Cycle
 ; @name: MCP Development Cycle
 ; @version: 1.0.0
-; @description: Orchestrate complete MCP development workflow from idea to deployment
+; @description: Orchestrate complete MCP development workflow from idea to deployment. Manages the full development lifecycle for MCP servers with phase tracking and automation.
+; @description: Features phase management (planning, development, testing, deployment), progress tracking, automated commands, and workflow orchestration. Supports skipping phases, resetting progress, and comprehensive development oversight.
+; @description: Essential tool for MCP developers who need structured workflow management and automated development cycle tracking from initial concept to production deployment.
 ; @category: development
 ; @author: Sandra
 ; @hotkeys: ^!d, Ctrl+F12
 ; @enabled: true
+; @priority: 5
+; @tag: mcp, development, workflow, automation, lifecycle, orchestration, productivity
+; @cli: --phase <num> - Jump to specific development phase
+; @cli: --skip - Skip current phase
+; @cli: --reset - Reset all phases to initial state
+; @cli: --help - Show CLI usage and workflow options
+; @dependencies: 
 ; ==============================================================================
 
 #Requires AutoHotkey v2.0+
@@ -17,8 +26,9 @@
 OnError(LogError)
 
 LogError(Thrown, Mode) {
-    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
-", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
+    FileAppend(errorMsg, "mcp_development_cycle_errors.log", "UTF-8")
+    OutputDebug(errorMsg)  ; Enable LLM debugging
     return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 

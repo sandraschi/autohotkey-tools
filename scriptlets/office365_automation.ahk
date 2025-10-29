@@ -1,4 +1,24 @@
-#Requires AutoHotkey v2.0
+; ==============================================================================
+; Office 365 Automation Suite
+; @name: Office 365 Automation Suite
+; @version: 1.0.0
+; @description: Comprehensive automation for Office 365 applications. Full-featured automation suite for Outlook, Teams, OneNote, and Office applications.
+; @description: Provides email automation, meeting scheduling, OneNote integration, Teams shortcuts, and Office document management. Includes templates, quick actions, and workflow automation for productivity enhancement.
+; @description: Essential productivity tool for Office 365 power users who need advanced automation, shortcuts, and workflow integration across Microsoft 365 applications.
+; @category: productivity
+; @author: Sandra
+; @hotkeys: ^!o, ^!n, ^!t, ^!w, ^!e
+; @enabled: true
+; @priority: 20
+; @tag: office365, automation, productivity, outlook, teams, onenote, microsoft, workflows
+; @cli: --outlook <action> - Execute Outlook automation action
+; @cli: --teams <action> - Execute Teams automation action
+; @cli: --onenote <action> - Execute OneNote automation action
+; @cli: --help - Show CLI usage and Office 365 options
+; @dependencies: Office 365 applications
+; ==============================================================================
+
+#Requires AutoHotkey v2.0+
 #SingleInstance Force
 
 
@@ -6,23 +26,11 @@
 OnError(LogError)
 
 LogError(Thrown, Mode) {
-    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
-", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
+    FileAppend(errorMsg, "office365_automation_errors.log", "UTF-8")
+    OutputDebug(errorMsg)  ; Enable LLM debugging
     return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
-
-#MaxHotkeysPerInterval 200
-
-; ==============================================================================
-; Office 365 Automation Suite
-; @name: Office 365 Automation Suite
-; @version: 1.0.0
-; @description: Comprehensive automation for Office 365 applications
-; @category: productivity
-; @author: Sandra
-; @hotkeys: ^!o, ^!n, ^!t, ^!w, ^!e
-; @enabled: true
-; ==============================================================================
 
 class Office365Automation {
     static gui := ""

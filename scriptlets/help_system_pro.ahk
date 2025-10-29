@@ -2,11 +2,20 @@
 ; Help System Pro
 ; @name: Help System Pro
 ; @version: 1.0.0
-; @description: Comprehensive help system explaining AutoHotkey, the bridge, UI, and all features
+; @description: Comprehensive help system explaining AutoHotkey, the bridge, UI, and all features. Interactive documentation and user guide for the scriptlet collection.
+; @description: Provides detailed explanations of AutoHotkey concepts, scriptlet features, usage instructions, and troubleshooting guides. Includes searchable content with topic navigation.
+; @description: Essential reference tool for users learning AutoHotkey or exploring the scriptlet collection features and capabilities.
 ; @category: utilities
 ; @author: Sandra
 ; @hotkeys: F1, ^!h, ^!?
 ; @enabled: true
+; @priority: 5
+; @tag: help, documentation, guide, reference, utilities, learning, education
+; @cli: --topic <name> - Open specific help topic
+; @cli: --search <query> - Search help content
+; @cli: --list-topics - List all available help topics
+; @cli: --help - Show CLI usage and help system options
+; @dependencies: 
 ; ==============================================================================
 
 #Requires AutoHotkey v2.0+
@@ -17,8 +26,9 @@
 OnError(LogError)
 
 LogError(Thrown, Mode) {
-    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
-", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
+    FileAppend(errorMsg, "help_system_pro_errors.log", "UTF-8")
+    OutputDebug(errorMsg)  ; Enable LLM debugging
     return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 

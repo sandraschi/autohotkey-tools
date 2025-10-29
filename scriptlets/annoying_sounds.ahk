@@ -3,12 +3,45 @@
 SendMode "Input"
 SetWorkingDir(A_ScriptDir)
 
-; Suppress error popups - log to file AND stdout for LLM debugging
+; ==============================================================================
+; Annoying Sounds Collection
+; @name: Annoying Sounds Collection
+; @version: 2.0.0
+; @description: Collection of annoying sound effects including sirens, farts, tittering, beeps, elevator music, keyboard sounds, and prank features.
+; @description: Supports custom sound files from a "sounds" folder. Auto-detects external .wav/.mp3 files or synthesizes sounds using system beeps.
+; @description: Perfect for harmless pranks and entertainment. Includes fake virus scanner GUI for maximum annoyance.
+; @category: fun
+; @author: Sandra
+; @hotkeys: ^!m, ^!s, ^!b, ^!r, ^!v, ^!k, ^!f, ^!t, ^!w
+; @enabled: false
+; @priority: 90
+; @tag: sounds, pranks, fun, annoying, entertainment, effects, siren, fart, tittering
+; @cli: --sound-dir <path> - Set custom sound files directory (default: ./sounds)
+; @cli: --enable <feature> - Enable specific feature: siren, fart, tittering, beep, music, keyboard
+; @cli: --disable <feature> - Disable specific feature
+; @cli: --list-sounds - List available sound files in the sounds directory
+; @cli: --help - Show CLI usage information
+; @dependencies: 
+; ==============================================================================
+; Sound file sources:
+; - Freesound.org (https://freesound.org) - Free CC0/CC BY sounds
+; - Zapsplat (https://zapsplat.com) - Free with account
+; - Pixabay (https://pixabay.com/music/search/sound%20effects/) - Free sounds
+; - YouTube Audio Library - Free to use sounds
+; - Windows System Sounds: A_WinDir "\Media\*.wav"
+; 
+; Recommended sound file locations:
+; - Create a "sounds" folder in the script directory
+; - Place .wav or .mp3 files there (fart.wav, siren.wav, tittering.wav, etc.)
+; - Script will auto-detect if files exist, otherwise uses synthesized sounds
+; ==============================================================================
+
+; Error handling - log to file instead of showing popups
 OnError(LogError)
 
 LogError(Thrown, Mode) {
     errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
-    FileAppend(errorMsg, "errors.log", "UTF-8")
+    FileAppend(errorMsg, "annoying_sounds_errors.log", "UTF-8")
     OutputDebug(errorMsg)  ; Enable LLM debugging
     return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
@@ -16,9 +49,6 @@ LogError(Thrown, Mode) {
 #MaxHotkeysPerInterval 200
 #Persistent
 
-; ========================================
-; 1. ELEVATOR MUSIC PLAYER
-; ========================================
 class AnnoyingSounds {
     static musicPlaying := false
     static soundsOn := false
@@ -27,17 +57,46 @@ class AnnoyingSounds {
     static progress := 0
     static scanText := ""
     static virusGui := ""
+    static sirenPlaying := false
+    static titteringPlaying := false
+    static soundFilesPath := A_ScriptDir "\sounds"
     
     static Init() {
+        ; Create sounds directory if it doesn't exist
+        if (!DirExist(this.soundFilesPath)) {
+            try {
+                DirCreate(this.soundFilesPath)
+                this.LogDebug("Created sounds directory: " . this.soundFilesPath)
+            } catch as e {
+                this.LogDebug("Could not create sounds directory: " . e.Message)
+            }
+        }
+        
         Hotkey("^!m", (*) => this.PlayElevatorMusic())
         Hotkey("^!s", (*) => this.RandomSoundEffects())
         Hotkey("^!b", (*) => this.AnnoyingBeep())
         Hotkey("^!r", (*) => this.Rickroll())
         Hotkey("^!v", (*) => this.FakeVirusScan())
         Hotkey("^!k", (*) => this.KeyboardSounds())
+        Hotkey("^!f", (*) => this.PlayFart())          ; Ctrl+Alt+F for fart
+        Hotkey("^!t", (*) => this.PlayTittering())     ; Ctrl+Alt+T for tittering
+        Hotkey("^!w", (*) => this.PlaySiren())         ; Ctrl+Alt+W for siren (warning)
         
         ; TrayTip removal
         SetTimer(() => this.RemoveTrayTip(), -3000)
+        
+        this.LogDebug("Annoying Sounds initialized")
+    }
+    
+    static LogDebug(message) {
+        timestamp := FormatTime(A_Now, "HH:mm:ss")
+        logMsg := "[" . timestamp . "] " . message . "`n"
+        try {
+            FileAppend(logMsg, "annoying_sounds_debug.log", "UTF-8")
+        } catch {
+            ; Ignore file logging errors
+        }
+        OutputDebug(logMsg)
     }
     
     static PlayElevatorMusic(*) {
@@ -82,7 +141,7 @@ class AnnoyingSounds {
     }
     
     static RandomSound() {
-        Random(soundType, 1, 5)
+        Random(soundType, 1, 8)
         
         switch soundType {
             case 1:
@@ -97,8 +156,151 @@ class AnnoyingSounds {
                 Random(note, 1, 12)
                 freq := 220 * (2 ** (note/12))  ; Equal temperament from A3
                 SoundBeep(freq, 300)
+            case 5:
+                this.PlayFartSound()
+            case 6:
+                this.PlaySirenSound(false)
+            case 7:
+                this.PlayTitteringSound(false)
             default:
                 SoundPlay("*")
+        }
+    }
+    
+    static PlayFart() {
+        this.PlayFartSound()
+        TrayTip("Fart Sound", "💨 Toot toot!", , 1)
+    }
+    
+    static PlayFartSound() {
+        ; Try to play custom fart sound file, otherwise use system sound
+        fartFiles := [this.soundFilesPath "\fart.wav", this.soundFilesPath "\fart.mp3", this.soundFilesPath "\fart1.wav"]
+        
+        for file in fartFiles {
+            if (FileExist(file)) {
+                try {
+                    SoundPlay(file)
+                    this.LogDebug("Played fart sound: " . file)
+                    return
+                } catch as e {
+                    this.LogDebug("Error playing fart sound: " . e.Message)
+                }
+            }
+        }
+        
+        ; Fallback: Synthesize a fart-like sound
+        Random(type, 1, 3)
+        switch type {
+            case 1:
+                ; Low rumble
+                SoundBeep(50, 200)
+                Sleep(50)
+                SoundBeep(60, 150)
+            case 2:
+                ; Quick toot
+                SoundBeep(100, 80)
+                Sleep(30)
+                SoundBeep(120, 60)
+            default:
+                SoundPlay("*48")  ; Windows error sound as fallback
+        }
+    }
+    
+    static PlaySiren() {
+        this.sirenPlaying := !this.sirenPlaying
+        
+        if (this.sirenPlaying) {
+            this.sirenTimer := SetTimer(() => this.PlaySirenSound(true), 500)
+            TrayTip("Siren", "🚨 Siren activated!", , 1)
+        } else {
+            SetTimer(() => this.PlaySirenSound(true), 0)
+            SoundPlay("*-1")  ; Stop all sounds
+            TrayTip("Siren", "Siren stopped", , 1)
+        }
+    }
+    
+    static PlaySirenSound(loopMode := true) {
+        ; Try to play custom siren sound file
+        sirenFiles := [this.soundFilesPath "\siren.wav", this.soundFilesPath "\siren.mp3", 
+                       this.soundFilesPath "\police_siren.wav", this.soundFilesPath "\ambulance.wav"]
+        
+        for file in sirenFiles {
+            if (FileExist(file)) {
+                try {
+                    SoundPlay(file, (loopMode ? "Wait" : ""))
+                    this.LogDebug("Played siren sound: " . file)
+                    return
+                } catch as e {
+                    this.LogDebug("Error playing siren sound: " . e.Message)
+                }
+            }
+        }
+        
+        ; Fallback: Synthesize siren sound (alternating high/low tones)
+        static sirenState := 0
+        sirenState := !sirenState
+        
+        if (sirenState) {
+            SoundBeep(800, 200)  ; High tone
+        } else {
+            SoundBeep(400, 200)  ; Low tone
+        }
+    }
+    
+    static PlayTittering() {
+        this.titteringPlaying := !this.titteringPlaying
+        
+        if (this.titteringPlaying) {
+            this.titterTimer := SetTimer(() => this.PlayTitteringSound(true), 800)
+            TrayTip("Tittering", "😄 Giggle mode activated!", , 1)
+        } else {
+            SetTimer(() => this.PlayTitteringSound(true), 0)
+            TrayTip("Tittering", "Giggles stopped", , 1)
+        }
+    }
+    
+    static PlayTitteringSound(loopMode := true) {
+        ; Try to play custom tittering/laugh sound file
+        titterFiles := [this.soundFilesPath "\tittering.wav", this.soundFilesPath "\tittering.mp3",
+                        this.soundFilesPath "\giggle.wav", this.soundFilesPath "\laugh.wav",
+                        this.soundFilesPath "\giggle1.wav", this.soundFilesPath "\titter.wav"]
+        
+        for file in titterFiles {
+            if (FileExist(file)) {
+                try {
+                    SoundPlay(file, (loopMode ? "" : "Wait"))
+                    this.LogDebug("Played tittering sound: " . file)
+                    return
+                } catch as e {
+                    this.LogDebug("Error playing tittering sound: " . e.Message)
+                }
+            }
+        }
+        
+        ; Fallback: Synthesize tittering sound (high-pitched giggles)
+        Random(giggleType, 1, 3)
+        switch giggleType {
+            case 1:
+                ; Quick giggle
+                SoundBeep(800, 50)
+                Sleep(30)
+                SoundBeep(1000, 60)
+                Sleep(40)
+                SoundBeep(900, 50)
+            case 2:
+                ; Longer laugh
+                SoundBeep(700, 80)
+                Sleep(50)
+                SoundBeep(950, 100)
+                Sleep(60)
+                SoundBeep(850, 80)
+            default:
+                ; Silly sound
+                SoundBeep(1200, 40)
+                Sleep(20)
+                SoundBeep(1100, 40)
+                Sleep(20)
+                SoundBeep(1000, 40)
         }
     }
     
@@ -173,7 +375,7 @@ class AnnoyingSounds {
             SetTimer(() => this.UpdateVirusScan(), 0)
             ; Get the scan log control
             scanLogCtrl := this.virusGui["ScanLog"]
-            scanLogCtrl.Text := this.scanText . "`nScan complete! 1 threat found.`n`nThreat: Win32.Prank.AHK`nLocation: C:\Windows\System32\prank.dll`nStatus: Quarantined"
+            scanLogCtrl.Value := this.scanText . "`nScan complete! 1 threat found.`n`nThreat: Win32.Prank.AHK`nLocation: C:\Windows\System32\prank.dll`nStatus: Quarantined"
             this.progress := 0
             return
         }
@@ -202,7 +404,7 @@ class AnnoyingSounds {
             }
             
             scanLogCtrl := this.virusGui["ScanLog"]
-            scanLogCtrl.Text := this.scanText
+            scanLogCtrl.Value := this.scanText
         }
     }
     
@@ -249,16 +451,24 @@ class AnnoyingSounds {
         SetTimer(() => this.RandomSound(), 0)
         SetTimer(() => this.DoBeep(), 0)
         SetTimer(() => this.UpdateVirusScan(), 0)
+        SetTimer(() => this.PlaySirenSound(true), 0)
+        SetTimer(() => this.PlayTitteringSound(true), 0)
         
         ; Close all GUIs
-        if (this.virusGui)
-            this.virusGui.Destroy()
+        if (this.virusGui) {
+            try {
+                this.virusGui.Destroy()
+            } catch {
+                ; Ignore GUI cleanup errors
+            }
+        }
         
         ; Turn off keyboard sounds
         Hotkey("*~a", "Off")
         Hotkey("*~b", "Off")
         Hotkey("*~c", "Off")
         
+        this.LogDebug("Cleanup completed")
         ExitApp()
     }
 }

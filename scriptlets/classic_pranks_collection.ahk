@@ -2,11 +2,19 @@
 ; Classic Pranks Collection
 ; @name: Classic Pranks Collection
 ; @version: 1.0.0
-; @description: Collection of classic computer pranks and harmless jokes
-; @category: pranks
+; @description: Collection of classic computer pranks and harmless jokes. Comprehensive collection of classic prank effects with GUI interface.
+; @description: Provides fake blue screens, flying bugs, screen flipping, key swapping, fake errors, and other classic prank effects. Includes GUI launcher with previews and descriptions.
+; @description: Entertainment tool for harmless classic computer pranks. Use responsibly and only with consenting participants.
+; @category: fun
 ; @author: Sandra
 ; @hotkeys: ^!p, F9
-; @enabled: true
+; @enabled: false
+; @priority: 90
+; @tag: pranks, classic, fun, entertainment, harmless, jokes, gui, collection
+; @cli: --prank <name> - Run specific prank from collection
+; @cli: --list - List all available pranks
+; @cli: --help - Show CLI usage and prank options
+; @dependencies: 
 ; ==============================================================================
 
 #Requires AutoHotkey v2.0+
@@ -17,9 +25,9 @@
 OnError(LogError)
 
 LogError(Thrown, Mode) {
-    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
-", "errors.log", "UTF-8")
-`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
+    FileAppend(errorMsg, "classic_pranks_collection_errors.log", "UTF-8")
+    OutputDebug(errorMsg)  ; Enable LLM debugging
     return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 

@@ -2,11 +2,21 @@
 ; AutoHotkey Debug Helper
 ; @name: AutoHotkey Debug Helper
 ; @version: 1.0.0
-; @description: Comprehensive debugging tools for AutoHotkey v2 scripts
+; @description: Comprehensive debugging tools for AutoHotkey v2 scripts including variable inspection, line tracing, key history, and debug logging.
+; @description: Provides real-time debugging GUI with variable listing, active line monitoring, hotkey tracking, and system information display.
+; @description: Essential tool for AutoHotkey developers to troubleshoot scripts, inspect runtime state, and track execution flow.
 ; @category: development
 ; @author: Sandra
 ; @hotkeys: ^!d, F3, ^!v, ^!l, ^!k
 ; @enabled: true
+; @priority: 5
+; @tag: debugging, development, tools, inspection, troubleshooting, variables, hotkeys
+; @cli: --debug-mode - Start in debug mode (verbose logging)
+; @cli: --log-file <path> - Specify custom log file path
+; @cli: --trace-lines - Enable line-by-line execution tracing
+; @cli: --variable-watch <var> - Watch specific variable changes
+; @cli: --help - Show CLI usage and debugging options
+; @dependencies: 
 ; ==============================================================================
 
 #Requires AutoHotkey v2.0+
@@ -17,8 +27,9 @@
 OnError(LogError)
 
 LogError(Thrown, Mode) {
-    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
-", "errors.log", "UTF-8")
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
+    FileAppend(errorMsg, "autohotkey_debug_helper_errors.log", "UTF-8")
+    OutputDebug(errorMsg)  ; Enable LLM debugging
     return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 
@@ -33,9 +44,10 @@ class AHDebugHelper {
     }
     
     static CreateGUI() {
-        gui := Gui("+Resize +MinSize800x600", "AutoHotkey Debug Helper")
-        gui.BackColor := "1a1a1a"
-        gui.SetFont("s10 cFFFFFF", "Segoe UI")
+        try {
+            gui := Gui("+Resize +MinSize800x600", "AutoHotkey Debug Helper")
+            gui.BackColor := "1a1a1a"
+            gui.SetFont("s10 cFFFFFF", "Segoe UI")
         
         ; Title
         gui.Add("Text", "x20 y20 w760 Center Bold", "🔧 AutoHotkey Debug Helper")
@@ -93,7 +105,36 @@ class AHDebugHelper {
         ; Set up hotkeys
         this.SetupHotkeys()
         
-        gui.Show("w800 h650")
+            gui.Show("w800 h650")
+            this.LogDebug("Debug Helper GUI created successfully")
+        } catch as e {
+            errorMsg := "Error creating GUI: " . e.Message . "`n" . e.Stack
+            FileAppend(errorMsg, "autohotkey_debug_helper_errors.log", "UTF-8")
+            OutputDebug(errorMsg)
+            MsgBox("Error creating GUI: " . e.Message . "`n`nCheck autohotkey_debug_helper_errors.log for details", "Error", "Iconx")
+        }
+    }
+    
+    static LogDebug(message) {
+        timestamp := FormatTime(A_Now, "HH:mm:ss")
+        logMsg := "[" . timestamp . "] " . message . "`n"
+        try {
+            FileAppend(logMsg, "autohotkey_debug_helper_debug.log", "UTF-8")
+        } catch {
+            ; Ignore file logging errors
+        }
+        OutputDebug(logMsg)
+    }
+    
+    static AppendLog(message) {
+        timestamp := FormatTime(A_Now, "HH:mm:ss")
+        logMsg := "[" . timestamp . "] " . message . "`n"
+        try {
+            FileAppend(logMsg, "autohotkey_debug_helper.log", "UTF-8")
+        } catch {
+            ; Ignore file logging errors
+        }
+        OutputDebug(logMsg)
     }
     
     static ListVariables(*) {
@@ -164,7 +205,7 @@ class AHDebugHelper {
     
     static AnalyzeScript(*) {
         try {
-            scriptPath := GuiFromHwnd(WinGetID("AutoHotkey Debug Helper")).scriptPathEdit.Text
+            scriptPath := GuiFromHwnd(WinGetID("AutoHotkey Debug Helper")).scriptPathEdit.Value
             
             if (!FileExist(scriptPath)) {
                 this.AddDebugOutput("Script file not found: " . scriptPath)
@@ -212,7 +253,7 @@ class AHDebugHelper {
     
     static CheckSyntax(*) {
         try {
-            scriptPath := GuiFromHwnd(WinGetID("AutoHotkey Debug Helper")).scriptPathEdit.Text
+            scriptPath := GuiFromHwnd(WinGetID("AutoHotkey Debug Helper")).scriptPathEdit.Value
             
             if (!FileExist(scriptPath)) {
                 this.AddDebugOutput("Script file not found: " . scriptPath)
@@ -237,7 +278,7 @@ class AHDebugHelper {
     
     static FindDependencies(*) {
         try {
-            scriptPath := GuiFromHwnd(WinGetID("AutoHotkey Debug Helper")).scriptPathEdit.Text
+            scriptPath := GuiFromHwnd(WinGetID("AutoHotkey Debug Helper")).scriptPathEdit.Value
             
             if (!FileExist(scriptPath)) {
                 this.AddDebugOutput("Script file not found: " . scriptPath)
@@ -283,7 +324,7 @@ class AHDebugHelper {
     
     static RunWithDebug(*) {
         try {
-            scriptPath := GuiFromHwnd(WinGetID("AutoHotkey Debug Helper")).scriptPathEdit.Text
+            scriptPath := GuiFromHwnd(WinGetID("AutoHotkey Debug Helper")).scriptPathEdit.Value
             
             if (!FileExist(scriptPath)) {
                 this.AddDebugOutput("Script file not found: " . scriptPath)
@@ -326,8 +367,8 @@ class AHDebugHelper {
             
             if (WinExist("AutoHotkey Debug Helper")) {
                 gui := GuiFromHwnd(WinGetID("AutoHotkey Debug Helper"))
-                currentText := gui.debugOutput.Text
-                gui.debugOutput.Text := currentText . logEntry . "`n"
+                currentText := gui.debugOutput.Value
+                gui.debugOutput.Value := currentText . logEntry . "`n"
                 
                 ; Auto-scroll to bottom
                 gui.debugOutput.Focus()
@@ -361,7 +402,7 @@ class AHDebugHelper {
         try {
             if (WinExist("AutoHotkey Debug Helper")) {
                 gui := GuiFromHwnd(WinGetID("AutoHotkey Debug Helper"))
-                A_Clipboard := gui.debugOutput.Text
+                A_Clipboard := gui.debugOutput.Value
                 this.AddDebugOutput("Output copied to clipboard")
             }
         } catch as e {
@@ -373,7 +414,7 @@ class AHDebugHelper {
         try {
             if (WinExist("AutoHotkey Debug Helper")) {
                 gui := GuiFromHwnd(WinGetID("AutoHotkey Debug Helper"))
-                gui.debugOutput.Text := ""
+                gui.debugOutput.Value := ""
                 this.debugLog := []
                 this.AddDebugOutput("Output cleared")
             }

@@ -2,11 +2,20 @@
 ; Classic Frogger Game
 ; @name: Classic Frogger Game
 ; @version: 1.0.0
-; @description: Classic Frogger arcade game with cars, logs, and turtles
+; @description: Classic Frogger arcade game recreation with cars, logs, and turtles. Navigate your frog across busy roads and flowing rivers to reach safety.
+; @description: Features multiple levels with increasing difficulty, score tracking, lives system, and classic gameplay mechanics. Includes animated vehicles, floating logs, and diving turtles.
+; @description: Faithful recreation of the iconic 1981 arcade game with smooth controls and nostalgic gameplay experience.
 ; @category: games
 ; @author: Sandra
 ; @hotkeys: ^!f, F6
 ; @enabled: true
+; @priority: 75
+; @tag: frogger, game, arcade, classic, retro, entertainment, nostalgic, puzzle
+; @cli: --difficulty <easy|medium|hard> - Set game difficulty level
+; @cli: --lives <count> - Set starting number of lives (default: 3)
+; @cli: --sound-off - Disable sound effects
+; @cli: --help - Show CLI usage and game options
+; @dependencies: 
 ; ==============================================================================
 
 #Requires AutoHotkey v2.0+
@@ -17,8 +26,9 @@
 OnError(LogError)
 
 LogError(Thrown, Mode) {
-    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
-", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
+    FileAppend(errorMsg, "classic_frogger_errors.log", "UTF-8")
+    OutputDebug(errorMsg)  ; Enable LLM debugging
     return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 

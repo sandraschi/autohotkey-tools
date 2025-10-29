@@ -6,19 +6,13 @@
 ; Action Automation Builder
 ; @name: Action Automation Builder
 ; @version: 1.0.0
-; @description: Visual workflow builder for complex automation tasks with drag-and-drop interface. Create automation workflows visually without coding.
-; @description: Provides drag-and-drop workflow builder, action library, visual canvas, and automation testing. Supports complex task automation with visual representation and step-by-step workflow creation.
-; @description: Essential automation tool for creating complex workflows visually, making automation accessible to non-programmers with intuitive drag-and-drop interface.
+; @description: Visual workflow builder for complex automation tasks with drag-and-drop interface
 ; @category: automation
 ; @author: Sandra
 ; @hotkeys: ^!b
 ; @enabled: true
 ; @priority: 15
-; @tag: automation, workflow, builder, visual, drag-drop, productivity, gui
-; @cli: --new-workflow - Create new automation workflow
-; @cli: --open <workflow> - Open existing workflow file
-; @cli: --test - Test current workflow
-; @cli: --help - Show CLI usage and builder options
+; @tags: automation, workflow, builder, visual, drag-drop, productivity
 ; @dependencies: 
 ; ==============================================================================
 
@@ -48,11 +42,11 @@ class AutomationBuilder {
             this.gui := Gui("+Resize", "Action Automation Builder")
             this.gui.BackColor := "222222"
         
-        ; Title
+            ; Title
         this.gui.AddText("x10 y10 w500 h30 Center", "Action Automation Builder")
             .SetFont("s12 bold cFFFFFF")
         
-        ; Toolbar
+            ; Toolbar
         this.gui.AddButton("x10 y50 w100 h30 vRecordBtn", "Record Action")
             .OnEvent("Click", AutomationBuilder.RecordAction)
         
@@ -68,16 +62,16 @@ class AutomationBuilder {
         this.gui.AddButton("x450 y50 w100 h30 vRunBtn", "Run Workflow")
             .OnEvent("Click", AutomationBuilder.RunWorkflow)
         
-        ; Canvas for visual workflow
+            ; Canvas for visual workflow
         this.canvas := this.gui.AddText("x10 y95 w580 h350 Border vCanvas", "Canvas")
             .BackColor := "FFFFFF"
         
-        ; Node list
+            ; Node list
         this.gui.AddText("x600 y50 w180 h20", "Workflow Nodes:")
         this.nodeList := this.gui.AddListView("x600 y75 w180 h370 vNodeList", ["Node"])
             .OnEvent("Click", AutomationBuilder.NodeSelected)
         
-        ; Control buttons
+            ; Control buttons
         this.gui.AddButton("x600 y455 w80 h30 vDeleteNodeBtn", "Delete")
             .OnEvent("Click", AutomationBuilder.DeleteNode)
         

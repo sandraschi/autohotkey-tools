@@ -1,13 +1,32 @@
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
 
+; ==============================================================================
+; Fun Games Collection
+; @name: Fun Games
+; @version: 1.0.0
+; @description: Collection of classic mini-games including Snake, Tetris-like puzzles, and quick entertainment games.
+; @description: Quick-access games for breaks and entertainment. Features simple controls, nostalgic gameplay, and minimal setup required.
+; @description: Perfect for short gaming sessions during breaks or as a fun diversion from work tasks.
+; @category: games
+; @author: Sandra
+; @hotkeys: ^!s
+; @enabled: true
+; @priority: 80
+; @tag: games, snake, entertainment, mini-games, classic, nostalgic, quick-play
+; @cli: --game <name> - Launch specific game (snake)
+; @cli: --difficulty <easy|medium|hard> - Set game difficulty
+; @cli: --help - Show CLI usage and game options
+; @dependencies: 
+; ==============================================================================
 
-; Suppress error popups - log to file instead
+; Error handling - log to file instead of showing popups
 OnError(LogError)
 
 LogError(Thrown, Mode) {
-    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
-", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
+    FileAppend(errorMsg, "fun_games_errors.log", "UTF-8")
+    OutputDebug(errorMsg)  ; Enable LLM debugging
     return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 
@@ -41,8 +60,10 @@ class SnakeGame {
         }
         
         ; Place first food
-        Random(&this.foodX, 1, this.gridWidth)
-        Random(&this.foodY, 1, this.gridHeight)
+        Random(tempX, 1, this.gridWidth)
+        Random(tempY, 1, this.gridHeight)
+        this.foodX := tempX
+        this.foodY := tempY
         
         ; Create GUI
         this.gui := Gui("+AlwaysOnTop -Caption +ToolWindow")
@@ -94,8 +115,10 @@ class SnakeGame {
         ; Check if food eaten
         if (headX = this.foodX && headY = this.foodY) {
             this.snakeLength++
-            Random(&this.foodX, 1, this.gridWidth)
-            Random(&this.foodY, 1, this.gridHeight)
+            Random(tempX, 1, this.gridWidth)
+            Random(tempY, 1, this.gridHeight)
+            this.foodX := tempX
+            this.foodY := tempY
         } else {
             this.snake.Pop()
         }

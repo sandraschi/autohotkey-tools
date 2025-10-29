@@ -2,11 +2,20 @@
 ; Smart Assistant Pro
 ; @name: Smart Assistant Pro
 ; @version: 1.0.0
-; @description: AI-powered assistant with voice commands, automation, and smart workflows
+; @description: AI-powered assistant with voice commands, automation, and smart workflows. Intelligent automation assistant that understands natural language commands and executes complex workflows.
+; @description: Features voice command recognition, context-aware automation, workflow creation, and integration with system tools. Supports custom command training, workflow templates, and smart task scheduling.
+; @description: Advanced productivity tool for power users who want to automate complex tasks through natural language commands and intelligent workflow orchestration.
 ; @category: ai
 ; @author: Sandra
 ; @hotkeys: ^!a, #v, ^!s
 ; @enabled: true
+; @priority: 15
+; @tag: ai, assistant, automation, voice, workflows, productivity, smart, intelligent
+; @cli: --command <text> - Execute voice command
+; @cli: --workflow <name> - Run specific workflow
+; @cli: --train - Start command training mode
+; @cli: --help - Show CLI usage and assistant options
+; @dependencies: 
 ; ==============================================================================
 
 #Requires AutoHotkey v2.0+
@@ -17,8 +26,9 @@
 OnError(LogError)
 
 LogError(Thrown, Mode) {
-    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
-", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
+    FileAppend(errorMsg, "smart_assistant_pro_errors.log", "UTF-8")
+    OutputDebug(errorMsg)  ; Enable LLM debugging
     return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 

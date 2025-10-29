@@ -6,8 +6,9 @@
 OnError(LogError)
 
 LogError(Thrown, Mode) {
-    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
-", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
+    FileAppend(errorMsg, "smart_clipboard_manager_errors.log", "UTF-8")
+    OutputDebug(errorMsg)  ; Enable LLM debugging
     return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 
@@ -16,11 +17,20 @@ LogError(Thrown, Mode) {
 ; Smart Clipboard Manager
 ; @name: Smart Clipboard Manager
 ; @version: 1.0.0
-; @description: Advanced clipboard management with history, formatting, and automation
+; @description: Advanced clipboard management with history, formatting, and automation. Enhanced clipboard manager with intelligent history tracking and text transformation capabilities.
+; @description: Provides clipboard history, text formatting tools, automation triggers, and smart paste features. Includes search, filtering, and quick formatting options for improved productivity.
+; @description: Essential productivity tool for power users who frequently copy and paste content with advanced formatting and automation needs.
 ; @category: productivity
 ; @author: Sandra
 ; @hotkeys: ^!c, ^!v, ^!h, ^!f
 ; @enabled: true
+; @priority: 10
+; @tag: clipboard, productivity, history, formatting, automation, paste, copy, workflow
+; @cli: --history - Show clipboard history
+; @cli: --format <type> - Apply formatting to clipboard (upper, lower, title, sentence)
+; @cli: --clear - Clear clipboard history
+; @cli: --help - Show CLI usage and clipboard manager options
+; @dependencies: 
 ; ==============================================================================
 
 class SmartClipboard {

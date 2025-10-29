@@ -2,11 +2,20 @@
 ; Real-time System Monitor Pro
 ; @name: Real-time System Monitor Pro
 ; @version: 1.0.0
-; @description: Advanced real-time system monitoring with alerts and analytics
+; @description: Advanced real-time system monitoring with alerts and analytics. Professional-grade system resource monitoring with visual charts and intelligent alerts.
+; @description: Features CPU, memory, and network performance charts, process monitoring, alert thresholds, and historical data tracking. Includes customizable dashboards and export capabilities.
+; @description: Comprehensive system monitoring solution for IT professionals and power users who need detailed insights into system performance and resource utilization.
 ; @category: system
 ; @author: Sandra
 ; @hotkeys: ^!m, F10
 ; @enabled: true
+; @priority: 25
+; @tag: system, monitor, performance, analytics, alerts, charts, processes, admin, professional
+; @cli: --alert <threshold> - Set alert threshold for CPU/memory usage
+; @cli: --export <format> - Export monitoring data (json, csv)
+; @cli: --dashboard - Open dashboard view
+; @cli: --help - Show CLI usage and monitor options
+; @dependencies: 
 ; ==============================================================================
 
 #Requires AutoHotkey v2.0+
@@ -17,9 +26,9 @@
 OnError(LogError)
 
 LogError(Thrown, Mode) {
-    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
-", "errors.log", "UTF-8")
-`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
+    FileAppend(errorMsg, "system_monitor_pro_errors.log", "UTF-8")
+    OutputDebug(errorMsg)  ; Enable LLM debugging
     return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 

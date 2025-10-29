@@ -1,16 +1,35 @@
-#Requires AutoHotkey v2.0
+#Requires AutoHotkey v2.0+
 #SingleInstance Force
 
+; ==============================================================================
+; Quick Notes
+; @name: Quick Notes
+; @version: 2.0.0
+; @description: Fast note-taking application with markdown support, dark theme, and backup functionality. Create and manage notes instantly with minimal friction.
+; @description: Features markdown formatting, automatic backups, file management, search capabilities, and customizable themes. Supports multiple note files with quick switching and history tracking.
+; @description: Essential productivity tool for capturing thoughts, meeting notes, todo lists, and quick information without leaving your current workflow.
+; @category: productivity
+; @author: Sandra
+; @hotkeys: ^!n
+; @enabled: true
+; @priority: 20
+; @tag: notes, markdown, productivity, writing, quick-capture, backup, editor
+; @cli: --open <file> - Open specific note file
+; @cli: --new - Create new note
+; @cli: --backup - Manually trigger backup
+; @cli: --help - Show CLI usage and notes options
+; @dependencies: 
+; ==============================================================================
 
-; Suppress error popups - log to file instead
+; Error handling - log to file instead of showing popups
 OnError(LogError)
 
 LogError(Thrown, Mode) {
-    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "`n", "errors.log", "UTF-8")
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
+    FileAppend(errorMsg, "quick_notes_errors.log", "UTF-8")
+    OutputDebug(errorMsg)  ; Enable LLM debugging
     return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
-
-#Warn
 
 ; =============================================================================
 ; CONFIGURATION

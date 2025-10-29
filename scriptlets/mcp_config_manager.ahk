@@ -2,11 +2,20 @@
 ; MCP Config Manager
 ; @name: MCP Config Manager
 ; @version: 1.0.0
-; @description: Manage Claude Desktop MCP configuration with validation and backup
+; @description: Manage Claude Desktop MCP configuration with validation and backup. Comprehensive GUI tool for managing MCP server configurations in Claude Desktop.
+; @description: Provides JSON editing, server management, validation, backup/restore, and MCP server tools display. Features syntax highlighting, error detection, and server information retrieval.
+; @description: Essential development tool for MCP developers to manage Claude Desktop configuration files, validate JSON syntax, and configure MCP servers efficiently.
 ; @category: development
 ; @author: Sandra
 ; @hotkeys: ^!c, F12
 ; @enabled: true
+; @priority: 5
+; @tag: mcp, config, management, claude-desktop, development, json, validation, servers
+; @cli: --load - Load configuration file
+; @cli: --validate - Validate JSON syntax
+; @cli: --backup - Create configuration backup
+; @cli: --help - Show CLI usage and config manager options
+; @dependencies: 
 ; ==============================================================================
 
 #Requires AutoHotkey v2.0+

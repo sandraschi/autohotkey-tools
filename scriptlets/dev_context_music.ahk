@@ -1,18 +1,35 @@
-#Requires AutoHotkey v2.0
-; AutoHotkey v2 script - Dev Context Music (System Sounds Edition)
+#Requires AutoHotkey v2.0+
 #SingleInstance Force
 
+; ==============================================================================
+; Dev Context Music (System Sounds Edition)
+; @name: Dev Context Music
+; @version: 1.0.0
+; @description: Context-aware sound effects for development workflows using Windows system sounds and beep patterns. Plays appropriate sounds based on build status, Git operations, and development events.
+; @description: Provides audio feedback for build success/failure, repository status changes, test results, and deployment events. Enhances developer productivity with non-intrusive audio cues.
+; @description: Uses Windows built-in system sounds and customizable beep patterns to create a rich audio development environment without requiring external audio files.
+; @category: development
+; @author: Sandra
+; @hotkeys: 
+; @enabled: true
+; @priority: 25
+; @tag: development, sounds, audio, feedback, build, git, productivity, workflow
+; @cli: --context <context> - Play sound for specific context (build_success, build_failure, repo_bad, test_pass, deploy)
+; @cli: --mute - Disable all sounds
+; @cli: --volume <0-100> - Set sound volume (0-100)
+; @cli: --help - Show CLI usage and available contexts
+; @dependencies: 
+; ==============================================================================
 
-; Suppress error popups - log to file instead
+; Error handling - log to file instead of showing popups
 OnError(LogError)
 
 LogError(Thrown, Mode) {
-    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
-", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
+    FileAppend(errorMsg, "dev_context_music_errors.log", "UTF-8")
+    OutputDebug(errorMsg)  ; Enable LLM debugging
     return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
-
-Persistent
 
 ; ========================================
 ; CONFIGURATION
@@ -176,32 +193,32 @@ CheckRepoHealth() {
 ; ========================================
 
 ; Play a sad march
-Hotkey("^!s", (*) =>  {  ; Ctrl+Alt+S for sad march
+Hotkey("^!s", (*) => {  ; Ctrl+Alt+S for sad march
     PlayContextSound("sad_march")
     TrayTip("Playing a sad march... 🎵", "Mood Music", 1)
     SetTimer(() => TrayTip(), -3000)
-}
+})
 
 ; Play a triumphant piece
-Hotkey("^!t", (*) =>  {  ; Ctrl+Alt+T for triumphant music
+Hotkey("^!t", (*) => {  ; Ctrl+Alt+T for triumphant music
     PlayContextSound("triumphant")
     TrayTip("Playing something triumphant! 🎺", "Mood Music", 1)
     SetTimer(() => TrayTip(), -3000)
-}
+})
 
 ; Play a random Betty Boop cartoon
-Hotkey("^!b", (*) =>  {  ; Ctrl+Alt+B for Betty Boop
+Hotkey("^!b", (*) => {  ; Ctrl+Alt+B for Betty Boop
     PlayContextSound("betty_boop")
     TrayTip("Betty Boop beep-a-boop! 🎭", "Plex", 1)
     SetTimer(() => TrayTip(), -3000)
-}
+})
 
 ; Play a classical piece
-Hotkey("^!c", (*) =>  {  ; Ctrl+Alt+C for classical
+Hotkey("^!c", (*) => {  ; Ctrl+Alt+C for classical
     PlayContextSound("classical")
     TrayTip("Playing a classical piece... 🎼", "Classical Music", 1)
     SetTimer(() => TrayTip(), -3000)
-}
+})
 
 ; ========================================
 ; TIME-BASED TRIGGERS
@@ -209,7 +226,7 @@ Hotkey("^!c", (*) =>  {  ; Ctrl+Alt+C for classical
 
 ; Check time and play appropriate music
 CheckTime() {
-    hour := Integer(FormatTime(, "H"))  ; 24-hour format
+    hour := Integer(FormatTime(A_Now, "H"))  ; 24-hour format
     
     if (hour >= 22 || hour < 6) {
         ; Late night coding

@@ -1,17 +1,35 @@
-#Requires AutoHotkey v2.0
+#Requires AutoHotkey v2.0+
 #SingleInstance Force
 
+; ==============================================================================
+; Clipboard Manager
+; @name: Clipboard Manager
+; @version: 1.0.0
+; @description: Enhanced clipboard manager with history, search, and quick paste features. Maintains a history of copied items for easy access.
+; @description: Provides hotkey-based access to clipboard history, quick paste of previous items, and clipboard history management with preview.
+; @description: Essential productivity tool for power users who frequently copy and paste multiple items throughout their workflow.
+; @category: utilities
+; @author: Sandra
+; @hotkeys: #v, ^!v, ^!+c
+; @enabled: true
+; @priority: 10
+; @tag: clipboard, productivity, utilities, history, paste, copy, workflow
+; @cli: --max-history <count> - Set maximum clipboard history items (default: 50)
+; @cli: --preview-length <chars> - Set preview text length (default: 100)
+; @cli: --clear-history - Clear clipboard history on startup
+; @cli: --help - Show CLI usage and clipboard manager options
+; @dependencies: 
+; ==============================================================================
 
-; Suppress error popups - log to file instead
+; Error handling - log to file instead of showing popups
 OnError(LogError)
 
 LogError(Thrown, Mode) {
-    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
-", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
+    FileAppend(errorMsg, "clipboard_manager_errors.log", "UTF-8")
+    OutputDebug(errorMsg)  ; Enable LLM debugging
     return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
-
-#Warn
 
 ; =============================================================================
 ; CONFIGURATION
@@ -45,7 +63,7 @@ LastActiveWindow := 0
 ; MAIN SCRIPT
 ; =============================================================================
 ; Set working directory
-SetWorkingDir A_ScriptDir
+SetWorkingDir(A_ScriptDir)
 
 ; Initialize clipboard history from file
 LoadClipboardHistory()

@@ -6,8 +6,9 @@
 OnError(LogError)
 
 LogError(Thrown, Mode) {
-    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
-", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
+    FileAppend(errorMsg, "pacman_game_errors.log", "UTF-8")
+    OutputDebug(errorMsg)  ; Enable LLM debugging
     return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 
@@ -16,11 +17,19 @@ LogError(Thrown, Mode) {
 ; Pac-Man Game
 ; @name: Pac-Man Game
 ; @version: 1.0.0
-; @description: Classic Pac-Man game with ghosts, pellets, and power-ups
+; @description: Classic Pac-Man game with ghosts, pellets, and power-ups. Enhanced Pac-Man implementation with modern features and classic gameplay.
+; @description: Features classic Pac-Man gameplay with dot collection, power pellets, multiple ghost AI behaviors, and score tracking. Includes level progression and bonus scoring.
+; @description: Modern implementation of the classic arcade game with enhanced visuals and gameplay mechanics while maintaining the authentic Pac-Man experience.
 ; @category: games
 ; @author: Sandra
 ; @hotkeys: ^!p, F9, Escape
 ; @enabled: true
+; @priority: 75
+; @tag: pacman, game, arcade, classic, retro, entertainment, nostalgic, maze, ghosts
+; @cli: --level <num> - Start at specific level
+; @cli: --lives <count> - Set starting lives (default: 3)
+; @cli: --help - Show CLI usage and game options
+; @dependencies: 
 ; ==============================================================================
 
 class PacManGame {

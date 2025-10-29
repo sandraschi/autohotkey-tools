@@ -2,11 +2,20 @@
 ; AI-Powered Code Assistant
 ; @name: AI-Powered Code Assistant
 ; @version: 1.0.0
-; @description: Advanced AI-powered coding assistant with real-time suggestions
+; @description: Advanced AI-powered coding assistant with real-time suggestions, code analysis, optimization, and debugging. Intelligent code completion and improvement tool.
+; @description: Provides AI-powered code suggestions, bug detection, optimization recommendations, and debugging assistance. Features real-time code analysis, pattern recognition, and automated code improvements.
+; @description: Essential development tool for programmers who want AI-assisted coding with intelligent suggestions, code optimization, and automated debugging assistance.
 ; @category: development
 ; @author: Sandra
-; @hotkeys: ^!a, Ctrl+Alt+I
+; @hotkeys: ^!a, ^!i
 ; @enabled: true
+; @priority: 10
+; @tag: ai, code-assistant, development, suggestions, analysis, optimization, debugging, productivity
+; @cli: --analyze <file> - Analyze code file for issues and improvements
+; @cli: --suggest - Get AI code suggestions
+; @cli: --optimize - Optimize current code
+; @cli: --help - Show CLI usage and assistant options
+; @dependencies: 
 ; ==============================================================================
 
 #Requires AutoHotkey v2.0+
@@ -18,7 +27,7 @@ OnError(LogError)
 
 LogError(Thrown, Mode) {
     errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
-    FileAppend(errorMsg, "errors.log", "UTF-8")
+    FileAppend(errorMsg, "ai_code_assistant_errors.log", "UTF-8")
     OutputDebug(errorMsg)  ; Enable LLM debugging
     return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
@@ -37,12 +46,13 @@ class AICodeAssistant {
     }
     
     static CreateGUI() {
-        this.gui := Gui("+Resize +MinSize800x600", "AI Code Assistant")
-        this.gui.BackColor := "1a1a1a"
-        this.gui.SetFont("s10 cFFFFFF", "Segoe UI")
-        
-        ; Title
-        this.gui.Add("Text", "x20 y20 w760 Center Bold", "🤖 AI-Powered Code Assistant")
+        try {
+            this.gui := Gui("+Resize +MinSize800x600", "AI Code Assistant")
+            this.gui.BackColor := "1a1a1a"
+            this.gui.SetFont("s10 cFFFFFF", "Segoe UI")
+            
+            ; Title
+            this.gui.Add("Text", "x20 y20 w760 Center Bold", "🤖 AI-Powered Code Assistant")
         this.gui.Add("Text", "x20 y50 w760 Center ", "Advanced coding assistance with AI suggestions")
         
         ; File operations
@@ -93,10 +103,39 @@ class AICodeAssistant {
         generateBtn.SetFont("s10 cFFFFFF", "Segoe UI")
         generateBtn.OnEvent("Click", this.GenerateCode.Bind(this))
         
-        ; Status
-        this.gui.Add("Text", "x20 y660 w760 Center ", "Press Ctrl+Alt+A to open • Ctrl+Alt+I for instant suggestions")
-        
-        this.gui.Show("w800 h700")
+            ; Status
+            this.gui.Add("Text", "x20 y660 w760 Center ", "Press Ctrl+Alt+A to open • Ctrl+Alt+I for instant suggestions")
+            
+            this.gui.Show("w800 h700")
+            this.LogDebug("GUI created successfully")
+        } catch as e {
+            errorMsg := "Error creating GUI: " . e.Message . "`n" . e.Stack
+            FileAppend(errorMsg, "ai_code_assistant_errors.log", "UTF-8")
+            OutputDebug(errorMsg)
+            MsgBox("Error creating GUI: " . e.Message . "`n`nCheck ai_code_assistant_errors.log for details", "Error", "Iconx")
+        }
+    }
+    
+    static LogDebug(message) {
+        timestamp := FormatTime(A_Now, "HH:mm:ss")
+        logMsg := "[" . timestamp . "] " . message . "`n"
+        try {
+            FileAppend(logMsg, "ai_code_assistant_debug.log", "UTF-8")
+        } catch {
+            ; Ignore file logging errors
+        }
+        OutputDebug(logMsg)
+    }
+    
+    static AppendLog(message) {
+        timestamp := FormatTime(A_Now, "HH:mm:ss")
+        logMsg := "[" . timestamp . "] " . message . "`n"
+        try {
+            FileAppend(logMsg, "ai_code_assistant.log", "UTF-8")
+        } catch {
+            ; Ignore file logging errors
+        }
+        OutputDebug(logMsg)
     }
     
     static OpenFile(*) {
@@ -105,7 +144,7 @@ class AICodeAssistant {
             if (filePath) {
                 this.currentFile := filePath
                 content := FileRead(filePath)
-                this.codeEditor.Text := content
+                this.codeEditor.Value := content
                 this.AnalyzeCode()
             }
         } catch as e {
@@ -116,7 +155,7 @@ class AICodeAssistant {
     static SaveFile(*) {
         try {
             if (this.currentFile) {
-                FileWrite(this.codeEditor.Text, this.currentFile)
+                FileWrite(this.codeEditor.Value, this.currentFile)
                 TrayTip("File Saved!", "Code saved successfully", 2)
             } else {
                 this.SaveAsFile()
@@ -131,7 +170,7 @@ class AICodeAssistant {
             filePath := FileSelect("S16",, "Save Code File", "AutoHotkey (*.ahk);;All Files (*.*)")
             if (filePath) {
                 this.currentFile := filePath
-                FileWrite(this.codeEditor.Text, filePath)
+                FileWrite(this.codeEditor.Value, filePath)
                 TrayTip("File Saved!", "Code saved successfully", 2)
             }
         } catch as e {
@@ -141,13 +180,13 @@ class AICodeAssistant {
     
     static NewFile(*) {
         this.currentFile := ""
-        this.codeEditor.Text := ""
-        this.suggestions.Text := ""
+        this.codeEditor.Value := ""
+        this.suggestions.Delete()
     }
     
     static AnalyzeCode(*) {
         try {
-            code := this.codeEditor.Text
+            code := this.codeEditor.Value
             if (!code) {
                 MsgBox("No code to analyze!", "Error", "Iconx")
                 return
@@ -155,7 +194,13 @@ class AICodeAssistant {
             
             ; Simulate AI analysis
             suggestions := this.GenerateSuggestions(code)
-            this.suggestions.Text := suggestions
+            this.suggestions.Delete()
+            lines := StrSplit(suggestions, "`n")
+            for line in lines {
+                if (Trim(line) != "") {
+                    this.suggestions.Add([line])
+                }
+            }
             
             TrayTip("Code Analyzed!", "AI suggestions generated", 2)
         } catch as e {
@@ -165,7 +210,7 @@ class AICodeAssistant {
     
     static OptimizeCode(*) {
         try {
-            code := this.codeEditor.Text
+            code := this.codeEditor.Value
             if (!code) {
                 MsgBox("No code to optimize!", "Error", "Iconx")
                 return
@@ -173,7 +218,8 @@ class AICodeAssistant {
             
             ; Simulate AI optimization
             optimizedCode := this.ApplyOptimizations(code)
-            this.codeEditor.Text := optimizedCode
+            this.codeEditor.Value := optimizedCode
+            this.AppendLog("Code optimized")
             
             TrayTip("Code Optimized!", "AI optimizations applied", 2)
         } catch as e {
@@ -183,7 +229,7 @@ class AICodeAssistant {
     
     static DebugCode(*) {
         try {
-            code := this.codeEditor.Text
+            code := this.codeEditor.Value
             if (!code) {
                 MsgBox("No code to debug!", "Error", "Iconx")
                 return
@@ -191,7 +237,14 @@ class AICodeAssistant {
             
             ; Simulate AI debugging
             debugSuggestions := this.FindBugs(code)
-            this.suggestions.Text := debugSuggestions
+            this.suggestions.Delete()
+            lines := StrSplit(debugSuggestions, "`n")
+            for line in lines {
+                if (Trim(line) != "") {
+                    this.suggestions.Add([line])
+                }
+            }
+            this.AppendLog("Code debugging completed")
             
             TrayTip("Code Debugged!", "Potential issues found", 2)
         } catch as e {
@@ -215,7 +268,7 @@ class AICodeAssistant {
             generateBtn := inputGui.Add("Button", "x20 y210 w140 h40 Background4a4a4a", "Generate")
             generateBtn.SetFont("s10 cFFFFFF", "Segoe UI")
             generateBtn.OnEvent("Click", () => {
-                desc := description.Text
+                desc := description.Value
                 inputGui.Destroy()
                 this.GenerateCodeFromDescription(desc)
             })
@@ -235,7 +288,8 @@ class AICodeAssistant {
         try {
             ; Simulate AI code generation
             generatedCode := this.CreateCodeFromDescription(description)
-            this.codeEditor.Text := generatedCode
+            this.codeEditor.Value := generatedCode
+            this.AppendLog("Code generated from description: " . SubStr(description, 1, 50) . "...")
             
             TrayTip("Code Generated!", "AI-generated code created", 2)
         } catch as e {

@@ -1,11 +1,32 @@
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
 
+; ==============================================================================
+; Scriptlet Launcher
+; @name: Scriptlet Launcher
+; @version: 1.0.0
+; @description: Main launcher GUI for all AutoHotkey scriptlets. Centralized launcher interface for browsing, launching, and managing scriptlets.
+; @description: Features categorized scriptlet browsing, search functionality, quick launch, and scriptlet management. Provides organized access to all available scriptlets with descriptions and hotkeys.
+; @description: Essential launcher tool for accessing and managing the complete scriptlet collection with intuitive GUI and search capabilities.
+; @category: utilities
+; @author: Sandra
+; @hotkeys: (runs automatically on startup)
+; @enabled: true
+; @priority: 1
+; @tag: launcher, scriptlets, management, gui, utilities, organization
+; @cli: --script <name> - Launch specific scriptlet by name
+; @cli: --category <cat> - Show only scriptlets in specific category
+; @cli: --help - Show CLI usage and launcher options
+; @dependencies: 
+; ==============================================================================
+
 ; Suppress error popups - log to file instead
 OnError(LogError)
 
 LogError(Thrown, Mode) {
-    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n", "errors.log", "UTF-8"`n        FileAppend(errorMsg
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
+    FileAppend(errorMsg, "scriptlet_launcher_errors.log", "UTF-8")
+    OutputDebug(errorMsg)  ; Enable LLM debugging
     return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 

@@ -2,11 +2,21 @@
 ; Chess Game with Stockfish Integration
 ; @name: Chess Game with Stockfish Integration
 ; @version: 1.0.0
-; @description: Full-featured chess game with Stockfish engine integration
+; @description: Full-featured chess game with Stockfish engine integration for advanced chess analysis and gameplay.
+; @description: Supports human vs AI, human vs human, and AI analysis modes. Includes move validation, check detection, castling, en passant, and promotion.
+; @description: Features beautiful GUI with piece movement, move history, captured pieces display, and Stockfish engine integration for computer opponents.
 ; @category: games
 ; @author: Sandra
 ; @hotkeys: ^!c, F7
 ; @enabled: true
+; @priority: 70
+; @tag: chess, stockfish, game, ai, strategy, puzzle, entertainment, board-game
+; @cli: --stockfish-path <path> - Specify custom Stockfish executable path
+; @cli: --skill-level <1-20> - Set Stockfish skill level (default: 10)
+; @cli: --depth <1-20> - Set Stockfish search depth (default: 15)
+; @cli: --mode <human_vs_ai|human_vs_human|analysis> - Set game mode
+; @cli: --help - Show CLI usage and chess game options
+; @dependencies: Stockfish chess engine
 ; ==============================================================================
 
 #Requires AutoHotkey v2.0+
@@ -17,7 +27,9 @@
 OnError(LogError)
 
 LogError(Thrown, Mode) {
-    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n", "errors.log", "UTF-8"`n        FileAppend(errorMsg
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
+    FileAppend(errorMsg, "chess_stockfish_errors.log", "UTF-8")
+    OutputDebug(errorMsg)  ; Enable LLM debugging
     return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 

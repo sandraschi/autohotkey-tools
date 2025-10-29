@@ -2,11 +2,21 @@
 ; Claude Desktop Restart Helper
 ; @name: Claude Desktop Restart Helper
 ; @version: 1.0.0
-; @description: Intelligent Claude Desktop restart with graceful shutdown and fallback
+; @description: Intelligent Claude Desktop restart with graceful shutdown and fallback mechanisms. Automatically detects Claude Desktop installation and restarts it safely.
+; @description: Provides multiple restart methods including graceful shutdown, force termination, and process monitoring. Ensures Claude Desktop restarts cleanly for MCP server updates.
+; @description: Essential development tool for MCP developers who need to restart Claude Desktop after server configuration changes or updates.
 ; @category: development
 ; @author: Sandra
 ; @hotkeys: ^!r, ^!x, F8
 ; @enabled: true
+; @priority: 20
+; @tag: claude, desktop, restart, mcp, development, automation, tools, productivity
+; @cli: --graceful - Use graceful shutdown method (default)
+; @cli: --force - Force terminate Claude Desktop process
+; @cli: --wait <seconds> - Wait time before restart (default: 2)
+; @cli: --detect-path - Auto-detect Claude Desktop installation path
+; @cli: --help - Show CLI usage and restart options
+; @dependencies: 
 ; ==============================================================================
 
 #Requires AutoHotkey v2.0+
@@ -17,8 +27,9 @@
 OnError(LogError)
 
 LogError(Thrown, Mode) {
-    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
-", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
+    FileAppend(errorMsg, "claude_desktop_restart_errors.log", "UTF-8")
+    OutputDebug(errorMsg)  ; Enable LLM debugging
     return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 

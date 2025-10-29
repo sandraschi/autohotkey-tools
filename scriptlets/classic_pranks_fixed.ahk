@@ -1,28 +1,34 @@
-#Requires AutoHotkey v2.0
+#Requires AutoHotkey v2.0+
 #SingleInstance Force
 
+; ==============================================================================
+; Classic Pranks Collection - AutoHotkey v2 Version (Fixed)
+; @name: Classic Pranks Collection
+; @version: 2.0.0
+; @description: Collection of classic computer pranks (updated for v2). Fixed version with improved error handling and v2 syntax compliance.
+; @description: Features classic computer prank effects like flying bugs, fake blue screen, screen rotation, keyboard swapping, and fake error messages. All pranks are reversible and designed for harmless fun.
+; @description: Entertainment tool for harmless classic computer pranks. Use responsibly and only with consenting participants.
+; @category: fun
+; @author: Sandra
+; @hotkeys: ^!b, ^!f, ^!e, ^!s, ^!x
+; @enabled: false
+; @priority: 90
+; @tag: pranks, classic, fun, entertainment, harmless, bugs, bsod, keyboard, fixed
+; @cli: --prank <name> - Run specific prank (bugs, bsod, flip, swap, error)
+; @cli: --stop - Stop all running pranks
+; @cli: --help - Show CLI usage and prank options
+; @dependencies: 
+; ==============================================================================
 
 ; Suppress error popups - log to file instead
 OnError(LogError)
 
 LogError(Thrown, Mode) {
-    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
-", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
+    FileAppend(errorMsg, "classic_pranks_fixed_errors.log", "UTF-8")
+    OutputDebug(errorMsg)  ; Enable LLM debugging
     return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
-
-#Warn
-
-; ==============================================================================
-; Classic Pranks Collection - AutoHotkey v2 Version
-; @name: Classic Pranks Collection
-; @version: 2.0.0
-; @description: Collection of classic computer pranks (updated for v2)
-; @category: fun
-; @author: Sandra
-; @hotkeys: ^!b, ^!f, ^!e, ^!s, ^!x
-; @enabled: true
-; ==============================================================================
 
 class ClassicPranks {
     static bugCount := 0

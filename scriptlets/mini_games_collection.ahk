@@ -2,11 +2,18 @@
 ; Mini Games Collection
 ; @name: Mini Games Collection
 ; @version: 1.0.0
-; @description: Collection of fun mini-games including Snake, Tetris, and Memory
+; @description: Collection of fun mini-games including Snake, Tetris, and Memory. Quick-access entertainment games for breaks and leisure time.
+; @description: Features classic arcade-style games with simple controls and addictive gameplay. Includes Snake, Tetris, and Memory card matching games with score tracking.
+; @description: Perfect for short gaming sessions during breaks with nostalgic gameplay and easy-to-learn mechanics.
 ; @category: games
 ; @author: Sandra
 ; @hotkeys: ^!g, #s, #t, #m
 ; @enabled: true
+; @priority: 80
+; @tag: games, mini-games, snake, tetris, memory, entertainment, arcade, retro
+; @cli: --game <name> - Launch specific game (snake, tetris, memory)
+; @cli: --help - Show CLI usage and game options
+; @dependencies: 
 ; ==============================================================================
 
 #Requires AutoHotkey v2.0+
@@ -17,8 +24,9 @@
 OnError(LogError)
 
 LogError(Thrown, Mode) {
-    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
-", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
+    FileAppend(errorMsg, "mini_games_collection_errors.log", "UTF-8")
+    OutputDebug(errorMsg)  ; Enable LLM debugging
     return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 

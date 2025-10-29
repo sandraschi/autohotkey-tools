@@ -2,11 +2,20 @@
 ; MCP Troubleshooter
 ; @name: MCP Troubleshooter
 ; @version: 1.0.0
-; @description: Smart MCP troubleshooting with automated fixes and diagnostics
+; @description: Smart MCP troubleshooting with automated fixes and diagnostics. Intelligent diagnostic system for MCP server issues with automated resolution suggestions.
+; @description: Features automated server testing, dependency checking, configuration validation, and fix recommendations. Supports server restart, configuration repair, and dependency installation.
+; @description: Essential troubleshooting tool for MCP developers to diagnose and resolve server issues quickly with automated diagnostics and fix recommendations.
 ; @category: development
 ; @author: Sandra
 ; @hotkeys: ^!t, F11
 ; @enabled: true
+; @priority: 10
+; @tag: mcp, troubleshooting, diagnostics, automation, fixes, development, error-resolution
+; @cli: --test <server> - Test specific MCP server
+; @cli: --fix - Attempt to automatically fix detected issues
+; @cli: --check-deps - Check and install missing dependencies
+; @cli: --help - Show CLI usage and troubleshooting options
+; @dependencies: 
 ; ==============================================================================
 
 #Requires AutoHotkey v2.0+
@@ -17,8 +26,9 @@
 OnError(LogError)
 
 LogError(Thrown, Mode) {
-    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
-", "errors.log", "UTF-8")
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
+    FileAppend(errorMsg, "mcp_troubleshooter_errors.log", "UTF-8")
+    OutputDebug(errorMsg)  ; Enable LLM debugging
     return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 

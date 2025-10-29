@@ -1,13 +1,33 @@
-#Requires AutoHotkey v2.0
+#Requires AutoHotkey v2.0+
 #SingleInstance Force
 
+; ==============================================================================
+; System Monitor
+; @name: System Monitor
+; @version: 2.0.0
+; @description: Real-time system resource monitoring with process list, CPU, memory, and network statistics. Visual system performance monitoring tool.
+; @description: Provides live updates of system resources including CPU usage, memory consumption, active processes, and network activity. Includes filtering, sorting, and detailed process information.
+; @description: Essential system administration tool for monitoring resource usage, identifying performance bottlenecks, and managing running processes.
+; @category: system
+; @author: Sandra
+; @hotkeys: ^!s
+; @enabled: true
+; @priority: 30
+; @tag: system, monitor, performance, resources, cpu, memory, processes, admin
+; @cli: --refresh <seconds> - Set refresh interval in seconds
+; @cli: --sort <column> - Sort processes by column (cpu, memory, name)
+; @cli: --filter <name> - Filter processes by name
+; @cli: --help - Show CLI usage and monitor options
+; @dependencies: 
+; ==============================================================================
 
-; Suppress error popups - log to file instead
+; Error handling - log to file instead of showing popups
 OnError(LogError)
 
 LogError(Thrown, Mode) {
-    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
-", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
+    FileAppend(errorMsg, "system_monitor_errors.log", "UTF-8")
+    OutputDebug(errorMsg)  ; Enable LLM debugging
     return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 

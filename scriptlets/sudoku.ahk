@@ -1,17 +1,35 @@
-#Requires AutoHotkey v2.0
+#Requires AutoHotkey v2.0+
 #SingleInstance Force
 
+; ==============================================================================
+; Sudoku Puzzle Game
+; @name: Sudoku Puzzle Game
+; @version: 1.0.0
+; @description: Classic Sudoku puzzle game with puzzle generation, solving assistance, and difficulty levels. Interactive 9x9 grid puzzle solver and generator.
+; @description: Features puzzle generation at multiple difficulty levels, solving hints, validation checking, and note-taking capabilities. Includes timer, undo/redo, and puzzle saving.
+; @description: Perfect puzzle game for Sudoku enthusiasts with intelligent puzzle generation and helpful solving features for both beginners and advanced players.
+; @category: games
+; @author: Sandra
+; @hotkeys: (game controls - see documentation)
+; @enabled: true
+; @priority: 75
+; @tag: sudoku, puzzle, game, logic, brain-teaser, entertainment, classic
+; @cli: --difficulty <easy|medium|hard|expert> - Generate puzzle at specific difficulty
+; @cli: --solve - Auto-solve current puzzle
+; @cli: --validate - Check if current puzzle is valid
+; @cli: --help - Show CLI usage and game options
+; @dependencies: 
+; ==============================================================================
 
-; Suppress error popups - log to file instead
+; Error handling - log to file instead of showing popups
 OnError(LogError)
 
 LogError(Thrown, Mode) {
-    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
-", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
+    FileAppend(errorMsg, "sudoku_errors.log", "UTF-8")
+    OutputDebug(errorMsg)  ; Enable LLM debugging
     return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
-
-#Warn
 
 ; =============================================================================
 ; CONSTANTS AND CONFIGURATION

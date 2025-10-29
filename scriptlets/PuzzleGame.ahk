@@ -5,7 +5,9 @@
 OnError(LogError)
 
 LogError(Thrown, Mode) {
-    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n", "puzzle_errors.log", "UTF-8"`n        FileAppend(errorMsg`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
+    FileAppend(errorMsg, "puzzle_game_errors.log", "UTF-8")
+    OutputDebug(errorMsg)  ; Enable LLM debugging
     return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 
@@ -13,11 +15,19 @@ LogError(Thrown, Mode) {
 ; Puzzle Game - Sliding Tile Puzzle
 ; @name: Puzzle Game
 ; @version: 1.0.0
-; @description: Full-featured sliding tile puzzle game
-; @category: game
+; @description: Full-featured sliding tile puzzle game. Classic 15-puzzle sliding tile game with multiple difficulty levels and scoring.
+; @description: Features adjustable grid sizes, move counter, timer, shuffle functionality, and win detection. Includes visual feedback and smooth tile animations.
+; @description: Classic puzzle game for mental exercise and entertainment with customizable difficulty and intuitive controls.
+; @category: games
 ; @author: Sandra
 ; @hotkeys: ^!p (open puzzle), F9 (emergency stop)
 ; @enabled: true
+; @priority: 75
+; @tag: puzzle, game, sliding-tiles, logic, brain-teaser, entertainment, classic
+; @cli: --size <3|4|5> - Set puzzle grid size (default: 4)
+; @cli: --shuffle - Shuffle puzzle tiles
+; @cli: --help - Show CLI usage and game options
+; @dependencies: 
 ; ==============================================================================
 
 class PuzzleGame {

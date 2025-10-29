@@ -1,13 +1,33 @@
-#Requires AutoHotkey v2.0
+#Requires AutoHotkey v2.0+
 #SingleInstance Force
 
+; ==============================================================================
+; Text Expander
+; @name: Text Expander
+; @version: 1.0.0
+; @description: Text snippet expander with abbreviations and templates. Expand short abbreviations into full text snippets for faster typing.
+; @description: Features customizable snippets, variable substitution, date/time placeholders, and hotkey-based expansion. Supports dynamic content like timestamps and user names.
+; @description: Essential productivity tool for users who frequently type repetitive text, email signatures, code snippets, or standard responses.
+; @category: productivity
+; @author: Sandra
+; @hotkeys: ^+s
+; @enabled: true
+; @priority: 15
+; @tag: text-expander, snippets, productivity, typing, shortcuts, templates, utilities
+; @cli: --add-snippet <abbrev> <text> - Add new text snippet
+; @cli: --list-snippets - List all configured snippets
+; @cli: --edit-snippets - Open snippet editor
+; @cli: --help - Show CLI usage and text expander options
+; @dependencies: 
+; ==============================================================================
 
-; Suppress error popups - log to file instead
+; Error handling - log to file instead of showing popups
 OnError(LogError)
 
 LogError(Thrown, Mode) {
-    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
-", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
+    FileAppend(errorMsg, "text_expander_errors.log", "UTF-8")
+    OutputDebug(errorMsg)  ; Enable LLM debugging
     return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 
@@ -268,8 +288,8 @@ class JSON {
                 Loop Parse, json, "," {
                     pair := StrSplit(Trim(A_LoopField), ":")
                     if (pair.Length() >= 2) {
-                        key := Trim(pair[1], " `t\"")
-                        value := Trim(pair[2], " `t\"")
+                        key := Trim(pair[1], ' `t"')
+                        value := Trim(pair[2], ' `t"')
                         obj[key] := value
                     }
                 }
@@ -310,24 +330,12 @@ class JSON {
         }
         
         ; Simple escaping for quotes and backslashes
-        str := StrReplace(str, "\", "\\\\")
-        str := StrReplace(str, "`"", "\\\"")
-        str := StrReplace(str, "`n", "\\n")
-        str := StrReplace(str, "`r", "\\r")
-        str := StrReplace(str, "`t", "\\t")
+        str := StrReplace(str, "\", "\\")
+        str := StrReplace(str, '"', '\"')
+        str := StrReplace(str, "`n", "\n")
+        str := StrReplace(str, "`r", "\r")
+        str := StrReplace(str, "`t", "\t")
         
-        return str
-    }
-}
-        
-        ; First escape backslashes
-        str := StrReplace(str, "\\", "\\\\")
-        ; Then escape double quotes
-        str := StrReplace(str, "`"", "\\`"")
-        ; Handle special characters
-        str := StrReplace(str, "`n", "\\n")
-        str := StrReplace(str, "`r", "\\r")
-        str := StrReplace(str, "`t", "\\t")
         return str
     }
 }

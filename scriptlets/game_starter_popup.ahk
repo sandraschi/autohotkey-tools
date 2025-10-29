@@ -2,11 +2,20 @@
 ; Game Starter Popup
 ; @name: Game Starter Popup
 ; @version: 1.0.0
-; @description: Beautiful game launcher popup with Ctrl+Alt+G hotkey
+; @description: Beautiful game launcher popup with Ctrl+Alt+G hotkey. Elegant game launcher interface with categorized game selection and quick actions.
+; @description: Provides organized game browsing by category, random game selection, and quick launch functionality. Features modern dark-themed GUI with smooth animations and game descriptions.
+; @description: Essential launcher tool for gamers who want quick access to available games with an intuitive, visually appealing interface.
 ; @category: games
 ; @author: Sandra
 ; @hotkeys: ^!g, Ctrl+Alt+G
 ; @enabled: true
+; @priority: 80
+; @tag: games, launcher, popup, gui, entertainment, quick-access
+; @cli: --game <name> - Launch specific game directly
+; @cli: --random - Launch random game
+; @cli: --list - List all available games
+; @cli: --help - Show CLI usage and launcher options
+; @dependencies: 
 ; ==============================================================================
 
 #Requires AutoHotkey v2.0+
@@ -17,8 +26,9 @@
 OnError(LogError)
 
 LogError(Thrown, Mode) {
-    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
-", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
+    FileAppend(errorMsg, "game_starter_popup_errors.log", "UTF-8")
+    OutputDebug(errorMsg)  ; Enable LLM debugging
     return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 
@@ -258,14 +268,14 @@ class GameStarter {
     
     static SetupHotkeys() {
         ; Main hotkey
-        Hotkey("^!g", (*) => this.CreateGamePopup()
+        Hotkey("^!g", (*) => this.CreateGamePopup())
         
         ; Close with Escape
-        Escape::{
+        Hotkey("Escape", (*) => {
             if (WinExist("Game Starter")) {
                 GameStarter.ClosePopup()
             }
-        }
+        })
         
         ; Close with Enter (launch selected)
         Hotkey("Enter", (*) => {
@@ -273,7 +283,7 @@ class GameStarter {
                 ; Could implement selection logic here
                 GameStarter.ClosePopup()
             }
-        }
+        })
     }
 }
 

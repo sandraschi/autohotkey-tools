@@ -1,17 +1,35 @@
-#Requires AutoHotkey v2.0
+#Requires AutoHotkey v2.0+
 #SingleInstance Force
 
+; ==============================================================================
+; Media Controls
+; @name: Media Controls
+; @version: 1.0.0
+; @description: Global media control hotkeys for play/pause, next/previous track, volume control, and brightness adjustment. Works with any media player or system controls.
+; @description: Provides comprehensive media and system controls with customizable hotkeys, on-screen display (OSD), and support for multiple media players. Includes volume mixer control and brightness adjustment.
+; @description: Essential productivity tool for controlling media playback and system settings without switching applications or reaching for function keys.
+; @category: utilities
+; @author: Sandra
+; @hotkeys: #Media_Play_Pause, #Media_Next, #Media_Prev, ^#Up, ^#Down, ^#Left, ^#Right
+; @enabled: true
+; @priority: 30
+; @tag: media, controls, volume, brightness, hotkeys, utilities, productivity, system
+; @cli: --volume <0-100> - Set system volume percentage
+; @cli: --mute - Toggle mute state
+; @cli: --brightness <0-100> - Set screen brightness percentage
+; @cli: --help - Show CLI usage and media control options
+; @dependencies: 
+; ==============================================================================
 
-; Suppress error popups - log to file instead
+; Error handling - log to file instead of showing popups
 OnError(LogError)
 
 LogError(Thrown, Mode) {
-    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
-", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
+    FileAppend(errorMsg, "media_controls_errors.log", "UTF-8")
+    OutputDebug(errorMsg)  ; Enable LLM debugging
     return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
-
-#Warn
 
 ; =============================================================================
 ; CONFIGURATION

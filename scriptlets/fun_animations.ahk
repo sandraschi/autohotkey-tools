@@ -1,13 +1,35 @@
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
+
+; ==============================================================================
+; Fun Animations Collection
+; @name: Fun Animations
+; @version: 1.0.0
+; @description: Collection of fun animated effects and visual pranks including self-destruct countdown, flying cows, and screen animations.
+; @description: Provides entertaining visual effects for harmless pranks and amusement. Includes countdown timers, animated sprites, and screen overlays.
+; @description: Perfect for adding humor to work environments or demonstrations. Use responsibly for entertainment purposes.
+; @category: fun
+; @author: Sandra
+; @hotkeys: ^!d, ^!c
+; @enabled: true
+; @priority: 85
+; @tag: animations, fun, pranks, entertainment, visual-effects, humor, harmless
+; @cli: --animation <name> - Run specific animation (self-destruct, cows)
+; @cli: --countdown <seconds> - Set countdown duration (default: 10)
+; @cli: --help - Show CLI usage and animation options
+; @dependencies: 
+; ==============================================================================
+
 SendMode "Input"
 SetWorkingDir(A_ScriptDir)
 
-; Suppress error popups - log to file instead
+; Error handling - log to file instead of showing popups
 OnError(LogError)
 
 LogError(Thrown, Mode) {
-    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n", "errors.log", "UTF-8"`n        FileAppend(errorMsg
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
+    FileAppend(errorMsg, "fun_animations_errors.log", "UTF-8")
+    OutputDebug(errorMsg)  ; Enable LLM debugging
     return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 

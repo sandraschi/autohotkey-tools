@@ -2,11 +2,20 @@
 ; MCP Log Analyzer
 ; @name: MCP Log Analyzer
 ; @version: 1.0.0
-; @description: Analyze Claude Desktop MCP logs for startup issues and errors
+; @description: Analyze Claude Desktop MCP logs for startup issues and errors. Intelligent log parsing and error detection for MCP server troubleshooting.
+; @description: Provides automated log analysis, error pattern detection, startup issue identification, and diagnostic reports. Supports filtering, searching, and exporting analysis results.
+; @description: Essential debugging tool for MCP developers to quickly identify log errors, startup failures, and diagnostic issues from Claude Desktop logs.
 ; @category: development
 ; @author: Sandra
 ; @hotkeys: ^!l, F10
 ; @enabled: true
+; @priority: 10
+; @tag: mcp, log-analysis, debugging, troubleshooting, development, diagnostics, errors
+; @cli: --analyze <log-file> - Analyze specific log file
+; @cli: --filter <pattern> - Filter log entries by pattern
+; @cli: --export <format> - Export analysis results (json, html, text)
+; @cli: --help - Show CLI usage and analyzer options
+; @dependencies: 
 ; ==============================================================================
 
 #Requires AutoHotkey v2.0+
@@ -17,8 +26,9 @@
 OnError(LogError)
 
 LogError(Thrown, Mode) {
-    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
-", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
+    FileAppend(errorMsg, "mcp_log_analyzer_errors.log", "UTF-8")
+    OutputDebug(errorMsg)  ; Enable LLM debugging
     return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 

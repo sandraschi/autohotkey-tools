@@ -2,11 +2,21 @@
 ; Code Formatter Pro
 ; @name: Code Formatter Pro
 ; @version: 1.0.0
-; @description: Multi-language code formatting with syntax highlighting and beautification
+; @description: Multi-language code formatting with syntax highlighting and beautification. Supports JavaScript, Python, JSON, XML, HTML, CSS, SQL, and AutoHotkey.
+; @description: Provides intelligent code formatting, beautification, minification, and validation tools. Includes real-time preview and syntax highlighting.
+; @description: Essential development tool for maintaining consistent code style across multiple programming languages and projects.
 ; @category: development
 ; @author: Sandra
 ; @hotkeys: ^!f, ^!b, ^!c
 ; @enabled: true
+; @priority: 15
+; @tag: code-formatting, development, beautify, minify, syntax, validation, productivity, tools
+; @cli: --language <lang> - Set default language (javascript, python, json, xml, html, css, sql, autohotkey)
+; @cli: --format - Format code from stdin and output to stdout
+; @cli: --minify - Minify code from stdin
+; @cli: --validate - Validate code syntax (exit code 0 if valid)
+; @cli: --help - Show CLI usage and formatting options
+; @dependencies: 
 ; ==============================================================================
 
 #Requires AutoHotkey v2.0+
@@ -18,7 +28,7 @@ OnError(LogError)
 
 LogError(Thrown, Mode) {
     errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
-    FileAppend(errorMsg, "errors.log", "UTF-8")
+    FileAppend(errorMsg, "code_formatter_pro_errors.log", "UTF-8")
     OutputDebug(errorMsg)  ; Enable LLM debugging
     return 1  ; Suppress popup (1 = suppress, 0 = show)
 }

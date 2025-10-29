@@ -2,11 +2,20 @@
 ; Window Manager Pro
 ; @name: Window Manager Pro
 ; @version: 1.0.0
-; @description: Advanced window management with snapping, tiling, and organization
+; @description: Advanced window management with snapping, tiling, and organization. Professional window management with multiple layout modes and snapping zones.
+; @description: Features window snapping to edges and corners, grid tiling layouts, window switching, and workspace organization. Supports custom snapping zones and layout presets.
+; @description: Essential productivity tool for power users managing multiple windows who need efficient window organization and navigation.
 ; @category: utilities
 ; @author: Sandra
 ; @hotkeys: #Left, #Right, #Up, #Down, #Space, #Tab
 ; @enabled: true
+; @priority: 25
+; @tag: window-management, productivity, utilities, snapping, tiling, organization, multi-monitor
+; @cli: --snap <direction> - Snap active window (left, right, top, bottom, center)
+; @cli: --tile - Arrange windows in grid layout
+; @cli: --layout <name> - Apply window layout preset
+; @cli: --help - Show CLI usage and window manager options
+; @dependencies: 
 ; ==============================================================================
 
 #Requires AutoHotkey v2.0+
@@ -17,8 +26,9 @@
 OnError(LogError)
 
 LogError(Thrown, Mode) {
-    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
-", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
+    FileAppend(errorMsg, "window_manager_pro_errors.log", "UTF-8")
+    OutputDebug(errorMsg)  ; Enable LLM debugging
     return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 

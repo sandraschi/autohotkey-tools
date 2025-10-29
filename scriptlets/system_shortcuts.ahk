@@ -1,17 +1,33 @@
-#Requires AutoHotkey v2.0
+#Requires AutoHotkey v2.0+
 #SingleInstance Force
 
+; ==============================================================================
+; System Shortcuts
+; @name: System Shortcuts
+; @version: 1.0.0
+; @description: Essential system management shortcuts for power management, system toggles, and administrative tools. Quick access to common system operations and settings.
+; @description: Provides hotkeys for shutdown, restart, hibernate, lock workstation, system property access, task manager, and various system toggle functions. Includes help screen with all available shortcuts.
+; @description: Essential productivity tool for system administrators and power users who frequently access system tools and perform administrative tasks.
+; @category: system
+; @author: Sandra
+; @hotkeys: ^!+s, ^!+r, ^!+l, ^!h, ^!e, #l, ^+h
+; @enabled: true
+; @priority: 20
+; @tag: system, shortcuts, power-management, admin, utilities, productivity, hotkeys
+; @cli: --help - Show all available system shortcuts
+; @cli: --list - List configured shortcuts
+; @dependencies: 
+; ==============================================================================
 
-; Suppress error popups - log to file instead
+; Error handling - log to file instead of showing popups
 OnError(LogError)
 
 LogError(Thrown, Mode) {
-    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
-", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
+    FileAppend(errorMsg, "system_shortcuts_errors.log", "UTF-8")
+    OutputDebug(errorMsg)  ; Enable LLM debugging
     return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
-
-#Warn
 
 ; =============================================================================
 ; CONFIGURATION

@@ -1,20 +1,35 @@
-#Requires AutoHotkey v2.0
+#Requires AutoHotkey v2.0+
 #SingleInstance Force
 
+; ==============================================================================
+; IDE Shortcuts
+; @name: IDE Shortcuts
+; @version: 1.0.0
+; @description: Enhanced keyboard shortcuts for various IDEs including VS Code, IntelliJ, Visual Studio, and more. Standardizes shortcuts across different development environments.
+; @description: Provides consistent keyboard shortcuts for common IDE operations like formatting, commenting, line manipulation, and navigation. Automatically detects active IDE and applies appropriate shortcuts.
+; @description: Essential productivity tool for developers working with multiple IDEs who want consistent keyboard shortcuts across all development environments.
+; @category: development
+; @author: Sandra
+; @hotkeys: (IDE-specific, auto-detected)
+; @enabled: true
+; @priority: 20
+; @tag: ide, shortcuts, development, productivity, automation, keyboard, vscode, intellij, visual-studio
+; @cli: --ide <name> - Set default IDE (code, idea64, devenv)
+; @cli: --list-shortcuts - List all available shortcuts for current IDE
+; @cli: --customize - Open shortcuts customization interface
+; @cli: --help - Show CLI usage and IDE shortcuts options
+; @dependencies: 
+; ==============================================================================
 
-; Suppress error popups - log to file instead
+; Error handling - log to file instead of showing popups
 OnError(LogError)
 
 LogError(Thrown, Mode) {
-    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
-", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
+    FileAppend(errorMsg, "ide_shortcuts_errors.log", "UTF-8")
+    OutputDebug(errorMsg)  ; Enable LLM debugging
     return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
-
-#Warn
-
-; IDE Shortcuts - Provides enhanced keyboard shortcuts for various IDEs
-; Supports: VS Code, IntelliJ, Visual Studio, and more
 
 ; =============================================================================
 ; CONFIGURATION

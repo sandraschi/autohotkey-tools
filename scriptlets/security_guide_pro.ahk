@@ -2,11 +2,20 @@
 ; Security Guide Pro
 ; @name: Security Guide Pro
 ; @version: 1.0.0
-; @description: Comprehensive security guide for AutoHotkey scriptlets - warnings, limitations, and best practices
+; @description: Comprehensive security guide for AutoHotkey scriptlets with warnings, limitations, and best practices. Educational resource about AutoHotkey security capabilities and risks.
+; @description: Provides detailed information about AutoHotkey's powerful capabilities, security warnings, best practices, and safe scripting guidelines. Includes examples of secure code patterns and common vulnerabilities.
+; @description: Essential security awareness tool for AutoHotkey users to understand the risks and responsibilities when writing and running automation scripts.
 ; @category: utilities
 ; @author: Sandra
 ; @hotkeys: ^!s, F2
 ; @enabled: true
+; @priority: 1
+; @tag: security, guide, education, safety, warnings, best-practices, utilities
+; @cli: --topic <name> - Open specific security topic
+; @cli: --warnings - Show all security warnings
+; @cli: --best-practices - Display security best practices
+; @cli: --help - Show CLI usage and security guide options
+; @dependencies: 
 ; ==============================================================================
 
 #Requires AutoHotkey v2.0+
@@ -17,8 +26,9 @@
 OnError(LogError)
 
 LogError(Thrown, Mode) {
-    FileAppend("Error: " . Thrown.Message . " at line " . Thrown.Line . "
-", "errors.log", "UTF-8")`n        OutputDebug(errorMsg)  ; Enable LLM debugging
+    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
+    FileAppend(errorMsg, "security_guide_pro_errors.log", "UTF-8")
+    OutputDebug(errorMsg)  ; Enable LLM debugging
     return 1  ; Suppress popup (1 = suppress, 0 = show)
 }
 
