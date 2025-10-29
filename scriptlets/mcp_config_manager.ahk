@@ -12,14 +12,22 @@
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
 
-; Suppress error popups - log to file instead
+; Show that script is starting
+TrayTip("MCP Config Manager", "Script starting...", 3)
+
+; Log errors but allow GUI errors to show
 OnError(LogError)
 
 LogError(Thrown, Mode) {
     errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
     FileAppend(errorMsg, "mcp_config_errors.log", "UTF-8")
     OutputDebug(errorMsg)  ; Enable LLM debugging
-    return 1  ; Suppress popup (1 = suppress, 0 = show)
+    
+    ; Allow GUI errors to show - they're important for debugging
+    if (InStr(Thrown.Message, "GUI") || InStr(Thrown.Stack, "CreateGUI")) {
+        return 0  ; Show popup for GUI errors
+    }
+    return 1  ; Suppress popup for other errors
 }
 
 class MCPConfigManager {
@@ -32,11 +40,19 @@ class MCPConfigManager {
     static guiControls := Map()
     
     static Init() {
-        this.claudeConfig := A_AppData . "\Claude\claude_desktop_config.json"
-        this.backupDir := A_ScriptDir . "\config_backups"
-        this.debugMode := A_Args.Length > 0 && A_Args[1] = "/debug"
-        this.LogDebug("MCP Config Manager initialized" . (this.debugMode ? " in DEBUG mode" : ""))
-        this.CreateGUI()
+        try {
+            this.claudeConfig := A_AppData . "\Claude\claude_desktop_config.json"
+            this.backupDir := A_ScriptDir . "\config_backups"
+            this.debugMode := A_Args.Length > 0 && A_Args[1] = "/debug"
+            this.LogDebug("MCP Config Manager initialized" . (this.debugMode ? " in DEBUG mode" : ""))
+            
+            ; Show initial message to verify script is running
+            TrayTip("MCP Config Manager", "Starting GUI...", 2)
+            
+            this.CreateGUI()
+        } catch as e {
+            MsgBox("Init error: " . e.Message . "`n" . e.Stack, "Error", "Iconx")
+        }
     }
     
     static LogDebug(message) {
@@ -117,12 +133,19 @@ class MCPConfigManager {
             ; Set up hotkeys
             this.SetupHotkeys()
             
-            this.guiInstance.Show("w800 h700")
-            this.LogDebug("GUI created successfully")
+            ; Show the GUI
+            this.guiInstance.Show("w800 h700 Center")
+            this.LogDebug("GUI created and shown successfully")
+            
+            ; Force GUI to be visible and active
+            WinShow(this.guiInstance.Hwnd)
+            WinActivate(this.guiInstance.Hwnd)
             
         } catch as e {
-            this.LogDebug("Error creating GUI: " . e.Message)
-            MsgBox("Error creating GUI: " . e.Message, "Error", "Iconx")
+            errorMsg := "Error creating GUI: " . e.Message . "`n" . e.Stack
+            FileAppend(errorMsg, "mcp_config_errors.log", "UTF-8")
+            OutputDebug(errorMsg)
+            MsgBox("Error creating GUI: " . e.Message . "`n`nCheck mcp_config_errors.log for details", "Error", "Iconx")
             throw
         }
     }
@@ -151,7 +174,7 @@ class MCPConfigManager {
             ; Update GUI
             try {
                 if (this.guiInstance != "" && this.guiControls.Has("configEdit")) {
-                    this.guiControls["configEdit"].Text := configContent
+                    this.guiControls["configEdit"].Value := configContent
                     this.LogDebug("Config editor updated")
                 }
             } catch as e {
@@ -190,6 +213,15 @@ class MCPConfigManager {
             
             ; Create backup before saving
             this.CreateBackup()
+            
+            ; Get current content from editor if available
+            try {
+                if (this.guiInstance != "" && this.guiControls.Has("configEdit")) {
+                    this.configData := this.guiControls["configEdit"].Value
+                }
+            } catch as e {
+                this.LogDebug("Error reading from editor: " . e.Message)
+            }
             
             ; Save config (overwrite if exists)
             if (FileExist(this.claudeConfig)) {
@@ -418,14 +450,559 @@ class MCPConfigManager {
                 return
             }
             
-            infoText := "Server Information: " . selectedServer . "`n`n"
-            infoText .= "This would show detailed server configuration,`n"
-            infoText .= "status, logs, and performance metrics."
+            ; Extract server configuration from JSON
+            serverConfig := this.GetServerConfig(selectedServer)
+            if (serverConfig = "") {
+                MsgBox("Could not find configuration for server: " . selectedServer, "Server Not Found", "Iconx")
+                return
+            }
             
-            MsgBox(infoText, "Server Info", "Iconi")
+            ; Parse server details
+            command := this.ExtractJSONValue(serverConfig, "command")
+            args := this.ExtractJSONValue(serverConfig, "args")
+            cwd := this.ExtractJSONValue(serverConfig, "cwd")
+            env := this.ExtractJSONValue(serverConfig, "env")
+            alwaysAllow := this.ExtractJSONValue(serverConfig, "alwaysAllow")
+            description := this.ExtractJSONValue(serverConfig, "description")
+            
+            ; Build info display
+            infoText := "📊 Server Information: " . selectedServer . "`n`n"
+            
+            ; Command
+            if (command != "") {
+                infoText .= "🔧 Command: " . command . "`n"
+            } else {
+                infoText .= "🔧 Command: ❌ Not specified`n"
+            }
+            
+            ; Arguments
+            if (args != "") {
+                infoText .= "📝 Arguments: " . args . "`n"
+            } else {
+                infoText .= "📝 Arguments: (none)`n"
+            }
+            
+            ; Working Directory
+            if (cwd != "") {
+                ; Check if path exists
+                cwdExists := FileExist(cwd) || DirExist(cwd) ? "✅" : "❌"
+                infoText .= "📁 Working Directory: " . cwd . " " . cwdExists . "`n"
+            } else {
+                infoText .= "📁 Working Directory: (not specified)`n"
+            }
+            
+            ; Environment Variables
+            if (env != "") {
+                ; Parse env object - "KEY": "value" pairs
+                envDisplay := ""
+                envPos := 1
+                while (envPos := RegExMatch(env, '"([^"]+)"\s*:\s*"([^"]*)"', &envMatch, envPos)) {
+                    envDisplay .= "  " . envMatch[1] . " = " . envMatch[2] . "`n"
+                    envPos := envMatch.Pos + envMatch.Len
+                }
+                if (envDisplay != "") {
+                    infoText .= "`n🌍 Environment Variables:`n" . envDisplay
+                } else {
+                    infoText .= "`n🌍 Environment Variables:`n  " . env . "`n"
+                }
+            }
+            
+            ; Always Allow
+            if (alwaysAllow != "") {
+                infoText .= "`n🔓 Always Allow: " . alwaysAllow . "`n"
+            }
+            
+            ; Description
+            if (description != "") {
+                infoText .= "`n📄 Description: " . description . "`n"
+            }
+            
+            ; Parse pyproject.toml if server is local
+            ; Check if cwd is a local directory (not a global command)
+            isLocal := cwd != "" && (DirExist(cwd) || (FileExist(cwd) && !InStr(cwd, ".exe") && !InStr(cwd, ".bat")))
+            if (isLocal) {
+                pyprojectInfo := this.ParsePyProjectToml(cwd)
+                if (pyprojectInfo != "") {
+                    infoText .= "`n" . pyprojectInfo
+                }
+                
+                ; Parse MCP tools from Python server files
+                toolsInfo := this.ParseMCPTools(cwd, command, args)
+                if (toolsInfo != "") {
+                    infoText .= "`n" . toolsInfo
+                }
+            }
+            
+            ; Show in a GUI window for better readability
+            this.ShowServerInfoWindow(selectedServer, infoText, command, args, cwd, env)
             
         } catch as e {
             MsgBox("Error getting server info: " . e.Message, "Error", "Iconx")
+            this.LogDebug("ServerInfo error: " . e.Message)
+        }
+    }
+    
+    static GetServerConfig(serverName) {
+        try {
+            if (this.configData = "") {
+                return ""
+            }
+            
+            ; Find the server configuration in JSON
+            ; Pattern: "server-name": { ... }
+            pattern := '"' . RegExReplace(serverName, "[.*+?^${}()|[\]\\]", "\$0") . '"\s*:\s*\{'
+            if (RegExMatch(this.configData, pattern, &match)) {
+                startPos := match.Pos + match.Len
+                
+                ; Find the matching closing brace
+                depth := 1
+                pos := startPos
+                endPos := 0
+                
+                while (pos <= StrLen(this.configData) && depth > 0) {
+                    char := SubStr(this.configData, pos, 1)
+                    if (char = "{") {
+                        depth++
+                    } else if (char = "}") {
+                        depth--
+                        if (depth = 0) {
+                            endPos := pos
+                            break
+                        }
+                    }
+                    pos++
+                }
+                
+                if (endPos > 0) {
+                    return SubStr(this.configData, startPos, endPos - startPos)
+                }
+            }
+        } catch as e {
+            this.LogDebug("GetServerConfig error: " . e.Message)
+        }
+        return ""
+    }
+    
+    static ExtractJSONValue(jsonBlock, key) {
+        try {
+            ; Look for "key": value pattern
+            pattern := '"' . key . '"\s*:\s*"([^"]*)"'
+            if (RegExMatch(jsonBlock, pattern, &match)) {
+                return match[1]
+            }
+            
+            ; Try array value (args)
+            if (key = "args") {
+                pattern := '"args"\s*:\s*\[([^\]]*)\]'
+                if (RegExMatch(jsonBlock, pattern, &match)) {
+                    ; Extract array elements
+                    argsText := match[1]
+                    argsText := RegExReplace(argsText, '"([^"]+)"', "$1")
+                    return argsText
+                }
+            }
+            
+            ; Try boolean or null
+            pattern := '"' . key . '"\s*:\s*(true|false|null)'
+            if (RegExMatch(jsonBlock, pattern, &match)) {
+                return match[1]
+            }
+            
+            ; Try object value (env)
+            if (key = "env") {
+                pattern := '"env"\s*:\s*\{([^}]*)\}'
+                if (RegExMatch(jsonBlock, pattern, &match)) {
+                    return match[1]
+                }
+            }
+            
+        } catch {
+        }
+        return ""
+    }
+    
+    static ParsePyProjectToml(cwd) {
+        try {
+            ; Determine the directory path
+            dirPath := cwd
+            if (FileExist(cwd) && !DirExist(cwd)) {
+                ; If cwd is a file path, get its directory
+                dirPath := RegExReplace(cwd, "\\[^\\]+$", "")
+            }
+            
+            ; Normalize path (handle relative paths and common MCP locations)
+            if (InStr(dirPath, "./") = 1 || InStr(dirPath, ".\\") = 1) {
+                ; Relative path starting with ./
+                fullPath := RegExReplace(dirPath, "^\.+[\\/]", "")
+                ; Try common MCP server locations
+                if (DirExist("D:\Dev\repos\" . fullPath)) {
+                    fullPath := "D:\Dev\repos\" . fullPath
+                } else if (DirExist("C:\Users\" . A_UserName . "\AppData\Roaming\Claude\" . fullPath)) {
+                    fullPath := "C:\Users\" . A_UserName . "\AppData\Roaming\Claude\" . fullPath
+                } else if (DirExist(fullPath)) {
+                    ; Path is already resolved
+                } else {
+                    return ""  ; Can't resolve path
+                }
+            } else if (!InStr(dirPath, ":") && !InStr(dirPath, "\\") && !InStr(dirPath, "/")) {
+                ; Just a directory name, try common locations
+                if (DirExist("D:\Dev\repos\" . dirPath)) {
+                    fullPath := "D:\Dev\repos\" . dirPath
+                } else if (DirExist("D:\Dev\repos\" . dirPath . "-mcp")) {
+                    fullPath := "D:\Dev\repos\" . dirPath . "-mcp"
+                } else if (DirExist(dirPath)) {
+                    fullPath := dirPath
+                } else {
+                    return ""  ; Can't resolve path
+                }
+            } else if (InStr(dirPath, ":") = 0) {
+                ; No drive letter but has separators - might be UNC or relative
+                if (DirExist("D:\Dev\repos\" . dirPath)) {
+                    fullPath := "D:\Dev\repos\" . dirPath
+                } else if (DirExist(dirPath)) {
+                    fullPath := dirPath
+                } else {
+                    return ""
+                }
+            } else {
+                fullPath := dirPath
+            }
+            
+            ; Ensure it's a directory
+            if (!DirExist(fullPath)) {
+                return ""
+            }
+            
+            ; Look for pyproject.toml
+            tomlPath := fullPath . "\pyproject.toml"
+            if (!FileExist(tomlPath)) {
+                return ""
+            }
+            
+            ; Read the TOML file
+            tomlContent := FileRead(tomlPath)
+            
+            if (tomlContent = "") {
+                return ""
+            }
+            
+            ; Parse TOML file (basic parsing for common fields)
+            tomlInfo := "`n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`n"
+            tomlInfo .= "📦 Project Metadata (pyproject.toml)`n"
+            tomlInfo .= "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`n"
+            
+            ; Extract project name from [project] or [tool.poetry] or [build-system]
+            if (RegExMatch(tomlContent, '\[project\]\s*\n.*?name\s*=\s*"([^"]+)"', &match)) {
+                tomlInfo .= "📛 Name: " . match[1] . "`n"
+            } else if (RegExMatch(tomlContent, '\[tool\.poetry\]\s*\n.*?name\s*=\s*"([^"]+)"', &match)) {
+                tomlInfo .= "📛 Name: " . match[1] . "`n"
+            }
+            
+            ; Extract version
+            if (RegExMatch(tomlContent, 'version\s*=\s*"([^"]+)"', &match)) {
+                tomlInfo .= "🏷️  Version: " . match[1] . "`n"
+            } else if (RegExMatch(tomlContent, "version\s*=\s*'([^']+)'", &match)) {
+                tomlInfo .= "🏷️  Version: " . match[1] . "`n"
+            }
+            
+            ; Extract description
+            if (RegExMatch(tomlContent, 'description\s*=\s*"([^"]+)"', &match)) {
+                tomlInfo .= "📝 Description: " . match[1] . "`n"
+            } else if (RegExMatch(tomlContent, "description\s*=\s*'([^']+)'", &match)) {
+                tomlInfo .= "📝 Description: " . match[1] . "`n"
+            }
+            
+            ; Extract dependencies (basic - just count them)
+            depCount := 0
+            if (RegExMatch(tomlContent, '\[project\]\s*dependencies\s*=\s*\[', &match)) {
+                ; Count dependencies in project.dependencies array
+                depsBlock := SubStr(tomlContent, match.Pos)
+                depsPos := 1
+                while (RegExMatch(depsBlock, '"([^"]+)"', &depMatch, depsPos)) {
+                    depCount++
+                    depsPos := depMatch.Pos + depMatch.Len
+                    if (SubStr(depsBlock, depMatch.Pos + depMatch.Len, 1) = "]") {
+                        break
+                    }
+                }
+            } else if (RegExMatch(tomlContent, '\[tool\.poetry\.dependencies\]', &match)) {
+                ; Count Poetry dependencies
+                depsBlock := SubStr(tomlContent, match.Pos, 500)
+                depsPos := 1
+                while (RegExMatch(depsBlock, '(\w+)\s*=', &depMatch, depsPos)) {
+                    depCount++
+                    depsPos := depMatch.Pos + depMatch.Len
+                }
+            }
+            
+            if (depCount > 0) {
+                tomlInfo .= "📚 Dependencies: " . depCount . " package(s)`n"
+            }
+            
+            ; Extract Python version requirement
+            if (RegExMatch(tomlContent, 'requires-python\s*=\s*"([^"]+)"', &match)) {
+                tomlInfo .= "🐍 Python: " . match[1] . "`n"
+            } else if (RegExMatch(tomlContent, 'python\s*=\s*"([^"]+)"', &match)) {
+                tomlInfo .= "🐍 Python: " . match[1] . "`n"
+            }
+            
+            ; Extract build backend
+            if (RegExMatch(tomlContent, '\[build-system\]\s*\n.*?requires\s*=\s*\["([^"]+)"', &match)) {
+                tomlInfo .= "🔧 Build Backend: " . match[1] . "`n"
+            }
+            
+            ; Add file path
+            tomlInfo .= "📁 Path: " . tomlPath . "`n"
+            
+            return tomlInfo
+            
+        } catch as e {
+            this.LogDebug("ParsePyProjectToml error: " . e.Message)
+            return ""
+        }
+    }
+    
+    static ParseMCPTools(cwd, command, args) {
+        try {
+            ; Resolve the server directory path (reuse logic from ParsePyProjectToml)
+            dirPath := cwd
+            if (FileExist(cwd) && !DirExist(cwd)) {
+                dirPath := RegExReplace(cwd, "\\[^\\]+$", "")
+            }
+            
+            ; Normalize path (simplified version)
+            fullPath := this.ResolveServerPath(dirPath)
+            if (fullPath = "" || !DirExist(fullPath)) {
+                return ""
+            }
+            
+            ; Find the main server file
+            serverFile := ""
+            possibleFiles := ["server.py", "main.py", "__main__.py"]
+            
+            ; Check if args specifies a file
+            if (args != "") {
+                ; Extract first arg (usually the main file)
+                if (RegExMatch(args, "(\S+)", &argMatch)) {
+                    firstArg := argMatch[1]
+                    if (FileExist(fullPath . "\" . firstArg)) {
+                        serverFile := fullPath . "\" . firstArg
+                    }
+                }
+            }
+            
+            ; If not found, try common names
+            if (serverFile = "") {
+                for i, fileName in possibleFiles {
+                    if (FileExist(fullPath . "\" . fileName)) {
+                        serverFile := fullPath . "\" . fileName
+                        break
+                    }
+                }
+            }
+            
+            ; Try src/ subdirectory
+            if (serverFile = "" && DirExist(fullPath . "\src")) {
+                for i, fileName in possibleFiles {
+                    if (FileExist(fullPath . "\src\" . fileName)) {
+                        serverFile := fullPath . "\src\" . fileName
+                        break
+                    }
+                }
+            }
+            
+            if (serverFile = "" || !FileExist(serverFile)) {
+                return ""
+            }
+            
+            ; Read Python file
+            pythonContent := FileRead(serverFile)
+            if (pythonContent = "") {
+                return ""
+            }
+            
+            ; Parse for FastMCP tool definitions
+            tools := []
+            
+            ; Look for @app.tool() or @tool decorator patterns
+            ; Pattern 1: @app.tool() or @tool followed by async def tool_name(...):
+            pos := 1
+            while (pos := RegExMatch(pythonContent, '(@app\.tool\([^)]*\)|@tool\([^)]*\)|@app\.tool\(\)|@tool)\s*\n\s*(async\s+)?def\s+(\w+)', &match, pos)) {
+                toolName := match[3]
+                
+                ; Extract docstring (look for triple-quoted string immediately after function definition)
+                docStart := match.Pos + match.Len
+                docString := ""
+                
+                ; Find docstring - handle multiline docstrings
+                docContent := ""
+                ; Try double quotes first
+                docPattern := '""".*?"""'
+                if (RegExMatch(pythonContent, docPattern, &docMatch, docStart)) {
+                    docContent := docMatch[0]
+                    docContent := RegExReplace(docContent, '^"""', "")
+                    docContent := RegExReplace(docContent, '"""$', "")
+                } else {
+                    ; Try single quotes
+                    docPattern := "'''.*?'''"
+                    if (RegExMatch(pythonContent, docPattern, &docMatch, docStart)) {
+                        docContent := docMatch[0]
+                        docContent := RegExReplace(docContent, "^'''", "")
+                        docContent := RegExReplace(docContent, "'''$", "")
+                    }
+                }
+                if (docContent != "") {
+                    docString := Trim(docContent)
+                    if (InStr(docString, "`n")) {
+                        firstLine := SubStr(docString, 1, InStr(docString, "`n") - 1)
+                        docString := Trim(firstLine)
+                    }
+                    if (StrLen(docString) > 80) {
+                        docString := SubStr(docString, 1, 77) . "..."
+                    }
+                    docString := Trim(docString)
+                }
+                
+                tools.Push({name: toolName, description: docString})
+                pos := match.Pos + match.Len
+            }
+            
+            ; Also try pattern without async: def tool_name with @app.tool() before it
+            ; Look backwards from function definition for decorator
+            pos := 1
+            while (pos := RegExMatch(pythonContent, '(@app\.tool\([^)]*\)|@tool\([^)]*\))\s*\n\s*def\s+(\w+)', &match, pos)) {
+                toolName := match[2]
+                
+                ; Check if we already added this tool
+                alreadyAdded := false
+                for i, tool in tools {
+                    if (tool.name = toolName) {
+                        alreadyAdded := true
+                        break
+                    }
+                }
+                
+                if (!alreadyAdded) {
+                    ; Extract docstring
+                    docStart := match.Pos + match.Len
+                    docString := ""
+                    docContent := ""
+                    ; Try double quotes first
+                    docPattern := '""".*?"""'
+                    if (RegExMatch(pythonContent, docPattern, &docMatch, docStart)) {
+                        docContent := docMatch[0]
+                        docContent := RegExReplace(docContent, '^"""', "")
+                        docContent := RegExReplace(docContent, '"""$', "")
+                    } else {
+                        ; Try single quotes
+                        docPattern := "'''.*?'''"
+                        if (RegExMatch(pythonContent, docPattern, &docMatch, docStart)) {
+                            docContent := docMatch[0]
+                            docContent := RegExReplace(docContent, "^'''", "")
+                            docContent := RegExReplace(docContent, "'''$", "")
+                        }
+                    }
+                    if (docContent != "") {
+                        docString := Trim(docContent)
+                        if (InStr(docString, "`n")) {
+                            docString := SubStr(docString, 1, InStr(docString, "`n") - 1)
+                        }
+                        docString := Trim(docString)
+                    }
+                    tools.Push({name: toolName, description: docString})
+                }
+                
+                pos := match.Pos + match.Len
+            }
+            
+            if (tools.Length = 0) {
+                return ""
+            }
+            
+            ; Build tools display
+            toolsInfo := "`n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`n"
+            toolsInfo .= "🛠️  MCP Tools (" . tools.Length . ")`n"
+            toolsInfo .= "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`n"
+            
+            for i, tool in tools {
+                toolsInfo .= (i < 10 ? " " : "") . i . ". " . tool.name
+                if (tool.description != "") {
+                    toolsInfo .= "`n    └─ " . tool.description
+                }
+                toolsInfo .= "`n"
+            }
+            
+            toolsInfo .= "`n📄 Source: " . RegExReplace(serverFile, ".*\\", "") . "`n"
+            
+            return toolsInfo
+            
+        } catch as e {
+            this.LogDebug("ParseMCPTools error: " . e.Message)
+            return ""
+        }
+    }
+    
+    static ResolveServerPath(dirPath) {
+        try {
+            ; Normalize path (handle relative paths and common MCP locations)
+            if (InStr(dirPath, "./") = 1 || InStr(dirPath, ".\\") = 1) {
+                fullPath := RegExReplace(dirPath, "^\.+[\\/]", "")
+                if (DirExist("D:\Dev\repos\" . fullPath)) {
+                    return "D:\Dev\repos\" . fullPath
+                } else if (DirExist("C:\Users\" . A_UserName . "\AppData\Roaming\Claude\" . fullPath)) {
+                    return "C:\Users\" . A_UserName . "\AppData\Roaming\Claude\" . fullPath
+                } else if (DirExist(fullPath)) {
+                    return fullPath
+                }
+                return ""
+            } else if (!InStr(dirPath, ":") && !InStr(dirPath, "\\") && !InStr(dirPath, "/")) {
+                if (DirExist("D:\Dev\repos\" . dirPath)) {
+                    return "D:\Dev\repos\" . dirPath
+                } else if (DirExist("D:\Dev\repos\" . dirPath . "-mcp")) {
+                    return "D:\Dev\repos\" . dirPath . "-mcp"
+                } else if (DirExist(dirPath)) {
+                    return dirPath
+                }
+                return ""
+            } else if (InStr(dirPath, ":") = 0) {
+                if (DirExist("D:\Dev\repos\" . dirPath)) {
+                    return "D:\Dev\repos\" . dirPath
+                } else if (DirExist(dirPath)) {
+                    return dirPath
+                }
+                return ""
+            } else {
+                return dirPath
+            }
+        } catch {
+            return ""
+        }
+    }
+    
+    static ShowServerInfoWindow(serverName, infoText, command, args, cwd, env) {
+        try {
+            infoGui := Gui("+Owner +ToolWindow", "Server Info: " . serverName)
+            infoGui.OnEvent("Close", (*) => infoGui.Destroy())
+            infoGui.OnEvent("Escape", (*) => infoGui.Destroy())
+            
+            infoGui.SetFont("s10", "Segoe UI")
+            
+            ; Title
+            infoGui.Add("Text", "x20 y20 w600 Center Bold", "📊 " . serverName . " - Configuration Details")
+            
+            ; Info display area (larger for tools list)
+            infoDisplay := infoGui.Add("Edit", "x20 y50 w750 h450 ReadOnly Multi VScroll", infoText)
+            infoDisplay.SetFont("s9", "Consolas")
+            
+            ; Buttons
+            btnClose := infoGui.Add("Button", "x335 y510 w120 h30 Default", "Close")
+            btnClose.OnEvent("Click", (*) => infoGui.Destroy())
+            
+            infoGui.Show("w790 h550")
+            
+        } catch as e {
+            ; Fallback to MsgBox if GUI fails
+            MsgBox(infoText, "Server Info: " . serverName, "Iconi")
         }
     }
     
@@ -487,12 +1064,46 @@ class MCPConfigManager {
             
             servers := []
             
-            ; Simple parsing to extract server names
-            if (RegExMatch(this.configData, '"mcpServers"\s*:\s*\{([^}]+)\}')) {
-                ; Extract server names from JSON
-                Loop Parse, this.configData, '"' {
-                    if (Mod(A_Index, 2) = 0 && A_LoopField != "mcpServers") {
-                        servers.Push(A_LoopField)
+            ; Parse JSON to extract server names from mcpServers object
+            ; Look for pattern: "mcpServers": { "server-name": { ... }, "another-server": { ... } }
+            
+            ; Find the mcpServers section - look for "mcpServers": { ... }
+            if (RegExMatch(this.configData, '"mcpServers"\s*:\s*\{', &match)) {
+                ; Extract everything after "mcpServers": {
+                startPos := match.Pos + match.Len
+                
+                ; Find the matching closing brace for mcpServers object
+                depth := 1
+                pos := startPos
+                endPos := 0
+                
+                while (pos <= StrLen(this.configData) && depth > 0) {
+                    char := SubStr(this.configData, pos, 1)
+                    if (char = "{") {
+                        depth++
+                    } else if (char = "}") {
+                        depth--
+                        if (depth = 0) {
+                            endPos := pos
+                            break
+                        }
+                    }
+                    pos++
+                }
+                
+                if (endPos > 0) {
+                    ; Extract the mcpServers object content
+                    serversBlock := SubStr(this.configData, startPos, endPos - startPos)
+                    
+                    ; Find all server names - look for "server-name": { pattern
+                    serverPos := 1
+                    while (serverPos := RegExMatch(serversBlock, '"([^"]+)"\s*:\s*\{', &serverMatch, serverPos)) {
+                        serverName := serverMatch[1]
+                        ; Only add if it's not "mcpServers" itself and we haven't added it already
+                        if (serverName != "mcpServers" && !this.ArrayContains(servers, serverName)) {
+                            servers.Push(serverName)
+                        }
+                        serverPos := serverMatch.Pos + serverMatch.Len
                     }
                 }
             }
@@ -500,32 +1111,54 @@ class MCPConfigManager {
             ; Update server list in GUI
             try {
                 if (this.guiInstance != "" && this.guiControls.Has("serverList")) {
-                    this.guiControls["serverList"].Text := servers.Join("`n")
-                    this.LogDebug("Server list updated with " . servers.Length . " servers")
+                    ; ListBox uses Delete() and Add() methods
+                    this.guiControls["serverList"].Delete()
+                    if (servers.Length > 0) {
+                        for i, server in servers {
+                            this.guiControls["serverList"].Add([server])
+                        }
+                        this.LogDebug("Server list updated with " . servers.Length . " servers")
+                    } else {
+                        this.LogDebug("No servers found in config")
+                    }
                 }
             } catch as e {
-                this.LogDebug("Error updating server list: " . e.Message)
+                this.LogDebug("Error updating server list: " . e.Message . " - " . e.Stack)
             }
             
         } catch as e {
-            ; Handle parsing error
+            this.LogDebug("ParseServers error: " . e.Message . " - " . e.Stack)
         }
+    }
+    
+    static ArrayContains(arr, value) {
+        for i, item in arr {
+            if (item = value) {
+                return true
+            }
+        }
+        return false
     }
     
     static GetSelectedServer() {
         ; Get the selected server from the GUI
         try {
             if (this.guiInstance != "" && this.guiControls.Has("serverList")) {
-                selection := this.guiControls["serverList"].Text
-                if (selection != "") {
-                    ; Get the selected line
+                ; For ListBox, use Value property which returns the selected item text
+                try {
+                    selectedIndex := this.guiControls["serverList"].Value
+                    if (selectedIndex > 0) {
+                        ; Get the text of the selected item
+                        selectedText := this.guiControls["serverList"].GetText(selectedIndex)
+                        return selectedText
+                    }
+                } catch {
+                    ; Fallback: try to get selected item another way
                     try {
-                        selectedLine := this.guiControls["serverList"].SelectedText
-                        return selectedLine
+                        ; ListBox may use different method
+                        return this.guiControls["serverList"].Text
                     } catch {
-                        ; If no selection, return first line
-                        lines := StrSplit(this.guiControls["serverList"].Text, "`n")
-                        return lines.Length > 0 ? lines[1] : ""
+                        return ""
                     }
                 }
             }
