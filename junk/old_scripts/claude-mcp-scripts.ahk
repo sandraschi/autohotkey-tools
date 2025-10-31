@@ -16,8 +16,9 @@ SetTimer () => 0, 1000
 ; =============================================================================
 
 ; 1. MCP Server Scaffolding (Ctrl+Shift+M)
-^+m::
-{
+Hotkey("^+m", MCPServerScaffold)
+
+MCPServerScaffold(*) {
     SendText "Create new MCP server with fastmcp 2.12.1. Name: "
     ; Wait for user input, then continue with full scaffold
     Sleep 2000
@@ -25,8 +26,9 @@ SetTimer () => 0, 1000
 }
 
 ; 2. Standards Conformance Checker (Ctrl+Shift+C)
-^+c::
-{
+Hotkey("^+c", StandardsConformanceCheck)
+
+StandardsConformanceCheck(*) {
     SendText "Run MCP standards conformance check on current project:`n"
     SendText "1. Validate fastmcp 2.12+ compatibility`n"
     SendText "2. Check tool registration patterns`n"
@@ -39,8 +41,9 @@ SetTimer () => 0, 1000
 }
 
 ; 3. Claude Desktop Log Analyzer (Ctrl+Shift+L)
-^+l::
-{
+Hotkey("^+l", LogAnalyzer)
+
+LogAnalyzer(*) {
     SendText "Analyze Claude Desktop MCP logs for startup issues:`n"
     SendText "Read logs from: C:\Users\sandr\AppData\Roaming\Claude\logs\`n"
     SendText "Focus on latest mcp-server-*.log files`n"
@@ -53,8 +56,9 @@ SetTimer () => 0, 1000
 ; =============================================================================
 
 ; 4. Smart MCP Troubleshooter (Ctrl+Shift+T)
-^+t::
-{
+Hotkey("^+t", MCPTroubleshooter)
+
+MCPTroubleshooter(*) {
     ; Step 1: Gather system state
     SendText "Start MCP troubleshooting sequence:`n1. Check current MCP server status"
     Sleep 1000
@@ -75,8 +79,9 @@ SetTimer () => 0, 1000
 }
 
 ; 5. MCP Development Cycle (Ctrl+Shift+D)
-^+d::
-{
+Hotkey("^+d", MCPDevelopmentCycle)
+
+MCPDevelopmentCycle(*) {
     SendText "Execute full MCP development cycle:`n"
     SendText "Phase 1: Code Analysis`n- Review current MCP server code`n- Check fastmcp 2.12+ patterns"
     Sleep 2000
@@ -92,15 +97,18 @@ SetTimer () => 0, 1000
 ; =============================================================================
 
 ; 6. Claude Desktop Restart (Ctrl+Alt+R)
-^!r::
-{
+Hotkey("^!r", RestartClaudeDesktop)
+
+RestartClaudeDesktop(*) {
     Run "taskkill /f /im Claude.exe",, "Hide"
     Sleep 2000
     Run "C:\Users\sandr\AppData\Local\AnthropicClaude\app-0.12.129\claude.exe"
 }
-^!x::
-{
-	; Find Claude Desktop window
+
+Hotkey("^!x", CleanRestartClaudeDesktop)
+
+CleanRestartClaudeDesktop(*) {
+    ; Find Claude Desktop window
     try {
         WinActivate "Claude"
         Sleep 500
@@ -116,8 +124,7 @@ SetTimer () => 0, 1000
 
         ; Restart Claude Desktop
         Run "C:\Users\sandr\AppData\Local\AnthropicClaude\app-0.12.129\claude.exe"
-    }
-    catch {
+    } catch {
         ; Fallback: Force restart
         Run "taskkill /f /im Claude.exe",, "Hide"
         Sleep 2000
@@ -126,8 +133,9 @@ SetTimer () => 0, 1000
 }
 
 ; 7. MCP Config Hot Reload (Ctrl+Shift+R)
-^+r::
-{
+Hotkey("^+r", MCPConfigHotReload)
+
+MCPConfigHotReload(*) {
     SendText "Update Claude Desktop MCP configuration:`n"
     SendText "1. Backup current config`n"
     SendText "2. Update claude_desktop_config.json`n"
@@ -145,8 +153,9 @@ SetTimer () => 0, 1000
 ; =============================================================================
 
 ; 8. MCP File Watcher (Ctrl+Shift+W)
-^+w::
-{
+Hotkey("^+w", MCPFileWatcher)
+
+MCPFileWatcher(*) {
     SendText "Start MCP file monitoring:`n"
     SendText "Watch for changes in:`n"
     SendText "- D:\Dev\repos\*-mcp\`n"
@@ -159,8 +168,9 @@ SetTimer () => 0, 1000
 }
 
 ; 9. DXT Package Validator (Ctrl+Shift+P)
-^+p::
-{
+Hotkey("^+p", DXTPackageValidator)
+
+DXTPackageValidator(*) {
     SendText "Validate MCP package for DXT:`n"
     SendText "1. Run 'dxt validate' on current project`n"
     SendText "2. Check package.json structure`n"
@@ -176,8 +186,9 @@ SetTimer () => 0, 1000
 ; =============================================================================
 
 ; 10. MCP Idea Generator (Ctrl+Shift+I)
-^+i::
-{
+Hotkey("^+i", MCPIdeaGenerator)
+
+MCPIdeaGenerator(*) {
     SendText "Generate MCP server ideas for current development context:`n"
     SendText "Based on:`n- Recent projects: "
     Sleep 1000
@@ -189,8 +200,9 @@ SetTimer () => 0, 1000
 }
 
 ; 11. Documentation Generator (Ctrl+Shift+G)
-^+g::
-{
+Hotkey("^+g", DocumentationGenerator)
+
+DocumentationGenerator(*) {
     SendText "Generate complete MCP documentation:`n"
     SendText "1. README.md with installation & usage`n"
     SendText "2. API documentation for all tools`n"
@@ -202,8 +214,9 @@ SetTimer () => 0, 1000
 }
 
 ; 12. Multi-MCP Orchestrator (Ctrl+Shift+O)
-^+o::
-{
+Hotkey("^+o", MultiMCPOrchestrator)
+
+MultiMCPOrchestrator(*) {
     SendText "Orchestrate multiple MCP servers:`n"
     SendText "Current active MCPs:`n"
     SendText "- Check status of all configured MCPs`n"
@@ -219,6 +232,9 @@ SetTimer () => 0, 1000
 ; =============================================================================
 ; UTILITY FUNCTIONS
 ; =============================================================================
+
+; Help hotkey (Ctrl+Shift+H)
+Hotkey("^+h", (*) => ShowHelp())
 
 ; Show help window
 ShowHelp() {
@@ -261,7 +277,8 @@ ShowHelp() {
 ; =============================================================================
 
 ; Show startup notification
-^+F1::
-{
+Hotkey("^+F1", ShowStartupNotification)
+
+ShowStartupNotification(*) {
     TrayTip "AutoHotkey MCP Scripts Loaded", "Ready for Claude Desktop MCP development!`nPress Ctrl+Shift+H for hotkey help.", 16
 }

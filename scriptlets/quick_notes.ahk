@@ -159,13 +159,13 @@ LoadNotes() {
     
     try {
         if FileExist(notesFile) {
-            fileContent := notesFile := FileRead("UTF-8")
+            fileContent := FileRead(notesFile, "UTF-8")
             editNotes.Value := fileContent
             statusBar.Text := "Loaded notes from " notesFile
             currentFile := notesFile
         } else {
             ; Create a new file with a template
-            FormatTime(currentDate, , "yyyy-MM-dd")
+            FormatTime(currentDate, A_Now, "yyyy-MM-dd")
             template := "# Quick Notes`n`n"
                       . "## " currentDate "`n"
                       . "- [ ] Task 1`n- [ ] Task 2`n`n"
@@ -193,7 +193,7 @@ SaveNotes(*) {
             }
             
             ; Create timestamped backup
-            FormatTime(timestamp, , "yyyyMMdd_HHmmss")
+            FormatTime(timestamp, A_Now, "yyyyMMdd_HHmmss")
             backupFile := backupDir "\notes_backup_" timestamp ".md"
             FileCopy(notesFile, backupFile, 1)
         }
@@ -205,7 +205,7 @@ SaveNotes(*) {
         FileAppend(editNotes.Value, notesFile, "UTF-8")
         
         ; Update status
-        FormatTime(timeNow, , "HH:mm:ss")
+        FormatTime(timeNow, A_Now, "HH:mm:ss")
         statusBar.Text := "Saved at " timeNow
         
         ; Show notification
@@ -225,7 +225,7 @@ AutoSave(*) {
     
     if (editNotes.Value != "") {
         if SaveNotes() {
-            FormatTime(timeNow, , "HH:mm:ss")
+            FormatTime(timeNow, A_Now, "HH:mm:ss")
             statusBar.Text := "Auto-saved at " timeNow
         }
     }
@@ -246,8 +246,8 @@ NewNote(*) {
     }
     
     ; Create a new note with template
-    FormatTime(currentDate, , "yyyy-MM-dd")
-    FormatTime(currentTime, , "HH:mm")
+    FormatTime(currentDate, A_Now, "yyyy-MM-dd")
+    FormatTime(currentTime, A_Now, "HH:mm")
     template := "# New Note - " currentDate "`n`n"
               . "## " currentTime "`n"
               . "- [ ] Task 1`n- [ ] Task 2`n`n"
@@ -301,7 +301,7 @@ FormatText(*) {
             ControlSetText(newText, editNotes)
         } else {
             ; No selection, insert current date/time
-            FormatTime(currentDateTime, , "yyyy-MM-dd HH:mm:ss")
+            FormatTime(currentDateTime, A_Now, "yyyy-MM-dd HH:mm:ss")
             ControlSend(editNotes, "{Text}" currentDateTime)
         }
     } catch as formatErr {
@@ -383,7 +383,7 @@ ToggleWindow(*) {
 }
 
 ; Handle window resizing
-GuiSize(thisGui( MinMax, Width, Height) {
+GuiSize(thisGui, MinMax, Width, Height) {
     global editNotes, statusBar
     
     if (MinMax = -1)  ; Window is minimized
@@ -518,9 +518,9 @@ ConvertMarkdownToHtml(markdown) {
         } else if (InStr(line, "#") = 1) {
             html .= "<h1>" SubStr(line, 3) "</h1>"
         } else if (InStr(line, "- [ ]") = 1) {
-            html .= "<p>â˜ " SubStr(line, 7) "</p>"
+            html .= "<p>☐ " SubStr(line, 7) "</p>"
         } else if (InStr(line, "- [x]") = 1) {
-            html .= "<p>â˜‘ " SubStr(line, 7) "</p>"
+            html .= "<p>☑ " SubStr(line, 7) "</p>"
         } else if (InStr(line, "- ") = 1) {
             html .= "<li>" SubStr(line, 3) "</li>"
         } else {
@@ -531,508 +531,3 @@ ConvertMarkdownToHtml(markdown) {
     html .= "</body></html>"
     return html
 }
-
-                ; Toggle checkbox to unchecked  
-
-                newText := StrReplace(selectedText, "- [x]", "- [ ]", , 1)
-
-            } else if (InStr(selectedText, "###") = 1) {
-
-                ; Reduce heading level
-
-                newText := StrReplace(selectedText, "###", "##", , 1)
-
-            } else if (InStr(selectedText, "##") = 1) {
-
-                ; Reduce heading level
-
-                newText := StrReplace(selectedText, "##", "#", , 1)
-
-            } else if (InStr(selectedText, "#") = 1) {
-
-                ; Remove heading
-
-                newText := StrReplace(selectedText, "#", "", , 1)
-
-                newText := LTrim(newText)
-
-            } else {
-
-                ; Make it a heading
-
-                newText := "# " selectedText
-
-            }
-
-            
-
-            ; Replace selected text
-
-            ControlSetText(newText, editNotes)
-
-        } else {
-
-            ; No selection, insert current date/time
-
-            FormatTime currentDateTime, , "yyyy-MM-dd HH:mm:ss"
-
-            ControlSend(editNotes, "{Text}" currentDateTime)
-
-        }
-
-    } catch as formatErr {
-
-        MsgBox("Formatting error: " . formatErr.Message, "Error", "Iconx")
-
-    }
-
-}
-
-
-
-ShowSettings(*) {
-
-    global appTitle, fontSize, fontName, colors
-
-    
-
-    ; Create settings GUI
-
-    settingsGui := Gui("+ToolWindow", "Settings - " appTitle)
-
-    settingsGui.BackColor := colors["bg"]
-
-    settingsGui.SetFont("s10 c" StrReplace(colors["text"], "0x", ""), fontName)
-
-    
-
-    ; Font settings
-
-    settingsGui.Add("Text", "x10 y10", "Font Size:")
-
-    fontSizeEdit := settingsGui.Add("Edit", "x80 y8 w50", fontSize)
-
-    settingsGui.Add("UpDown", "Range8-24", fontSize)
-
-    
-
-    settingsGui.Add("Text", "x150 y10", "Font:")
-
-    fontDropdown := settingsGui.Add("DropDownList", "x190 y8 w120 Choose1", ["Segoe UI", "Consolas", "Arial", "Courier New"])
-
-    
-
-    ; Theme selection
-
-    settingsGui.Add("Text", "x10 y40", "Theme:")
-
-    themeDropdown := settingsGui.Add("DropDownList", "x80 y38 w100 Choose1", ["Dark", "Light"])
-
-    
-
-    ; OK and Cancel buttons
-
-    okBtn := settingsGui.Add("Button", "x10 y70 w80 h30", "&OK")
-
-    cancelBtn := settingsGui.Add("Button", "x100 y70 w80 h30", "&Cancel")
-
-    
-
-    okBtn.OnEvent("Click", (*) => (
-
-        fontSize := fontSizeEdit.Value,
-
-        fontName := fontDropdown.Text,
-
-        settingsGui.Close()
-
-    ))
-
-    
-
-    cancelBtn.OnEvent("Click", (*) => settingsGui.Close())
-
-    
-
-    settingsGui.Show("w320 h110")
-
-}
-
-
-
-; =============================================================================
-
-; HELPER FUNCTIONS
-
-; =============================================================================
-
-CreateButton(guiObj, text, options, tooltip := "") {
-
-    global colors
-
-    
-
-    btn := guiObj.Add("Button", options 
-
-        " Background" StrReplace(colors["button"], "0x", "") 
-
-        " c" StrReplace(colors["buttonText"], "0x", ""))
-
-    btn.Text := text
-
-    
-
-    if (tooltip != "") {
-
-        btn.ToolTip := tooltip
-
-    }
-
-    
-
-    return btn
-
-}
-
-
-
-ToggleWindow(*) {
-
-    global appTitle, guiMain
-
-    
-
-    try {
-
-        if WinExist(appTitle) {
-
-            if WinActive(appTitle) {
-
-                guiMain.Hide()
-
-            } else {
-
-                guiMain.Show()
-
-                guiMain.Focus()
-
-            }
-
-        } else {
-
-            CreateGUI()
-
-        }
-
-    } catch as toggleErr {
-
-        ; If window doesn't exist, create it
-
-        CreateGUI()
-
-    }
-
-}
-
-
-
-; Handle window resizing
-
-GuiSize(thisGui( MinMax, Width, Height) {
-
-    global editNotes, statusBar
-
-    
-
-    if (MinMax = -1)  ; Window is minimized
-
-        return
-
-    
-
-    ; Calculate new dimensions
-
-    editHeight := Height - 100  ; Account for toolbar and status bar
-
-    editWidth := Width - 20     ; Account for margins
-
-    
-
-    try {
-
-        ; Update edit control size
-
-        editNotes.Move(10, 50, editWidth, editHeight)
-
-        
-
-        ; Update toolbar width if needed
-
-        ; (Status bar resizes automatically)
-
-    } catch as resizeErr {
-
-        ; Ignore errors during window creation
-
-        OutputDebug("Resize error: " resizeErr.Message "`n")
-
-    }
-
-}
-
-
-
-; Clean up on exit
-
-OnExit(ExitFunc)
-
-ExitFunc(ExitReason, ExitCode) {
-
-    ; Auto-save on exit if there are unsaved changes
-
-    global editNotes
-
-    try {
-
-        if (editNotes.Value != "") {
-
-            SaveNotes()
-
-        }
-
-    } catch {
-
-        ; Ignore errors during exit
-
-    }
-
-    return 0
-
-}
-
-
-
-; =============================================================================
-
-; ADDITIONAL FEATURES
-
-; =============================================================================
-
-
-
-; Search function
-
-SearchNotes() {
-
-    global editNotes
-
-    
-
-    searchTerm := InputBox("Enter search term:", "Search Notes")
-
-    if (searchTerm = "") {
-
-        return
-
-    }
-
-    
-
-    content := editNotes.Value
-
-    pos := InStr(content, searchTerm, 1)
-
-    
-
-    if (pos > 0) {
-
-        ; Select the found text
-
-        editNotes.Focus()
-
-        ; Move cursor and select text (simplified)
-
-        SendMessage(0x00B1, pos-1, pos-1+StrLen(searchTerm), editNotes)  ; EM_SETSEL
-
-    } else {
-
-        MsgBox("Text not found: " searchTerm, "Search Result", "Iconi")
-
-    }
-
-}
-
-
-
-; Word count function
-
-GetWordCount() {
-
-    global editNotes
-
-    
-
-    text := editNotes.Value
-
-    if (text = "") {
-
-        return {chars: 0, words: 0, lines: 0}
-
-    }
-
-    
-
-    chars := StrLen(text)
-
-    lines := StrSplit(text, "`n").Length
-
-    
-
-    ; Count words (split by spaces and filter empty)
-
-    words := 0
-
-    wordArray := StrSplit(RegExReplace(text, "\s+", " "), " ")
-
-    for word in wordArray {
-
-        if (Trim(word) != "") {
-
-            words++
-
-        }
-
-    }
-
-    
-
-    return {chars: chars, words: words, lines: lines}
-
-}
-
-
-
-; Export to different formats
-
-ExportNotes(format := "txt") {
-
-    global editNotes, notesFile
-
-    
-
-    if (editNotes.Value = "") {
-
-        MsgBox("No content to export!", "Export", "Iconx")
-
-        return
-
-    }
-
-    
-
-    ; Get export filename
-
-    SplitPath(notesFile, , &dir, &name)
-
-    exportFile := dir "\" name "." format
-
-    
-
-    try {
-
-        switch format {
-
-            case "txt":
-
-                ; Plain text export
-
-                try FileDelete(exportFile)
-
-                FileAppend(editNotes.Value, exportFile, "UTF-8")
-
-            case "html":
-
-                ; Simple HTML export (basic markdown conversion)
-
-                html := ConvertMarkdownToHtml(editNotes.Value)
-
-                try FileDelete(exportFile) 
-
-                FileAppend(html, exportFile, "UTF-8")
-
-        }
-
-        
-
-        MsgBox("Exported to: " exportFile, "Export Complete", "Iconi")
-
-    } catch as exportErr {
-
-        MsgBox("Export failed: " exportErr.Message, "Export Error", "Iconx")
-
-    }
-
-}
-
-
-
-; Basic markdown to HTML conversion
-
-ConvertMarkdownToHtml(markdown) {
-
-    html := "<html><head><title>Quick Notes Export</title></head><body>"
-
-    
-
-    lines := StrSplit(markdown, "`n")
-
-    for line in lines {
-
-        line := Trim(line)
-
-        if (line = "") {
-
-            html .= "<br>"
-
-        } else if (InStr(line, "###") = 1) {
-
-            html .= "<h3>" SubStr(line, 5) "</h3>"
-
-        } else if (InStr(line, "##") = 1) {
-
-            html .= "<h2>" SubStr(line, 4) "</h2>"
-
-        } else if (InStr(line, "#") = 1) {
-
-            html .= "<h1>" SubStr(line, 3) "</h1>"
-
-        } else if (InStr(line, "- [ ]") = 1) {
-
-            html .= "<p>â˜ " SubStr(line, 7) "</p>"
-
-        } else if (InStr(line, "- [x]") = 1) {
-
-            html .= "<p>â˜‘ " SubStr(line, 7) "</p>"
-
-        } else if (InStr(line, "- ") = 1) {
-
-            html .= "<li>" SubStr(line, 3) "</li>"
-
-        } else {
-
-            html .= "<p>" line "</p>"
-
-        }
-
-    }
-
-    
-
-    html .= "</body></html>"
-
-    return html
-
-}
-
-
-

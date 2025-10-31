@@ -113,14 +113,17 @@ GuiClose(*) {
 ; HOTKEYS
 ; =============================================================================
 ; Toggle window always on top with Ctrl+Space
-^Space:: {
+Hotkey("^Space", ToggleAlwaysOnTop)
+
+ToggleAlwaysOnTop(*) {
     currentState := WinGetAlwaysOnTop("A")
-    WinSetAlwaysOnTop !currentState, "A"
-    UpdateStatusBar("Always on top: " (currentState ? "Off" : "On"))
+    WinSetAlwaysOnTop(!currentState, "A")
+    newState := !currentState ? "On" : "Off"
+    UpdateStatusBar("Always on top: " . newState)
 }
 
 ; Reload script with Ctrl+R
-^r::Reload
+Hotkey("^r", (*) => Reload())
 
 ; =============================================================================
 ; AUTO-EXECUTE SECTION
@@ -135,7 +138,7 @@ WM_MOUSEMOVE(wParam, lParam, msg, hwnd) {
     if (currControl != prevControl) {
         prevControl := currControl
         if (currControl != "") {
-            SetTimer UpdateStatusBar, -100
+            SetTimer(() => UpdateStatusBar("Hover: " . currControl), -100)
         } else {
             UpdateStatusBar("Ready")
         }
@@ -149,24 +152,4 @@ ExitFunc(ExitReason, ExitCode) {
         MsgBox "Goodbye!", AppName
     }
     return 0
-}
-MyGui.Add("Text", "w300", "Hello, World! This is an AutoHotkey v2 script.")
-MyGui.Add("Button", "Default", "OK").OnEvent("Click", (*) => ExitApp())
-MyGui.Show("w320 h120")
-
-; A simple hotkey that shows a message box when Win+H is pressed
-#h:: {
-    MsgBox "Hello, World!`nThis is a message from your AutoHotkey script.", "Greetings"
-}
-
-; Display a tooltip when the script starts
-ToolTip "AutoHotkey Script is Running!`nPress Win+H to test", 100, 100
-SetTimer () => ToolTip(), -3000  ; Remove the tooltip after 3 seconds
-
-; Function to handle script exit
-OnExit(ExitReason, ExitCode) {
-    if (ExitReason = "Exit") {
-        MsgBox "Goodbye! Thanks for using this script.", "Farewell"
-    }
-    return 0  ; Call the default exit routine
 }
