@@ -31,7 +31,7 @@ LogOperation(operation) {
     
     ; Optional: Write to log file
     try {
-        FileAppend A_Now . " - " . operation . "`n", TEMP_DIR . "ahk_operations.log"
+        FileAppend(A_Now . " - " . operation . "`n", TEMP_DIR . "ahk_operations.log")
     }
     catch {
         ; Ignore logging errors
@@ -67,16 +67,15 @@ ShowStatus() {
 ; =============================================================================
 
 ; 1. Advanced MCP Server Scaffolding (Ctrl+Shift+M)
-^+m::
-{
+MCPScaffolding(*) {
     LogOperation("MCP Server Scaffolding")
     
     ; First get project details
-    InputBox &projectName, "New MCP Server", "Enter MCP server name (without -mcp suffix):", , 350, 130
+    InputBox(&projectName, "New MCP Server", "Enter MCP server name (without -mcp suffix):")
     if (projectName == "")
         return
     
-    InputBox &description, "MCP Server Description", "Brief description of the MCP server:", , 400, 130
+    InputBox(&description, "MCP Server Description", "Brief description of the MCP server:")
     if (description == "")
         description := "A Claude MCP server for " . projectName
     
@@ -105,14 +104,14 @@ ShowStatus() {
     Sleep 1000
     SendText "Write to basic memory: Created " . projectName . "-mcp scaffolding at " . A_Now . " [" . projectName . "-mcp, scaffold, created, high]"
 }
+Hotkey("^+m", MCPScaffolding)
 
 ; 2. Enhanced Standards Conformance Checker (Ctrl+Shift+C)
-^+c::
-{
+StandardsConformanceCheck(*) {
     LogOperation("Standards Conformance Check")
     
     ; Check for active project
-    InputBox &projectPath, "Project Path", "Enter project path (relative to D:\Dev\repos\):", , 400, 130
+    InputBox(&projectPath, "Project Path", "Enter project path (relative to D:\Dev\repos\):")
     if (projectPath == "")
         projectPath := "current directory"
     
@@ -140,14 +139,14 @@ ShowStatus() {
     
     SendText prompt
 }
+Hotkey("^+c", StandardsConformanceCheck)
 
 ; 3. Advanced Log Analyzer with AI Processing (Ctrl+Shift+L)
-^+l::
-{
+LogAnalyzer(*) {
     LogOperation("Log Analysis")
     
     ; Check for specific MCP server or analyze all
-    InputBox &mcpServer, "MCP Server", "Enter MCP server name (leave empty for all):", , 350, 130
+    InputBox(&mcpServer, "MCP Server", "Enter MCP server name (leave empty for all):")
     
     logPattern := mcpServer != "" ? "mcp-server-" . mcpServer . "-mcp.log" : "mcp-server-*.log"
     
@@ -174,3 +173,4 @@ ShowStatus() {
     
     SendText prompt
 }
+Hotkey("^+l", LogAnalyzer)

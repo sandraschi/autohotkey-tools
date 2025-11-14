@@ -20,17 +20,11 @@
 
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
+#Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
 
 ; Suppress error popups - log to file instead
 OnError(LogError)
-
-LogError(Thrown, Mode) {
-    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
-    FileAppend(errorMsg, "github_repo_manager_errors.log", "UTF-8")
-    OutputDebug(errorMsg)  ; Enable LLM debugging
-    return 1  ; Suppress popup (1 = suppress, 0 = show)
-}
 
 
 class GitHubRepoManager {
@@ -179,7 +173,7 @@ class GitHubRepoManager {
                 content .= "- **Total Stars:** " . this.GetTotalStars() . "`n"
                 content .= "- **Languages:** " . this.GetLanguages() . "`n"
                 
-                FileWrite(content, filePath)
+                FileOpen(filePath, "w", "UTF-8").Write(content)
                 TrayTip("URLs Exported!", "Repository URLs exported to " . filePath, 2)
             }
         } catch as e {
@@ -222,11 +216,13 @@ class GitHubRepoManager {
         Hotkey("^!r", (*) => this.RefreshRepositories())
         
         ; Close with Escape
-        Hotkey("Escape", (*) => {
-            if (WinExist("GitHub Repository Manager")) {
-                WinClose("GitHub Repository Manager")
-            }
-        })
+        Hotkey("Escape", GitHubRepoManager.HandleEscape)
+    }
+    
+    static HandleEscape(*) {
+        if (WinExist("GitHub Repository Manager")) {
+            WinClose("GitHub Repository Manager")
+        }
     }
 }
 

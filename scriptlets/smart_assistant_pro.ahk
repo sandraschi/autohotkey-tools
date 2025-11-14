@@ -1,389 +1,284 @@
-; ==============================================================================
-; Smart Assistant Pro
-; @name: Smart Assistant Pro
-; @version: 1.0.0
-; @description: AI-powered assistant with voice commands, automation, and smart workflows. Intelligent automation assistant that understands natural language commands and executes complex workflows.
-; @description: Features voice command recognition, context-aware automation, workflow creation, and integration with system tools. Supports custom command training, workflow templates, and smart task scheduling.
-; @description: Advanced productivity tool for power users who want to automate complex tasks through natural language commands and intelligent workflow orchestration.
-; @category: ai
-; @author: Sandra
-; @hotkeys: ^!a, #v, ^!s
-; @enabled: true
-; @priority: 15
-; @tag: ai, assistant, automation, voice, workflows, productivity, smart, intelligent
-; @cli: --command <text> - Execute voice command
-; @cli: --workflow <name> - Run specific workflow
-; @cli: --train - Start command training mode
-; @cli: --help - Show CLI usage and assistant options
-; @dependencies: 
-; ==============================================================================
-
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
 
+; ==============================================================================
+; Smart Assistant Pro
+; @name: Smart Assistant Pro
+; @version: 2.0.0
+; @description: Productivity palette with quick commands, simulated workflows, and logging.
+; @description: Offers single-click utilities, workflow automation, voice-toggle simulation,
+; @description: and an activity log suitable for dashboards.
+; @category: productivity
+; @author: Sandra
+; @hotkeys: ^!a, ^!s, ^!v
+; @enabled: true
+; @priority: 15
+; @tag: assistant, productivity, workflows, automation, dashboard
+; @cli: --workflow <name> - Run workflow (morning|work|break|end)
+; @cli: --command <text> - Execute command (time|date|weather|note:<text>)
+; ==============================================================================
 
-; Suppress error popups - log to file instead
-OnError(LogError)
-
-LogError(Thrown, Mode) {
-    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
-    FileAppend(errorMsg, "smart_assistant_pro_errors.log", "UTF-8")
-    OutputDebug(errorMsg)  ; Enable LLM debugging
-    return 1  ; Suppress popup (1 = suppress, 0 = show)
-}
-
-
-class SmartAssistant {
-    static commands := Map()
-    static workflows := Map()
+class SmartAssistantPro {
+    static gui := ""
+    static statusText := ""
+    static outputEdit := ""
+    static commandEdit := ""
+    static runButton := ""
+    static voiceButton := ""
     static voiceEnabled := false
-    static currentContext := ""
-    
+
+    static quickCommands := Map(
+        "time", SmartAssistantPro.ShowTime,
+        "date", SmartAssistantPro.ShowDate,
+        "weather", SmartAssistantPro.ShowWeather,
+        "screenshot", SmartAssistantPro.TakeScreenshot,
+        "browser", (*) => Run("msedge.exe", , "Hide"),
+        "calculator", (*) => Run("calc.exe", , "Hide"),
+        "notepad", (*) => Run("notepad.exe", , "Hide"),
+        "focus", SmartAssistantPro.EnableFocusMode,
+        "unfocus", SmartAssistantPro.DisableFocusMode,
+        "pause", SmartAssistantPro.StartBreak
+    )
+
+    static workflows := Map(
+        "morning", ["time", "date", "weather", "note:Morning reflections"],
+        "work", ["browser", "notepad", "focus"],
+        "break", ["pause"],
+        "end", ["note:Wrap-up summary", "unfocus"]
+    )
+
     static Init() {
-        this.LoadCommands()
-        this.LoadWorkflows()
-        this.CreateGUI()
+        SmartAssistantPro.CreateGui()
+        SmartAssistantPro.RegisterHotkeys()
+        SmartAssistantPro.AppendLog("Assistant ready.")
     }
-    
-    static LoadCommands() {
-        ; Voice commands
-        this.commands["open browser"] := this.OpenBrowser.Bind(this)
-        this.commands["open calculator"] := this.OpenCalculator.Bind(this)
-        this.commands["open notepad"] := this.OpenNotepad.Bind(this)
-        this.commands["take screenshot"] := this.TakeScreenshot.Bind(this)
-        this.commands["show time"] := this.ShowTime.Bind(this)
-        this.commands["show date"] := this.ShowDate.Bind(this)
-        this.commands["what's the weather"] := this.GetWeather.Bind(this)
-        this.commands["search for"] := this.SearchWeb.Bind(this)
-        this.commands["create note"] := this.CreateNote.Bind(this)
-        this.commands["set reminder"] := this.SetReminder.Bind(this)
-        
-        ; Smart workflows
-        this.commands["start work session"] := this.StartWorkSession.Bind(this)
-        this.commands["end work session"] := this.EndWorkSession.Bind(this)
-        this.commands["focus mode"] := this.EnableFocusMode.Bind(this)
-        this.commands["break time"] := this.StartBreak.Bind(this)
-        this.commands["meeting mode"] := this.EnableMeetingMode.Bind(this)
+
+    static CreateGui() {
+        if (SmartAssistantPro.gui) {
+            SmartAssistantPro.gui.Show()
+            SmartAssistantPro.gui.Activate()
+            return
+        }
+
+        newGui := Gui("+Resize +MinSize600x520", "Smart Assistant Pro")
+        newGui.BackColor := "F4F6F8"
+        newGui.OnEvent("Close", SmartAssistantPro.HideWindow.Bind(SmartAssistantPro))
+        newGui.OnEvent("Size", SmartAssistantPro.HandleResize.Bind(SmartAssistantPro))
+
+        newGui.SetFont("s12 Bold", "Segoe UI")
+        newGui.Add("Text", "x20 y15 w560 h25 Center", "Smart Assistant Pro")
+        newGui.SetFont("s10", "Segoe UI")
+
+        SmartAssistantPro.voiceButton := newGui.Add("Button", "x20 y55 w160 h28", "Enable Voice Input")
+        SmartAssistantPro.voiceButton.OnEvent("Click", SmartAssistantPro.ToggleVoice.Bind(SmartAssistantPro))
+
+        SmartAssistantPro.statusText := newGui.Add("Text", "x200 y60 w380 h20", "Status: Ready")
+
+        newGui.SetFont("s10 Bold", "Segoe UI")
+        newGui.Add("Text", "x20 y100 w560 h20", "Quick Commands")
+        newGui.SetFont("s10", "Segoe UI")
+        layout := [["Time","time"],["Date","date"],["Weather","weather"],["Screenshot","screenshot"],
+                   ["Browser","browser"],["Calculator","calculator"],["Notepad","notepad"]]
+        x := 20, y := 130
+        for _, entry in layout {
+            label := entry[1]
+            command := entry[2]
+            btn := newGui.Add("Button", Format("x{} y{} w120 h28", x, y), label)
+            btn.OnEvent("Click", SmartAssistantPro.ExecuteCommand.Bind(SmartAssistantPro, command))
+            x += 130
+            if (x > 520) {
+                x := 20
+                y += 35
+            }
+        }
+
+        newGui.SetFont("s10 Bold", "Segoe UI")
+        newGui.Add("Text", "x20 y220 w560 h20", "Workflows")
+        newGui.SetFont("s10", "Segoe UI")
+        workflows := [["Morning Routine","morning"],["Work Setup","work"],["Break Time","break"],["End of Day","end"]]
+        x := 20, y := 250
+        for _, entry in workflows {
+            btn := newGui.Add("Button", Format("x{} y{} w140 h32", x, y), entry[1])
+            btn.OnEvent("Click", SmartAssistantPro.RunWorkflow.Bind(SmartAssistantPro, entry[2]))
+            x += 150
+        }
+
+        newGui.SetFont("s10 Bold", "Segoe UI")
+        newGui.Add("Text", "x20 y300 w560 h20", "Custom Command")
+        newGui.SetFont("s10", "Segoe UI")
+        SmartAssistantPro.commandEdit := newGui.Add("Edit", "x20 y325 w420 h26")
+        SmartAssistantPro.runButton := newGui.Add("Button", "x450 y325 w120 h26", "Execute")
+        SmartAssistantPro.runButton.OnEvent("Click", SmartAssistantPro.RunCustomCommand.Bind(SmartAssistantPro))
+
+        newGui.SetFont("s10 Bold", "Segoe UI")
+        newGui.Add("Text", "x20 y365 w560 h20", "Activity Log")
+        newGui.SetFont("s10", "Segoe UI")
+        SmartAssistantPro.outputEdit := newGui.Add("Edit", "x20 y390 w560 h120 ReadOnly VScroll -Wrap")
+
+        SmartAssistantPro.gui := newGui
+        newGui.Show()
     }
-    
-    static LoadWorkflows() {
-        ; Workflow definitions
-        this.workflows["morning routine"] := ["show time", "show date", "what's the weather", "create note"]
-        this.workflows["work setup"] := ["open browser", "open notepad", "focus mode"]
-        this.workflows["break routine"] := ["break time", "show time"]
-        this.workflows["end day"] := ["end work session", "create note", "show time"]
+
+    static RegisterHotkeys() {
+        Hotkey("^!a", SmartAssistantPro.ShowWindow.Bind(SmartAssistantPro), "On")
+        Hotkey("^!s", SmartAssistantPro.RunWorkflow.Bind(SmartAssistantPro, "work"), "On")
+        Hotkey("^!v", SmartAssistantPro.ToggleVoice.Bind(SmartAssistantPro), "On")
     }
-    
-    static CreateGUI() {
-        this.gui := Gui("+Resize", "Smart Assistant Pro")
-        
-        ; Title
-        this.gui.Add("Text", "w600 h30 Center", "ðŸ¤– Smart Assistant Pro")
-        
-        ; Voice control panel
-        voicePanel := this.gui.Add("Text", "w600 h60")
-        
-        this.voiceBtn := this.gui.Add("Button", "x10 y10 w100 h40", "ðŸŽ¤ Start Listening")
-        this.voiceBtn.OnEvent("Click", this.ToggleVoice.Bind(this))
-        
-        this.gui.Add("Text", "x120 y20 w200 h20", "Voice Status: " . (this.voiceEnabled ? "Active" : "Inactive"))
-        
-        ; Quick commands
-        this.gui.Add("Text", "w600 h20", "Quick Commands:")
-        
-        cmdPanel := this.gui.Add("Text", "w600 h100")
-        
-        timeBtn := this.gui.Add("Button", "x10 y10 w80 h25", "Time")
-        dateBtn := this.gui.Add("Button", "x100 y10 w80 h25", "Date")
-        weatherBtn := this.gui.Add("Button", "x190 y10 w80 h25", "Weather")
-        screenshotBtn := this.gui.Add("Button", "x280 y10 w80 h25", "Screenshot")
-        
-        browserBtn := this.gui.Add("Button", "x10 y40 w80 h25", "Browser")
-        calcBtn := this.gui.Add("Button", "x100 y40 w80 h25", "Calculator")
-        notepadBtn := this.gui.Add("Button", "x190 y40 w80 h25", "Notepad")
-        searchBtn := this.gui.Add("Button", "x280 y40 w80 h25", "Search")
-        
-        timeBtn.OnEvent("Click", this.ShowTime.Bind(this))
-        dateBtn.OnEvent("Click", this.ShowDate.Bind(this))
-        weatherBtn.OnEvent("Click", this.GetWeather.Bind(this))
-        screenshotBtn.OnEvent("Click", this.TakeScreenshot.Bind(this))
-        browserBtn.OnEvent("Click", this.OpenBrowser.Bind(this))
-        calcBtn.OnEvent("Click", this.OpenCalculator.Bind(this))
-        notepadBtn.OnEvent("Click", this.OpenNotepad.Bind(this))
-        searchBtn.OnEvent("Click", this.SearchWeb.Bind(this))
-        
-        ; Workflows
-        this.gui.Add("Text", "w600 h20", "Smart Workflows:")
-        
-        workflowPanel := this.gui.Add("Text", "w600 h80")
-        
-        morningBtn := this.gui.Add("Button", "x10 y10 w100 h25", "Morning Routine")
-        workBtn := this.gui.Add("Button", "x120 y10 w100 h25", "Work Setup")
-        breakBtn := this.gui.Add("Button", "x230 y10 w100 h25", "Break Time")
-        endBtn := this.gui.Add("Button", "x340 y10 w100 h25", "End Day")
-        
-        morningBtn.OnEvent("Click", this.RunWorkflow.Bind(this, "morning routine"))
-        workBtn.OnEvent("Click", this.RunWorkflow.Bind(this, "work setup"))
-        breakBtn.OnEvent("Click", this.RunWorkflow.Bind(this, "break routine"))
-        endBtn.OnEvent("Click", this.RunWorkflow.Bind(this, "end day"))
-        
-        ; Custom command input
-        this.gui.Add("Text", "w600 h20", "Custom Command:")
-        this.commandInput := this.gui.Add("Edit", "w500 h25", "")
-        executeBtn := this.gui.Add("Button", "x520 y8 w60 h25", "Execute")
-        executeBtn.OnEvent("Click", this.ExecuteCustomCommand.Bind(this))
-        
-        ; Output area
-        this.gui.Add("Text", "w600 h20", "Assistant Output:")
-        this.outputArea := this.gui.Add("Edit", "w600 h150 VScroll HScroll ReadOnly", "")
-        
-        ; Status bar
-        this.statusBar := this.gui.Add("Text", "w600 h20 BackgroundE0E0E0", "Ready - Say 'Hey Assistant' to activate voice commands")
-        
-        this.gui.Show("w620 h450")
-        this.StartVoiceListener()
+
+    static ShowWindow(*) {
+        SmartAssistantPro.CreateGui()
+        SmartAssistantPro.statusText.Text := "Status: Window shown."
+        SmartAssistantPro.AppendLog("Window shown via hotkey.")
     }
-    
+
+    static HideWindow(*) {
+        SmartAssistantPro.gui.Hide()
+        SmartAssistantPro.AppendLog("Window hidden - script still running.")
+        SmartAssistantPro.statusText.Text := "Status: Hidden."
+    }
+
+    static HandleResize(gui, minMax, width, height) {
+        if (!SmartAssistantPro.outputEdit) {
+            return
+        }
+        SmartAssistantPro.outputEdit.Move(20, height - 150, width - 40, 120)
+        SmartAssistantPro.commandEdit.Move(20, height - 200, width - 180, 26)
+        SmartAssistantPro.runButton.Move(width - 140, height - 200, 120, 26)
+        SmartAssistantPro.statusText.Move(200, 60, width - 220, 20)
+    }
+
     static ToggleVoice(*) {
-        this.voiceEnabled := !this.voiceEnabled
-        this.voiceBtn.Text := this.voiceEnabled ? "ðŸ”‡ Stop Listening" : "ðŸŽ¤ Start Listening"
-        this.statusBar.Text := this.voiceEnabled ? "Voice commands active" : "Voice commands inactive"
+        SmartAssistantPro.voiceEnabled := !SmartAssistantPro.voiceEnabled
+        SmartAssistantPro.voiceButton.Text := SmartAssistantPro.voiceEnabled ? "Disable Voice Input" : "Enable Voice Input"
+        SmartAssistantPro.statusText.Text := "Status: Voice " . (SmartAssistantPro.voiceEnabled ? "enabled" : "disabled")
+        SmartAssistantPro.AppendLog("Voice input " . (SmartAssistantPro.voiceEnabled ? "enabled" : "disabled") . ".")
     }
-    
-    static StartVoiceListener() {
-        ; Simulate voice recognition
-        SetTimer(() => {
-            if (this.voiceEnabled) {
-                ; In a real implementation, this would use speech recognition
-                ; For demo purposes, we'll simulate voice input
-            }
-        }, 1000)
-    }
-    
-    static ProcessVoiceCommand(command) {
-        command := StrLower(command)
-        this.AppendOutput("Voice: " . command)
-        
-        ; Check for exact matches
-        if (this.commands.Has(command)) {
-            this.commands[command].Call()
+
+    static RunCustomCommand(*) {
+        input := Trim(SmartAssistantPro.commandEdit.Text)
+        if (!input) {
+            SmartAssistantPro.statusText.Text := "Status: enter a command."
             return
         }
-        
-        ; Check for partial matches
-        for cmd, func in this.commands {
-            if (InStr(command, cmd)) {
-                this.AppendOutput("Executing: " . cmd)
-                func.Call()
+        SmartAssistantPro.commandEdit.Text := ""
+        SmartAssistantPro.ExecuteCommand(input)
+    }
+
+    static ExecuteCommand(commandText) {
+        cmd := StrLower(Trim(commandText))
+        if (InStr(cmd, "note:") = 1) {
+            text := Trim(SubStr(cmd, 6))
+            SmartAssistantPro.CreateNote(text)
+            return
+        }
+
+        if (SmartAssistantPro.quickCommands.Has(cmd)) {
+            SmartAssistantPro.quickCommands[cmd].Call(SmartAssistantPro)
+            SmartAssistantPro.statusText.Text := "Status: Executed '" . cmd . "'."
+            SmartAssistantPro.AppendLog("Command executed: " . cmd)
+            return
+        }
+
+        SmartAssistantPro.statusText.Text := "Status: Unknown command (" . cmd . ")."
+        SmartAssistantPro.AppendLog("Unknown command: " . cmd)
+    }
+
+    static RunWorkflow(name) {
+        key := StrLower(name)
+        if (!SmartAssistantPro.workflows.Has(key)) {
+            SmartAssistantPro.statusText.Text := "Status: Workflow '" . key . "' not found."
+            SmartAssistantPro.AppendLog("Workflow not found: " . key)
+            return
+        }
+        SmartAssistantPro.AppendLog("Workflow started: " . key)
+        for _, action in SmartAssistantPro.workflows[key] {
+            SmartAssistantPro.ExecuteCommand(action)
+            Sleep(250)
+        }
+        SmartAssistantPro.statusText.Text := "Status: Workflow '" . key . "' complete."
+        SmartAssistantPro.AppendLog("Workflow completed: " . key)
+    }
+
+    static ShowTime() {
+        timeStr := ""
+        timeStr := FormatTime(, "HH:mm:ss")
+        SmartAssistantPro.AppendLog("Current time: " . timeStr)
+    }
+
+    static ShowDate() {
+        dateStr := ""
+        dateStr := FormatTime(, "dddd, MMMM dd, yyyy")
+        SmartAssistantPro.AppendLog("Today's date: " . dateStr)
+    }
+
+    static ShowWeather() {
+        SmartAssistantPro.AppendLog("Weather (simulated): Sunny, 72°F / 22°C.")
+    }
+
+    static TakeScreenshot() {
+        SmartAssistantPro.AppendLog("Screenshot captured (placeholder).")
+    }
+
+    static CreateNote(text := "") {
+        content := text
+        if (!content) {
+            result := InputBox("Enter note text:", "Create Note")
+            if (result.Result != "OK") {
+                SmartAssistantPro.AppendLog("Note creation cancelled.")
+                return
+            }
+            content := Trim(result.Value)
+            if (!content) {
+                SmartAssistantPro.AppendLog("Empty note ignored.")
                 return
             }
         }
-        
-        ; Check for workflows
-        for workflow, steps in this.workflows {
-            if (InStr(command, workflow)) {
-                this.RunWorkflow(workflow)
-                return
-            }
+        timestamp := ""
+        timestamp := FormatTime(, "yyyy-MM-dd HH:mm:ss")
+        line := "[" . timestamp . "] " . content . "`n"
+        try {
+            FileAppend(line, A_ScriptDir . "\smart_assistant_notes.txt", "UTF-8")
+            SmartAssistantPro.AppendLog("Note saved: " . content)
+        } catch as err {
+            SmartAssistantPro.AppendLog("Failed to save note: " . err.Message)
         }
-        
-        this.AppendOutput("Command not recognized: " . command)
     }
-    
-    static RunWorkflow(workflowName) {
-        if (!this.workflows.Has(workflowName)) {
-            this.AppendOutput("Workflow not found: " . workflowName)
+
+    static EnableFocusMode() {
+        SmartAssistantPro.AppendLog("Focus mode enabled (simulation).")
+    }
+
+    static DisableFocusMode() {
+        SmartAssistantPro.AppendLog("Focus mode disabled (simulation).")
+    }
+
+    static StartBreak() {
+        SmartAssistantPro.AppendLog("Break timer started (simulation).")
+    }
+
+    static AppendLog(text) {
+        if (!SmartAssistantPro.outputEdit) {
             return
         }
-        
-        this.AppendOutput("Starting workflow: " . workflowName)
-        steps := this.workflows[workflowName]
-        
-        for i, step in steps {
-            this.AppendOutput("Step " . i . ": " . step)
-            if (this.commands.Has(step)) {
-                this.commands[step].Call()
-                Sleep(1000) ; Delay between steps
-            }
-        }
-        
-        this.AppendOutput("Workflow completed: " . workflowName)
-    }
-    
-    static ExecuteCustomCommand(*) {
-        command := this.commandInput.Text
-        if (command) {
-            this.ProcessVoiceCommand(command)
-            this.commandInput.Text := ""
-        }
-    }
-    
-    static OpenBrowser(*) {
-        Run("msedge.exe")
-        this.AppendOutput("Opening browser...")
-    }
-    
-    static OpenCalculator(*) {
-        Run("calc.exe")
-        this.AppendOutput("Opening calculator...")
-    }
-    
-    static OpenNotepad(*) {
-        Run("notepad.exe")
-        this.AppendOutput("Opening notepad...")
-    }
-    
-    static TakeScreenshot(*) {
-        ; Take screenshot
-        timestamp := FormatTime(, "yyyyMMdd_HHmmss")
-        filename := "Screenshot_" . timestamp . ".png"
-        
-        ; Simple screenshot (would use more sophisticated method in real implementation)
-        this.AppendOutput("Screenshot saved: " . filename)
-    }
-    
-    static ShowTime(*) {
-        time := FormatTime(, "HH:mm:ss")
-        this.AppendOutput("Current time: " . time)
-        ToolTip("Current time: " . time)
-        SetTimer(() => ToolTip(), -3000)
-    }
-    
-    static ShowDate(*) {
-        date := FormatTime(, "dddd, MMMM dd, yyyy")
-        this.AppendOutput("Today's date: " . date)
-        ToolTip("Today's date: " . date)
-        SetTimer(() => ToolTip(), -3000)
-    }
-    
-    static GetWeather(*) {
-        ; Simulate weather API call
-        weather := "Sunny, 72Â°F (22Â°C)"
-        this.AppendOutput("Current weather: " . weather)
-        ToolTip("Weather: " . weather)
-        SetTimer(() => ToolTip(), -5000)
-    }
-    
-    static SearchWeb(*) {
-        searchTerm := InputBox("Enter search term:", "Web Search")
-        if (searchTerm != "") {
-            Run("msedge.exe https://www.google.com/search?q=" . searchTerm)
-            this.AppendOutput("Searching for: " . searchTerm)
-        }
-    }
-    
-    static CreateNote(*) {
-        noteContent := InputBox("Enter note content:", "Create Note")
-        if (noteContent != "") {
-            timestamp := FormatTime(, "yyyy-MM-dd HH:mm:ss")
-            noteFile := "Notes_" . FormatTime(, "yyyyMMdd") . ".txt"
-            
-            try {
-                FileAppend("[" . timestamp . "] " . noteContent . "`n", noteFile)
-                this.AppendOutput("Note saved: " . noteContent)
-            } catch {
-                this.AppendOutput("Failed to save note")
-            }
-        }
-    }
-    
-    static SetReminder(*) {
-        reminderText := InputBox("Enter reminder:", "Set Reminder")
-        if (reminderText != "") {
-            ; In a real implementation, this would set a system reminder
-            this.AppendOutput("Reminder set: " . reminderText)
-            ToolTip("Reminder: " . reminderText)
-            SetTimer(() => ToolTip(), -10000)
-        }
-    }
-    
-    static StartWorkSession(*) {
-        this.AppendOutput("Starting work session...")
-        this.currentContext := "work"
-        
-        ; Enable focus mode
-        this.EnableFocusMode()
-        
-        ; Open work applications
-        this.OpenBrowser()
-        Sleep(1000)
-        this.OpenNotepad()
-        
-        this.AppendOutput("Work session started - Focus mode enabled")
-    }
-    
-    static EndWorkSession(*) {
-        this.AppendOutput("Ending work session...")
-        this.currentContext := ""
-        
-        ; Disable focus mode
-        this.DisableFocusMode()
-        
-        ; Create end-of-day note
-        this.CreateNote()
-        
-        this.AppendOutput("Work session ended")
-    }
-    
-    static EnableFocusMode(*) {
-        this.AppendOutput("Enabling focus mode...")
-        
-        ; Minimize distracting applications
-        WinMinimize("ahk_class Chrome_WidgetWin_1")
-        WinMinimize("ahk_class MozillaWindowClass")
-        
-        ; Show focus mode notification
-        ToolTip("Focus mode enabled - Distractions minimized")
-        SetTimer(() => ToolTip(), -3000)
-    }
-    
-    static DisableFocusMode(*) {
-        this.AppendOutput("Disabling focus mode...")
-        ToolTip("Focus mode disabled")
-        SetTimer(() => ToolTip(), -3000)
-    }
-    
-    static StartBreak(*) {
-        this.AppendOutput("Starting break time...")
-        
-        ; Show break reminder
-        ToolTip("Break time! Take a 5-minute break")
-        SetTimer(() => ToolTip(), -5000)
-        
-        ; Start break timer
-        SetTimer(() => {
-            ToolTip("Break time is over - Back to work!")
-            SetTimer(() => ToolTip(), -3000)
-        }, -300000) ; 5 minutes
-    }
-    
-    static EnableMeetingMode(*) {
-        this.AppendOutput("Enabling meeting mode...")
-        
-        ; Mute system sounds
-        SoundSetVolume(0)
-        
-        ; Show meeting mode notification
-        ToolTip("Meeting mode enabled - Sounds muted")
-        SetTimer(() => ToolTip(), -3000)
-    }
-    
-    static AppendOutput(text) {
+        timestamp := ""
         timestamp := FormatTime(, "HH:mm:ss")
-        this.outputArea.Text .= "[" . timestamp . "] " . text . "`n"
-        
-        ; Auto-scroll to bottom
-        this.outputArea.Focus()
-        Send("^{End}")
+        SmartAssistantPro.outputEdit.Value .= "[" . timestamp . "] " . text . "`n"
+        SmartAssistantPro.outputEdit.SendMessage(0x00B7, 0, 0)  ; scroll to bottom
     }
 }
 
-; Hotkeys
-Hotkey("^!a", (*) => SmartAssistant.Init()
-#Hotkey("v", (*) => SmartAssistant.ToggleVoice()
-Hotkey("^!s", (*) => SmartAssistant.StartWorkSession()
-
-; Initialize
-SmartAssistant.Init()
-
+; ------------------------------------------------------------------------------
+; CLI support and script entry
+if (A_Args.Length > 0) {
+    SmartAssistantPro.Init()
+    for index, arg in A_Args {
+        if (arg = "--workflow" && index < A_Args.Length) {
+            SmartAssistantPro.RunWorkflow(A_Args[index + 1])
+        } else if (arg = "--command" && index < A_Args.Length) {
+            SmartAssistantPro.ExecuteCommand(A_Args[index + 1])
+        }
+    }
+} else {
+    SmartAssistantPro.Init()
+}
 

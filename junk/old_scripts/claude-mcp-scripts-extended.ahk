@@ -27,10 +27,10 @@ if !FileExist(configFile) {
     
     ; Write default config
     try {
-        FileAppend defaultConfig, configFile
-        MsgBox "Created default configuration file at:`n" configFile, "Configuration Created", "Iconi"
+        FileAppend(defaultConfig, configFile)
+        MsgBox("Created default configuration file at:`n" . configFile, "Configuration Created", "Iconi")
     } catch as e {
-        MsgBox "Failed to create configuration file: " e.Message, "Error", "Iconx"
+        MsgBox("Failed to create configuration file: " . e.Message, "Error", "Iconx")
     }
 }
 
@@ -93,25 +93,25 @@ LogOperation(operation) {
         logEntry := FormatTime(A_Now, "yyyy-MM-dd HH:mm:ss") . " - " . operation . "`n"
         
         ; Append to log file
-        FileAppend logEntry, LOG_FILE
+        FileAppend(logEntry, LOG_FILE)
         
         ; Rotate log if it gets too large
         maxLogSizeMB := IniRead(configFile, "Logging", "MaxLogSizeMB", "10")
         if (FileGetSize(LOG_FILE, "M") > maxLogSizeMB) {
-            FileMove LOG_FILE, LOG_FILE ".bak", 1
+            FileMove(LOG_FILE, LOG_FILE . ".bak", 1)
         }
     } catch Error as e {
         ; Couldn't log, but don't crash the script
-        OutputDebug "Failed to log operation: " e.Message
+        OutputDebug("Failed to log operation: " . e.Message)
     }
 }
 
 SendClaudeMessage(message) {
     try {
-        WinActivate "Claude"
-        Sleep 500
-        SendText message
-        Send "{Enter}"
+        WinActivate("Claude")
+        Sleep(500)
+        SendText(message)
+        Send("{Enter}")
     } catch {
         ; Ignore if Claude not active
     }
@@ -122,11 +122,11 @@ ShowStatus() {
     status := "Last Operation: " . LastOperation
     if (OperationTime != "")
         status .= "`nTime: " . OperationTime
-    TrayTip "MCP Development Status", status, 3
+    TrayTip(status, "MCP Development Status", 3)
 }
 
 ShowStartupNotification() {
-    TrayTip "MCP Development Scripts", "AutoHotkey MCP Scripts loaded! Press Ctrl+Shift+H for help", 3
+    TrayTip("AutoHotkey MCP Scripts loaded! Press Ctrl+Shift+H for help", "MCP Development Scripts", 3)
 }
 
 ; Enhanced Multi-Column Help System
@@ -171,7 +171,7 @@ ShowEnhancedHelp() {
     colWidth := 180
     
     ; Column 1: Core Development
-    HelpGui.Add("Text", "x15 y" . yPos . " w" . colWidth . " c0x0066CC +Bold", "CORE DEVELOPMENT")
+    HelpGui.Add("Text", "x15 y" . yPos . " w" . colWidth . " c0x0066CC", "CORE DEVELOPMENT")
     yPos += 25
     HelpGui.Add("Text", "x15 y" . yPos . " w" . colWidth, "Ctrl+Shift+M")
     HelpGui.Add("Text", "x15 y" . (yPos + 15) . " w" . colWidth . " c0x666666", "MCP Server Scaffolding")
@@ -185,7 +185,7 @@ ShowEnhancedHelp() {
     ; Column 2: Advanced Workflows
     yPos := 90
     colX := 210
-    HelpGui.Add("Text", "x" . colX . " y" . yPos . " w" . colWidth . " c0x009900 +Bold", "ADVANCED WORKFLOWS")
+    HelpGui.Add("Text", "x" . colX . " y" . yPos . " w" . colWidth . " c0x009900", "ADVANCED WORKFLOWS")
     yPos += 25
     HelpGui.Add("Text", "x" . colX . " y" . yPos . " w" . colWidth, "Ctrl+Shift+T")
     HelpGui.Add("Text", "x" . colX . " y" . (yPos + 15) . " w" . colWidth . " c0x666666", "AI Smart Troubleshooter")
@@ -202,7 +202,7 @@ ShowEnhancedHelp() {
     ; Column 3: System Management
     yPos := 90
     colX := 405
-    HelpGui.Add("Text", "x" . colX . " y" . yPos . " w" . colWidth . " c0xCC6600 +Bold", "SYSTEM MANAGEMENT")
+    HelpGui.Add("Text", "x" . colX . " y" . yPos . " w" . colWidth . " c0xCC6600", "SYSTEM MANAGEMENT")
     yPos += 25
     HelpGui.Add("Text", "x" . colX . " y" . yPos . " w" . colWidth, "Ctrl+Alt+R")
     HelpGui.Add("Text", "x" . colX . " y" . (yPos + 15) . " w" . colWidth . " c0x666666", "Intelligent Restart")
@@ -220,7 +220,7 @@ ShowEnhancedHelp() {
     yPos := 290
     
     ; Creative & Productivity
-    HelpGui.Add("Text", "x15 y" . yPos . " w" . colWidth . " c0x9900CC +Bold", "CREATIVE & PRODUCTIVITY")
+    HelpGui.Add("Text", "x15 y" . yPos . " w" . colWidth . " c0x9900CC", "CREATIVE & PRODUCTIVITY")
     yPos += 25
     HelpGui.Add("Text", "x15 y" . yPos . " w" . colWidth, "Ctrl+Shift+I")
     HelpGui.Add("Text", "x15 y" . (yPos + 15) . " w" . colWidth . " c0x666666", "AI MCP Idea Generator")
@@ -234,7 +234,7 @@ ShowEnhancedHelp() {
     ; Help & Status
     yPos := 315
     colX := 210
-    HelpGui.Add("Text", "x" . colX . " y" . yPos . " w" . colWidth . " c0x666666 +Bold", "HELP & STATUS")
+    HelpGui.Add("Text", "x" . colX . " y" . yPos . " w" . colWidth . " c0x666666", "HELP & STATUS")
     yPos += 25
     HelpGui.Add("Text", "x" . colX . " y" . yPos . " w" . colWidth, "Ctrl+Shift+H")
     HelpGui.Add("Text", "x" . colX . " y" . (yPos + 15) . " w" . colWidth . " c0x666666", "Show This Help")
@@ -248,7 +248,7 @@ ShowEnhancedHelp() {
     ; Operation History Box
     yPos := 315
     colX := 405
-    HelpGui.Add("Text", "x" . colX . " y" . yPos . " w" . colWidth . " c0x000000 +Bold", "OPERATION STATUS")
+    HelpGui.Add("Text", "x" . colX . " y" . yPos . " w" . colWidth . " c0x000000", "OPERATION STATUS")
     yPos += 25
     statusText := "Last: " . (LastOperation != "" ? LastOperation : "None")
     if (OperationTime != "")
@@ -285,7 +285,7 @@ ShowElaborateWelcome() {
     WelcomeGui.MarginY := 15
     
     ; Main title
-    WelcomeGui.Add("Text", "x15 y15 w700 Center +Bold", "AutoHotkey MCP Development Scripts v2.1")
+    WelcomeGui.Add("Text", "x15 y15 w700 Center", "AutoHotkey MCP Development Scripts v2.1")
     WelcomeGui.Add("Text", "x15 y40 w700 Center c0x666666", "Advanced Claude Desktop MCP Development Automation")
     
     ; Create tab control
@@ -446,16 +446,18 @@ ShowElaborateWelcome() {
 ; =============================================================================
 
 ; Advanced MCP Server Scaffolding (Ctrl+Shift+M)
-^+m::
-{
+MCPServerScaffolding() {
     LogOperation("MCP Server Scaffolding")
-    projectName := InputBox("New MCP Server", "Enter MCP server name (without -mcp suffix):", "w350 h130").value
-    if (projectName == "") 
+    result := InputBox("Enter MCP server name (without -mcp suffix):", "New MCP Server", "w350 h130")
+    if (result.Result != "OK" || result.Value == "")
         return
+    projectName := result.Value
     
-    description := InputBox("MCP Server Description", "Brief description:", "w400 h130").value
-    if (description == "") 
+    result := InputBox("Brief description:", "MCP Server Description", "w400 h130")
+    if (result.Result != "OK" || result.Value == "")
         description := "A Claude MCP server for " . projectName
+    else
+        description := result.Value
     
     prompt := "Create new MCP server: " . projectName . "-mcp`n"
     prompt .= "Description: " . description . "`n`n"
@@ -473,20 +475,22 @@ ShowElaborateWelcome() {
     prompt .= "- Add comprehensive test suite`n`n"
     prompt .= "Generate complete project structure with all files."
     
-    SendText prompt
-    Sleep 2000
-    Send "{Enter}"
-    Sleep 1000
-    SendText "Write to basic memory: Created " . projectName . "-mcp scaffolding at " . A_Now . " [" . projectName . "-mcp, scaffold, created, high]"
+    SendText(prompt)
+    Sleep(2000)
+    Send("{Enter}")
+    Sleep(1000)
+    SendText("Write to basic memory: Created " . projectName . "-mcp scaffolding at " . A_Now . " [" . projectName . "-mcp, scaffold, created, high]")
 }
+Hotkey("^+m", MCPServerScaffolding)
 
 ; Standards Conformance Checker (Ctrl+Shift+C)
-^+c::
-{
+StandardsConformanceCheck() {
     LogOperation("Standards Conformance Check")
-    projectPath := InputBox("Project Path", "Enter project path (relative to D:\Dev\repos\):", "w400 h130").value
-    if (projectPath == "") 
+    result := InputBox("Enter project path (relative to D:\Dev\repos\):", "Project Path", "w400 h130")
+    if (result.Result != "OK" || result.Value == "")
         projectPath := "current directory"
+    else
+        projectPath := result.Value
     
     prompt := "Run comprehensive MCP standards conformance check`n"
     prompt .= "Project: " . projectPath . "`n`n"
@@ -505,14 +509,15 @@ ShowElaborateWelcome() {
     prompt .= "✅ DXT packaging compatibility`n`n"
     prompt .= "Generate detailed compliance report with specific fixes and optimizations."
     
-    SendText prompt
+    SendText(prompt)
 }
+Hotkey("^+c", StandardsConformanceCheck)
 
 ; Advanced Log Analyzer (Ctrl+Shift+L)
-^+l::
-{
+AdvancedLogAnalyzer(*) {
     LogOperation("Log Analysis")
-    mcpServer := InputBox("MCP Server", "Enter MCP server name (leave empty for all):", "w350 h130").value
+    result := InputBox("Enter MCP server name (leave empty for all):", "MCP Server", "w350 h130")
+    mcpServer := (result.Result = "OK" ? result.Value : "")
     
     logPattern := mcpServer != "" ? "mcp-server-" . mcpServer . "-mcp.log" : "mcp-server-*.log"
     
@@ -532,43 +537,43 @@ ShowElaborateWelcome() {
     prompt .= "🔵 Info: Performance metrics, usage stats`n`n"
     prompt .= "Provide root cause analysis and specific fix recommendations."
     
-    SendText prompt
+    SendText(prompt)
 }
+Hotkey("^+l", AdvancedLogAnalyzer)
 
 ; =============================================================================
 ; ADVANCED WORKFLOW SCRIPTS
 ; =============================================================================
 
 ; AI Smart Troubleshooter (Ctrl+Shift+T)
-^+t::
-{
+AISmartTroubleshooter(*) {
     LogOperation("Smart Troubleshooting")
     
-    SendText "AI-Powered MCP Troubleshooting Sequence`n"
-    SendText "=====================================`n`n"
-    SendText "Phase 1: System State Analysis - Checking MCP server statuses`n"
-    Sleep 1500
-    Send "{Enter}"
-    Sleep 2000
-    SendText "Phase 2: Configuration Validation - Analyzing Claude Desktop config`n"
-    Sleep 1500
-    Send "{Enter}"
-    Sleep 2000
-    SendText "Phase 3: Log Pattern Analysis - Processing recent error patterns`n"
-    Sleep 1500
-    Send "{Enter}"
-    Sleep 2000
-    SendText "`nGenerate comprehensive diagnostic report with:`n"
-    SendText "- Priority-ranked issues`n"
-    SendText "- Step-by-step fix instructions`n"
-    SendText "- Code patches where needed`n"
-    SendText "- Preventive measures`n"
-    SendText "- Monitoring recommendations"
+    SendText("AI-Powered MCP Troubleshooting Sequence`n")
+    SendText("=====================================`n`n")
+    SendText("Phase 1: System State Analysis - Checking MCP server statuses`n")
+    Sleep(1500)
+    Send("{Enter}")
+    Sleep(2000)
+    SendText("Phase 2: Configuration Validation - Analyzing Claude Desktop config`n")
+    Sleep(1500)
+    Send("{Enter}")
+    Sleep(2000)
+    SendText("Phase 3: Log Pattern Analysis - Processing recent error patterns`n")
+    Sleep(1500)
+    Send("{Enter}")
+    Sleep(2000)
+    SendText("`nGenerate comprehensive diagnostic report with:`n")
+    SendText("- Priority-ranked issues`n")
+    SendText("- Step-by-step fix instructions`n")
+    SendText("- Code patches where needed`n")
+    SendText("- Preventive measures`n")
+    SendText("- Monitoring recommendations")
 }
+Hotkey("^+t", AISmartTroubleshooter)
 
 ; Enhanced Development Cycle (Ctrl+Shift+D)
-^+d::
-{
+EnhancedDevelopmentCycle(*) {
     LogOperation("Development Cycle")
     
     prompt := "Enhanced MCP Development Lifecycle`n"
@@ -593,65 +598,65 @@ ShowElaborateWelcome() {
     prompt .= "- GitHub release creation`n`n"
     prompt .= "Execute full pipeline and report results."
     
-    SendText prompt
+    SendText(prompt)
 }
+Hotkey("^+d", EnhancedDevelopmentCycle)
 
 ; =============================================================================
 ; SYSTEM MANAGEMENT
 ; =============================================================================
 
 ; Intelligent Claude Desktop Restart (Ctrl+Alt+R)
-^!r::
-{
+IntelligentClaudeRestart(*) {
     LogOperation("Claude Desktop Restart")
-    TrayTip "Restarting Claude Desktop", "Gracefully closing and restarting...", 2
+    TrayTip("Gracefully closing and restarting...", "Restarting Claude Desktop", 2)
     
     try {
-        WinActivate "Claude"
-        Sleep 500
-        Send "!{F4}"
-        Sleep 3000
-        WinWaitClose "Claude",, 10
+        WinActivate("Claude")
+        Sleep(500)
+        Send("!{F4}")
+        Sleep(3000)
+        WinWaitClose("Claude",, 10)
     } catch {
-        Run "taskkill /f /im Claude.exe",, "Hide"
-        Sleep 2000
+        Run("taskkill /f /im Claude.exe",, "Hide")
+        Sleep(2000)
     }
     
     try {
-        FileDelete TEMP_DIR . "claude_restart.lock"
+        FileDelete(TEMP_DIR . "claude_restart.lock")
     } catch {
     }
     
-    Run CLAUDE_EXE
-    Sleep 3000
-    TrayTip "Claude Desktop Restarted", "Ready for MCP development!", 2
+    Run(CLAUDE_EXE)
+    Sleep(3000)
+    TrayTip("Ready for MCP development!", "Claude Desktop Restarted", 2)
     SendClaudeMessage("Claude Desktop restarted at " . A_Now . " - MCP servers should reconnect automatically")
 }
+Hotkey("^!r", IntelligentClaudeRestart)
 
 ; Emergency Restart (Ctrl+Alt+X)
-^!x::
-{
+EmergencyRestart(*) {
     LogOperation("Emergency Restart")
-    TrayTip "Emergency Restart", "Force killing and restarting...", 2
+    TrayTip("Force killing and restarting...", "Emergency Restart", 2)
     
-    Run "taskkill /f /im Claude.exe /t",, "Hide"
-    Run "taskkill /f /im python.exe /f",, "Hide"
+    Run("taskkill /f /im Claude.exe /t",, "Hide")
+    Run("taskkill /f /im python.exe /f",, "Hide")
     
-    Sleep 3000
+    Sleep(3000)
     
     try {
-        FileDelete TEMP_DIR . "claude_*.lock"
-        FileDelete TEMP_DIR . "mcp_*.tmp"
+        FileDelete(TEMP_DIR . "claude_*.lock")
+        FileDelete(TEMP_DIR . "mcp_*.tmp")
     } catch {
     }
     
-    Run CLAUDE_EXE
-    TrayTip "Emergency Restart Complete", "Claude Desktop restarted fresh!", 3
+    Run(CLAUDE_EXE)
+    TrayTip("Claude Desktop restarted fresh!", "Emergency Restart Complete", 3)
 }
+Hotkey("^!x", EmergencyRestart)
 
 ; Hot Config Reload (Ctrl+Shift+R)
-^+r::
-{
+HotConfigReload(*) {
     LogOperation("Config Hot Reload")
     
     prompt := "🔄 Claude Desktop Config Hot Reload`n"
@@ -669,20 +674,20 @@ ShowElaborateWelcome() {
     prompt .= "- MCP server health checks`n`n"
     prompt .= "Proceed with hot reload sequence?"
     
-    SendText prompt
-    Sleep 5000
-    SendText "`n`nConfig validated - triggering restart...`n"
-    Sleep 2000
-    Send "^!r"
+    SendText(prompt)
+    Sleep(5000)
+    SendText("`n`nConfig validated - triggering restart...`n")
+    Sleep(2000)
+    Send("^!r")
 }
+Hotkey("^+r", HotConfigReload)
 
 ; =============================================================================
 ; FILE & PROJECT MONITORING
 ; =============================================================================
 
 ; Advanced File Watcher (Ctrl+Shift+W)
-^+w::
-{
+AdvancedFileWatcher(*) {
     LogOperation("File Watcher Setup")
     
     prompt := "🔍 Advanced MCP File Monitoring System`n"
@@ -704,17 +709,19 @@ ShowElaborateWelcome() {
     prompt .= "- Performance optimization recommendations`n`n"
     prompt .= "Start comprehensive monitoring with AI analysis?"
     
-    SendText prompt
+    SendText(prompt)
 }
+Hotkey("^+w", AdvancedFileWatcher)
 
 ; Enhanced DXT Package Management (Ctrl+Shift+P)
-^+p::
-{
+EnhancedDXTPackageManagement(*) {
     LogOperation("DXT Package Validation")
     
-    projectDir := InputBox("Project Directory", "Enter project directory name:", "w350 h130").value
-    if (projectDir == "") 
+    result := InputBox("Enter project directory name:", "Project Directory", "w350 h130")
+    if (result.Result != "OK" || result.Value == "")
         projectDir := "[current project]"
+    else
+        projectDir := result.Value
     
     prompt := "📦 Enhanced DXT Package Management`n"
     prompt .= "================================`n"
@@ -730,21 +737,23 @@ ShowElaborateWelcome() {
     prompt .= "8. 📊 Performance benchmarking`n`n"
     prompt .= "Execute complete packaging pipeline?"
     
-    SendText prompt
+    SendText(prompt)
 }
+Hotkey("^+p", EnhancedDXTPackageManagement)
 
 ; =============================================================================
 ; CREATIVE & PRODUCTIVITY TOOLS
 ; =============================================================================
 
 ; AI MCP Idea Generator (Ctrl+Shift+I)
-^+i::
-{
+AIMCPIdeaGenerator(*) {
     LogOperation("MCP Idea Generation")
     
-    context := InputBox("Development Context", "Enter current focus area (optional):", "w400 h130").value
-    if (context == "") 
+    result := InputBox("Enter current focus area (optional):", "Development Context", "w400 h130")
+    if (result.Result != "OK" || result.Value == "")
         context := "general MCP development"
+    else
+        context := result.Value
     
     prompt := "💡 AI-Powered MCP Server Innovation Engine`n"
     prompt .= "========================================`n`n"
@@ -763,17 +772,19 @@ ShowElaborateWelcome() {
     prompt .= "- Risk assessment`n`n"
     prompt .= "Prioritize by: Impact × Feasibility ÷ Time Investment"
     
-    SendText prompt
+    SendText(prompt)
 }
+Hotkey("^+i", AIMCPIdeaGenerator)
 
 ; Documentation Generator (Ctrl+Shift+G)
-^+g::
-{
+DocumentationGenerator(*) {
     LogOperation("Documentation Generation")
     
-    docType := InputBox("Documentation Type", "Enter doc type (api|user|dev|troubleshooting|all):", "w400 h130").value
-    if (docType == "") 
+    result := InputBox("Enter doc type (api|user|dev|troubleshooting|all):", "Documentation Type", "w400 h130")
+    if (result.Result != "OK" || result.Value == "")
         docType := "all"
+    else
+        docType := result.Value
     
     prompt := "📚 AI Documentation Generation Suite`n"
     prompt .= "==================================`n`n"
@@ -808,12 +819,12 @@ ShowElaborateWelcome() {
     prompt .= "- Recovery procedures`n`n"
     prompt .= "Generate comprehensive documentation suite with Austrian/Vienna context where relevant."
     
-    SendText prompt
+    SendText(prompt)
 }
+Hotkey("^+g", DocumentationGenerator)
 
 ; Multi-MCP Orchestrator (Ctrl+Shift+O)
-^+o::
-{
+MultiMCPOrchestrator(*) {
     LogOperation("Multi-MCP Orchestration")
     
     prompt := "🎭 Multi-MCP Server Orchestration Center`n"
@@ -847,34 +858,26 @@ ShowElaborateWelcome() {
     prompt .= "- Optimization opportunities`n`n"
     prompt .= "Execute comprehensive MCP ecosystem analysis and optimization?"
     
-    SendText prompt
+    SendText(prompt)
 }
+Hotkey("^+o", MultiMCPOrchestrator)
 
 ; =============================================================================
 ; UTILITY & HELP FUNCTIONS
 ; =============================================================================
 
 ; Enhanced Help Display (Ctrl+Shift+H)
-^+h::
-{
-    ShowEnhancedHelp()
-}
+Hotkey("^+h", ShowEnhancedHelp)
 
 ; Status Display (Ctrl+Shift+S)
-^+s::
-{
-    ShowStatus()
-}
+Hotkey("^+s", ShowStatus)
 
 ; =============================================================================
 ; STARTUP & INITIALIZATION
 ; =============================================================================
 
 ; Welcome Screen Display (Ctrl+F1)
-^F1::
-{
-    ShowElaborateWelcome()
-}
+Hotkey("^F1", ShowElaborateWelcome)
 
 ; =============================================================================
 ; AUTO-INITIALIZATION
@@ -883,7 +886,7 @@ ShowElaborateWelcome() {
 ; Ensure temp directory exists and log startup
 if !DirExist(TEMP_DIR) {
     try {
-        DirCreate TEMP_DIR
+        DirCreate(TEMP_DIR)
     } catch {
         ; Continue if can't create temp dir
     }
@@ -893,7 +896,7 @@ if !DirExist(TEMP_DIR) {
 LogOperation("AutoHotkey MCP Scripts Loaded - v2.0 SYNTAX FIXED")
 
 ; Show startup notification after brief delay
-SetTimer ShowStartupNotification, -2000
+SetTimer(ShowStartupNotification, -2000)
 
 ; =============================================================================
 ; ERROR HANDLING & CLEANUP

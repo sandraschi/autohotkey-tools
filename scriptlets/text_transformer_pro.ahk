@@ -19,17 +19,11 @@
 
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
+#Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
 
 ; Suppress error popups - log to file instead
 OnError(LogError)
-
-LogError(Thrown, Mode) {
-    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
-    FileAppend(errorMsg, "text_transformer_pro_errors.log", "UTF-8")
-    OutputDebug(errorMsg)  ; Enable LLM debugging
-    return 1  ; Suppress popup (1 = suppress, 0 = show)
-}
 
 
 class TextTransformer {
@@ -159,7 +153,8 @@ class TextTransformer {
     static ReverseText(*) {
         text := this.inputArea.Text
         reversed := ""
-        for i := StrLen(text) to 1 {
+        Loop StrLen(text) {
+            i := StrLen(text) - A_Index + 1
             reversed .= SubStr(text, i, 1)
         }
         this.outputArea.Text := reversed
@@ -238,6 +233,114 @@ class TextTransformer {
     }
 }
 
+; JSON utility class for parsing and stringifying JSON
+class JSON {
+    static parse(jsonString) {
+        if (!jsonString) {
+            return {}
+        }
+        
+        try {
+            jsonString := Trim(jsonString, " `t`r`n")
+            if (SubStr(jsonString, 1, 1) = "{" && SubStr(jsonString, 0) = "}") {
+                obj := {}
+                content := SubStr(jsonString, 2, -1)
+                
+                ; Simple parser for basic JSON objects
+                Loop Parse, content, "," {
+                    pair := StrSplit(Trim(A_LoopField), ":")
+                    if (pair.Length >= 2) {
+                        key := Trim(pair[1], ' `t"')
+                        value := Trim(pair[2], ' `t"')
+                        ; Handle numeric values
+                        if (RegExMatch(value, "^\d+$") || RegExMatch(value, "^\d+\.\d+$")) {
+                            obj[key] := value + 0  ; Convert to number
+                        } else if (value = "true" || value = "false") {
+                            obj[key] := (value = "true")
+                        } else if (value = "null") {
+                            obj[key] := ""
+                        } else {
+                            obj[key] := value
+                        }
+                    }
+                }
+                return obj
+            }
+            return {}
+        } catch {
+            return {}
+        }
+    }
+    
+    static stringify(obj, indent := 0) {
+        if (!IsObject(obj)) {
+            if (obj = "") {
+                return '""'
+            } else if (obj is String) {
+                escaped := StrReplace(obj, "\", "\\")
+                escaped := StrReplace(escaped, '"', '\"')
+                escaped := StrReplace(escaped, "`n", "\n")
+                escaped := StrReplace(escaped, "`r", "\r")
+                escaped := StrReplace(escaped, "`t", "\t")
+                return '"' . escaped . '"'
+            } else {
+                return obj
+            }
+        }
+        
+        indentStr := ""
+        if (indent > 0) {
+            indentStr := "`n"
+            loop indent {
+                indentStr .= " "
+            }
+        }
+        
+        result := "{"
+        first := true
+        
+        for key, value in obj {
+            if (!first) {
+                result .= ","
+            }
+            if (indent > 0) {
+                result .= indentStr
+            }
+            result .= '"' . key . '": '
+            
+            if (IsObject(value)) {
+                if (indent > 0) {
+                    result .= this.stringify(value, indent)
+                } else {
+                    result .= this.stringify(value, 0)
+                }
+            } else if (value is String) {
+                escaped := StrReplace(value, "\", "\\")
+                escaped := StrReplace(escaped, '"', '\"')
+                escaped := StrReplace(escaped, "`n", "\n")
+                escaped := StrReplace(escaped, "`r", "\r")
+                escaped := StrReplace(escaped, "`t", "\t")
+                result .= '"' . escaped . '"'
+            } else if (value is Number) {
+                result .= value
+            } else if (value = true) {
+                result .= "true"
+            } else if (value = false) {
+                result .= "false"
+            } else {
+                result .= 'null'
+            }
+            first := false
+        }
+        
+        if (indent > 0) {
+            result .= "`n"
+        }
+        result .= "}"
+        return result
+    }
+}
+
 ; Helper functions
 Join(array, delimiter) {
     result := ""
@@ -251,30 +354,56 @@ Join(array, delimiter) {
 }
 
 Base64Encode(text) {
-    ; Simple base64 encoding implementation
-    chars := "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
-    result := ""
-    padding := 0
-    
-    ; Convert to bytes and encode
-    for i := 1 to StrLen(text) {
-        char := Asc(SubStr(text, i, 1))
-        ; Implementation would go here - simplified for demo
+    ; Base64 encoding using Windows API
+    try {
+        ; Convert text to UTF-8 bytes
+        textBuf := Buffer(StrPut(text, "UTF-8"))
+        StrPut(text, textBuf, "UTF-8")
+        
+        ; Get required buffer size for Base64 string
+        if !DllCall("crypt32\CryptBinaryToString", "Ptr", textBuf.Ptr, "UInt", textBuf.Size - 1, "UInt", 0x1, "Ptr", 0, "UInt*", &size := 0)
+            throw Error("Failed to get buffer size")
+        
+        ; Encode to Base64
+        encoded := Buffer(size * 2)
+        if !DllCall("crypt32\CryptBinaryToString", "Ptr", textBuf.Ptr, "UInt", textBuf.Size - 1, "UInt", 0x1, "Ptr", encoded.Ptr, "UInt*", &size)
+            throw Error("Failed to encode")
+        
+        result := StrGet(encoded, "UTF-16")
+        ; Remove CRLF line breaks that Windows API adds
+        result := StrReplace(result, "`r`n", "")
+        result := StrReplace(result, "`r", "")
+        result := StrReplace(result, "`n", "")
+        return result
+    } catch as e {
+        throw Error("Base64 encoding failed: " . e.Message)
     }
-    
-    return result
 }
 
 Base64Decode(text) {
-    ; Simple base64 decoding implementation
-    return "Decoded: " . text
+    ; Base64 decoding using Windows API
+    try {
+        ; Get required buffer size for decoded binary
+        if !DllCall("crypt32\CryptStringToBinary", "Str", text, "UInt", 0, "UInt", 0x1, "Ptr", 0, "UInt*", &size := 0, "Ptr", 0, "Ptr", 0)
+            throw Error("Invalid Base64 string")
+        
+        ; Decode from Base64
+        buf := Buffer(size)
+        if !DllCall("crypt32\CryptStringToBinary", "Str", text, "UInt", 0, "UInt", 0x1, "Ptr", buf.Ptr, "UInt*", &size, "Ptr", 0, "Ptr", 0)
+            throw Error("Decode failed")
+        
+        decoded := StrGet(buf, size, "UTF-8")
+        return decoded
+    } catch as e {
+        throw Error("Base64 decoding failed: " . e.Message)
+    }
 }
 
 ; Hotkeys
-Hotkey("^!t", (*) => TextTransformer.Init()
-Hotkey("^!u", (*) => TextTransformer.ToUpperCase()
-Hotkey("^!l", (*) => TextTransformer.ToLowerCase()
-Hotkey("^!s", (*) => TextTransformer.ToSnakeCase()
+Hotkey("^!t", (*) => TextTransformer.Init())
+Hotkey("^!u", (*) => TextTransformer.ToUpperCase())
+Hotkey("^!l", (*) => TextTransformer.ToLowerCase())
+Hotkey("^!s", (*) => TextTransformer.ToSnakeCase())
 
 ; Initialize
 TextTransformer.Init()

@@ -1,10 +1,26 @@
 # AutoHotkey Development Rules
 
+## 📚 RULE #0: Check Central Documentation First
+
+**BEFORE making any changes, ALWAYS check:**
+
+- **Central Docs:** `D:\Dev\repos\mcp-central-docs\`
+- **Standards:** `mcp-central-docs/STANDARDS.md` - Documentation & testing standards
+- **FastMCP Guide:** `mcp-central-docs/FASTMCP_2.12_MIGRATION.md` - Framework standards
+
+---
+
 ## Rule #1: AutoHotkey v2 Syntax Only - NO v1 ALLOWED
 - **MANDATORY**: All scriptlets MUST be written in AutoHotkey v2 syntax from the start
 - **FORBIDDEN**: Never write v1 syntax and "fix later" - this creates technical debt
 - **REQUIRED**: Use `#Requires AutoHotkey v2.0+` directive in every scriptlet
 - **ENFORCED**: The linter will catch and flag any v1 incompatibilities
+
+### When Writing New Scripts:
+- **ALWAYS write v2 syntax from the start** - DO NOT write v1 and convert
+- **If unsure about v2 syntax:** Consult `docs/Complete_V1_to_V2_Migration_Guide.md`
+- **If still unsure:** Check the official AutoHotkey v2 documentation in `AutoHotkeyDocs` repository
+- **User instruction format:** When user says "write a new script that does X. use ahk v2 syntax only, no v1 syntax allowed. if in doubt, consult standards doc" - follow this exactly
 
 ## AutoHotkey v2 Syntax Requirements
 
@@ -305,5 +321,6 @@ Before writing ANY code, AI must verify:
 **Rule #4: ALWAYS use /ErrorStdOut when running AutoHotkey scripts.**
 **Rule #5: Use StrUpper() and StrLower(), NOT .ToUpper() or .ToLower() methods.**
 **Rule #6: RUN LINTER after every scriptlet creation to catch v1 syntax.**
+**Rule #7: When a bug, syntax violation, or bad pattern is discovered in one scriptlet, immediately search the entire repository for the same pattern and remediate every occurrence in the same sweep. Never leave the same fix to be rediscovered in other files.**
 
 Any violation of these rules will result in immediate rejection of the scriptlet.

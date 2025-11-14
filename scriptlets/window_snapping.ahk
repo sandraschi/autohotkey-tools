@@ -1,5 +1,6 @@
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
+#Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
 ; ==============================================================================
 ; Window Snapping
@@ -22,42 +23,43 @@
 ; Error handling - log to file instead of showing popups
 OnError(LogError)
 
-LogError(Thrown, Mode) {
-    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
-    FileAppend(errorMsg, "window_snapping_errors.log", "UTF-8")
-    OutputDebug(errorMsg)  ; Enable LLM debugging
-    return 1  ; Suppress popup (1 = suppress, 0 = show)
-}
-
 ; Snap to Left Half
-Hotkey("#Left", (*) => {  ; Win+Left
+Hotkey("#Left", SnapLeft)
+
+SnapLeft(*) {
     active_id := WinExist("A")
     WinRestore("ahk_id " . active_id)
     WinGetPos(&X, &Y, &Width, &Height, "ahk_id " . active_id)
     WinMove(0, 0, A_ScreenWidth//2, A_ScreenHeight, "ahk_id " . active_id)
-})
+}
 
 ; Snap to Right Half
-Hotkey("#Right", (*) => {  ; Win+Right
+Hotkey("#Right", SnapRight)
+
+SnapRight(*) {
     active_id := WinExist("A")
     WinRestore("ahk_id " . active_id)
     WinGetPos(&X, &Y, &Width, &Height, "ahk_id " . active_id)
     WinMove(A_ScreenWidth//2, 0, A_ScreenWidth//2, A_ScreenHeight, "ahk_id " . active_id)
-})
+}
 
 ; Snap to Top Half
-Hotkey("#Up", (*) => {  ; Win+Up
+Hotkey("#Up", SnapTop)
+
+SnapTop(*) {
     active_id := WinExist("A")
     WinRestore("ahk_id " . active_id)
     WinGetPos(&X, &Y, &Width, &Height, "ahk_id " . active_id)
     WinMove(0, 0, A_ScreenWidth, A_ScreenHeight//2, "ahk_id " . active_id)
-})
+}
 
 ; Snap to Bottom Half
-Hotkey("#Down", (*) => {  ; Win+Down
+Hotkey("#Down", SnapBottom)
+
+SnapBottom(*) {
     active_id := WinExist("A")
     WinRestore("ahk_id " . active_id)
     WinGetPos(&X, &Y, &Width, &Height, "ahk_id " . active_id)
     WinMove(0, A_ScreenHeight//2, A_ScreenWidth, A_ScreenHeight//2, "ahk_id " . active_id)
-})
+}
 

@@ -20,437 +20,447 @@
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
 
+OnError(TetrisApp.HandleError)
 
-; Suppress error popups - log to file instead
-OnError(LogError)
-
-LogError(Thrown, Mode) {
-    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
-    FileAppend(errorMsg, "tetris_classic_errors.log", "UTF-8")
-    OutputDebug(errorMsg)  ; Enable LLM debugging
-    return 1  ; Suppress popup (1 = suppress, 0 = show)
-}
-
-
-class TetrisGame {
+class TetrisApp {
     static gui := ""
-    static canvas := ""
-    static gameBoard := []
+    static boardCtrl := ""
+    static nextCtrl := ""
+    static scoreCtrl := ""
+    static statusCtrl := ""
+    static timerId := 0
+    static board := []
     static currentPiece := ""
     static nextPiece := ""
     static score := 0
     static level := 1
-    static lines := 0
-    static gameRunning := false
-    static gameSpeed := 500
-    static timer := ""
-    
-    ; Tetris pieces
-    static pieces := [
-        ; I piece
-        {shape: [[1,1,1,1]], color: "0x00FFFF", name: "I"},
-        ; O piece
-        {shape: [[1,1],[1,1]], color: "0xFFFF00", name: "O"},
-        ; T piece
-        {shape: [[0,1,0],[1,1,1]], color: "0x800080", name: "T"},
-        ; S piece
-        {shape: [[0,1,1],[1,1,0]], color: "0x00FF00", name: "S"},
-        ; Z piece
-        {shape: [[1,1,0],[0,1,1]], color: "0xFF0000", name: "Z"},
-        ; J piece
-        {shape: [[1,0,0],[1,1,1]], color: "0x0000FF", name: "J"},
-        ; L piece
-        {shape: [[0,0,1],[1,1,1]], color: "0xFFA500", name: "L"}
+    static dropInterval := 600
+
+    static pieceSet := [
+        {name: "I", color: "█", shape: [[1,1,1,1]]},
+        {name: "O", color: "█", shape: [[1,1],[1,1]]},
+        {name: "T", color: "█", shape: [[0,1,0],[1,1,1]]},
+        {name: "S", color: "█", shape: [[0,1,1],[1,1,0]]},
+        {name: "Z", color: "█", shape: [[1,1,0],[0,1,1]]},
+        {name: "J", color: "█", shape: [[1,0,0],[1,1,1]]},
+        {name: "L", color: "█", shape: [[0,0,1],[1,1,1]]}
     ]
-    
+
     static Init() {
-        this.InitializeBoard()
-        this.CreateGUI()
-        this.SetupHotkeys()
+        TetrisApp.ResetBoard()
+        TetrisApp.CreateGui()
+        TetrisApp.SetupHotkeys()
+        TetrisApp.UpdateBoardView()
+        TetrisApp.UpdateStatus("Press Start to begin.")
     }
-    
-    static InitializeBoard() {
-        ; Create 20x10 game board
-        this.gameBoard := []
+
+    static HandleError(Thrown, Mode) {
+        message := "Tetris error: " . Thrown.Message . " at line " . Thrown.Line
+        try FileAppend(message . "`n", "tetris_classic_errors.log", "UTF-8")
+        OutputDebug(message)
+        return 1
+    }
+
+    static ResetBoard() {
+        TetrisApp.board := []
         Loop 20 {
             row := []
             Loop 10 {
                 row.Push(0)
             }
-            this.gameBoard.Push(row)
+            TetrisApp.board.Push(row)
         }
+        TetrisApp.currentPiece := ""
+        TetrisApp.nextPiece := TetrisApp.RandomPiece()
+        TetrisApp.score := 0
+        TetrisApp.level := 1
+        TetrisApp.dropInterval := 600
     }
-    
-    static CreateGUI() {
-        this.gui := Gui("+Resize -MaximizeBox", "Tetris Classic")
-        this.gui.BackColor := "1a1a1a"
-        this.gui.SetFont("s12 cFFFFFF Bold", "Segoe UI")
-        
-        ; Title
-        this.gui.Add("Text", "x20 y20 w400 Center Bold", "🎮 Tetris Classic")
-        
-        ; Game area
-        this.canvas := this.gui.Add("Text", "x20 y60 w200 h400 Background000000 Border", "")
-        this.canvas.SetFont("s8 cFFFFFF", "Courier New")
-        
-        ; Next piece area
-        this.gui.Add("Text", "x240 y60 w120 h80 Background000000 Border", "Next:")
-        this.gui.Add("Text", "x250 y90 w100 h50 Background000000", "")
-        
-        ; Score area
-        this.gui.Add("Text", "x240 y160 w120 h200 Background2d2d2d", "")
-        scoreText := this.gui.Add("Text", "x250 y180 w100 Center", "Score: 0")
-        levelText := this.gui.Add("Text", "x250 y210 w100 Center", "Level: 1")
-        linesText := this.gui.Add("Text", "x250 y240 w100 Center", "Lines: 0")
-        
-        ; Controls
-        this.gui.Add("Text", "x250 y280 w100 Center Bold", "Controls:")
-        this.gui.Add("Text", "x250 y310 w100", "← → Move")
-        this.gui.Add("Text", "x250 y330 w100", "↓ Soft Drop")
-        this.gui.Add("Text", "x250 y350 w100", "Space Hard Drop")
-        this.gui.Add("Text", "x250 y370 w100", "↑ Rotate")
-        this.gui.Add("Text", "x250 y390 w100", "P Pause")
-        this.gui.Add("Text", "x250 y410 w100", "R Restart")
-        
-        ; Start button
-        startBtn := this.gui.Add("Button", "x250 y450 w100 h40 Background4a4a4a", "Start Game")
-        startBtn.SetFont("s10 cFFFFFF Bold", "Segoe UI")
-        startBtn.OnEvent("Click", this.StartGame.Bind(this))
-        
-        ; Store references
-        this.gui.scoreText := scoreText
-        this.gui.levelText := levelText
-        this.gui.linesText := linesText
-        
-        this.gui.Show("w400 h550")
+
+    static CreateGui() {
+        if (TetrisApp.gui) {
+            TetrisApp.gui.Destroy()
+        }
+        newGui := Gui("+Resize +MinSize380x520", "Tetris Classic")
+        newGui.BackColor := "1f1f1f"
+        newGui.SetFont("s10", "Segoe UI")
+
+        newGui.AddText("x20 y16 w340 Center cFFFFFF", "Tetris – simple falling block demo")
+        TetrisApp.boardCtrl := newGui.AddText("x20 y48 w200 h400 Background000000 Border", "")
+        TetrisApp.boardCtrl.SetFont("s10", "Consolas")
+
+        newGui.AddText("x240 y60 w120 Center cFFFFFF", "Next")
+        TetrisApp.nextCtrl := newGui.AddText("x240 y88 w120 h80 Background000000 Border", "")
+        TetrisApp.nextCtrl.SetFont("s12", "Consolas")
+
+        TetrisApp.scoreCtrl := newGui.AddText("x240 y180 w120 h60 cFFFFFF Center", "Score: 0`nLevel: 1")
+        TetrisApp.statusCtrl := newGui.AddText("x20 y460 w340 h24 cFFFFFF", "")
+
+        btnStart := newGui.AddButton("x240 y260 w120 h32", "Start")
+        btnStart.OnEvent("Click", (*) => TetrisApp.StartGame())
+        btnPause := newGui.AddButton("x240 y300 w120 h32", "Pause")
+        btnPause.OnEvent("Click", (*) => TetrisApp.PauseGame())
+        btnReset := newGui.AddButton("x240 y340 w120 h32", "Reset")
+        btnReset.OnEvent("Click", (*) => TetrisApp.ResetGame())
+        btnClose := newGui.AddButton("x240 y380 w120 h32", "Close")
+        btnClose.OnEvent("Click", (*) => TetrisApp.HideGui())
+
+        newGui.OnEvent("Close", TetrisApp.HideGui)
+        newGui.OnEvent("Escape", TetrisApp.HideGui)
+        newGui.OnEvent("Size", TetrisApp.OnResize)
+
+        TetrisApp.gui := newGui
+        newGui.Show("w380 h520")
     }
-    
-    static StartGame(*) {
-        if (this.gameRunning) {
+
+    static SetupHotkeys() {
+        static registered := false
+        if (registered) {
             return
         }
+        ; Global hotkey to launch/show the game
+        Hotkey("^!t", (*) => TetrisApp.ShowGui())
         
-        this.gameRunning := true
-        this.score := 0
-        this.level := 1
-        this.lines := 0
-        this.gameSpeed := 500
-        
-        this.InitializeBoard()
-        this.SpawnNewPiece()
-        this.SpawnNextPiece()
-        this.UpdateDisplay()
-        
-        ; Start game timer
-        this.timer := SetTimer(this.GameTick.Bind(this), this.gameSpeed)
-        
-        TrayTip("Tetris Started!", "Use arrow keys to play", 2)
+        ; Context-sensitive hotkeys - only work when Tetris window is active
+        Hotkey("Left", (*) => TetrisApp.MovePieceIfActive(-1, 0))
+        Hotkey("Right", (*) => TetrisApp.MovePieceIfActive(1, 0))
+        Hotkey("Down", (*) => TetrisApp.SoftDropIfActive())
+        Hotkey("Up", (*) => TetrisApp.RotatePieceIfActive())
+        Hotkey("Space", (*) => TetrisApp.StartGameIfActive())
+        Hotkey("p", (*) => TetrisApp.PauseGameIfActive())
+        Hotkey("r", (*) => TetrisApp.ResetGameIfActive())
+        Hotkey("Escape", (*) => TetrisApp.HideGui())
+        registered := true
     }
     
-    static GameTick() {
-        if (!this.gameRunning) {
-            return
+    static IsTetrisWindowActive() {
+        if (!TetrisApp.gui || !TetrisApp.gui.Hwnd) {
+            return false
         }
-        
-        ; Move piece down
-        if (this.CanMovePiece(this.currentPiece, 0, 1)) {
-            this.MovePiece(0, 1)
+        return WinActive("ahk_id " . TetrisApp.gui.Hwnd)
+    }
+    
+    static MovePieceIfActive(dx, dy) {
+        if (TetrisApp.IsTetrisWindowActive()) {
+            TetrisApp.MovePiece(dx, dy)
+        }
+    }
+    
+    static SoftDropIfActive() {
+        if (TetrisApp.IsTetrisWindowActive()) {
+            TetrisApp.SoftDrop()
+        }
+    }
+    
+    static RotatePieceIfActive() {
+        if (TetrisApp.IsTetrisWindowActive()) {
+            TetrisApp.RotatePiece()
+        }
+    }
+    
+    static StartGameIfActive() {
+        if (TetrisApp.IsTetrisWindowActive()) {
+            TetrisApp.StartGame()
+        }
+    }
+    
+    static PauseGameIfActive() {
+        if (TetrisApp.IsTetrisWindowActive()) {
+            TetrisApp.PauseGame()
+        }
+    }
+    
+    static ResetGameIfActive() {
+        if (TetrisApp.IsTetrisWindowActive()) {
+            TetrisApp.ResetBoard()
+            TetrisApp.UpdateBoardView()
+            TetrisApp.UpdateNextView()
+            TetrisApp.UpdateScore()
+            TetrisApp.UpdateStatus("Press Start to begin.")
+        }
+    }
+    
+    static ShowGui(*) {
+        if (TetrisApp.gui) {
+            TetrisApp.gui.Show()
+            WinActivate(TetrisApp.gui.Hwnd)
         } else {
-            ; Piece can't move down, place it
-            this.PlacePiece()
-            this.ClearLines()
-            this.SpawnNewPiece()
-            
-            ; Check game over
-            if (!this.CanMovePiece(this.currentPiece, 0, 0)) {
-                this.GameOver()
+            TetrisApp.Init()
+        }
+    }
+
+    static StartGame() {
+        if (TetrisApp.timerId) {
+            return
+        }
+        if (!TetrisApp.currentPiece) {
+            TetrisApp.SpawnPiece()
+        }
+        TetrisApp.UpdateStatus("Game running – use Arrow keys to control. Up=Rotate, Down=Drop, P=Pause")
+        TetrisApp.timerId := SetTimer(TetrisApp.Tick.Bind(TetrisApp), TetrisApp.dropInterval)
+    }
+
+    static PauseGame() {
+        if (TetrisApp.timerId) {
+            SetTimer(TetrisApp.timerId, 0)
+            TetrisApp.timerId := 0
+            TetrisApp.UpdateStatus("Paused. Press Start or Ctrl+Alt+T to resume.")
+        }
+    }
+
+    static ResetGame() {
+        TetrisApp.PauseGame()
+        TetrisApp.ResetBoard()
+        TetrisApp.UpdateBoardView()
+        TetrisApp.UpdateNextView()
+        TetrisApp.UpdateScore()
+        TetrisApp.UpdateStatus("Board cleared. Press Start to play.")
+    }
+
+    static HideGui(*) {
+        TetrisApp.PauseGame()
+        if (TetrisApp.gui) {
+            TetrisApp.gui.Hide()
+        }
+    }
+
+    static Tick() {
+        if (!TetrisApp.currentPiece) {
+            TetrisApp.SpawnPiece()
+        }
+        if (!TetrisApp.MovePiece(0, 1)) {
+            TetrisApp.LockPiece()
+            cleared := TetrisApp.ClearLines()
+            if (cleared) {
+                TetrisApp.score += cleared * 100 * TetrisApp.level
+                TetrisApp.level := (TetrisApp.score // 500) + 1
+                TetrisApp.dropInterval := Max(120, 600 - (TetrisApp.level - 1) * 40)
+                if (TetrisApp.timerId) {
+                    SetTimer(TetrisApp.timerId, TetrisApp.dropInterval)
+                }
+            }
+            TetrisApp.UpdateScore()
+            if (!TetrisApp.SpawnPiece()) {
+                TetrisApp.GameOver()
                 return
             }
         }
-        
-        this.UpdateDisplay()
+        TetrisApp.UpdateBoardView()
     }
-    
-    static SpawnNewPiece() {
-        if (this.nextPiece) {
-            this.currentPiece := this.nextPiece
-        } else {
-            this.currentPiece := this.GetRandomPiece()
+
+    static SpawnPiece() {
+        piece := TetrisApp.nextPiece ? TetrisApp.nextPiece : TetrisApp.RandomPiece()
+        piece.x := 3
+        piece.y := 0
+        piece.shape := TetrisApp.CloneMatrix(piece.shape)
+        TetrisApp.currentPiece := piece
+        TetrisApp.nextPiece := TetrisApp.RandomPiece()
+        TetrisApp.UpdateNextView()
+        return TetrisApp.CanPlace(piece, piece.x, piece.y)
+    }
+
+    static RandomPiece() {
+        idx := Random(1, TetrisApp.pieceSet.Length)
+        base := TetrisApp.pieceSet[idx]
+        return {name: base.name, color: base.color, shape: base.shape, x: 0, y: 0}
+    }
+
+    static CloneMatrix(mat) {
+        clone := []
+        for row in mat {
+            newRow := []
+            for cell in row {
+                newRow.Push(cell)
+            }
+            clone.Push(newRow)
         }
-        
-        ; Position at top center
-        this.currentPiece.x := 4
-        this.currentPiece.y := 0
-        
-        this.SpawnNextPiece()
+        return clone
     }
-    
-    static SpawnNextPiece() {
-        this.nextPiece := this.GetRandomPiece()
-    }
-    
-    static GetRandomPiece() {
-        pieceIndex := Random(1, this.pieces.Length)
-        basePiece := this.pieces[pieceIndex]
-        
-        return {
-            shape: basePiece.shape,
-            color: basePiece.color,
-            name: basePiece.name,
-            x: 0,
-            y: 0
-        }
-    }
-    
-    static CanMovePiece(piece, dx, dy) {
-        newX := piece.x + dx
-        newY := piece.y + dy
-        
-        ; Check bounds
-        for row in piece.shape {
-            for col, cell in row {
-                if (cell) {
-                    boardX := newX + col - 1
-                    boardY := newY + row - 1
-                    
-                    ; Check boundaries
-                    if (boardX < 0 || boardX >= 10 || boardY >= 20) {
-                        return false
-                    }
-                    
-                    ; Check collision with placed pieces
-                    if (boardY >= 0 && this.gameBoard[boardY + 1][boardX + 1]) {
-                        return false
-                    }
+
+    static CanPlace(piece, posX, posY) {
+        for rowIndex, row in piece.shape {
+            for colIndex, cell in row {
+                if (!cell) {
+                    continue
+                }
+                boardX := posX + colIndex - 1
+                boardY := posY + rowIndex - 1
+                if (boardX < 0 || boardX >= 10 || boardY >= 20) {
+                    return false
+                }
+                if (boardY >= 0 && TetrisApp.board[boardY + 1][boardX + 1]) {
+                    return false
                 }
             }
         }
-        
         return true
     }
-    
+
     static MovePiece(dx, dy) {
-        if (this.CanMovePiece(this.currentPiece, dx, dy)) {
-            this.currentPiece.x += dx
-            this.currentPiece.y += dy
-            return true
+        if (!TetrisApp.currentPiece) {
+            return false
         }
-        return false
+        newX := TetrisApp.currentPiece.x + dx
+        newY := TetrisApp.currentPiece.y + dy
+        if (!TetrisApp.CanPlace(TetrisApp.currentPiece, newX, newY)) {
+            return false
+        }
+        TetrisApp.currentPiece.x := newX
+        TetrisApp.currentPiece.y := newY
+        TetrisApp.UpdateBoardView()
+        return true
     }
-    
-    static RotatePiece() {
-        if (!this.currentPiece) {
+
+    static SoftDrop() {
+        if (!TetrisApp.currentPiece) {
             return
         }
-        
-        ; Create rotated shape
-        rotatedShape := []
-        for i, row in this.currentPiece.shape {
-            rotatedShape.Push([])
-            for j, cell in row {
-                rotatedShape[i].Push(0)
-            }
-        }
-        
-        ; Rotate 90 degrees clockwise
-        for i, row in this.currentPiece.shape {
-            for j, cell in row {
-                rotatedShape[j][this.currentPiece.shape.Length - i] := cell
-            }
-        }
-        
-        ; Check if rotation is valid
-        originalShape := this.currentPiece.shape
-        this.currentPiece.shape := rotatedShape
-        
-        if (!this.CanMovePiece(this.currentPiece, 0, 0)) {
-            ; Revert if invalid
-            this.currentPiece.shape := originalShape
+        if (!TetrisApp.MovePiece(0, 1)) {
+            TetrisApp.Tick()
         }
     }
-    
-    static PlacePiece() {
-        for row in this.currentPiece.shape {
-            for col, cell in row {
-                if (cell) {
-                    boardX := this.currentPiece.x + col - 1
-                    boardY := this.currentPiece.y + row - 1
-                    
-                    if (boardY >= 0) {
-                        this.gameBoard[boardY + 1][boardX + 1] := this.currentPiece.color
-                    }
+
+    static RotatePiece() {
+        if (!TetrisApp.currentPiece) {
+            return
+        }
+        oldShape := TetrisApp.CloneMatrix(TetrisApp.currentPiece.shape)
+        rotated := []
+        cols := oldShape[1].Length
+        rows := oldShape.Length
+        Loop cols {
+            rotated.Push([])
+        }
+        Loop rows {
+            r := A_Index
+            Loop cols {
+                c := A_Index
+                rotated[c].Push(oldShape[rows - r + 1][c])
+            }
+        }
+        TetrisApp.currentPiece.shape := rotated
+        if (!TetrisApp.CanPlace(TetrisApp.currentPiece, TetrisApp.currentPiece.x, TetrisApp.currentPiece.y)) {
+            TetrisApp.currentPiece.shape := oldShape
+        } else {
+            TetrisApp.UpdateBoardView()
+        }
+    }
+
+    static LockPiece() {
+        for rowIndex, row in TetrisApp.currentPiece.shape {
+            for colIndex, cell in row {
+                if (!cell) {
+                    continue
+                }
+                boardX := TetrisApp.currentPiece.x + colIndex - 1
+                boardY := TetrisApp.currentPiece.y + rowIndex - 1
+                if (boardY >= 0 && boardY < 20 && boardX >= 0 && boardX < 10) {
+                    TetrisApp.board[boardY + 1][boardX + 1] := TetrisApp.currentPiece.color
                 }
             }
         }
+        TetrisApp.currentPiece := ""
     }
-    
+
     static ClearLines() {
-        linesCleared := 0
-        
-        ; Check each row
-        for y in this.gameBoard {
-            rowIndex := A_Index
-            isFull := true
-            
-            for x in y {
-                if (!x) {
-                    isFull := false
-                    break
-                }
-            }
-            
-            if (isFull) {
-                ; Remove the line
-                this.gameBoard.RemoveAt(rowIndex)
-                
-                ; Add new empty line at top
+        cleared := 0
+        index := 1
+        while (index <= TetrisApp.board.Length) {
+            row := TetrisApp.board[index]
+            if (!row.Has(0)) {
+                TetrisApp.board.RemoveAt(index)
                 newRow := []
                 Loop 10 {
                     newRow.Push(0)
                 }
-                this.gameBoard.InsertAt(1, newRow)
-                
-                linesCleared++
+                TetrisApp.board.InsertAt(1, newRow)
+                cleared++
+            } else {
+                index++
             }
         }
-        
-        if (linesCleared > 0) {
-            this.lines += linesCleared
-            this.score += linesCleared * 100 * this.level
-            
-            ; Level up every 10 lines
-            newLevel := (this.lines // 10) + 1
-            if (newLevel > this.level) {
-                this.level := newLevel
-                this.gameSpeed := Max(50, 500 - (this.level - 1) * 50)
-                SetTimer(this.timer, this.gameSpeed)
-            }
-            
-            this.UpdateScore()
-        }
+        return cleared
     }
-    
-    static UpdateDisplay() {
-        if (!this.canvas) {
-            return
-        }
-        
-        ; Create display string
-        display := ""
-        
-        ; Draw game board
-        for row in this.gameBoard {
-            for cell in row {
-                if (cell) {
-                    display .= "█"
-                } else {
-                    display .= "·"
-                }
+
+    static UpdateBoardView() {
+        text := ""
+        for y, row in TetrisApp.board {
+            for x, cell in row {
+                char := cell ? "█" : "·"
+                text .= char
             }
-            display .= "`n"
+            text .= "`n"
         }
-        
-        ; Draw current piece
-        if (this.currentPiece) {
-            for row in this.currentPiece.shape {
-                for col, cell in row {
-                    if (cell) {
-                        boardX := this.currentPiece.x + col - 1
-                        boardY := this.currentPiece.y + row - 1
-                        
-                        if (boardY >= 0 && boardY < 20 && boardX >= 0 && boardX < 10) {
-                            ; Replace the character at this position
-                            pos := (boardY * 11) + boardX + 1
-                            display := SubStr(display, 1, pos - 1) . "█" . SubStr(display, pos + 1)
-                        }
+        if (TetrisApp.currentPiece) {
+            for rowIndex, row in TetrisApp.currentPiece.shape {
+                for colIndex, cell in row {
+                    if (!cell) {
+                        continue
+                    }
+                    boardX := TetrisApp.currentPiece.x + colIndex - 1
+                    boardY := TetrisApp.currentPiece.y + rowIndex - 1
+                    if (boardY >= 0 && boardY < 20 && boardX >= 0 && boardX < 10) {
+                        pos := boardY * 11 + boardX + 1
+                        text := SubStr(text, 1, pos - 1) . "█" . SubStr(text, pos + 1)
                     }
                 }
             }
         }
-        
-        this.canvas.Text := display
+        TetrisApp.boardCtrl.Text := text
     }
-    
+
+    static UpdateNextView() {
+        if (!TetrisApp.nextCtrl) {
+            return
+        }
+        preview := ""
+        piece := TetrisApp.nextPiece
+        if (piece) {
+            for row in piece.shape {
+                for cell in row {
+                    preview .= cell ? "█" : " "
+                }
+                preview .= "`n"
+            }
+        }
+        TetrisApp.nextCtrl.Text := Trim(preview)
+    }
+
     static UpdateScore() {
-        if (this.gui.scoreText) {
-            this.gui.scoreText.Text := "Score: " . this.score
-        }
-        if (this.gui.levelText) {
-            this.gui.levelText.Text := "Level: " . this.level
-        }
-        if (this.gui.linesText) {
-            this.gui.linesText.Text := "Lines: " . this.lines
+        if (TetrisApp.scoreCtrl) {
+            TetrisApp.scoreCtrl.Text := Format("Score: {}`nLevel: {}", TetrisApp.score, TetrisApp.level)
         }
     }
-    
+
+    static UpdateStatus(message) {
+        if (TetrisApp.statusCtrl) {
+            TetrisApp.statusCtrl.Text := message
+        }
+    }
+
     static GameOver() {
-        this.gameRunning := false
-        SetTimer(this.timer, 0)
-        
-        MsgBox("Game Over!`n`nFinal Score: " . this.score . "`nLevel: " . this.level . "`nLines: " . this.lines, "Tetris Game Over", "Iconi")
-        
-        ; Reset for new game
-        this.InitializeBoard()
-        this.UpdateDisplay()
+        TetrisApp.PauseGame()
+        TetrisApp.UpdateStatus("Game over – press Reset to try again.")
+        MsgBox("Game Over!`nScore: " . TetrisApp.score . "`nLevel: " . TetrisApp.level, "Tetris", "Iconi")
     }
-    
-    static PauseGame() {
-        if (!this.gameRunning) {
+
+    static OnResize(gui, minMax, width, height) {
+        if (!TetrisApp.boardCtrl) {
             return
         }
-        
-        this.gameRunning := false
-        SetTimer(this.timer, 0)
-        TrayTip("Game Paused", "Press P to resume", 2)
-    }
-    
-    static ResumeGame() {
-        if (this.gameRunning) {
-            return
-        }
-        
-        this.gameRunning := true
-        SetTimer(this.timer, this.gameSpeed)
-        TrayTip("Game Resumed", "Tetris continues!", 2)
-    }
-    
-    static SetupHotkeys() {
-        ; Movement
-        Hotkey("Left", (*) => this.MovePiece(-1, 0)
-        Right::this.MovePiece(1, 0)
-        Down::this.MovePiece(0, 1)
-        Up::this.RotatePiece()
-        
-        ; Hard drop
-        Space::{
-            while (this.MovePiece(0, 1)) {
-                ; Keep moving down
-            }
-        }
-        
-        ; Pause/Resume
-        Hotkey("p", (*) => {
-            if (this.gameRunning) {
-                this.PauseGame()
-            } else {
-                this.ResumeGame()
-            }
-        }
-        
-        ; Restart
-        Hotkey("r", (*) => this.StartGame()
-        
-        ; Close with Escape
-        Escape::{
-            if (WinExist("Tetris Classic")) {
-                WinClose("Tetris Classic")
-            }
+        margin := 200
+        boardHeight := height - 140
+        boardWidth := Min(200, width - margin)
+        TetrisApp.boardCtrl.Move(20, 48, boardWidth, boardHeight)
+        if (TetrisApp.statusCtrl) {
+            TetrisApp.statusCtrl.Move(20, height - 40, width - 40, 24)
         }
     }
 }
 
-; Initialize
-TetrisGame.Init()
+TetrisApp.Init()
+
+OnExit((*) => TetrisApp.UpdateStatus(""))
 
 
 

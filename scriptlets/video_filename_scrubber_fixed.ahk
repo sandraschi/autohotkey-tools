@@ -20,6 +20,7 @@
 
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
+#Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
 ; Show that script is starting
 TrayTip("MCP Config Manager", "Script starting...", 3)
@@ -28,15 +29,11 @@ TrayTip("MCP Config Manager", "Script starting...", 3)
 OnError(LogError)
 
 LogError(Thrown, Mode) {
-    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
-    FileAppend(errorMsg, "mcp_config_errors.log", "UTF-8")
-    OutputDebug(errorMsg)  ; Enable LLM debugging
-    
-    ; Allow GUI errors to show - they're important for debugging
-    if (InStr(Thrown.Message, "GUI") || InStr(Thrown.Stack, "CreateGUI")) {
-        return 0  ; Show popup for GUI errors
+    ScriptletErrorHandler.Handle(Thrown, Mode)
+    if (Thrown && (InStr(Thrown.Message, "GUI") || (HasProp(Thrown, "Stack") && InStr(Thrown.Stack, "CreateGUI")))) {
+        return 0
     }
-    return 1  ; Suppress popup for other errors
+    return 1
 }
 
 class MCPConfigManager {
@@ -66,7 +63,8 @@ class MCPConfigManager {
     
     static LogDebug(message) {
         if (this.debugMode) {
-            timestamp := FormatTime(A_Now, "HH:mm:ss")
+            timestamp := ""
+            timestamp := FormatTime(, "HH:mm:ss")
             logEntry := "[" . timestamp . "] " . message
             this.debugLog.Push(logEntry)
             OutputDebug(logEntry)
@@ -256,7 +254,8 @@ class MCPConfigManager {
                 return
             }
             
-            timestamp := FormatTime(A_Now, "yyyy-MM-dd_HH-mm-ss")
+            timestamp := ""
+            timestamp := FormatTime(, "yyyy-MM-dd_HH-mm-ss")
             backupFile := this.backupDir . "\claude_config_backup_" . timestamp . ".json"
             
             FileCopy(this.claudeConfig, backupFile)
@@ -312,7 +311,7 @@ class MCPConfigManager {
                 ; Restore selected backup
                 FileCopy(selectedBackup, this.claudeConfig, true)
                 
-                MsgBox("Configuration restored from: " . RegExReplace(selectedBackup, ".*\\", ""), "Config Restored", "Iconi")
+            MsgBox("Configuration restored from: " . RegExReplace(selectedBackup, ".*\\", ""), "Config Restored", "Iconi")
                 
                 ; Reload config
                 this.LoadConfig()
@@ -1229,7 +1228,8 @@ class MCPConfigManager {
                 DirCreate(this.backupDir)
             }
             
-            timestamp := FormatTime(A_Now, "yyyy-MM-dd_HH-mm-ss")
+            timestamp := ""
+            timestamp := FormatTime(, "yyyy-MM-dd_HH-mm-ss")
             backupFile := this.backupDir . "\claude_config_backup_" . timestamp . ".json"
             
             if (FileExist(this.claudeConfig)) {

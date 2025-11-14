@@ -1,5 +1,6 @@
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
+#Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
 
 ; ==============================================================================
@@ -19,18 +20,12 @@
 ; Error handling - log to file instead of showing popups
 OnError(LogError)
 
-LogError(Thrown, Mode) {
-    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
-    FileAppend(errorMsg, "action_automation_errors.log", "UTF-8")
-    OutputDebug(errorMsg)  ; Enable LLM debugging
-    return 1  ; Suppress popup (1 = suppress, 0 = show)
-}
-
 class AutomationBuilder {
     static gui := ""
     static workflow := []
     static canvas := ""
     static selectedNode := 0
+    static nodeList := ""
     
     static Init() {
         this.CreateGUI()
@@ -48,19 +43,19 @@ class AutomationBuilder {
         
             ; Toolbar
         this.gui.AddButton("x10 y50 w100 h30 vRecordBtn", "Record Action")
-            .OnEvent("Click", AutomationBuilder.RecordAction)
+            .OnEvent("Click", (*) => AutomationBuilder.RecordAction())
         
         this.gui.AddButton("x120 y50 w100 h30 vConditionBtn", "Add Condition")
-            .OnEvent("Click", AutomationBuilder.AddCondition)
+            .OnEvent("Click", (*) => AutomationBuilder.AddCondition())
         
         this.gui.AddButton("x230 y50 w100 h30 vLoopBtn", "Add Loop")
-            .OnEvent("Click", AutomationBuilder.AddLoop)
+            .OnEvent("Click", (*) => AutomationBuilder.AddLoop())
         
         this.gui.AddButton("x340 y50 w100 h30 vDelayBtn", "Add Delay")
-            .OnEvent("Click", AutomationBuilder.AddDelay)
+            .OnEvent("Click", (*) => AutomationBuilder.AddDelay())
         
         this.gui.AddButton("x450 y50 w100 h30 vRunBtn", "Run Workflow")
-            .OnEvent("Click", AutomationBuilder.RunWorkflow)
+            .OnEvent("Click", (*) => AutomationBuilder.RunWorkflow())
         
             ; Canvas for visual workflow
         this.canvas := this.gui.AddText("x10 y95 w580 h350 Border vCanvas", "Canvas")
@@ -69,16 +64,16 @@ class AutomationBuilder {
             ; Node list
         this.gui.AddText("x600 y50 w180 h20", "Workflow Nodes:")
         this.nodeList := this.gui.AddListView("x600 y75 w180 h370 vNodeList", ["Node"])
-            .OnEvent("Click", AutomationBuilder.NodeSelected)
+            .OnEvent("Click", (*) => AutomationBuilder.NodeSelected())
         
             ; Control buttons
         this.gui.AddButton("x600 y455 w80 h30 vDeleteNodeBtn", "Delete")
-            .OnEvent("Click", AutomationBuilder.DeleteNode)
+            .OnEvent("Click", (*) => AutomationBuilder.DeleteNode())
         
         this.gui.AddButton("x690 y455 w90 h30 vSaveWorkflowBtn", "Save Workflow")
-            .OnEvent("Click", AutomationBuilder.SaveWorkflow)
+            .OnEvent("Click", (*) => AutomationBuilder.SaveWorkflow())
         
-            Hotkey("Escape", (*) => this.gui.Hide(), this.gui)
+            this.gui.OnEvent("Escape", (*) => this.gui.Hide())
             this.gui.Show("w800 h500")
             this.LogDebug("GUI created successfully")
         } catch as e {
@@ -90,7 +85,8 @@ class AutomationBuilder {
     }
     
     static LogDebug(message) {
-        timestamp := FormatTime(A_Now, "HH:mm:ss")
+        timestamp := ""
+        timestamp := FormatTime(, "HH:mm:ss")
         logMsg := "[" . timestamp . "] " . message . "`n"
         try {
             FileAppend(logMsg, "action_automation_debug.log", "UTF-8")
@@ -124,16 +120,8 @@ class AutomationBuilder {
         dialog.AddText("x10 y70 w100 h20", "Condition Expression:")
         conditionEdit := dialog.AddEdit("x10 y95 w280 h100 vConditionExpr")
         
-        dialog.AddButton("x10 y205 w130 h35 vOkBtn", "OK")
-            .OnEvent("Click", (*) => {
-                this.workflow.Push({
-                    type: "condition",
-                    conditionType: conditionType.Text,
-                    expression: conditionEdit.Text
-                })
-                this.UpdateNodeList()
-                dialog.Destroy()
-            })
+        okBtn := dialog.AddButton("x10 y205 w130 h35 vOkBtn", "OK")
+        okBtn.OnEvent("Click", (*) => AutomationBuilder.AddConditionConfirm(dialog, conditionType, conditionEdit))
         
         dialog.AddButton("x150 y205 w130 h35 vCancelBtn", "Cancel")
             .OnEvent("Click", (*) => dialog.Destroy())
@@ -154,16 +142,8 @@ class AutomationBuilder {
         dialog.AddText("x10 y70 w100 h20", "Loop Value:")
         loopValue := dialog.AddEdit("x10 y95 w280 h80 vLoopValue")
         
-        dialog.AddButton("x10 y185 w130 h35 vOkBtn", "OK")
-            .OnEvent("Click", (*) => {
-                this.workflow.Push({
-                    type: "loop",
-                    loopType: loopType.Text,
-                    value: loopValue.Text
-                })
-                this.UpdateNodeList()
-                dialog.Destroy()
-            })
+        okBtn := dialog.AddButton("x10 y185 w130 h35 vOkBtn", "OK")
+        okBtn.OnEvent("Click", (*) => AutomationBuilder.AddLoopConfirm(dialog, loopType, loopValue))
         
         dialog.AddButton("x150 y185 w130 h35 vCancelBtn", "Cancel")
             .OnEvent("Click", (*) => dialog.Destroy())
@@ -182,15 +162,8 @@ class AutomationBuilder {
         delayValue := dialog.AddEdit("x80 y35 w100 vDelayValue")
             .Text := "1"
         
-        dialog.AddButton("x10 y70 w80 h35 vOkBtn", "OK")
-            .OnEvent("Click", (*) => {
-                this.workflow.Push({
-                    type: "delay",
-                    seconds: delayValue.Text
-                })
-                this.UpdateNodeList()
-                dialog.Destroy()
-            })
+        okBtn := dialog.AddButton("x10 y70 w80 h35 vOkBtn", "OK")
+        okBtn.OnEvent("Click", (*) => AutomationBuilder.AddDelayConfirm(dialog, delayValue))
         
         dialog.AddButton("x100 y70 w80 h35 vCancelBtn", "Cancel")
             .OnEvent("Click", (*) => dialog.Destroy())
@@ -326,7 +299,8 @@ class AutomationBuilder {
     }
     
     static AppendLog(message) {
-        timestamp := FormatTime(A_Now, "HH:mm:ss")
+        timestamp := ""
+        timestamp := FormatTime(, "HH:mm:ss")
         logMsg := "[" . timestamp . "] " . message . "`n"
         
         ; Show tooltip
@@ -340,6 +314,35 @@ class AutomationBuilder {
             ; Ignore file logging errors
         }
         OutputDebug(logMsg)
+    }
+
+    static AddConditionConfirm(dialog, conditionType, conditionEdit) {
+        this.workflow.Push({
+            type: "condition",
+            conditionType: conditionType.Text,
+            expression: conditionEdit.Text
+        })
+        this.UpdateNodeList()
+        dialog.Destroy()
+    }
+
+    static AddLoopConfirm(dialog, loopType, loopValue) {
+        this.workflow.Push({
+            type: "loop",
+            loopType: loopType.Text,
+            value: loopValue.Text
+        })
+        this.UpdateNodeList()
+        dialog.Destroy()
+    }
+
+    static AddDelayConfirm(dialog, delayValue) {
+        this.workflow.Push({
+            type: "delay",
+            seconds: delayValue.Text
+        })
+        this.UpdateNodeList()
+        dialog.Destroy()
     }
 }
 

@@ -1,5 +1,6 @@
-﻿#Requires AutoHotkey v2.0+
+#Requires AutoHotkey v2.0+
 #SingleInstance Force
+#Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 SendMode "Input"
 SetWorkingDir(A_ScriptDir)
 
@@ -39,15 +40,8 @@ SetWorkingDir(A_ScriptDir)
 ; Error handling - log to file instead of showing popups
 OnError(LogError)
 
-LogError(Thrown, Mode) {
-    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
-    FileAppend(errorMsg, "annoying_sounds_errors.log", "UTF-8")
-    OutputDebug(errorMsg)  ; Enable LLM debugging
-    return 1  ; Suppress popup (1 = suppress, 0 = show)
-}
-
-#MaxHotkeysPerInterval 200
-#Persistent
+A_MaxHotkeysPerInterval := 200
+Persistent(true)
 
 class AnnoyingSounds {
     static musicPlaying := false
@@ -89,7 +83,8 @@ class AnnoyingSounds {
     }
     
     static LogDebug(message) {
-        timestamp := FormatTime(A_Now, "HH:mm:ss")
+        timestamp := ""
+        timestamp := FormatTime(, "HH:mm:ss")
         logMsg := "[" . timestamp . "] " . message . "`n"
         try {
             FileAppend(logMsg, "annoying_sounds_debug.log", "UTF-8")
@@ -111,19 +106,19 @@ class AnnoyingSounds {
             
             ; Start the music loop
             this.musicTimer := SetTimer(() => this.PlayElevatorNote(), 5000)
-            TrayTip("Elevator Music", "Now playing smooth elevator music...", , 1)
+            this.ShowTrayTip("Elevator Music", "Now playing smooth elevator music...")
         } else {
             ; Stop the music
             SetTimer(() => this.PlayElevatorNote(), 0)  ; Stop timer
             SoundPlay("*-1")  ; Stop any playing sound
             this.musicPlaying := false
-            TrayTip("Elevator Music", "Music stopped", , 1)
+            this.ShowTrayTip("Elevator Music", "Music stopped")
         }
     }
     
     static PlayElevatorNote() {
         ; Play some random notes
-        Random(note, 1, 7)
+        note := Random(1, 7)
         notes := [262, 294, 330, 349, 392, 440, 494]  ; C4 to B4
         SoundBeep(notes[note], 200)
     }
@@ -133,27 +128,27 @@ class AnnoyingSounds {
         
         if (this.soundsOn) {
             this.soundTimer := SetTimer(() => this.RandomSound(), 5000)
-            TrayTip("Sound Effects", "Random sounds enabled!", , 1)
+            this.ShowTrayTip("Sound Effects", "Random sounds enabled!")
         } else {
             SetTimer(() => this.RandomSound(), 0)
-            TrayTip("Sound Effects", "Random sounds disabled", , 1)
+            this.ShowTrayTip("Sound Effects", "Random sounds disabled")
         }
     }
     
     static RandomSound() {
-        Random(soundType, 1, 8)
+        soundType := Random(1, 8)
         
         switch soundType {
             case 1:
                 SoundPlay("*16")
             case 2:
-                Random(freq, 200, 2000)
-                Random(dur, 100, 500)
+                freq := Random(200, 2000)
+                dur := Random(100, 500)
                 SoundBeep(freq, dur)
             case 3:
                 SoundPlay(A_WinDir "\Media\Windows Notify.wav")
             case 4:
-                Random(note, 1, 12)
+                note := Random(1, 12)
                 freq := 220 * (2 ** (note/12))  ; Equal temperament from A3
                 SoundBeep(freq, 300)
             case 5:
@@ -169,7 +164,7 @@ class AnnoyingSounds {
     
     static PlayFart() {
         this.PlayFartSound()
-        TrayTip("Fart Sound", "💨 Toot toot!", , 1)
+        this.ShowTrayTip("Fart Sound", "💨 Toot toot!")
     }
     
     static PlayFartSound() {
@@ -189,7 +184,7 @@ class AnnoyingSounds {
         }
         
         ; Fallback: Synthesize a fart-like sound
-        Random(type, 1, 3)
+        type := Random(1, 3)
         switch type {
             case 1:
                 ; Low rumble
@@ -211,11 +206,11 @@ class AnnoyingSounds {
         
         if (this.sirenPlaying) {
             this.sirenTimer := SetTimer(() => this.PlaySirenSound(true), 500)
-            TrayTip("Siren", "🚨 Siren activated!", , 1)
+            this.ShowTrayTip("Siren", "🚨 Siren activated!")
         } else {
             SetTimer(() => this.PlaySirenSound(true), 0)
             SoundPlay("*-1")  ; Stop all sounds
-            TrayTip("Siren", "Siren stopped", , 1)
+            this.ShowTrayTip("Siren", "Siren stopped")
         }
     }
     
@@ -252,10 +247,10 @@ class AnnoyingSounds {
         
         if (this.titteringPlaying) {
             this.titterTimer := SetTimer(() => this.PlayTitteringSound(true), 800)
-            TrayTip("Tittering", "😄 Giggle mode activated!", , 1)
+            this.ShowTrayTip("Tittering", "😄 Giggle mode activated!")
         } else {
             SetTimer(() => this.PlayTitteringSound(true), 0)
-            TrayTip("Tittering", "Giggles stopped", , 1)
+            this.ShowTrayTip("Tittering", "Giggles stopped")
         }
     }
     
@@ -278,7 +273,7 @@ class AnnoyingSounds {
         }
         
         ; Fallback: Synthesize tittering sound (high-pitched giggles)
-        Random(giggleType, 1, 3)
+        giggleType := Random(1, 3)
         switch giggleType {
             case 1:
                 ; Quick giggle
@@ -309,16 +304,16 @@ class AnnoyingSounds {
         
         if (this.beepOn) {
             this.beepTimer := SetTimer(() => this.DoBeep(), 1000)
-            TrayTip("Beep Generator", "Annoying beeps enabled!", , 1)
+            this.ShowTrayTip("Beep Generator", "Annoying beeps enabled!")
         } else {
             SetTimer(() => this.DoBeep(), 0)
-            TrayTip("Beep Generator", "Beeps disabled", , 1)
+            this.ShowTrayTip("Beep Generator", "Beeps disabled")
         }
     }
     
     static DoBeep() {
-        Random(freq, 100, 2000)
-        Random(dur, 50, 200)
+        freq := Random(100, 2000)
+        dur := Random(50, 200)
         SoundBeep(freq, dur)
     }
     
@@ -341,7 +336,7 @@ class AnnoyingSounds {
         Sleep(50)
         SoundBeep(262, 400)  ; C
         
-        TrayTip("Never Gonna...", "Give you up!", , 1)
+        this.ShowTrayTip("Never Gonna...", "Give you up!")
     }
     
     static FakeVirusScan(*) {
@@ -381,7 +376,7 @@ class AnnoyingSounds {
         }
         
         ; Update progress
-        Random(increment, 1, 5)
+        increment := Random(1, 5)
         this.progress += increment
         if (this.progress > 100)
             this.progress := 100
@@ -392,7 +387,7 @@ class AnnoyingSounds {
         ; Add fake log entries
         if (Mod(this.progress, 10) = 0) {
             files := ["C:\Windows\System32\kernel32.dll", "C:\Program Files\Common Files\system.ini", "C:\Users\Public\Documents\passwords.txt", "C:\Windows\Temp\tempfile.tmp", "C:\ProgramData\Microsoft\Windows\Start Menu\startup\suspicious.exe"]
-            Random(rand, 1, files.Length)
+            rand := Random(1, files.Length)
             lastFile := files[rand]
             this.scanText .= "Scanning: " . lastFile . "`n"
             
@@ -425,23 +420,27 @@ class AnnoyingSounds {
             Hotkey("*~a", (*) => this.PlayKeySound(), "On")
             Hotkey("*~b", (*) => this.PlayKeySound(), "On")
             Hotkey("*~c", (*) => this.PlayKeySound(), "On")
-            TrayTip("Keyboard Sounds", "Typewriter mode enabled!", , 1)
+            this.ShowTrayTip("Keyboard Sounds", "Typewriter mode enabled!")
         } else {
             Hotkey("*~a", "Off")
             Hotkey("*~b", "Off")
             Hotkey("*~c", "Off")
-            TrayTip("Keyboard Sounds", "Typewriter mode disabled", , 1)
+            this.ShowTrayTip("Keyboard Sounds", "Typewriter mode disabled")
         }
     }
     
     static PlayKeySound(*) {
-        Random(pitch, 100, 1000)
-        Random(duration, 10, 30)
+        pitch := Random(100, 1000)
+        duration := Random(10, 30)
         SoundBeep(pitch, duration)
     }
     
     static RemoveTrayTip() {
         TrayTip()
+    }
+
+    static ShowTrayTip(title, message) {
+        TrayTip(title, message)
     }
     
     static Cleanup(*) {

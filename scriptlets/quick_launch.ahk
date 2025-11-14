@@ -1,5 +1,6 @@
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
+#Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
 ; ==============================================================================
 ; Quick Launch
@@ -23,13 +24,6 @@
 
 ; Error handling - log to file instead of showing popups
 OnError(LogError)
-
-LogError(Thrown, Mode) {
-    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
-    FileAppend(errorMsg, "quick_launch_errors.log", "UTF-8")
-    OutputDebug(errorMsg)  ; Enable LLM debugging
-    return 1  ; Suppress popup (1 = suppress, 0 = show)
-}
 
 #Warn
 
@@ -85,7 +79,7 @@ for hotkey, tool in TOOLS {
 }
 
 ; Show notification on startup
-TrayTip "Quick Launch", "Quick launch hotkeys are active", "Iconi"
+TrayTip "Quick Launch", "Quick launch hotkeys are active"
 SetTimer () => TrayTip(), 3000
 
 ; =============================================================================

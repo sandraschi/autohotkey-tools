@@ -20,458 +20,303 @@
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
 
+OnError(PacmanApp.HandleError)
 
-; Suppress error popups - log to file instead
-OnError(LogError)
-
-LogError(Thrown, Mode) {
-    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
-    FileAppend(errorMsg, "pacman_classic_errors.log", "UTF-8")
-    OutputDebug(errorMsg)  ; Enable LLM debugging
-    return 1  ; Suppress popup (1 = suppress, 0 = show)
-}
-
-
-class PacmanGame {
+class PacmanApp {
     static gui := ""
-    static canvas := ""
-    static gameBoard := []
-    static pacman := {x: 0, y: 0, direction: "right", nextDirection: "right"}
-    static ghosts := []
-    static dots := []
+    static boardCtrl := ""
+    static statusCtrl := ""
+    static scoreCtrl := ""
+    static timerId := 0
+    static layout := []
+    static pac := {x: 1, y: 1}
+    static ghost := {x: 8, y: 5}
     static score := 0
-    static lives := 3
-    static level := 1
-    static gameRunning := false
-    static gameSpeed := 200
-    static timer := ""
-    
-    ; Game board layout (1 = wall, 0 = empty, 2 = dot, 3 = power pellet)
-    static boardLayout := [
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-        [1,2,2,2,2,2,2,2,2,1,1,2,2,2,2,2,2,2,2,1],
-        [1,2,1,1,2,1,1,1,2,1,1,2,1,1,1,2,1,1,2,1],
-        [1,3,1,1,2,1,1,1,2,1,1,2,1,1,1,2,1,1,3,1],
-        [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],
-        [1,2,1,1,2,1,1,2,1,1,1,1,2,1,1,2,1,1,2,1],
-        [1,2,2,2,2,1,1,2,2,2,2,2,2,1,1,2,2,2,2,1],
-        [1,1,1,1,2,1,1,1,1,1,1,1,1,1,1,2,1,1,1,1],
-        [0,0,0,1,2,1,1,0,0,0,0,0,0,1,1,2,1,0,0,0],
-        [1,1,1,1,2,1,1,1,1,0,0,1,1,1,1,2,1,1,1,1],
-        [1,2,2,2,2,2,2,2,2,0,0,2,2,2,2,2,2,2,2,1],
-        [1,1,1,1,2,1,1,1,1,0,0,1,1,1,1,2,1,1,1,1],
-        [0,0,0,1,2,1,1,0,0,0,0,0,0,1,1,2,1,0,0,0],
-        [1,1,1,1,2,1,1,1,1,1,1,1,1,1,1,2,1,1,1,1],
-        [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],
-        [1,2,1,1,2,1,1,1,2,1,1,2,1,1,1,2,1,1,2,1],
-        [1,2,2,2,2,1,1,2,2,2,2,2,2,1,1,2,2,2,2,1],
-        [1,1,1,1,2,1,1,2,1,1,1,1,2,1,1,2,1,1,1,1],
-        [1,2,2,2,2,2,2,2,2,1,1,2,2,2,2,2,2,2,2,1],
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
-    ]
-    
+
     static Init() {
-        this.InitializeGame()
-        this.CreateGUI()
-        this.SetupHotkeys()
+        PacmanApp.layout := PacmanApp.LoadLayout()
+        PacmanApp.CreateGui()
+        PacmanApp.SetupHotkeys()
+        PacmanApp.ResetGame()
     }
-    
-    static InitializeGame() {
-        ; Initialize game board
-        this.gameBoard := []
-        this.dots := []
-        
-        for row in this.boardLayout {
-            boardRow := []
-            for cell in row {
-                boardRow.Push(cell)
-                if (cell = 2 || cell = 3) {
-                    this.dots.Push({x: A_Index - 1, y: A_Index - 1})
-                }
-            }
-            this.gameBoard.Push(boardRow)
-        }
-        
-        ; Initialize Pacman
-        this.pacman := {x: 9, y: 15, direction: "right", nextDirection: "right"}
-        
-        ; Initialize ghosts
-        this.ghosts := [
-            {x: 9, y: 8, direction: "up", color: "red"},
-            {x: 8, y: 8, direction: "left", color: "pink"},
-            {x: 10, y: 8, direction: "right", color: "cyan"},
-            {x: 9, y: 9, direction: "down", color: "orange"}
+
+    static HandleError(Thrown, Mode) {
+        message := "Pacman error: " . Thrown.Message . " at line " . Thrown.Line
+        try FileAppend(message . "`n", "pacman_classic_errors.log", "UTF-8")
+        OutputDebug(message)
+        return 1
+    }
+
+    static LoadLayout() {
+        return [
+            "##########",
+            "#........#",
+            "#.#.##.#.#",
+            "#........#",
+            "#.####.#.#",
+            "#...#....#",
+            "#.##.##..#",
+            "#........#",
+            "##########"
         ]
-        
-        this.score := 0
-        this.lives := 3
-        this.level := 1
     }
-    
-    static CreateGUI() {
-        this.gui := Gui("+Resize -MaximizeBox", "Pacman Classic")
-        this.gui.BackColor := "000000"
-        this.gui.SetFont("s12 cFFFFFF Bold", "Segoe UI")
-        
-        ; Title
-        this.gui.Add("Text", "x20 y20 w400 Center Bold cYellow", "👻 Pacman Classic")
-        
-        ; Game area
-        this.canvas := this.gui.Add("Text", "x20 y60 w400 h400 Background000000 Border", "")
-        this.canvas.SetFont("s8 cFFFFFF", "Courier New")
-        
-        ; Score area
-        this.gui.Add("Text", "x20 y480 w400 h60 Background2d2d2d", "")
-        scoreText := this.gui.Add("Text", "x30 y490 w100", "Score: 0")
-        livesText := this.gui.Add("Text", "x150 y490 w100", "Lives: 3")
-        levelText := this.gui.Add("Text", "x270 y490 w100", "Level: 1")
-        
-        ; Controls
-        this.gui.Add("Text", "x30 y510 w350 ", "Controls: Arrow Keys = Move | Space = Start | P = Pause | R = Restart")
-        
-        ; Store references
-        this.gui.scoreText := scoreText
-        this.gui.livesText := livesText
-        this.gui.levelText := levelText
-        
-        this.gui.Show("w460 h580")
+
+    static CreateGui() {
+        if (PacmanApp.gui) {
+            PacmanApp.gui.Destroy()
+        }
+        newGui := Gui("+Resize +MinSize320x320", "Pac-Man Classic")
+        newGui.BackColor := "101010"
+        newGui.SetFont("s11", "Consolas")
+
+        newGui.AddText("x20 y16 w260 Center cFFFF54", "Pac-Man – eat dots, avoid ghosts!")
+        PacmanApp.boardCtrl := newGui.AddText("x20 y48 w200 h200 Background000000 Border", "")
+        PacmanApp.boardCtrl.SetFont("s11", "Consolas")
+
+        PacmanApp.scoreCtrl := newGui.AddText("x240 y60 w80 h24 cFFFFFF", "Score: 0")
+        btnStart := newGui.AddButton("x240 y100 w80 h30", "Start")
+        btnStart.OnEvent("Click", (*) => PacmanApp.StartGame())
+        btnPause := newGui.AddButton("x240 y140 w80 h30", "Pause")
+        btnPause.OnEvent("Click", (*) => PacmanApp.PauseGame())
+        btnReset := newGui.AddButton("x240 y180 w80 h30", "Reset")
+        btnReset.OnEvent("Click", (*) => PacmanApp.ResetGame())
+        btnClose := newGui.AddButton("x240 y220 w80 h30", "Close")
+        btnClose.OnEvent("Click", (*) => PacmanApp.HideGui())
+
+        PacmanApp.statusCtrl := newGui.AddText("x20 y260 w260 h24 cFFFFFF", "Use Arrow keys to move. Space=Start, P=Pause, R=Reset")
+
+        newGui.OnEvent("Close", PacmanApp.HideGui)
+        newGui.OnEvent("Escape", PacmanApp.HideGui)
+        newGui.OnEvent("Size", PacmanApp.OnResize)
+
+        PacmanApp.gui := newGui
+        newGui.Show("w320 h300")
     }
-    
-    static StartGame(*) {
-        if (this.gameRunning) {
+
+    static SetupHotkeys() {
+        static registered := false
+        if (registered) {
             return
         }
+        ; Global hotkey to launch/show the game
+        Hotkey("^!m", (*) => PacmanApp.ShowGui())
         
-        this.gameRunning := true
-        this.timer := SetTimer(this.GameTick.Bind(this), this.gameSpeed)
-        
-        TrayTip("Pacman Started!", "Use arrow keys to move", 2)
+        ; Context-sensitive hotkeys - only work when Pac-Man window is active
+        Hotkey("Up", (*) => PacmanApp.MovePacIfActive(0, -1))
+        Hotkey("Down", (*) => PacmanApp.MovePacIfActive(0, 1))
+        Hotkey("Left", (*) => PacmanApp.MovePacIfActive(-1, 0))
+        Hotkey("Right", (*) => PacmanApp.MovePacIfActive(1, 0))
+        Hotkey("Space", (*) => PacmanApp.StartGameIfActive())
+        Hotkey("p", (*) => PacmanApp.PauseGameIfActive())
+        Hotkey("r", (*) => PacmanApp.ResetGameIfActive())
+        Hotkey("Escape", (*) => PacmanApp.HideGui())
+        registered := true
     }
     
-    static GameTick() {
-        if (!this.gameRunning) {
-            return
-        }
-        
-        ; Move Pacman
-        this.MovePacman()
-        
-        ; Move ghosts
-        this.MoveGhosts()
-        
-        ; Check collisions
-        this.CheckCollisions()
-        
-        ; Check win condition
-        if (this.dots.Length = 0) {
-            this.NextLevel()
-        }
-        
-        this.UpdateDisplay()
-    }
-    
-    static MovePacman() {
-        ; Try to change direction
-        if (this.CanMove(this.pacman.x, this.pacman.y, this.pacman.nextDirection)) {
-            this.pacman.direction := this.pacman.nextDirection
-        }
-        
-        ; Move in current direction
-        if (this.CanMove(this.pacman.x, this.pacman.y, this.pacman.direction)) {
-            switch this.pacman.direction {
-                case "up":
-                    this.pacman.y--
-                case "down":
-                    this.pacman.y++
-                case "left":
-                    this.pacman.x--
-                case "right":
-                    this.pacman.x++
-            }
-            
-            ; Wrap around screen
-            if (this.pacman.x < 0) this.pacman.x := 19
-            if (this.pacman.x > 19) this.pacman.x := 0
-            
-            ; Eat dots
-            this.EatDot()
-        }
-    }
-    
-    static MoveGhosts() {
-        for ghost in this.ghosts {
-            ; Simple AI - move towards Pacman
-            dx := this.pacman.x - ghost.x
-            dy := this.pacman.y - ghost.y
-            
-            ; Choose direction
-            if (Abs(dx) > Abs(dy)) {
-                if (dx > 0) {
-                    newDirection := "right"
-                } else {
-                    newDirection := "left"
-                }
-            } else {
-                if (dy > 0) {
-                    newDirection := "down"
-                } else {
-                    newDirection := "up"
-                }
-            }
-            
-            ; Try to move in chosen direction
-            if (this.CanMove(ghost.x, ghost.y, newDirection)) {
-                ghost.direction := newDirection
-            }
-            
-            ; Move ghost
-            if (this.CanMove(ghost.x, ghost.y, ghost.direction)) {
-                switch ghost.direction {
-                    case "up":
-                        ghost.y--
-                    case "down":
-                        ghost.y++
-                    case "left":
-                        ghost.x--
-                    case "right":
-                        ghost.x++
-                }
-                
-                ; Wrap around screen
-                if (ghost.x < 0) ghost.x := 19
-                if (ghost.x > 19) ghost.x := 0
-            }
-        }
-    }
-    
-    static CanMove(x, y, direction) {
-        newX := x
-        newY := y
-        
-        switch direction {
-            case "up":
-                newY--
-            case "down":
-                newY++
-            case "left":
-                newX--
-            case "right":
-                newX++
-        }
-        
-        ; Check bounds
-        if (newX < 0 || newX > 19 || newY < 0 || newY > 19) {
+    static IsPacmanWindowActive() {
+        if (!PacmanApp.gui || !PacmanApp.gui.Hwnd) {
             return false
         }
-        
-        ; Check walls
-        return this.gameBoard[newY + 1][newX + 1] != 1
+        return WinActive("ahk_id " . PacmanApp.gui.Hwnd)
     }
     
-    static EatDot() {
-        ; Check if Pacman is on a dot
-        for i, dot in this.dots {
-            if (dot.x = this.pacman.x && dot.y = this.pacman.y) {
-                ; Remove dot
-                this.dots.RemoveAt(i)
-                
-                ; Add score
-                this.score += 10
-                this.UpdateScore()
-                
-                ; Check for power pellet
-                if (this.gameBoard[this.pacman.y + 1][this.pacman.x + 1] = 3) {
-                    this.score += 50
-                    this.UpdateScore()
-                    ; Could add power pellet effect here
-                }
-                
-                break
-            }
+    static MovePacIfActive(dx, dy) {
+        if (PacmanApp.IsPacmanWindowActive()) {
+            PacmanApp.MovePac(dx, dy)
         }
     }
     
-    static CheckCollisions() {
-        ; Check ghost collisions
-        for ghost in this.ghosts {
-            if (ghost.x = this.pacman.x && ghost.y = this.pacman.y) {
-                this.PacmanCaught()
-                return
-            }
+    static StartGameIfActive() {
+        if (PacmanApp.IsPacmanWindowActive()) {
+            PacmanApp.StartGame()
         }
     }
     
-    static PacmanCaught() {
-        this.lives--
-        this.UpdateScore()
-        
-        if (this.lives <= 0) {
-            this.GameOver()
+    static PauseGameIfActive() {
+        if (PacmanApp.IsPacmanWindowActive()) {
+            PacmanApp.PauseGame()
+        }
+    }
+    
+    static ResetGameIfActive() {
+        if (PacmanApp.IsPacmanWindowActive()) {
+            PacmanApp.ResetGame()
+        }
+    }
+    
+    static ShowGui(*) {
+        if (PacmanApp.gui) {
+            PacmanApp.gui.Show()
+            WinActivate(PacmanApp.gui.Hwnd)
         } else {
-            ; Reset Pacman position
-            this.pacman.x := 9
-            this.pacman.y := 15
-            this.pacman.direction := "right"
-            this.pacman.nextDirection := "right"
-            
-            TrayTip("Pacman Caught!", "Lives remaining: " . this.lives, 2)
+            PacmanApp.Init()
         }
     }
-    
-    static NextLevel() {
-        this.level++
-        this.gameSpeed := Max(100, this.gameSpeed - 20)
-        SetTimer(this.timer, this.gameSpeed)
-        
-        ; Reset for next level
-        this.InitializeGame()
-        
-        TrayTip("Level Complete!", "Starting Level " . this.level, 2)
+
+    static ResetGame() {
+        PacmanApp.PauseGame()
+        PacmanApp.layout := PacmanApp.LoadLayout()
+        PacmanApp.pac := {x: 1, y: 1}
+        PacmanApp.ghost := {x: 8, y: 5}
+        PacmanApp.score := 0
+        PacmanApp.UpdateScore()
+        PacmanApp.UpdateBoard()
+        PacmanApp.UpdateStatus("Press Start to begin.")
     }
-    
-    static GameOver() {
-        this.gameRunning := false
-        SetTimer(this.timer, 0)
-        
-        MsgBox("Game Over!`n`nFinal Score: " . this.score . "`nLevel: " . this.level, "Pacman Game Over", "Iconi")
-        
-        ; Reset for new game
-        this.InitializeGame()
-        this.UpdateDisplay()
-    }
-    
-    static UpdateDisplay() {
-        if (!this.canvas) {
+
+    static StartGame() {
+        if (PacmanApp.timerId) {
             return
         }
-        
-        ; Create display string
-        display := ""
-        
-        ; Draw game board
-        for row in this.gameBoard {
-            for cell in row {
-                switch cell {
-                    case 1:
-                        display .= "█"  ; Wall
-                    case 2:
-                        display .= "·"  ; Dot
-                    case 3:
-                        display .= "●"  ; Power pellet
-                    default:
-                        display .= " "  ; Empty
+        PacmanApp.timerId := SetTimer(PacmanApp.Tick.Bind(PacmanApp), 400)
+        PacmanApp.UpdateStatus("Game running.")
+    }
+
+    static PauseGame() {
+        if (PacmanApp.timerId) {
+            SetTimer(PacmanApp.timerId, 0)
+            PacmanApp.timerId := 0
+            PacmanApp.UpdateStatus("Paused.")
+        }
+    }
+
+    static HideGui(*) {
+        PacmanApp.PauseGame()
+        if (PacmanApp.gui) {
+            PacmanApp.gui.Hide()
+        }
+    }
+
+    static Tick() {
+        PacmanApp.MoveGhost()
+        PacmanApp.CheckCollision()
+        PacmanApp.UpdateBoard()
+    }
+
+    static MovePac(dx, dy) {
+        newX := PacmanApp.pac.x + dx
+        newY := PacmanApp.pac.y + dy
+        if (!PacmanApp.CanWalk(newX, newY)) {
+            return
+        }
+        if (SubStr(PacmanApp.layout[newY + 1], newX + 1, 1) = ".") {
+            PacmanApp.layout[newY + 1] := PacmanApp.ReplaceChar(PacmanApp.layout[newY + 1], newX + 1, " ")
+            PacmanApp.score += 10
+            PacmanApp.UpdateScore()
+        }
+        PacmanApp.pac := {x: newX, y: newY}
+        PacmanApp.CheckCollision()
+        PacmanApp.UpdateBoard()
+        if (!PacmanApp.HasDots()) {
+            PacmanApp.UpdateStatus("You cleared the maze! Reset to play again.")
+            PacmanApp.PauseGame()
+        }
+    }
+
+    static MoveGhost() {
+        choices := []
+        dirs := [[1,0],[-1,0],[0,1],[0,-1]]
+        for dir in dirs {
+            dx := dir[1]
+            dy := dir[2]
+            newX := PacmanApp.ghost.x + dx
+            newY := PacmanApp.ghost.y + dy
+            if (PacmanApp.CanWalk(newX, newY)) {
+                choices.Push({x: newX, y: newY})
+            }
+        }
+        if (choices.Length) {
+            idx := Random(1, choices.Length)
+            PacmanApp.ghost := choices[idx]
+        }
+    }
+
+    static CanWalk(x, y) {
+        if (y < 0 || y >= PacmanApp.layout.Length) {
+            return false
+        }
+        row := PacmanApp.layout[y + 1]
+        if (x < 0 || x >= StrLen(row)) {
+            return false
+        }
+        return SubStr(row, x + 1, 1) != "#"
+    }
+
+    static HasDots() {
+        for row in PacmanApp.layout {
+            if InStr(row, ".") {
+                return true
+            }
+        }
+        return false
+    }
+
+    static CheckCollision() {
+        if (PacmanApp.pac.x = PacmanApp.ghost.x && PacmanApp.pac.y = PacmanApp.ghost.y) {
+            PacmanApp.PauseGame()
+            PacmanApp.UpdateStatus("Ghost got you! Reset to try again.")
+            MsgBox("Game Over! Score: " . PacmanApp.score, "Pac-Man", "Iconi")
+        }
+    }
+
+    static UpdateBoard() {
+        rows := []
+        for y, row in PacmanApp.layout {
+            line := ""
+            Loop StrLen(row) {
+                char := SubStr(row, A_Index, 1)
+                if (PacmanApp.pac.x = A_Index - 1 && PacmanApp.pac.y = y - 1) {
+                    line .= "🙂"
+                } else if (PacmanApp.ghost.x = A_Index - 1 && PacmanApp.ghost.y = y - 1) {
+                    line .= "👻"
+                } else if (char = "#") {
+                    line .= "█"
+                } else if (char = ".") {
+                    line .= "·"
+                } else {
+                    line .= " "
                 }
             }
-            display .= "`n"
+            rows.Push(line)
         }
-        
-        ; Draw Pacman
-        pacmanChar := "C"
-        switch this.pacman.direction {
-            case "up":
-                pacmanChar := "C"
-            case "down":
-                pacmanChar := "C"
-            case "left":
-                pacmanChar := "C"
-            case "right":
-                pacmanChar := "C"
-        }
-        
-        ; Replace character at Pacman position
-        pos := (this.pacman.y * 21) + this.pacman.x + 1
-        display := SubStr(display, 1, pos - 1) . pacmanChar . SubStr(display, pos + 1)
-        
-        ; Draw ghosts
-        for ghost in this.ghosts {
-            ghostChar := "G"
-            switch ghost.color {
-                case "red":
-                    ghostChar := "R"
-                case "pink":
-                    ghostChar := "P"
-                case "cyan":
-                    ghostChar := "C"
-                case "orange":
-                    ghostChar := "O"
-            }
-            
-            pos := (ghost.y * 21) + ghost.x + 1
-            display := SubStr(display, 1, pos - 1) . ghostChar . SubStr(display, pos + 1)
-        }
-        
-        this.canvas.Text := display
+        PacmanApp.boardCtrl.Text := rows.Join("`n")
     }
-    
+
     static UpdateScore() {
-        if (this.gui.scoreText) {
-            this.gui.scoreText.Text := "Score: " . this.score
-        }
-        if (this.gui.livesText) {
-            this.gui.livesText.Text := "Lives: " . this.lives
-        }
-        if (this.gui.levelText) {
-            this.gui.levelText.Text := "Level: " . this.level
+        if (PacmanApp.scoreCtrl) {
+            PacmanApp.scoreCtrl.Text := "Score: " . PacmanApp.score
         }
     }
-    
-    static SetDirection(direction) {
-        this.pacman.nextDirection := direction
+
+    static UpdateStatus(message) {
+        if (PacmanApp.statusCtrl) {
+            PacmanApp.statusCtrl.Text := message
+        }
     }
-    
-    static PauseGame() {
-        if (!this.gameRunning) {
+
+    static ReplaceChar(text, index, replacement) {
+        return SubStr(text, 1, index - 1) . replacement . SubStr(text, index + 1)
+    }
+
+    static MoveGhostRandomly() {
+        PacmanApp.MoveGhost()
+    }
+
+    static OnResize(gui, minMax, width, height) {
+        if (!PacmanApp.boardCtrl) {
             return
         }
-        
-        this.gameRunning := false
-        SetTimer(this.timer, 0)
-        TrayTip("Game Paused", "Press P to resume", 2)
-    }
-    
-    static ResumeGame() {
-        if (this.gameRunning) {
-            return
-        }
-        
-        this.gameRunning := true
-        SetTimer(this.timer, this.gameSpeed)
-        TrayTip("Game Resumed", "Pacman continues!", 2)
-    }
-    
-    static SetupHotkeys() {
-        ; Movement
-        Hotkey("Up", (*) => this.SetDirection("up")
-        Hotkey("Down", (*) => this.SetDirection("down")
-        Hotkey("Left", (*) => this.SetDirection("left")
-        Hotkey("Right", (*) => this.SetDirection("right")
-        
-        ; Start game - NOTE: Space hotkey disabled to avoid interfering with typing
-        ; Users should use GUI buttons or other controls
-        
-        ; Pause/Resume
-        p::{
-            if (this.gameRunning) {
-                this.PauseGame()
-            } else {
-                this.ResumeGame()
-            }
-        }
-        
-        ; Restart
-        Hotkey("r", (*) => this.StartGame()
-        
-        ; Close with Escape
-        Escape::{
-            if (WinExist("Pacman Classic")) {
-                WinClose("Pacman Classic")
-            }
+        newHeight := height - 120
+        PacmanApp.boardCtrl.Move(20, 48, Min(200, width - 120), newHeight)
+        if (PacmanApp.statusCtrl) {
+            PacmanApp.statusCtrl.Move(20, height - 40, width - 40, 24)
         }
     }
 }
 
-; Initialize
-PacmanGame.Init()
+PacmanApp.Init()
+
+OnExit((*) => PacmanApp.UpdateStatus(""))
 
 
 

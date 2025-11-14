@@ -1,5 +1,6 @@
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
+#Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
 ; ==============================================================================
 ; IDE Shortcuts
@@ -24,13 +25,6 @@
 ; Error handling - log to file instead of showing popups
 OnError(LogError)
 
-LogError(Thrown, Mode) {
-    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
-    FileAppend(errorMsg, "ide_shortcuts_errors.log", "UTF-8")
-    OutputDebug(errorMsg)  ; Enable LLM debugging
-    return 1  ; Suppress popup (1 = suppress, 0 = show)
-}
-
 ; =============================================================================
 ; CONFIGURATION
 ; =============================================================================
@@ -44,7 +38,7 @@ IDE_SHORTCUTS := Map(
         "move_line_up", "!Up",
         "move_line_down", "!Down",
         "find_in_files", "^+f",
-        "toggle_terminal", "^`",
+        "toggle_terminal", "^``",
         "toggle_sidebar", "^b",
         "command_palette", "^+p"
     ),
@@ -77,81 +71,81 @@ IDE_SHORTCUTS := Map(
 ; VS Code specific shortcuts
 #HotIf WinActive("ahk_exe code.exe")
     ; Format Document
-    Hotkey("^!l", (*) =>  Send("^k^f")
+    Hotkey("^!l", (*) => Send("^k^f"))
     
     ; Comment/Uncomment Line
-    ^/:: Send("^k^c")
-    ^+/:: Send("^k^u")
+    Hotkey("^/", (*) => Send("^k^c"))
+    Hotkey("^+/", (*) => Send("^k^u"))
     
     ; Duplicate Line
-    Hotkey("^d", (*) =>  Send("^d")
+    Hotkey("^d", (*) => Send("^d"))
     
     ; Move Line Up/Down
-    !Hotkey("Up", (*) =>  Send("!{Up}")
-    !Hotkey("Down", (*) =>  Send("!{Down}")
+    Hotkey("!Up", (*) => Send("!{Up}"))
+    Hotkey("!Down", (*) => Send("!{Down}"))
     
     ; Find in Files
-    Hotkey("^+f", (*) =>  Send("^+f")
+    Hotkey("^+f", (*) => Send("^+f"))
     
     ; Toggle Terminal
-    ^`:: Send("^`")
+    Hotkey("^``", (*) => Send("^``"))
     
     ; Toggle Sidebar
-    Hotkey("^b", (*) =>  Send("^b")
+    Hotkey("^b", (*) => Send("^b"))
     
     ; Command Palette
-    Hotkey("^+p", (*) =>  Send("^+p")
+    Hotkey("^+p", (*) => Send("^+p"))
 #HotIf
 
 ; IntelliJ specific shortcuts
 #HotIf WinActive("ahk_exe idea64.exe")
     ; Reformat Code
-    Hotkey("^!l", (*) =>  Send("^!l")
+    Hotkey("^!l", (*) => Send("^!l"))
     
     ; Comment Line
-    ^/:: Send("^/")
+    Hotkey("^/", (*) => Send("^/"))
     
     ; Duplicate Line
-    Hotkey("^d", (*) =>  Send("^d")
+    Hotkey("^d", (*) => Send("^d"))
     
     ; Move Line Up/Down
-    Hotkey("^+Up", (*) =>  Send("^+{Up}")
-    Hotkey("^+Down", (*) =>  Send("^+{Down}")
+    Hotkey("^+Up", (*) => Send("^+{Up}"))
+    Hotkey("^+Down", (*) => Send("^+{Down}"))
     
     ; Find in Files
-    Hotkey("^+f", (*) =>  Send("^+f")
+    Hotkey("^+f", (*) => Send("^+f"))
     
     ; Find Action
-    Hotkey("^+a", (*) =>  Send("^+a")
+    Hotkey("^+a", (*) => Send("^+a"))
     
     ; Recent Files
-    Hotkey("^e", (*) =>  Send("^e")
+    Hotkey("^e", (*) => Send("^e"))
 #HotIf
 
 ; Visual Studio specific shortcuts
 #HotIf WinActive("ahk_exe devenv.exe")
     ; Format Document
-    ^kHotkey("^d", (*) =>  Send("^k^d")
+    Hotkey("^k^d", (*) => Send("^k^d"))
     
     ; Comment/Uncomment Selection
-    ^kHotkey("^c", (*) =>  Send("^k^c")
-    ^kHotkey("^u", (*) =>  Send("^k^u")
+    Hotkey("^k^c", (*) => Send("^k^c"))
+    Hotkey("^k^u", (*) => Send("^k^u"))
     
     ; Duplicate Line
-    Hotkey("^d", (*) =>  Send("^d")
+    Hotkey("^d", (*) => Send("^d"))
     
     ; Move Line Up/Down
-    !Hotkey("Up", (*) =>  Send("!{Up}")
-    !Hotkey("Down", (*) =>  Send("!{Down}")
+    Hotkey("!Up", (*) => Send("!{Up}"))
+    Hotkey("!Down", (*) => Send("!{Down}"))
     
     ; Find in Files
-    Hotkey("^+f", (*) =>  Send("^+f")
+    Hotkey("^+f", (*) => Send("^+f"))
     
     ; Quick Launch
-    ^,:: Send("^,")
+    Hotkey("^,", (*) => Send("^,"))
     
     ; Solution Explorer
-    Hotkey("^!l", (*) =>  Send("^!l")
+    Hotkey("^!l", (*) => Send("^!l"))
 #HotIf
 
 ; =============================================================================

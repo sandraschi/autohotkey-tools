@@ -19,218 +19,181 @@
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
 
+OnError(MiniArcade.HandleError)
 
-; Suppress error popups - log to file instead
-OnError(LogError)
+class MiniArcade {
+    static gui := ""
+    static statusCtrl := ""
+    static reactionStart := 0
+    static guessTarget := 0
+    static guessCtrl := ""
 
-LogError(Thrown, Mode) {
-    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
-    FileAppend(errorMsg, "mini_games_collection_errors.log", "UTF-8")
-    OutputDebug(errorMsg)  ; Enable LLM debugging
-    return 1  ; Suppress popup (1 = suppress, 0 = show)
-}
-
-
-class MiniGames {
-    static currentGame := ""
-    static gameGui := ""
-    
     static Init() {
-        this.CreateMainGUI()
+        MiniArcade.CreateGui()
+        MiniArcade.SetupHotkeys()
     }
-    
-    static CreateMainGUI() {
-        this.gameGui := Gui("+Resize", "Mini Games Collection")
-        
-        ; Title
-        this.gameGui.AddText("w400 h40 Center", "🎮 Mini Games Collection")
-        
-        ; Game selection
-        this.gameGui.AddText("w400 h20 Center", "Choose a game:")
-        
-        ; Game buttons
-        snakeBtn := this.gameGui.AddButton("x50 y60 w100 h60", "🐍 Snake`nClassic Snake Game")
-        tetrisBtn := this.gameGui.AddButton("x160 y60 w100 h60", "🧩 Tetris`nBlock Puzzle Game")
-        memoryBtn := this.gameGui.AddButton("x270 y60 w100 h60", "🧠 Memory`nCard Matching Game")
-        
-        snakeBtn.OnEvent("Click", this.StartSnake.Bind(this))
-        tetrisBtn.OnEvent("Click", this.StartTetris.Bind(this))
-        memoryBtn.OnEvent("Click", this.StartMemory.Bind(this))
-        
-        ; Additional games
-        pongBtn := this.gameGui.AddButton("x50 y130 w100 h60", "🏓 Pong`nClassic Arcade Game")
-        breakoutBtn := this.gameGui.AddButton("x160 y130 w100 h60", "💥 Breakout`nBrick Breaking Game")
-        minesweeperBtn := this.gameGui.AddButton("x270 y130 w100 h60", "💣 Minesweeper`nLogic Puzzle Game")
-        
-        pongBtn.OnEvent("Click", this.StartPong.Bind(this))
-        breakoutBtn.OnEvent("Click", this.StartBreakout.Bind(this))
-        minesweeperBtn.OnEvent("Click", this.StartMinesweeper.Bind(this))
-        
-        ; Instructions
-        this.gameGui.AddText("w400 h60", "Instructions:`n• Use arrow keys to control`n• Press ESC to return to main menu`n• Press F1 for game-specific help")
-        
-        this.gameGui.Show("w420 h250")
+
+    static HandleError(Thrown, Mode) {
+        message := "MiniArcade error: " . Thrown.Message . " at line " . Thrown.Line
+        try FileAppend(message . "`n", "mini_games_collection_errors.log", "UTF-8")
+        OutputDebug(message)
+        return 1
     }
-    
-    static StartSnake(*) {
-        this.currentGame := "Snake"
-        this.gameGui.Close()
-        this.CreateSnakeGame()
-    }
-    
-    static CreateSnakeGame() {
-        this.gameGui := Gui("+Resize", "Snake Game")
-        
-        ; Game area
-        this.gameGui.AddText("w400 h400 BackgroundBlack", "")
-        
-        ; Score
-        this.gameGui.AddText("w400 h30", "Score: 0")
-        
-        ; Controls
-        this.gameGui.AddText("w400 h30", "Controls: Arrow Keys | ESC: Menu | SPACE: Pause")
-        
-        this.gameGui.Show("w420 h500")
-        
-        ; Initialize game variables
-        this.snakeX := [200]
-        this.snakeY := [200]
-        this.direction := "right"
-        this.foodX := 100
-        this.foodY := 100
-        this.score := 0
-        
-        ; Start game loop
-        SetTimer(this.SnakeGameLoop.Bind(this), 150)
-        
-        ; Set up hotkeys
-        this.SetupSnakeHotkeys()
-    }
-    
-    static SnakeGameLoop() {
-        ; Move snake
-        headX := this.snakeX[1]
-        headY := this.snakeY[1]
-        
-        switch this.direction {
-            case "up": headY -= 20
-            case "down": headY += 20
-            case "left": headX -= 20
-            case "right": headX += 20
+
+    static CreateGui() {
+        if (MiniArcade.gui) {
+            MiniArcade.gui.Destroy()
         }
-        
-        ; Check boundaries
-        if (headX < 0 || headX >= 400 || headY < 0 || headY >= 400) {
-            this.GameOver()
+        newGui := Gui("+Resize +MinSize360x280", "Mini Games Collection")
+        newGui.BackColor := "1e1e1e"
+        newGui.SetFont("s10", "Segoe UI")
+
+        newGui.AddText("x20 y16 w320 Center cFFFFFF", "Mini Games Collection – quick break fun")
+
+        reactionBtn := newGui.AddButton("x40 y56 w120 h48", "⚡ Reaction Timer")
+        reactionBtn.OnEvent("Click", (*) => MiniArcade.StartReactionTimer())
+
+        guessBtn := newGui.AddButton("x200 y56 w120 h48", "🎯 Number Guess")
+        guessBtn.OnEvent("Click", (*) => MiniArcade.StartGuessGame())
+
+        info := "Instructions:`n" . "• Reaction Timer: press 'Start' then 'Stop' as quickly as possible.`n" . "• Number Guess: choose a number 1-20 and check the answer.`n" . "• Use Ctrl+Alt+G to open this menu, Ctrl+Alt+Q to close." 
+        newGui.AddText("x20 y120 w320 h100 cFFFFFF", info)
+
+        MiniArcade.statusCtrl := newGui.AddText("x20 y230 w320 h24 cFFFFFF", "Select a mini game to begin.")
+
+        newGui.OnEvent("Close", MiniArcade.HideGui)
+        newGui.OnEvent("Escape", MiniArcade.HideGui)
+        newGui.OnEvent("Size", MiniArcade.OnResize)
+
+        MiniArcade.gui := newGui
+        newGui.Show("w360 h260")
+    }
+
+    static SetupHotkeys() {
+        static registered := false
+        if (registered) {
             return
         }
-        
-        ; Check collision with self
-        for i, x in this.snakeX {
-            if (x = headX && this.snakeY[i] = headY) {
-                this.GameOver()
-                return
-            }
+        Hotkey("^!g", (*) => MiniArcade.ShowGui())
+        Hotkey("^!q", (*) => MiniArcade.HideGui())
+        registered := true
+    }
+
+    static ShowGui() {
+        if (!MiniArcade.gui) {
+            MiniArcade.CreateGui()
         }
-        
-        ; Add new head
-        this.snakeX.InsertAt(1, headX)
-        this.snakeY.InsertAt(1, headY)
-        
-        ; Check food collision
-        if (headX = this.foodX && headY = this.foodY) {
-            this.score += 10
-            this.GenerateFood()
+        MiniArcade.gui.Show()
+        MiniArcade.UpdateStatus("Menu opened.")
+    }
+
+    static HideGui(*) {
+        if (MiniArcade.gui) {
+            MiniArcade.gui.Hide()
+            MiniArcade.UpdateStatus("Menu hidden.")
+        }
+    }
+
+    ; --- Reaction Timer ---
+    static StartReactionTimer() {
+        dlg := Gui("+Owner" . MiniArcade.gui.Hwnd, "Reaction Timer")
+        dlg.BackColor := "202020"
+        dlg.SetFont("s11", "Segoe UI")
+        dlg.AddText("w280 h24 cFFFFFF", "Click 'Start' then stop as soon as color changes.")
+        indicator := dlg.AddText("x20 y40 w280 h80 Center BackgroundFF4444 cFFFFFF", "Waiting ...")
+        resultCtrl := dlg.AddText("x20 y130 w280 h24 cFFFFFF", "")
+        startBtn := dlg.AddButton("x60 y170 w80 h30", "Start")
+        stopBtn := dlg.AddButton("x160 y170 w80 h30", "Stop")
+        stopBtn.Enabled := false
+
+        startBtn.OnEvent("Click", MiniArcade.ReactionStart.Bind(MiniArcade, indicator, startBtn, stopBtn))
+        stopBtn.OnEvent("Click", MiniArcade.ReactionStop.Bind(MiniArcade, indicator, startBtn, stopBtn, resultCtrl))
+
+        dlg.OnEvent("Close", (*) => dlg.Destroy())
+        dlg.Show("w320 h220")
+    }
+
+    static ReactionStart(indicator, startBtn, stopBtn, *) {
+        indicator.Opt("Background44FF44")
+        indicator.Text := "GO!"
+        MiniArcade.reactionStart := A_TickCount
+        startBtn.Enabled := false
+        stopBtn.Enabled := true
+    }
+
+    static ReactionStop(indicator, startBtn, stopBtn, resultCtrl, *) {
+        if (!MiniArcade.reactionStart) {
+            return
+        }
+        elapsed := A_TickCount - MiniArcade.reactionStart
+        resultCtrl.Text := "Reaction time: " . elapsed . " ms"
+        MiniArcade.UpdateStatus("Reaction recorded: " . elapsed . " ms")
+        startBtn.Enabled := true
+        stopBtn.Enabled := false
+        indicator.Opt("BackgroundFFAA00")
+        indicator.Text := "Round complete"
+        MiniArcade.reactionStart := 0
+    }
+
+    ; --- Number Guess ---
+    static StartGuessGame() {
+        dlg := Gui("+Owner" . MiniArcade.gui.Hwnd, "Number Guess")
+        dlg.BackColor := "202020"
+        dlg.SetFont("s11", "Segoe UI")
+        dlg.AddText("x20 y16 w260 h24 cFFFFFF", "Pick a number between 1 and 20")
+        slider := dlg.AddSlider("x20 y48 w260 Range1-20 TickInterval1", 10)
+        valueText := dlg.AddText("x20 y80 w260 h24 Center cFFFFFF", "Current guess: 10")
+        slider.OnEvent("Change", MiniArcade.UpdateGuessDisplay.Bind(MiniArcade, slider, valueText))
+        MiniArcade.guessTarget := Random(1, 20)
+        checkBtn := dlg.AddButton("x60 y120 w80 h30", "Check")
+        resetBtn := dlg.AddButton("x160 y120 w80 h30", "New #")
+        resultCtrl := dlg.AddText("x20 y170 w260 h24 Center cFFFFFF", "")
+
+        checkBtn.OnEvent("Click", MiniArcade.CheckGuess.Bind(MiniArcade, slider, resultCtrl))
+        resetBtn.OnEvent("Click", MiniArcade.ResetGuess.Bind(MiniArcade, resultCtrl))
+
+        dlg.OnEvent("Close", (*) => dlg.Destroy())
+        dlg.Show("w300 h210")
+    }
+
+    static UpdateGuessDisplay(slider, valueText, *) {
+        valueText.Text := "Current guess: " . slider.Value
+    }
+
+    static CheckGuess(slider, resultCtrl, *) {
+        guess := slider.Value
+        if (guess = MiniArcade.guessTarget) {
+            resultCtrl.Text := "🎉 Correct!"
+            MiniArcade.UpdateStatus("Correct guess: " . guess)
+        } else if (guess < MiniArcade.guessTarget) {
+            resultCtrl.Text := "Too low."
         } else {
-            ; Remove tail
-            this.snakeX.Pop()
-            this.snakeY.Pop()
+            resultCtrl.Text := "Too high."
         }
-        
-        this.DrawSnake()
     }
-    
-    static DrawSnake() {
-        ; Clear screen (simplified)
-        ; Update score
-        this.gameGui.Control["Text2"].Text := "Score: " . this.score
+
+    static ResetGuess(resultCtrl, *) {
+        MiniArcade.guessTarget := Random(1, 20)
+        resultCtrl.Text := "New number chosen."
+        MiniArcade.UpdateStatus("Guess number reset.")
     }
-    
-    static GenerateFood() {
-        Random(&this.foodX, 0, 19)
-        this.foodX *= 20
-        Random(&this.foodY, 0, 19)
-        this.foodY *= 20
+
+    static UpdateStatus(message) {
+        if (MiniArcade.statusCtrl) {
+            MiniArcade.statusCtrl.Text := message
+        }
     }
-    
-    static GameOver() {
-        SetTimer(this.SnakeGameLoop.Bind(this), 0)
-        MsgBox("Game Over! Score: " . this.score, "Snake Game", "0x40")
-        this.Init()
-    }
-    
-    static SetupSnakeHotkeys() {
-        ; Hotkeys will be defined globally at module level
-    }
-    
-    static StartTetris(*) {
-        MsgBox("Tetris game - Coming soon!", "Mini Games", "Icon!")
-    }
-    
-    static StartMemory(*) {
-        MsgBox("Memory game - Coming soon!", "Mini Games", "Icon!")
-    }
-    
-    static StartPong(*) {
-        MsgBox("Pong game - Coming soon!", "Mini Games", "Icon!")
-    }
-    
-    static StartBreakout(*) {
-        MsgBox("Breakout game - Coming soon!", "Mini Games", "Icon!")
-    }
-    
-    static StartMinesweeper(*) {
-        MsgBox("Minesweeper game - Coming soon!", "Mini Games", "Icon!")
+
+    static OnResize(gui, minMax, width, height) {
+        if (MiniArcade.statusCtrl) {
+            MiniArcade.statusCtrl.Move(20, height - 40, width - 40, 24)
+        }
     }
 }
 
-; Global hotkeys
-^!g:: MiniGames.Init()
-#s:: MiniGames.StartSnake()
+MiniArcade.Init()
 
-; Snake game controls
-Up:: {
-    if (MiniGames.currentGame = "Snake") {
-        MiniGames.direction := "up"
-    }
-}
-
-Down:: {
-    if (MiniGames.currentGame = "Snake") {
-        MiniGames.direction := "down"
-    }
-}
-
-Left:: {
-    if (MiniGames.currentGame = "Snake") {
-        MiniGames.direction := "left"
-    }
-}
-
-Right:: {
-    if (MiniGames.currentGame = "Snake") {
-        MiniGames.direction := "right"
-    }
-}
-
-Esc:: {
-    if (MiniGames.currentGame = "Snake") {
-        MiniGames.Init()
-    }
-}
-
-; Initialize
-MiniGames.Init()
+OnExit((*) => MiniArcade.UpdateStatus(""))
 
 
 

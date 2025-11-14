@@ -14,8 +14,18 @@ This directory contains documentation for the AutoHotkey Development Tools proje
 - **[AutoHotkey_v2_Common_Incompatibilities.md](AutoHotkey_v2_Common_Incompatibilities.md)** - Common incompatibility issues
 
 ### Development Guides
-- **[DEVELOPMENT_GUIDE.md](DEVELOPMENT_GUIDE.md)** - Development workflow and best practices
+- **[DEVELOPMENT_GUIDE.md](DEVELOPMENT_GUIDE.md)** - Development workflow and best practices (includes IDE setup with AutoHotkey++ Cursor Extension)
 - **[AutoHotkey_Debugging_Guide.md](AutoHotkey_Debugging_Guide.md)** - Debugging techniques and tools
+
+## IDE Support
+
+**AutoHotkey++ Cursor Extension** - Enhanced AutoHotkey v2 development experience:
+- Full IntelliSense and autocomplete
+- Real-time syntax checking
+- Code formatting and refactoring
+- Integrated debugging support
+
+See [DEVELOPMENT_GUIDE.md](DEVELOPMENT_GUIDE.md) for installation instructions and setup details.
 
 ## Contents
 
@@ -25,5 +35,6 @@ This directory contains documentation for the AutoHotkey Development Tools proje
 - Best practices
 - Migration guides
 - MCP server development guides
+- IDE setup and configuration
 
 *Documentation is actively maintained and updated.*

@@ -21,14 +21,11 @@
 ; @dependencies: 
 ; ==============================================================================
 
-; Error handling - log to file instead of showing popups
-OnError(LogError)
+; Error handling - structured logging
+OnError(HandleScriptError)
 
-LogError(Thrown, Mode) {
-    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
-    FileAppend(errorMsg, "macro_editor_pro_errors.log", "UTF-8")
-    OutputDebug(errorMsg)  ; Enable LLM debugging
-    return 1  ; Suppress popup (1 = suppress, 0 = show)
+HandleScriptError(Thrown, Mode) {
+    return MacroEditor.HandleScriptError(Thrown, Mode)
 }
 
 class MacroEditor {
@@ -36,8 +33,14 @@ class MacroEditor {
     static actionList := ""
     static macro := []
     static macros := Map()
+    static logFilePath := ""
+    static logInitialized := false
+    static logOutput := ""
+    static logMessages := []
+    static isVisible := false
     
     static Init() {
+        this.EnsureLogInfrastructure()
         this.CreateGUI()
         
         Hotkey("^!e", (*) => this.ToggleGUI())
@@ -93,14 +96,19 @@ class MacroEditor {
         this.gui.AddButton("x450 y410 w40 h35 vExportBtn", "Export")
             .OnEvent("Click", MacroEditor.ExportMacro)
         
+        ; Log output
+        this.logOutput := this.gui.AddEdit("x10 y455 w480 h80 ReadOnly Multi VScroll", "")
+        this.logOutput.SetFont("s9 cFFFFFF", "Consolas")
+
         ; Test button
-        this.gui.AddButton("x10 y455 w150 h35 vTestBtn", "Test Macro (F9)")
+        this.gui.AddButton("x10 y545 w150 h35 vTestBtn", "Test Macro (F9)")
             .OnEvent("Click", MacroEditor.TestMacro)
         
         Hotkey("F9", MacroEditor.TestMacro)
-        Hotkey("Escape", (*) => this.gui.Hide(), this.gui)
+        Hotkey("Escape", (*) => MacroEditor.HideGUI(), this.gui)
         
-        this.gui.Show("w500 h500")
+        this.gui.Show("w500 h600")
+        this.isVisible := true
     }
     
     static LoadMacros() {
@@ -282,12 +290,8 @@ class MacroEditor {
         detailsEdit := dialog.AddEdit("x10 y95 w300 h150 vDetailsEdit")
             .Text := this.ActionToText(action)
         
-        dialog.AddButton("x10 y255 w140 h35 vOkBtn", "OK")
-            .OnEvent("Click", (*) => {
-                this.macro[index] := this.TextToAction(detailsEdit.Text)
-                this.UpdateActionList()
-                dialog.Destroy()
-            })
+        okBtn := dialog.AddButton("x10 y255 w140 h35 vOkBtn", "OK")
+        okBtn.OnEvent("Click", (*) => this.HandleEditDialogConfirm(dialog, detailsEdit, index))
         
         dialog.AddButton("x160 y255 w140 h35 vCancelBtn", "Cancel")
             .OnEvent("Click", (*) => dialog.Destroy())
@@ -308,13 +312,8 @@ class MacroEditor {
         dialog.AddText("x10 y70 w300 h20", "Action Data:")
         detailsEdit := dialog.AddEdit("x10 y95 w300 h150 vDetailsEdit")
         
-        dialog.AddButton("x10 y255 w140 h35 vOkBtn", "OK")
-            .OnEvent("Click", (*) => {
-                newAction := this.TextToAction(detailsEdit.Text)
-                this.macro.Push(newAction)
-                this.UpdateActionList()
-                dialog.Destroy()
-            })
+        okBtn := dialog.AddButton("x10 y255 w140 h35 vOkBtn", "OK")
+        okBtn.OnEvent("Click", (*) => this.HandleInsertDialogConfirm(dialog, detailsEdit))
         
         dialog.AddButton("x160 y255 w140 h35 vCancelBtn", "Cancel")
             .OnEvent("Click", (*) => dialog.Destroy())
@@ -369,6 +368,117 @@ class MacroEditor {
         MsgBox("Macro exported to: " . filename, "Export", "Icon!")
         this.AppendLog("Exported to: " . filename)
     }
+
+    static EnsureLogInfrastructure() {
+        if (this.logInitialized) {
+            return
+        }
+        logDir := A_ScriptDir . "\logs"
+        try {
+            if (!DirExist(logDir)) {
+                DirCreate(logDir)
+            }
+        } catch as dirError {
+            OutputDebug("MacroEditor log directory error: " . dirError.Message)
+        }
+        this.logFilePath := logDir . "\macro_editor_pro.log"
+        this.logInitialized := true
+    }
+
+    static AppendLog(message, severity := "INFO") {
+        this.EnsureLogInfrastructure()
+        timestamp := ""
+        timestamp := FormatTime(, "yyyy-MM-dd HH:mm:ss")
+        entry := "[" . timestamp . "] [" . severity . "] " . message
+        this.logMessages.Push(entry)
+        if (this.logOutput) {
+            current := this.logOutput.Value
+            this.logOutput.Value := current . entry . "`n"
+            this.logOutput.Redraw()
+            this.logOutput.Focus()
+            Send("^{End}")
+        }
+        OutputDebug(entry)
+        if (this.logFilePath) {
+            try {
+                FileAppend(entry . "`n", this.logFilePath, "UTF-8")
+            } catch as fileError {
+                OutputDebug("MacroEditor log file error: " . fileError.Message)
+            }
+        }
+    }
+
+    static HandleScriptError(Thrown, Mode) {
+        message := "Unhandled exception (" . Mode . "): " . Thrown.Message
+        location := "File: " . (Thrown.File ?? A_ScriptFullPath) . " | Line: " . (Thrown.Line ?? "unknown")
+        this.AppendLog(message, "ERROR")
+        this.AppendLog(location, "ERROR")
+        if (Thrown.Stack) {
+            this.AppendLog("Stack trace:`n" . Thrown.Stack, "TRACE")
+        }
+        if (this.gui) {
+            try {
+                this.gui.Hide()
+                this.isVisible := false
+            } catch {
+                ; ignore GUI hide errors
+            }
+        }
+        return 1
+    }
+
+    static ToggleGUI(*) {
+        if (!this.gui) {
+            return
+        }
+        if (this.isVisible) {
+            this.HideGUI()
+        } else {
+            this.ShowGUI()
+        }
+    }
+
+    static ShowGUI() {
+        if (!this.gui) {
+            return
+        }
+        this.gui.Show()
+        this.isVisible := true
+    }
+
+    static HideGUI(*) {
+        if (!this.gui) {
+            return
+        }
+        try {
+            this.gui.Hide()
+        } catch {
+            ; ignore hide errors
+        }
+        this.isVisible := false
+    }
+
+    static TestMacro(*) {
+        if (this.macro.Length = 0) {
+            this.AppendLog("No macro loaded to test.", "WARN")
+            return
+        }
+        this.AppendLog("Test macro execution started (placeholder).", "INFO")
+        ; TODO: Implement macro playback functionality.
+    }
+
+    static HandleEditDialogConfirm(dialog, detailsEdit, index) {
+        this.macro[index] := this.TextToAction(detailsEdit.Text)
+        this.UpdateActionList()
+        dialog.Destroy()
+    }
+
+    static HandleInsertDialogConfirm(dialog, detailsEdit) {
+        newAction := this.TextToAction(detailsEdit.Text)
+        this.macro.Push(newAction)
+        this.UpdateActionList()
+        dialog.Destroy()
+    }
     
     static GenerateAHKCode() {
         ahk := "; Generated by Macro Editor Pro`n`n"
@@ -382,49 +492,7 @@ class MacroEditor {
                     ahk .= "    MouseClick('left', " . action.x . ", " . action.y . ")`n"
             }
         }
-        
         ahk .= "}`n"
         return ahk
     }
-    
-    static TestMacro() {
-        if (this.macro.Length = 0) {
-            MsgBox("No macro to test", "Test", "Icon!")
-            return
-        }
-        
-        TrayTip("Testing macro...", "Playing " . this.macro.Length . " actions", 1)
-        
-        ; Wait 3 seconds before starting
-        Sleep(3000)
-        
-        ; Play macro
-        for action in this.macro {
-            switch action.type {
-                case "key":
-                    Send(action.key)
-                case "mouse":
-                    MouseClick("left", action.x, action.y)
-            }
-            Sleep(100)  ; Small delay between actions
-        }
-        
-        TrayTip("Macro complete", "Played " . this.macro.Length . " actions", 1)
-    }
-    
-    static ToggleGUI() {
-        if (this.gui.Visible) {
-            this.gui.Hide()
-        } else {
-            this.gui.Show()
-        }
-    }
-    
-    static AppendLog(message) {
-        timestamp := FormatTime(A_Now, "HH:mm:ss")
-        ToolTip(message, 0, 0)
-        SetTimer(() => ToolTip(), -3000)
-    }
 }
-
-MacroEditor.Init()

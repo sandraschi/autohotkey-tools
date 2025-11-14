@@ -1,300 +1,250 @@
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
 
-; Suppress error popups - log to file instead
-OnError(LogError)
+OnError(PuzzleApp.HandleError)
 
-LogError(Thrown, Mode) {
-    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
-    FileAppend(errorMsg, "puzzle_game_errors.log", "UTF-8")
-    OutputDebug(errorMsg)  ; Enable LLM debugging
-    return 1  ; Suppress popup (1 = suppress, 0 = show)
-}
-
-; ==============================================================================
-; Puzzle Game - Sliding Tile Puzzle
-; @name: Puzzle Game
-; @version: 1.0.0
-; @description: Full-featured sliding tile puzzle game. Classic 15-puzzle sliding tile game with multiple difficulty levels and scoring.
-; @description: Features adjustable grid sizes, move counter, timer, shuffle functionality, and win detection. Includes visual feedback and smooth tile animations.
-; @description: Classic puzzle game for mental exercise and entertainment with customizable difficulty and intuitive controls.
-; @category: games
-; @author: Sandra
-; @hotkeys: ^!p (open puzzle), F9 (emergency stop)
-; @enabled: true
-; @priority: 75
-; @tag: puzzle, game, sliding-tiles, logic, brain-teaser, entertainment, classic
-; @cli: --size <3|4|5> - Set puzzle grid size (default: 4)
-; @cli: --shuffle - Shuffle puzzle tiles
-; @cli: --help - Show CLI usage and game options
-; @dependencies: 
-; ==============================================================================
-
-class PuzzleGame {
+class PuzzleApp {
     static gui := ""
-    static grid := []
-    static gridSize := 4
+    static statusCtrl := ""
+    static movesCtrl := ""
+    static buttons := []
+    static board := []
+    static empty := {row: 4, col: 4}
+    static size := 4
     static moves := 0
-    static emptyRow := 0
-    static emptyCol := 0
-    static buttons := Map()
-    static isRunning := false
-    static logArea := ""
-    
+
     static Init() {
-        Hotkey("^!p", (*) => this.ShowPuzzle(), "On")
-        Hotkey("F9", (*) => this.EmergencyStop(), "On")
-        this.isRunning := true
+        PuzzleApp.BuildBoard()
+        PuzzleApp.CreateGui()
+        PuzzleApp.SetupHotkeys()
+        PuzzleApp.UpdateBoard()
+        PuzzleApp.UpdateStatus("Press Shuffle to mix tiles.")
     }
-    
-    static ShowPuzzle() {
-        if (this.gui) {
-            try {
-                this.gui.Show()
-                return
-            } catch as unused {
-                this.gui := ""
-            }
-        }
-        this.CreateGUI()
-        this.NewGame()
+
+    static HandleError(Thrown, Mode) {
+        message := "Puzzle error: " . Thrown.Message . " at line " . Thrown.Line
+        try FileAppend(message . "`n", "puzzle_game_errors.log", "UTF-8")
+        OutputDebug(message)
+        return 1
     }
-    
-    static CreateGUI() {
-        try {
-            this.gui := Gui("+Resize +MinSize400x300", "Puzzle Game")
-            this.gui.BackColor := "Black"
-            this.gui.SetFont("s10 Bold", "Segoe UI")
-            
-            ; Title
-            title := this.gui.AddText("x10 y10 w380 Center cYellow", "🎮 SLIDING TILE PUZZLE 🎮")
-            title.SetFont("s14 Bold")
-            
-            ; Buttons
-            btnFrame := this.gui.AddGroupBox("x10 y45 w380 h60", "Controls")
-            this.gui.AddButton("x20 y70 w110 h25", "New Game").OnEvent("Click", (*) => this.NewGame())
-            this.gui.AddButton("x140 y70 w110 h25", "Shuffle").OnEvent("Click", (*) => this.Shuffle(30))
-            this.gui.AddButton("x260 y70 w120 h25", "Close").OnEvent("Click", (*) => this.Close())
-            
-            ; Stats
-            statsFrame := this.gui.AddGroupBox("x10 y115 w380 h50", "Statistics")
-            this.gui.AddText("x20 y135", "Moves:")
-            this.movesText := this.gui.AddText("x80 y135 w100 cYellow", "0")
-            this.gui.AddText("x200 y135", "Size:")
-            this.sizeText := this.gui.AddText("x240 y135 w100 cLime", "4x4")
-            
-            ; Game grid
-            gridFrame := this.gui.AddGroupBox("x10 y175 w380 h300", "Game")
-            
-            ; Instructions
-            this.gui.AddText("x10 y485 w380 Center cSilver", "Click tiles to move them! Solve the puzzle!")
-            
-            ; Event handlers
-            this.gui.OnEvent("Close", (*) => this.Close())
-            
-            ; Store references
-            this.gui["movesText"] := this.movesText
-            this.gui["sizeText"] := this.sizeText
-            this.gui["gridFrame"] := gridFrame
-            
-        } catch as e {
-            MsgBox("Error creating GUI: " . e.Message, "Error", "0x10")
-        }
-    }
-    
-    static NewGame() {
-        this.moves := 0
-        this.grid := []
-        this.buttons := Map()
-        this.GenerateGrid()
-        this.Shuffle(20)
-        this.UpdateGUI()
-    }
-    
-    static GenerateGrid() {
-        this.grid := []
-        loop this.gridSize {
+
+    static BuildBoard() {
+        PuzzleApp.board := []
+        value := 1
+        Loop PuzzleApp.size {
             row := []
-            loop this.gridSize {
-                idx := (A_Index - 1) + (A_LoopCount - 1) * this.gridSize + 1
-                if (idx = this.gridSize * this.gridSize) {
-                    row.Push(0)
-                    this.emptyRow := A_LoopCount - 1
-                    this.emptyCol := A_Index - 1
-                } else {
-                    row.Push(idx)
-                }
+            Loop PuzzleApp.size {
+                row.Push(value)
+                value++
             }
-            this.grid.Push(row)
+            PuzzleApp.board.Push(row)
         }
+        PuzzleApp.board[PuzzleApp.size][PuzzleApp.size] := 0
+        PuzzleApp.empty := {row: PuzzleApp.size, col: PuzzleApp.size}
+        PuzzleApp.moves := 0
     }
-    
-    static Shuffle(moves) {
-        directions := [[-1,0], [1,0], [0,-1], [0,1]]
-        loop moves {
-            validMoves := []
-            for dir in directions {
-                newRow := this.emptyRow + dir[1]
-                newCol := this.emptyCol + dir[2]
-                if (newRow >= 0 and newRow < this.gridSize and newCol >= 0 and newCol < this.gridSize) {
-                    validMoves.Push(dir)
-                }
-            }
-            if (validMoves.Length > 0) {
-                Random(idx, 1, validMoves.Length)
-                dir := validMoves[idx]
-                this.Swap(this.emptyRow + dir[1], this.emptyCol + dir[2])
+
+    static CreateGui() {
+        newGui := Gui("+Resize +MinSize320x360", "Sliding Puzzle")
+        newGui.BackColor := "1d1d1d"
+        newGui.SetFont("s10", "Segoe UI")
+
+        newGui.AddText("x20 y16 w280 Center cFFFFFF", "Sliding Puzzle – arrange tiles in order")
+        shuffleBtn := newGui.AddButton("x20 y48 w80 h28", "Shuffle")
+        shuffleBtn.OnEvent("Click", (*) => PuzzleApp.Shuffle(80))
+        resetBtn := newGui.AddButton("x110 y48 w80 h28", "Reset")
+        resetBtn.OnEvent("Click", (*) => PuzzleApp.ResetGame())
+        closeBtn := newGui.AddButton("x200 y48 w80 h28", "Close")
+        closeBtn.OnEvent("Click", (*) => PuzzleApp.HideGui())
+
+        PuzzleApp.movesCtrl := newGui.AddText("x20 y84 w160 h24 cFFFFFF", "Moves: 0")
+
+        PuzzleApp.buttons := []
+        startX := 20
+        startY := 120
+        size := 60
+        padding := 6
+        Loop PuzzleApp.size {
+            rowIndex := A_Index
+            PuzzleApp.buttons.Push([])
+            Loop PuzzleApp.size {
+                colIndex := A_Index
+                x := startX + (colIndex - 1) * (size + padding)
+                y := startY + (rowIndex - 1) * (size + padding)
+                btn := newGui.AddButton(Format("x{} y{} w{} h{}", x, y, size, size), "")
+                btn.SetFont("s12 Bold", "Segoe UI")
+                btn.OnEvent("Click", PuzzleApp.HandleClick.Bind(PuzzleApp, rowIndex, colIndex))
+                PuzzleApp.buttons[rowIndex].Push(btn)
             }
         }
-        this.moves := 0
+
+        PuzzleApp.statusCtrl := newGui.AddText("x20 y320 w280 h24 cFFFFFF", "")
+
+        newGui.OnEvent("Close", PuzzleApp.HideGui)
+        newGui.OnEvent("Escape", PuzzleApp.HideGui)
+        newGui.OnEvent("Size", PuzzleApp.OnResize)
+
+        PuzzleApp.gui := newGui
+        newGui.Show("w320 h360")
     }
-    
-    static Swap(row, col) {
-        val := this.grid[row][col]
-        this.grid[row][col] := 0
-        this.grid[this.emptyRow][this.emptyCol] := val
-        this.emptyRow := row
-        this.emptyCol := col
-    }
-    
-    static UpdateGUI() {
-        if (!this.gui) {
+
+    static SetupHotkeys() {
+        static registered := false
+        if (registered) {
             return
         }
+        ; Global hotkey to launch/show the game
+        Hotkey("^!p", (*) => PuzzleApp.ShowGui())
         
-        ; Update stats
-        if (IsObject(this.gui["movesText"])) {
-            this.gui["movesText"].Text := this.moves
+        ; Context-sensitive hotkeys - only work when Puzzle window is active
+        Hotkey("s", (*) => PuzzleApp.ShuffleIfActive(80))
+        Hotkey("r", (*) => PuzzleApp.ResetGameIfActive())
+        Hotkey("Escape", (*) => PuzzleApp.HideGui())
+        registered := true
+    }
+    
+    static IsPuzzleWindowActive() {
+        if (!PuzzleApp.gui || !PuzzleApp.gui.Hwnd) {
+            return false
         }
-        if (IsObject(this.gui["sizeText"])) {
-            this.gui["sizeText"].Text := this.gridSize . "x" . this.gridSize
+        return WinActive("ahk_id " . PuzzleApp.gui.Hwnd)
+    }
+    
+    static ShuffleIfActive(count) {
+        if (PuzzleApp.IsPuzzleWindowActive()) {
+            PuzzleApp.Shuffle(count)
         }
-        
-        ; Clear old buttons
-        for btn in this.buttons {
-            try {
-                btn.Destroy()
-            } catch as e {
-                ; Ignore destroy errors
-            }
+    }
+    
+    static ResetGameIfActive() {
+        if (PuzzleApp.IsPuzzleWindowActive()) {
+            PuzzleApp.ResetGame()
         }
-        this.buttons := Map()
-        
-        ; Create new buttons
-        gridFrame := this.gui["gridFrame"]
-        btnSize := 70
-        spacing := 5
-        startX := 20
-        startY := 200
-        
-        loop this.gridSize {
-            row := this.grid[A_Index]
-            loop this.gridSize {
-                val := row[A_Index]
-                if (val = 0) {
-                    continue
+    }
+
+    static ShowGui() {
+        if (!PuzzleApp.gui) {
+            PuzzleApp.CreateGui()
+        }
+        PuzzleApp.gui.Show()
+    }
+
+    static HideGui(*) {
+        if (PuzzleApp.gui) {
+            PuzzleApp.gui.Hide()
+        }
+    }
+
+    static ResetGame() {
+        PuzzleApp.BuildBoard()
+        PuzzleApp.UpdateBoard()
+        PuzzleApp.UpdateStatus("Puzzle reset.")
+    }
+
+    static Shuffle(count) {
+        directions := [[-1,0],[1,0],[0,-1],[0,1]]
+        Loop count {
+            valid := []
+            for dir in directions {
+                newRow := PuzzleApp.empty.row + dir[1]
+                newCol := PuzzleApp.empty.col + dir[2]
+                if (newRow >= 1 && newRow <= PuzzleApp.size && newCol >= 1 && newCol <= PuzzleApp.size) {
+                    valid.Push(dir)
                 }
-                xPos := startX + (A_Index - 1) * (btnSize + spacing)
-                yPos := startY + (A_LoopCount - 1) * (btnSize + spacing)
-                
-                btn := this.gui.AddButton("x" . xPos . " y" . yPos . " w" . btnSize . " h" . btnSize, val)
-                btn.SetFont("s10 Bold")
-                
-                ; Color by value
-                hue := Mod(val * 20, 360)
-                btn.BackColor := this.HSVtoRGB(hue, 70, 60)
-                
-                ; Store coords
-                btn["row"] := A_LoopCount - 1
-                btn["col"] := A_Index - 1
-                btn.OnEvent("Click", (*) => this.OnClick(btn))
-                
-                key := (A_LoopCount - 1) * this.gridSize + (A_Index - 1)
-                this.buttons[key] := btn
             }
+            if (valid.Length = 0) {
+                continue
+            }
+            idx := Random(1, valid.Length)
+            dir := valid[idx]
+            PuzzleApp.SwapWithEmpty(PuzzleApp.empty.row + dir[1], PuzzleApp.empty.col + dir[2])
         }
-        
-        ; Check win
-        if (this.CheckWin()) {
-            this.ShowWin()
+        PuzzleApp.moves := 0
+        PuzzleApp.UpdateBoard()
+        PuzzleApp.UpdateStatus("Shuffled. Solve the puzzle!")
+    }
+
+    static SwapWithEmpty(row, col) {
+        temp := PuzzleApp.board[row][col]
+        PuzzleApp.board[row][col] := 0
+        PuzzleApp.board[PuzzleApp.empty.row][PuzzleApp.empty.col] := temp
+        PuzzleApp.empty := {row: row, col: col}
+    }
+
+    static HandleClick(rowIndex, colIndex, ctrl, info) {
+        if (Abs(rowIndex - PuzzleApp.empty.row) + Abs(colIndex - PuzzleApp.empty.col) != 1) {
+            return
+        }
+        PuzzleApp.SwapWithEmpty(rowIndex, colIndex)
+        PuzzleApp.moves++
+        PuzzleApp.UpdateBoard()
+        if (PuzzleApp.IsSolved()) {
+            PuzzleApp.UpdateStatus("Solved in " . PuzzleApp.moves . " moves!")
+            MsgBox("Great job!", "Sliding Puzzle", "Iconi")
         }
     }
-    
-    static OnClick(btn) {
-        row := btn["row"]
-        col := btn["col"]
-        
-        if (Abs(row - this.emptyRow) + Abs(col - this.emptyCol) = 1) {
-            this.Swap(row, col)
-            this.moves++
-            this.UpdateGUI()
-        }
-    }
-    
-    static CheckWin() {
-        expected := 1
-        loop this.gridSize {
-            row := this.grid[A_Index]
-            loop this.gridSize {
-                val := row[A_Index]
-                if (A_Index = this.gridSize and A_LoopCount = this.gridSize) {
-                    if (val != 0) {
-                        return false
-                    }
+
+    static UpdateBoard() {
+        Loop PuzzleApp.size {
+            rowIndex := A_Index
+            Loop PuzzleApp.size {
+                colIndex := A_Index
+                value := PuzzleApp.board[rowIndex][colIndex]
+                btn := PuzzleApp.buttons[rowIndex][colIndex]
+                if (value = 0) {
+                    btn.Text := ""
+                    btn.Enable(false)
                 } else {
-                    if (val != expected) {
-                        return false
-                    }
-                    expected++
+                    btn.Text := value
+                    btn.Enable(true)
                 }
+            }
+        }
+        if (PuzzleApp.movesCtrl) {
+            PuzzleApp.movesCtrl.Text := "Moves: " . PuzzleApp.moves
+        }
+    }
+
+    static IsSolved() {
+        expected := 1
+        Loop PuzzleApp.size {
+            rowIndex := A_Index
+            Loop PuzzleApp.size {
+                colIndex := A_Index
+                value := PuzzleApp.board[rowIndex][colIndex]
+                if (rowIndex = PuzzleApp.size && colIndex = PuzzleApp.size) {
+                    return value = 0
+                }
+                if (value != expected) {
+                    return false
+                }
+                expected++
             }
         }
         return true
     }
-    
-    static ShowWin() {
-        MsgBox("🎉 YOU WIN! 🎉`nSolved in " . this.moves . " moves!", "Victory!", "0x40")
-    }
-    
-    static HSVtoRGB(h, s, v) {
-        h := h / 360
-        s := s / 100
-        v := v / 100
-        
-        i := Floor(h * 6)
-        f := (h * 6) - i
-        p := v * (1 - s)
-        q := v * (1 - f * s)
-        t := v * (1 - (1 - f) * s)
-        
-        switch Mod(i, 6) {
-            case 0: r := v, g := t, b := p
-            case 1: r := q, g := v, b := p
-            case 2: r := p, g := v, b := t
-            case 3: r := p, g := q, b := v
-            case 4: r := t, g := p, b := v
-            case 5: r := v, g := p, b := q
-        }
-        
-        rHex := Format("{:02X}", Round(r * 255))
-        gHex := Format("{:02X}", Round(g * 255))
-        bHex := Format("{:02X}", Round(b * 255))
-        return "0x" . rHex . gHex . bHex
-    }
-    
-    static Close() {
-        if (this.gui) {
-            this.gui.Hide()
+
+    static UpdateStatus(message) {
+        if (PuzzleApp.statusCtrl) {
+            PuzzleApp.statusCtrl.Text := message
         }
     }
-    
-    static EmergencyStop() {
-        ExitApp 0
+
+    static OnResize(gui, minMax, width, height) {
+        if (!PuzzleApp.boardCtrlExists()) {
+            return
+        }
+        ; This puzzle uses fixed buttons; no resize behaviour needed beyond status text.
+        if (PuzzleApp.statusCtrl) {
+            PuzzleApp.statusCtrl.Move(20, height - 40, width - 40, 24)
+        }
+    }
+
+    static boardCtrlExists() {
+        return PuzzleApp.buttons.Length > 0
     }
 }
 
-PuzzleGame.Init()
+PuzzleApp.Init()
 
-Loop {
-    Sleep(1000)
-}
+OnExit((*) => PuzzleApp.UpdateStatus(""))

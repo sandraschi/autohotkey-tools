@@ -20,311 +20,276 @@
 
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
+#Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
+OnError(PongApp.HandleError)
 
-; Suppress error popups - log to file instead
-OnError(LogError)
+class PongApp {
+    static gui := ""
+    static boardCtrl := ""
+    static statusCtrl := ""
+    static scoreCtrl := ""
+    static timerId := 0
+    static width := 32
+    static height := 14
+    static paddleSize := 3
+    static leftY := 5
+    static rightY := 5
+    static ball := {x: 16, y: 7, dx: 1, dy: -1}
+    static score := {left: 0, right: 0}
 
-LogError(Thrown, Mode) {
-    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
-    FileAppend(errorMsg, "classic_pong_errors.log", "UTF-8")
-    OutputDebug(errorMsg)  ; Enable LLM debugging
-    return 1  ; Suppress popup (1 = suppress, 0 = show)
-}
-
-
-class PongGame {
-    static gameGui := ""
-    static gameRunning := false
-    static ballX := 0
-    static ballY := 0
-    static ballSpeedX := 0
-    static ballSpeedY := 0
-    static paddle1Y := 0
-    static paddle2Y := 0
-    static paddleSpeed := 8
-    static paddleHeight := 80
-    static paddleWidth := 15
-    static ballSize := 12
-    static gameWidth := 800
-    static gameHeight := 600
-    static score1 := 0
-    static score2 := 0
-    static difficulty := "Medium"
-    static soundEnabled := true
-    
     static Init() {
-        this.gameRunning := false
-        this.score1 := 0
-        this.score2 := 0
-        this.ResetBall()
-        this.CreateGameGUI()
+        PongApp.CreateGui()
+        PongApp.SetupHotkeys()
+        PongApp.ResetMatch()
     }
-    
-    static CreateGameGUI() {
-        if (this.gameGui) {
-            this.gameGui.Close()
-        }
-        
-        this.gameGui := Gui("+Resize +MinSize800x600", "Classic Pong - Press SPACE to start")
-        this.gameGui.BackColor := "000000"
-        this.gameGui.SetFont("s16 cFFFFFF Bold", "Arial")
-        
-        ; Game area
-        this.gameGui.Add("Text", "x10 y10 w780 h580 Border Center", "PONG")
-        
-        ; Score display
-        this.gameGui.Add("Text", "x50 y50 w100 h30 Center", "Player: 0")
-        this.gameGui.Add("Text", "x650 y50 w100 h30 Center", "AI: 0")
-        
-        ; Controls info
-        this.gameGui.Add("Text", "x10 y570 w780 h20 Center", "W/S: Move | SPACE: Start/Pause | R: Reset | M: Menu")
-        
-        ; Menu button
-        this.gameGui.Add("Button", "x350 y100 w100 h40", "Start Game").OnEvent("Click", this.StartGame.Bind(this))
-        this.gameGui.Add("Button", "x350 y150 w100 h40", "Settings").OnEvent("Click", this.ShowSettings.Bind(this))
-        this.gameGui.Add("Button", "x350 y200 w100 h40", "Instructions").OnEvent("Click", this.ShowInstructions.Bind(this))
-        
-        ; Set up hotkeys
-        this.SetupHotkeys()
-        
-        this.gameGui.Show("w800 h600")
+
+    static HandleError(Thrown, Mode) {
+        message := "Pong error: " . Thrown.Message . " at line " . Thrown.Line
+        try FileAppend(message . "`n", "classic_pong_errors.log", "UTF-8")
+        OutputDebug(message)
+        return 1
     }
-    
-    static StartGame(*) {
-        this.gameRunning := true
-        this.ResetBall()
-        this.StartGameLoop()
+
+    static CreateGui() {
+        if (PongApp.gui) {
+            PongApp.gui.Destroy()
+        }
+        newGui := Gui("+Resize +MinSize320x280", "Classic Pong")
+        newGui.BackColor := "1e1e1e"
+        newGui.SetFont("s10", "Consolas")
+
+        newGui.AddText("x20 y16 w260 Center cFFFFFF", "Pong – keep the ball in play!")
+        PongApp.boardCtrl := newGui.AddText("x20 y48 w200 h180 Background000000 Border", "")
+        PongApp.boardCtrl.SetFont("s10", "Consolas")
+
+        PongApp.scoreCtrl := newGui.AddText("x240 y60 w80 h40 cFFFFFF", "0 : 0")
+        btnStart := newGui.AddButton("x240 y110 w80 h30", "Start")
+        btnStart.OnEvent("Click", (*) => PongApp.StartGame())
+        btnPause := newGui.AddButton("x240 y150 w80 h30", "Pause")
+        btnPause.OnEvent("Click", (*) => PongApp.PauseGame())
+        btnReset := newGui.AddButton("x240 y190 w80 h30", "Reset")
+        btnReset.OnEvent("Click", (*) => PongApp.ResetMatch())
+        btnClose := newGui.AddButton("x240 y230 w80 h30", "Close")
+        btnClose.OnEvent("Click", (*) => PongApp.HideGui())
+
+        PongApp.statusCtrl := newGui.AddText("x20 y240 w260 h24 cFFFFFF", "Use W/S or Arrow keys to move your paddle.")
+
+        newGui.OnEvent("Close", PongApp.HideGui)
+        newGui.OnEvent("Escape", PongApp.HideGui)
+        newGui.OnEvent("Size", PongApp.OnResize)
+
+        PongApp.gui := newGui
+        newGui.Show("w320 h280")
     }
-    
-    static ResetBall() {
-        this.ballX := this.gameWidth // 2
-        this.ballY := this.gameHeight // 2
-        this.ballSpeedX := (Random(0, 1) ? 4 : -4)
-        this.ballSpeedY := Random(-3, 3)
-        this.paddle1Y := (this.gameHeight - this.paddleHeight) // 2
-        this.paddle2Y := (this.gameHeight - this.paddleHeight) // 2
-    }
-    
-    static StartGameLoop() {
-        if (!this.gameRunning) {
-            return
-        }
-        
-        this.UpdateGame()
-        this.DrawGame()
-        
-        ; Continue game loop
-        SetTimer(() => this.StartGameLoop(), 16) ; ~60 FPS
-    }
-    
-    static UpdateGame() {
-        if (!this.gameRunning) {
-            return
-        }
-        
-        ; Move ball
-        this.ballX += this.ballSpeedX
-        this.ballY += this.ballSpeedY
-        
-        ; Ball collision with top/bottom walls
-        if (this.ballY <= 0 || this.ballY >= this.gameHeight - this.ballSize) {
-            this.ballSpeedY := -this.ballSpeedY
-            this.PlaySound("wall")
-        }
-        
-        ; Ball collision with paddles
-        ; Left paddle (player)
-        if (this.ballX <= 30 && this.ballX >= 15 && 
-            this.ballY >= this.paddle1Y && this.ballY <= this.paddle1Y + this.paddleHeight) {
-            this.ballSpeedX := -this.ballSpeedX
-            this.ballSpeedY += Random(-2, 2)
-            this.PlaySound("paddle")
-        }
-        
-        ; Right paddle (AI)
-        if (this.ballX >= this.gameWidth - 45 && this.ballX <= this.gameWidth - 30 && 
-            this.ballY >= this.paddle2Y && this.ballY <= this.paddle2Y + this.paddleHeight) {
-            this.ballSpeedX := -this.ballSpeedX
-            this.ballSpeedY += Random(-2, 2)
-            this.PlaySound("paddle")
-        }
-        
-        ; Scoring
-        if (this.ballX < 0) {
-            this.score2++
-            this.ResetBall()
-            this.PlaySound("score")
-        } else if (this.ballX > this.gameWidth) {
-            this.score1++
-            this.ResetBall()
-            this.PlaySound("score")
-        }
-        
-        ; AI paddle movement
-        this.UpdateAI()
-        
-        ; Check for game over
-        if (this.score1 >= 10 || this.score2 >= 10) {
-            this.GameOver()
-        }
-    }
-    
-    static UpdateAI() {
-        ; Simple AI - follow the ball
-        targetY := this.ballY - this.paddleHeight // 2
-        
-        ; Adjust AI difficulty
-        aiSpeed := this.paddleSpeed
-        switch (this.difficulty) {
-            case "Easy":
-                aiSpeed := this.paddleSpeed * 0.6
-            case "Medium":
-                aiSpeed := this.paddleSpeed * 0.8
-            case "Hard":
-                aiSpeed := this.paddleSpeed * 1.0
-        }
-        
-        if (this.paddle2Y < targetY) {
-            this.paddle2Y += aiSpeed
-        } else if (this.paddle2Y > targetY) {
-            this.paddle2Y -= aiSpeed
-        }
-        
-        ; Keep paddle in bounds
-        if (this.paddle2Y < 0) {
-            this.paddle2Y := 0
-        } else if (this.paddle2Y > this.gameHeight - this.paddleHeight) {
-            this.paddle2Y := this.gameHeight - this.paddleHeight
-        }
-    }
-    
-    static DrawGame() {
-        if (!this.gameGui) {
-            return
-        }
-        
-        ; Clear screen
-        this.gameGui.BackColor := "000000"
-        
-        ; Draw paddles and ball using simple rectangles
-        ; This is a simplified version - in a real implementation you'd use GDI+
-        ; For now, we'll update the score display
-        try {
-            this.gameGui.Control["Text1"].Text := "Player: " . this.score1
-            this.gameGui.Control["Text2"].Text := "AI: " . this.score2
-        } catch {
-            ; Control might not exist yet
-        }
-    }
-    
-    static GameOver() {
-        this.gameRunning := false
-        winner := this.score1 >= 10 ? "Player" : "AI"
-        MsgBox("Game Over!`n`n" . winner . " wins!`n`nFinal Score:`nPlayer: " . this.score1 . "`nAI: " . this.score2, "Pong Game Over", "Iconi")
-        this.Init()
-    }
-    
-    static PlaySound(type) {
-        if (!this.soundEnabled) {
-            return
-        }
-        
-        ; Simple beep sounds for different events
-        switch (type) {
-            case "wall":
-                SoundBeep(800, 100)
-            case "paddle":
-                SoundBeep(1200, 150)
-            case "score":
-                SoundBeep(400, 200)
-        }
-    }
-    
-    static ShowSettings(*) {
-        settingsText := "🎮 PONG SETTINGS 🎮`n`n"
-        settingsText .= "Current Difficulty: " . this.difficulty . "`n`n"
-        settingsText .= "Available Difficulties:`n"
-        settingsText .= "• Easy: AI moves slowly`n"
-        settingsText .= "• Medium: AI moves at normal speed`n"
-        settingsText .= "• Hard: AI moves at full speed`n`n"
-        settingsText .= "Sound Effects: " . (this.soundEnabled ? "ON" : "OFF") . "`n`n"
-        settingsText .= "Controls:`n"
-        settingsText .= "• W/S: Move paddle up/down`n"
-        settingsText .= "• SPACE: Start/Pause game`n"
-        settingsText .= "• R: Reset game`n"
-        settingsText .= "• M: Show this menu`n`n"
-        settingsText .= "Press OK to continue."
-        
-        MsgBox(settingsText, "Pong Settings", "Iconi")
-    }
-    
-    static ShowInstructions(*) {
-        instructionsText := "🎮 HOW TO PLAY PONG 🎮`n`n"
-        instructionsText .= "OBJECTIVE:`n"
-        instructionsText .= "Hit the ball past your opponent's paddle to score!`n`n"
-        instructionsText .= "CONTROLS:`n"
-        instructionsText .= "• W: Move paddle UP`n"
-        instructionsText .= "• S: Move paddle DOWN`n"
-        instructionsText .= "• SPACE: Start/Pause game`n"
-        instructionsText .= "• R: Reset game`n"
-        instructionsText .= "• M: Show menu`n`n"
-        instructionsText .= "RULES:`n"
-        instructionsText .= "• First to 10 points wins`n"
-        instructionsText .= "• Ball bounces off walls and paddles`n"
-        instructionsText .= "• Ball speed increases slightly on paddle hits`n"
-        instructionsText .= "• AI opponent adjusts difficulty based on setting`n`n"
-        instructionsText .= "TIPS:`n"
-        instructionsText .= "• Try to hit the ball with the edge of your paddle`n"
-        instructionsText .= "• Watch the ball's trajectory to predict movement`n"
-        instructionsText .= "• Use the paddle's center for straight shots`n`n"
-        instructionsText .= "Press OK to start playing!"
-        
-        MsgBox(instructionsText, "Pong Instructions", "Iconi")
-    }
-    
+
     static SetupHotkeys() {
-        ; Player controls
-        Hotkey("w", (*) => {
-            if (PongGame.gameRunning) {
-                PongGame.paddle1Y -= PongGame.paddleSpeed
-                if (PongGame.paddle1Y < 0) {
-                    PongGame.paddle1Y := 0
-                }
-            }
+        static registered := false
+        if (registered) {
+            return
         }
         
-        Hotkey("s", (*) => {
-            if (PongGame.gameRunning) {
-                PongGame.paddle1Y += PongGame.paddleSpeed
-                if (PongGame.paddle1Y > PongGame.gameHeight - PongGame.paddleHeight) {
-                    PongGame.paddle1Y := PongGame.gameHeight - PongGame.paddleHeight
-                }
+        ; Global hotkey to launch/show the game
+        Hotkey("^!p", (*) => PongApp.ShowGui())
+        
+        ; Context-sensitive hotkeys - only work when Pong window is active
+        ; Register with window check function
+        PongApp.RegisterGameHotkeys()
+        
+        registered := true
+    }
+    
+    static RegisterGameHotkeys() {
+        ; These hotkeys check if the Pong window is active before executing
+        Hotkey("w", (*) => PongApp.MovePaddleIfActive(-1))
+        Hotkey("s", (*) => PongApp.MovePaddleIfActive(1))
+        Hotkey("Up", (*) => PongApp.MovePaddleIfActive(-1))
+        Hotkey("Down", (*) => PongApp.MovePaddleIfActive(1))
+        Hotkey("Space", (*) => PongApp.StartGameIfActive())
+        Hotkey("p", (*) => PongApp.PauseGameIfActive())
+        Hotkey("r", (*) => PongApp.ResetMatchIfActive())
+    }
+    
+    static IsPongWindowActive() {
+        if (!PongApp.gui || !PongApp.gui.Hwnd) {
+            return false
+        }
+        return WinActive("ahk_id " . PongApp.gui.Hwnd)
+    }
+    
+    static MovePaddleIfActive(direction) {
+        if (PongApp.IsPongWindowActive()) {
+            PongApp.MovePaddle(direction)
+        }
+    }
+    
+    static StartGameIfActive() {
+        if (PongApp.IsPongWindowActive()) {
+            PongApp.StartGame()
+        }
+    }
+    
+    static PauseGameIfActive() {
+        if (PongApp.IsPongWindowActive()) {
+            PongApp.PauseGame()
+        }
+    }
+    
+    static ResetMatchIfActive() {
+        if (PongApp.IsPongWindowActive()) {
+            PongApp.ResetMatch()
+        }
+    }
+    
+    static ShowGui(*) {
+        if (PongApp.gui) {
+            PongApp.gui.Show()
+            WinActivate(PongApp.gui.Hwnd)
+        } else {
+            PongApp.Init()
+        }
+    }
+
+    static ResetMatch() {
+        PongApp.PauseGame()
+        PongApp.score := {left: 0, right: 0}
+        PongApp.ResetRound()
+        PongApp.UpdateScore()
+        PongApp.UpdateStatus("Press Start to serve.")
+    }
+
+    static ResetRound() {
+        PongApp.leftY := (PongApp.height - PongApp.paddleSize) // 2
+        PongApp.rightY := PongApp.leftY
+        PongApp.ball := {x: PongApp.width // 2, y: PongApp.height // 2, dx: 1, dy: -1}
+        PongApp.UpdateBoard()
+    }
+
+    static StartGame() {
+        if (PongApp.timerId) {
+            return
+        }
+        PongApp.timerId := SetTimer(PongApp.Tick.Bind(PongApp), 80)
+        PongApp.UpdateStatus("Game running.")
+    }
+
+    static PauseGame() {
+        if (PongApp.timerId) {
+            SetTimer(PongApp.timerId, 0)
+            PongApp.timerId := 0
+            PongApp.UpdateStatus("Paused.")
+        }
+    }
+
+    static HideGui(*) {
+        PongApp.PauseGame()
+        if (PongApp.gui) {
+            PongApp.gui.Hide()
+        }
+    }
+
+    static MovePaddle(direction) {
+        PongApp.leftY := Max(0, Min(PongApp.height - PongApp.paddleSize, PongApp.leftY + direction))
+        PongApp.UpdateBoard()
+    }
+
+    static Tick() {
+        PongApp.MoveBall()
+        PongApp.AutoMoveOpponent()
+        PongApp.UpdateBoard()
+    }
+
+    static AutoMoveOpponent() {
+        target := PongApp.ball.y - PongApp.paddleSize // 2
+        PongApp.rightY := Max(0, Min(PongApp.height - PongApp.paddleSize, target))
+    }
+
+    static MoveBall() {
+        nextX := PongApp.ball.x + PongApp.ball.dx
+        nextY := PongApp.ball.y + PongApp.ball.dy
+
+        if (nextY < 0 || nextY >= PongApp.height) {
+            PongApp.ball.dy := -PongApp.ball.dy
+            nextY := PongApp.ball.y + PongApp.ball.dy
+        }
+
+        if (nextX = 0) {
+            if (PongApp.ball.y >= PongApp.leftY && PongApp.ball.y < PongApp.leftY + PongApp.paddleSize) {
+                PongApp.ball.dx := 1
+                nextX := PongApp.ball.x + PongApp.ball.dx
+            }
+        } else if (nextX = PongApp.width - 1) {
+            if (PongApp.ball.y >= PongApp.rightY && PongApp.ball.y < PongApp.rightY + PongApp.paddleSize) {
+                PongApp.ball.dx := -1
+                nextX := PongApp.ball.x + PongApp.ball.dx
             }
         }
-        
-        ; Game controls
-        ; NOTE: Space hotkey disabled to avoid interfering with typing
-        ; Users should use the GUI buttons or other controls
-        
-        Hotkey("r", (*) => PongGame.Init()
-        Hotkey("m", (*) => PongGame.ShowSettings()
-        
-        ; Escape to close
-        Hotkey("Escape", (*) => {
-            PongGame.gameRunning := false
-            if (PongGame.gameGui) {
-                PongGame.gameGui.Close()
+
+        PongApp.ball.x := nextX
+        PongApp.ball.y := nextY
+
+        if (PongApp.ball.x < 0) {
+            PongApp.ScorePoint("right")
+        } else if (PongApp.ball.x >= PongApp.width) {
+            PongApp.ScorePoint("left")
+        }
+    }
+
+    static ScorePoint(side) {
+        PongApp.score[side] += 1
+        PongApp.UpdateScore()
+        PongApp.ResetRound()
+        PongApp.UpdateStatus(side = "left" ? "You scored!" : "AI scored.")
+    }
+
+    static UpdateScore() {
+        if (PongApp.scoreCtrl) {
+            PongApp.scoreCtrl.Text := Format("{} : {}", PongApp.score.left, PongApp.score.right)
+        }
+    }
+
+    static UpdateBoard() {
+        rows := []
+        Loop PongApp.height {
+            rowIndex := A_Index - 1
+            row := ""
+            Loop PongApp.width {
+                colIndex := A_Index - 1
+                if (PongApp.ball.x = colIndex && PongApp.ball.y = rowIndex) {
+                    row .= "●"
+                } else if (colIndex = 0 && rowIndex >= PongApp.leftY && rowIndex < PongApp.leftY + PongApp.paddleSize) {
+                    row .= "█"
+                } else if (colIndex = PongApp.width - 1 && rowIndex >= PongApp.rightY && rowIndex < PongApp.rightY + PongApp.paddleSize) {
+                    row .= "█"
+                } else {
+                    row .= "·"
+                }
             }
+            rows.Push(row)
+        }
+        PongApp.boardCtrl.Text := rows.Join("`n")
+    }
+
+    static UpdateStatus(message) {
+        if (PongApp.statusCtrl) {
+            PongApp.statusCtrl.Text := message
+        }
+    }
+
+    static OnResize(gui, minMax, width, height) {
+        if (!PongApp.boardCtrl) {
+            return
+        }
+        newHeight := height - 120
+        PongApp.boardCtrl.Move(20, 48, Min(200, width - 120), newHeight)
+        if (PongApp.statusCtrl) {
+            PongApp.statusCtrl.Move(20, height - 40, width - 40, 24)
         }
     }
 }
 
-; Hotkeys
-Hotkey("^!p", (*) => PongGame.Init()
-Hotkey("F5", (*) => PongGame.Init()
+PongApp.Init()
 
-; Initialize
-PongGame.Init()
+OnExit((*) => PongApp.UpdateStatus(""))
 
 

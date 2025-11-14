@@ -1,10 +1,33 @@
+#Requires AutoHotkey v2.0+
+
+; =============================================================================
+; CONFIGURATION & GLOBALS
+; =============================================================================
+
+; Global configuration (if not already defined in part2)
+if (!IsSet(CLAUDE_EXE)) {
+    CLAUDE_EXE := "C:\Users\sandr\AppData\Local\AnthropicClaude\app-0.12.129\claude.exe"
+}
+if (!IsSet(TEMP_DIR)) {
+    TEMP_DIR := "C:\temp\"
+}
+
 ; =============================================================================
 ; ADVANCED FEATURES
 ; =============================================================================
 
+; Stubs for functions from part1 (if not already defined)
+; These will be overridden if part1 is included first
+LogOperation(operation) {
+    OutputDebug("LogOperation: " . operation . "`n")
+}
+
+ShowStatus() {
+    TrayTip("Status", "MCP Development Status", 2)
+}
+
 ; 12. Multi-MCP Orchestration Dashboard (Ctrl+Shift+O)
-^+o::
-{
+MCPOrchestration(*) {
     LogOperation("MCP Orchestration")
     
     prompt := "🎛️ Multi-MCP Orchestration Dashboard`n"
@@ -25,12 +48,12 @@
     prompt .= "• 🚀 Performance tuning recommendations`n`n"
     prompt .= "Create comprehensive MCP ecosystem management plan?"
     
-    SendText prompt
+    SendText(prompt)
 }
+Hotkey("^+o", MCPOrchestration)
 
 ; 13. MCP Performance Profiler (Ctrl+Shift+F)
-^+f::
-{
+PerformanceProfiler(*) {
     LogOperation("Performance Profiling")
     
     prompt := "📊 MCP Performance Profiling Suite`n"
@@ -51,12 +74,12 @@
     prompt .= "- Network latency measurement`n`n"
     prompt .= "Generate detailed performance report with actionable insights."
     
-    SendText prompt
+    SendText(prompt)
 }
+Hotkey("^+f", PerformanceProfiler)
 
 ; 14. MCP Security Auditor (Ctrl+Shift+S)
-^+s::
-{
+SecurityAuditor(*) {
     LogOperation("Security Audit")
     
     prompt := "🔒 MCP Security Audit Framework`n"
@@ -77,12 +100,12 @@
     prompt .= "- Error information disclosure`n`n"
     prompt .= "Generate comprehensive security report with remediation steps."
     
-    SendText prompt
+    SendText(prompt)
 }
+Hotkey("^+s", SecurityAuditor)
 
 ; 15. MCP Testing Automation (Ctrl+Shift+A)
-^+a::
-{
+TestingAutomation(*) {
     LogOperation("Testing Automation")
     
     prompt := "🧪 MCP Testing Automation Suite`n"
@@ -104,12 +127,12 @@
     prompt .= "- Concurrent user simulation`n`n"
     prompt .= "Create comprehensive testing strategy with automated execution?"
     
-    SendText prompt
+    SendText(prompt)
 }
+Hotkey("^+a", TestingAutomation)
 
 ; 16. MCP Deployment Manager (Ctrl+Shift+Y)
-^+y::
-{
+DeploymentManager(*) {
     LogOperation("Deployment Management")
     
     prompt := "🚀 MCP Deployment Management System`n"
@@ -130,70 +153,67 @@
     prompt .= "- Documentation deployment`n`n"
     prompt .= "Execute deployment pipeline with full automation?"
     
-    SendText prompt
+    SendText(prompt)
 }
+Hotkey("^+y", DeploymentManager)
 
 ; =============================================================================
 ; UTILITY HOTKEYS
 ; =============================================================================
 
 ; Quick Status Check (Ctrl+Shift+Q)
-^+q::
-{
-    ShowStatus()
-}
+Hotkey("^+q", (*) => ShowStatus())
 
 ; Basic Memory Quick Note (Ctrl+Shift+N)
-^+n::
-{
+QuickNote(*) {
     LogOperation("Quick Note")
     
-    InputBox &noteContent, "Quick MCP Note", "Enter note content:", , 400, 130
+    noteContent := ""
+    InputBox(&noteContent, "Quick MCP Note", "Enter note content:", , 400, 130)
     if (noteContent == "") {
         return
     }
     
     ; Generate timestamped note command
-    SendText "Write to basic memory: " . noteContent . " - " . A_Now . " [mcp, note, " . A_YYYY . "-" . A_MM . "-" . A_DD . ", medium]"
+    SendText("Write to basic memory: " . noteContent . " - " . A_Now . " [mcp, note, " . A_YYYY . "-" . A_MM . "-" . A_DD . ", medium]")
 }
+Hotkey("^+n", QuickNote)
 
 ; Emergency Claude Desktop Kill & Restart (Ctrl+Alt+X)
-^!x::
-{
+EmergencyRestart(*) {
     LogOperation("Emergency Restart")
     
-    TrayTip "Emergency Restart", "Force killing Claude Desktop and restarting...", 2
+    TrayTip("Emergency Restart", "Force killing Claude Desktop and restarting...", 2)
     
     ; Force kill all Claude processes
-    Run "taskkill /f /im Claude.exe /t",, "Hide"
-    Run "taskkill /f /im python.exe /f",, "Hide" ; Kill any hanging MCP servers
+    Run("taskkill /f /im Claude.exe /t",, "Hide")
+    Run("taskkill /f /im python.exe /f",, "Hide") ; Kill any hanging MCP servers
     
-    Sleep 3000
+    Sleep(3000)
     
     ; Clear temp files
     try {
-        FileDelete TEMP_DIR . "claude_*.lock"
-        FileDelete TEMP_DIR . "mcp_*.tmp"
-    }
-    catch {
+        FileDelete(TEMP_DIR . "claude_*.lock")
+        FileDelete(TEMP_DIR . "mcp_*.tmp")
+    } catch {
         ; Ignore cleanup errors
     }
     
     ; Restart Claude Desktop
-    Run CLAUDE_EXE
+    Run(CLAUDE_EXE)
     
-    TrayTip "Emergency Restart Complete", "Claude Desktop restarted fresh!", 3
+    TrayTip("Emergency Restart Complete", "Claude Desktop restarted fresh!", 3)
 }
+Hotkey("^!x", EmergencyRestart)
 
 ; =============================================================================
 ; ENHANCED HELP SYSTEM
 ; =============================================================================
 
 ; Enhanced help display (Ctrl+Shift+H)
-^+h::
-{
+ShowEnhancedHelp(*) {
     helpText := "
-    (
+    (LTrim
     Enhanced AutoHotkey MCP Development Scripts v2.0
     ================================================
     
@@ -237,18 +257,20 @@
     - Comprehensive AI-powered prompts
     - Error handling and graceful fallbacks
     - Austrian development context awareness
-    )", "Enhanced MCP Development Scripts v2.0", 0
+    )"
+    MsgBox(helpText, "Enhanced MCP Development Scripts v2.0", 0)
 }
+Hotkey("^+h", ShowEnhancedHelp)
 
 ; =============================================================================
 ; STARTUP NOTIFICATION
 ; =============================================================================
 
 ; Show enhanced startup notification (F1 on startup)
-F1::
-{
-    TrayTip "Enhanced AutoHotkey MCP Scripts v2.0 Loaded!", 
-    "🚀 Ready for advanced Claude Desktop MCP development!`n" .
-    "Press Ctrl+Shift+H for complete hotkey reference`n" .
-    "New features: Interactive prompts, AI analysis, Basic Memory integration", 5
+ShowStartupNotification(*) {
+    message := "🚀 Ready for advanced Claude Desktop MCP development!`n" 
+    message .= "Press Ctrl+Shift+H for complete hotkey reference`n" 
+    message .= "New features: Interactive prompts, AI analysis, Basic Memory integration"
+    TrayTip("Enhanced AutoHotkey MCP Scripts v2.0 Loaded!", message, 5)
 }
+Hotkey("F1", ShowStartupNotification)

@@ -1,5 +1,6 @@
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
+#Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
 ; ==============================================================================
 ; Quick Notes
@@ -23,13 +24,6 @@
 
 ; Error handling - log to file instead of showing popups
 OnError(LogError)
-
-LogError(Thrown, Mode) {
-    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
-    FileAppend(errorMsg, "quick_notes_errors.log", "UTF-8")
-    OutputDebug(errorMsg)  ; Enable LLM debugging
-    return 1  ; Suppress popup (1 = suppress, 0 = show)
-}
 
 ; =============================================================================
 ; CONFIGURATION
@@ -165,7 +159,7 @@ LoadNotes() {
             currentFile := notesFile
         } else {
             ; Create a new file with a template
-            FormatTime(currentDate, A_Now, "yyyy-MM-dd")
+            currentDate := A_Now := FormatTime(, "yyyy-MM-dd")
             template := "# Quick Notes`n`n"
                       . "## " currentDate "`n"
                       . "- [ ] Task 1`n- [ ] Task 2`n`n"
@@ -193,7 +187,7 @@ SaveNotes(*) {
             }
             
             ; Create timestamped backup
-            FormatTime(timestamp, A_Now, "yyyyMMdd_HHmmss")
+            timestamp := A_Now := FormatTime(, "yyyyMMdd_HHmmss")
             backupFile := backupDir "\notes_backup_" timestamp ".md"
             FileCopy(notesFile, backupFile, 1)
         }
@@ -205,11 +199,11 @@ SaveNotes(*) {
         FileAppend(editNotes.Value, notesFile, "UTF-8")
         
         ; Update status
-        FormatTime(timeNow, A_Now, "HH:mm:ss")
+        timeNow := A_Now := FormatTime(, "HH:mm:ss")
         statusBar.Text := "Saved at " timeNow
         
         ; Show notification
-        TrayTip("Notes saved successfully!", "Quick Notes", "Iconi")
+        TrayTip("Notes saved successfully!", "Quick Notes")
         SetTimer(() => TrayTip(), -2000)
         
         return true
@@ -225,7 +219,7 @@ AutoSave(*) {
     
     if (editNotes.Value != "") {
         if SaveNotes() {
-            FormatTime(timeNow, A_Now, "HH:mm:ss")
+            timeNow := A_Now := FormatTime(, "HH:mm:ss")
             statusBar.Text := "Auto-saved at " timeNow
         }
     }
@@ -246,8 +240,8 @@ NewNote(*) {
     }
     
     ; Create a new note with template
-    FormatTime(currentDate, A_Now, "yyyy-MM-dd")
-    FormatTime(currentTime, A_Now, "HH:mm")
+    currentDate := A_Now := FormatTime(, "yyyy-MM-dd")
+    currentTime := A_Now := FormatTime(, "HH:mm")
     template := "# New Note - " currentDate "`n`n"
               . "## " currentTime "`n"
               . "- [ ] Task 1`n- [ ] Task 2`n`n"
@@ -301,7 +295,7 @@ FormatText(*) {
             ControlSetText(newText, editNotes)
         } else {
             ; No selection, insert current date/time
-            FormatTime(currentDateTime, A_Now, "yyyy-MM-dd HH:mm:ss")
+            currentDateTime := A_Now := FormatTime(, "yyyy-MM-dd HH:mm:ss")
             ControlSend(editNotes, "{Text}" currentDateTime)
         }
     } catch as formatErr {

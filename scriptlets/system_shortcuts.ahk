@@ -1,5 +1,6 @@
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
+#Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
 ; ==============================================================================
 ; System Shortcuts
@@ -21,13 +22,6 @@
 
 ; Error handling - log to file instead of showing popups
 OnError(LogError)
-
-LogError(Thrown, Mode) {
-    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
-    FileAppend(errorMsg, "system_shortcuts_errors.log", "UTF-8")
-    OutputDebug(errorMsg)  ; Enable LLM debugging
-    return 1  ; Suppress popup (1 = suppress, 0 = show)
-}
 
 ; =============================================================================
 ; CONFIGURATION
@@ -54,7 +48,7 @@ OPEN_DEVICE_MANAGER := "^!+m"     ; Ctrl+Alt+Shift+M - Device Manager
 OPEN_DISK_CLEANUP := "^!+d"       ; Ctrl+Alt+Shift+D - Disk Cleanup
 
 ; Help Screen
-Hotkey("^+h", (*) => ShowHelp()  ; Ctrl+Shift+H - Show help screen
+Hotkey("^+h", (*) => ShowHelp())  ; Ctrl+Shift+H - Show help screen
 
 ; =============================================================================
 ; FUNCTIONS
@@ -111,7 +105,7 @@ GetHotkeyString(hotkey) {
 SetWorkingDir A_ScriptDir
 
 ; Show notification on startup
-TrayTip "System Shortcuts", "System shortcuts are active", "Iconi"
+TrayTip "System Shortcuts", "System shortcuts are active"
 SetTimer () => TrayTip(), 3000
 
 ; =============================================================================
@@ -403,7 +397,7 @@ ShowToolTip(message, duration := 2000) {
 ; Show an error message
 ShowError(message, error) {
     errorMsg := message "`n`nError: " error.Message
-    if (error.Extra {
+    if (error.Extra) {
         errorMsg .= "`n" error.Extra
     }
     MsgBox(errorMsg, "Error", "Iconx")

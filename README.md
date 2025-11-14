@@ -38,6 +38,17 @@ Navigate through 84+ professional scriptlets including:
 - `utils/batch_debugger.ps1` - Batch syntax checking
 - `utils/compatibility_scanner.ahk` - v1→v2 migration scanner
 
+### IDE Support
+
+**AutoHotkey++ Cursor Extension** - Enhanced AutoHotkey v2 support for Cursor IDE:
+- Full IntelliSense and autocomplete for AutoHotkey v2
+- Real-time syntax checking and error detection
+- Code formatting and refactoring tools
+- Integrated debugging support
+- Syntax highlighting optimized for v2
+
+Install the AutoHotkey++ extension from the Cursor extensions marketplace for the best development experience.
+
 ### MCP Server Scaffolding
 
 The **MCP Server Scaffolding Tool** (`scriptlets/mcp_server_scaffolding.ahk`) generates complete, production-ready MCP servers:

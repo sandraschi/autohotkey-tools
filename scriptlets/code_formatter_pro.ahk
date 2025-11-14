@@ -21,17 +21,11 @@
 
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
+#Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
 
 ; Suppress error popups - log to file instead
 OnError(LogError)
-
-LogError(Thrown, Mode) {
-    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
-    FileAppend(errorMsg, "code_formatter_pro_errors.log", "UTF-8")
-    OutputDebug(errorMsg)  ; Enable LLM debugging
-    return 1  ; Suppress popup (1 = suppress, 0 = show)
-}
 
 
 class CodeFormatter {
@@ -115,7 +109,8 @@ class CodeFormatter {
     
     static FormatCode(*) {
         code := this.inputArea.Text
-        if (!code) return
+        if (!code)
+            return
         
         try {
             switch this.currentLanguage {
@@ -147,7 +142,8 @@ class CodeFormatter {
     
     static BeautifyCode(*) {
         code := this.inputArea.Text
-        if (!code) return
+        if (!code)
+            return
         
         try {
             switch this.currentLanguage {
@@ -171,7 +167,8 @@ class CodeFormatter {
     
     static MinifyCode(*) {
         code := this.inputArea.Text
-        if (!code) return
+        if (!code)
+            return
         
         try {
             switch this.currentLanguage {
@@ -195,7 +192,8 @@ class CodeFormatter {
     
     static ValidateCode(*) {
         code := this.inputArea.Text
-        if (!code) return
+        if (!code)
+            return
         
         try {
             switch this.currentLanguage {
@@ -229,15 +227,18 @@ class CodeFormatter {
         indent := 0
         result := ""
         
-        for line in lines {
+        for , line in lines {
             line := Trim(line)
-            if (line = "") continue
+            if (line = "")
+                continue
             
-            if (InStr(line, "}")) indent--
+            if (InStr(line, "}"))
+                indent -= 1
             
             result .= StringRepeat("  ", indent) . line . "`n"
             
-            if (InStr(line, "{")) indent++
+            if (InStr(line, "{"))
+                indent += 1
         }
         
         return Trim(result)
@@ -248,7 +249,7 @@ class CodeFormatter {
         lines := StrSplit(code, "`n")
         result := ""
         
-        for line in lines {
+        for , line in lines {
             line := Trim(line)
             if (line = "") {
                 result .= "`n"
@@ -261,12 +262,7 @@ class CodeFormatter {
     }
     
     static FormatJSON(code) {
-        try {
-            obj := JSON.parse(code)
-            return JSON.stringify(obj, 4)
-        } catch {
-            return "Invalid JSON"
-        }
+        return this.PrettyPrintJSON(code, 4)
     }
     
     static FormatXML(code) {
@@ -278,15 +274,18 @@ class CodeFormatter {
         indent := 0
         result := ""
         
-        for line in lines {
+        for , line in lines {
             line := Trim(line)
-            if (line = "") continue
+            if (line = "")
+                continue
             
-            if (InStr(line, "</")) indent--
+            if (InStr(line, "</"))
+                indent -= 1
             
             result .= StringRepeat("  ", indent) . line . "`n"
             
-            if (InStr(line, "<") && !InStr(line, "</") && !InStr(line, "/>")) indent++
+            if (InStr(line, "<") && !InStr(line, "</") && !InStr(line, "/>"))
+                indent += 1
         }
         
         return Trim(result)
@@ -302,15 +301,18 @@ class CodeFormatter {
         indent := 0
         result := ""
         
-        for line in lines {
+        for , line in lines {
             line := Trim(line)
-            if (line = "") continue
+            if (line = "")
+                continue
             
-            if (InStr(line, "}")) indent--
+            if (InStr(line, "}"))
+                indent -= 1
             
             result .= StringRepeat("  ", indent) . line . "`n"
             
-            if (InStr(line, "{")) indent++
+            if (InStr(line, "{"))
+                indent += 1
         }
         
         return Trim(result)
@@ -320,17 +322,26 @@ class CodeFormatter {
         ; SQL formatting
         keywords := ["SELECT", "FROM", "WHERE", "ORDER BY", "GROUP BY", "HAVING", "JOIN", "INNER JOIN", "LEFT JOIN", "RIGHT JOIN"]
         
-        for keyword in keywords {
+        for , keyword in keywords {
             code := RegExReplace(code, "\b" . keyword . "\b", "`n" . keyword, "i")
         }
         
         lines := StrSplit(code, "`n")
+        indent := 0
         result := ""
         
-        for line in lines {
+        for , line in lines {
             line := Trim(line)
-            if (line = "") continue
-            result .= line . "`n"
+            if (line = "")
+                continue
+            
+            if (InStr(line, "}"))
+                indent -= 1
+            
+            result .= StringRepeat("  ", indent) . line . "`n"
+            
+            if (InStr(line, "{"))
+                indent += 1
         }
         
         return Trim(result)
@@ -340,162 +351,203 @@ class CodeFormatter {
         ; AutoHotkey formatting
         code := RegExReplace(code, "{\s*", "{`n")
         code := RegExReplace(code, "}\s*", "}`n")
+        code := RegExReplace(code, ";\s*", ";`n")
         
         lines := StrSplit(code, "`n")
         indent := 0
         result := ""
         
-        for line in lines {
+        for , line in lines {
             line := Trim(line)
-            if (line = "") continue
+            if (line = "")
+                continue
             
-            if (InStr(line, "}")) indent--
+            if (InStr(line, "}"))
+                indent -= 1
             
             result .= StringRepeat("  ", indent) . line . "`n"
             
-            if (InStr(line, "{")) indent++
+            if (InStr(line, "{"))
+                indent += 1
         }
         
         return Trim(result)
     }
     
-    static BeautifyJavaScript(code) {
-        return this.FormatJavaScript(code)
-    }
-    
-    static BeautifyCSS(code) {
-        return this.FormatCSS(code)
-    }
-    
-    static BeautifyHTML(code) {
-        return this.FormatXML(code)
-    }
-    
-    static MinifyJavaScript(code) {
-        code := RegExReplace(code, "//.*", "")
-        code := RegExReplace(code, "/\*.*?\*/", "")
-        code := RegExReplace(code, "\s+", " ")
-        return Trim(code)
-    }
-    
-    static MinifyCSS(code) {
-        code := RegExReplace(code, "/\*.*?\*/", "")
-        code := RegExReplace(code, "\s+", " ")
-        return Trim(code)
-    }
-    
-    static MinifyHTML(code) {
-        code := RegExReplace(code, ">\s+<", "><")
-        code := RegExReplace(code, "\s+", " ")
-        return Trim(code)
+    static PrettyPrintJSON(code, indentLevel := 0) {
+        ; Recursive function to pretty print JSON
+        if (IsObject(code)) {
+            result := "`n"
+            for key, value in code {
+                result .= StringRepeat("  ", indentLevel) . "`"" . key . "`": "
+                result .= this.PrettyPrintJSON(value, indentLevel + 1)
+                result .= "`n"
+            }
+            result := SubStr(result, 1, -1) ; Remove last newline
+            return result
+        } else {
+            return code
+        }
     }
     
     static ValidateJSON(code) {
         try {
-            JSON.parse(code)
-            return "✅ Valid JSON"
-        } catch {
-            return "❌ Invalid JSON"
+            ParseJSON(code)
+            return "JSON is valid."
+        } catch as e {
+            return "JSON is invalid: " . e.Message
         }
     }
     
     static ValidateXML(code) {
-        ; Simple XML validation
-        if (RegExMatch(code, "<[^>]*>")) {
-            return "✅ Valid XML"
-        } else {
-            return "❌ Invalid XML"
+        try {
+            XML := XML.Load(code)
+            return "XML is valid."
+        } catch as e {
+            return "XML is invalid: " . e.Message
         }
     }
     
     static ValidateJavaScript(code) {
-        ; Simple JavaScript validation
-        if (RegExMatch(code, "function|var|let|const")) {
-            return "✅ Valid JavaScript"
-        } else {
-            return "❌ Invalid JavaScript"
+        try {
+            Eval(code)
+            return "JavaScript is valid."
+        } catch as e {
+            return "JavaScript is invalid: " . e.Message
         }
     }
     
-    static UpdateSyntaxHighlighting() {
-        ; Update syntax highlighting based on language
-        this.statusBar.Text := "Language changed to: " . this.currentLanguage
+    static BeautifyJavaScript(code) {
+        ; Simple JavaScript beautification
+        code := RegExReplace(code, ";\s*", ";`n")
+        code := RegExReplace(code, "{\s*", "{`n")
+        code := RegExReplace(code, "}\s*", "}`n")
+        code := RegExReplace(code, ",\s*", ",`n")
+        
+        lines := StrSplit(code, "`n")
+        indent := 0
+        result := ""
+        
+        for , line in lines {
+            line := Trim(line)
+            if (line = "")
+                continue
+            
+            if (InStr(line, "}"))
+                indent -= 1
+            
+            result .= StringRepeat("  ", indent) . line . "`n"
+            
+            if (InStr(line, "{"))
+                indent += 1
+        }
+        
+        return Trim(result)
     }
     
-    static CopyOutput(*) {
+    static BeautifyCSS(code) {
+        ; CSS beautification
+        code := RegExReplace(code, "{\s*", "{`n")
+        code := RegExReplace(code, "}\s*", "}`n")
+        code := RegExReplace(code, ";\s*", ";`n")
+        
+        lines := StrSplit(code, "`n")
+        indent := 0
+        result := ""
+        
+        for , line in lines {
+            line := Trim(line)
+            if (line = "")
+                continue
+            
+            if (InStr(line, "}"))
+                indent -= 1
+            
+            result .= StringRepeat("  ", indent) . line . "`n"
+            
+            if (InStr(line, "{"))
+                indent += 1
+        }
+        
+        return Trim(result)
+    }
+    
+    static BeautifyHTML(code) {
+        ; HTML beautification
+        code := RegExReplace(code, "><", ">`n<")
+        code := RegExReplace(code, "(\w+)=([^>]+)", "$1=$2")
+        
+        lines := StrSplit(code, "`n")
+        indent := 0
+        result := ""
+        
+        for , line in lines {
+            line := Trim(line)
+            if (line = "")
+                continue
+            
+            if (InStr(line, "}"))
+                indent -= 1
+            
+            result .= StringRepeat("  ", indent) . line . "`n"
+            
+            if (InStr(line, "{"))
+                indent += 1
+        }
+        
+        return Trim(result)
+    }
+    
+    static MinifyJavaScript(code) {
+        ; Simple JavaScript minification
+        code := RegExReplace(code, "\s+", " ")
+        code := RegExReplace(code, ";\s*", ";")
+        code := RegExReplace(code, "{\s*", "{")
+        code := RegExReplace(code, "}\s*", "}")
+        code := RegExReplace(code, ",\s*", ",")
+        return Trim(code)
+    }
+    
+    static MinifyCSS(code) {
+        ; CSS minification
+        code := RegExReplace(code, "\s+", " ")
+        code := RegExReplace(code, "{\s*", "{")
+        code := RegExReplace(code, "}\s*", "}")
+        code := RegExReplace(code, ";\s*", ";")
+        return Trim(code)
+    }
+    
+    static MinifyHTML(code) {
+        ; HTML minification
+        code := RegExReplace(code, "\s+", " ")
+        code := RegExReplace(code, "><", ">`n<")
+        code := RegExReplace(code, "(\w+)=([^>]+)", "$1=$2")
+        return Trim(code)
+    }
+    
+    static CopyOutput() {
         Clipboard := this.outputArea.Text
         this.statusBar.Text := "Output copied to clipboard"
     }
     
-    static ClearAll(*) {
+    static ClearAll() {
         this.inputArea.Text := ""
         this.outputArea.Text := ""
-        this.statusBar.Text := "Cleared"
+        this.statusBar.Text := "Ready"
     }
     
-    static SwapInputOutput(*) {
-        input := this.inputArea.Text
-        output := this.outputArea.Text
-        this.inputArea.Text := output
-        this.outputArea.Text := input
+    static SwapInputOutput() {
+        temp := this.inputArea.Text
+        this.inputArea.Text := this.outputArea.Text
+        this.outputArea.Text := temp
+        this.statusBar.Text := "Swapped I/O"
     }
     
-    static ShowSettings(*) {
-        MsgBox("Settings panel would open here", "Settings", "0x40")
+    static ShowSettings() {
+        MsgBox("Settings window not implemented yet.")
     }
     
-    static NewFile(*) {
-        this.inputArea.Text := ""
-        this.outputArea.Text := ""
-    }
-    
-    static OpenFile(*) {
-        filePath := FileSelect(1, , "Open Code File", "All Files (*.*)")
-        if (filePath) {
-            try {
-                content := FileRead(filePath)
-                this.inputArea.Text := content
-            } catch {
-                MsgBox("Failed to open file", "Error", "0x10")
-            }
-        }
-    }
-    
-    static SaveFile(*) {
-        content := this.outputArea.Text
-        if (content) {
-            filePath := FileSelect("S16", , "Save Formatted Code", "All Files (*.*)")
-            if (filePath) {
-                try {
-                    FileAppend(content, filePath)
-                    this.statusBar.Text := "File saved successfully"
-                } catch {
-                    MsgBox("Failed to save file", "Error", "0x10")
-                }
-            }
-        }
-    }
-    
-    static SaveAsFile(*) {
-        this.SaveFile()
+    static UpdateSyntaxHighlighting() {
+        ; This method will be implemented later to highlight the current language
     }
 }
-
-; Helper function
-StringRepeat(str, count) {
-    result := ""
-    Loop count {
-        result .= str
-    }
-    return result
-}
-
-; Hotkeys
-Hotkey("^!f", (*) => CodeFormatter.FormatCode()
-^!b::CodeFormatter.BeautifyCode()
-^!c::CodeFormatter.Init()
-
-; Initialize
-CodeFormatter.Init()
-
-

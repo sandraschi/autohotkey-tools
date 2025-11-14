@@ -1,10 +1,49 @@
+#Requires AutoHotkey v2.0+
+; Enhanced AutoHotkey v2 Scripts for Claude Desktop MCP Development
+; Version 2.0 - Extended and Improved
+; Compatible with AutoHotkey v2.0+
+
+; =============================================================================
+; CONFIGURATION & GLOBALS
+; =============================================================================
+
+; Global configuration
+REPOS_DIR := "D:\Dev\repos"
+CLAUDE_CONFIG := "C:\Users\sandr\AppData\Roaming\Claude\claude_desktop_config.json"
+CLAUDE_LOGS := "C:\Users\sandr\AppData\Roaming\Claude\logs\"
+CLAUDE_EXE := "C:\Users\sandr\AppData\Local\AnthropicClaude\app-0.12.129\claude.exe"
+PYTHON_EXE := "C:\Users\sandr\AppData\Local\Programs\Python\Python313\python.exe"
+TEMP_DIR := "C:\temp\"
+
+; Status tracking
+global LastOperation := ""
+global OperationTime := ""
+
+; =============================================================================
+; UTILITY FUNCTIONS
+; =============================================================================
+
+; Operation logging function
+LogOperation(operation) {
+    global LastOperation, OperationTime
+    LastOperation := operation
+    OperationTime := A_Now
+    
+    ; Optional: Write to log file
+    try {
+        FileAppend(A_Now . " - " . operation . "`n", TEMP_DIR . "ahk_operations.log")
+    }
+    catch {
+        ; Ignore logging errors
+    }
+}
+
 ; =============================================================================
 ; ENHANCED FILESYSTEM & PROJECT MONITORING
 ; =============================================================================
 
 ; 8. Advanced File Watcher with AI Analysis (Ctrl+Shift+W)
-^+w::
-{
+FileWatcher(*) {
     LogOperation("File Watcher Setup")
     
     prompt := "🔍 Advanced MCP File Monitoring System`n"
@@ -29,14 +68,19 @@
     
     SendText prompt
 }
+Hotkey("^+w", FileWatcher)
 
 ; 9. Enhanced DXT Package Management (Ctrl+Shift+P)
-^+p::
-{
+DXTPackageManagement(*) {
     LogOperation("DXT Package Validation")
     
     ; Get current project
-    InputBox &projectDir, "Project Directory", "Enter project directory name:", , 350, 130
+    try {
+        result := InputBox("Enter project directory name:", "Project Directory", , , 350, 130)
+        projectDir := result.Value
+    } catch {
+        projectDir := ""
+    }
     if (projectDir == "")
         projectDir := "[current project]"
     
@@ -65,18 +109,23 @@
     
     SendText prompt
 }
+Hotkey("^+p", DXTPackageManagement)
 
 ; =============================================================================
 ; CREATIVE & PRODUCTIVITY ENHANCEMENTS
 ; =============================================================================
 
 ; 10. AI-Powered MCP Idea Generator (Ctrl+Shift+I)
-^+i::
-{
+MCPIdeaGenerator(*) {
     LogOperation("MCP Idea Generation")
     
     ; Get context for better ideas
-    InputBox &context, "Development Context", "Enter current focus area (optional):", , 400, 130
+    try {
+        result := InputBox("Enter current focus area (optional):", "Development Context", , , 400, 130)
+        context := result.Value
+    } catch {
+        context := ""
+    }
     if (context == "")
         context := "general MCP development"
     
@@ -106,13 +155,18 @@
     
     SendText prompt
 }
+Hotkey("^+i", MCPIdeaGenerator)
 
 ; 11. Comprehensive Documentation Generator (Ctrl+Shift+G)
-^+g::
-{
+DocumentationGenerator(*) {
     LogOperation("Documentation Generation")
     
-    InputBox &docType, "Documentation Type", "Enter doc type (api|user|dev|troubleshooting|all):", , 400, 130
+    try {
+        result := InputBox("Enter doc type (api|user|dev|troubleshooting|all):", "Documentation Type", , , 400, 130)
+        docType := result.Value
+    } catch {
+        docType := ""
+    }
     if (docType == "")
         docType := "all"
     
@@ -151,3 +205,4 @@
     
     SendText prompt
 }
+Hotkey("^+g", DocumentationGenerator)

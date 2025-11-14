@@ -1,5 +1,6 @@
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
+#Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
 ; ==============================================================================
 ; Volume Control
@@ -23,26 +24,25 @@
 ; Error handling - log to file instead of showing popups
 OnError(LogError)
 
-LogError(Thrown, Mode) {
-    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
-    FileAppend(errorMsg, "volume_control_errors.log", "UTF-8")
-    OutputDebug(errorMsg)  ; Enable LLM debugging
-    return 1  ; Suppress popup (1 = suppress, 0 = show)
-}
-
 ; Volume Up/Down with Win+Up/Down
-Hotkey("#Up", (*) => {
+Hotkey("#Up", VolumeUp)
+
+VolumeUp(*) {
     Send("{Volume_Up}")
     ShowOSD("Volume: " . GetVolume() . "%")
-})
+}
 
-Hotkey("#Down", (*) => {
+Hotkey("#Down", VolumeDown)
+
+VolumeDown(*) {
     Send("{Volume_Down}")
     ShowOSD("Volume: " . GetVolume() . "%")
-})
+}
 
 ; Mute with Win+M
-Hotkey("#M", (*) => {
+Hotkey("#M", ToggleMute)
+
+ToggleMute(*) {
     Send("{Volume_Mute}")
     SoundGet(&mute_status, , , "MUTE")
     if (mute_status = "On") {
@@ -50,7 +50,7 @@ Hotkey("#M", (*) => {
     } else {
         ShowOSD("Unmuted: " . GetVolume() . "%")
     }
-})
+}
 
 ; Show Volume OSD
 ShowOSD(message) {

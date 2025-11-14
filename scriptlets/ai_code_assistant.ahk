@@ -20,18 +20,11 @@
 
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
+#Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
 
 ; Suppress error popups - log to file instead
 OnError(LogError)
-
-LogError(Thrown, Mode) {
-    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
-    FileAppend(errorMsg, "ai_code_assistant_errors.log", "UTF-8")
-    OutputDebug(errorMsg)  ; Enable LLM debugging
-    return 1  ; Suppress popup (1 = suppress, 0 = show)
-}
-
 
 class AICodeAssistant {
     static gui := ""
@@ -50,62 +43,64 @@ class AICodeAssistant {
             this.gui := Gui("+Resize +MinSize800x600", "AI Code Assistant")
             this.gui.BackColor := "1a1a1a"
             this.gui.SetFont("s10 cFFFFFF", "Segoe UI")
-            
-            ; Title
-            this.gui.Add("Text", "x20 y20 w760 Center Bold", "🤖 AI-Powered Code Assistant")
-        this.gui.Add("Text", "x20 y50 w760 Center ", "Advanced coding assistance with AI suggestions")
-        
-        ; File operations
-        this.gui.Add("Text", "x20 y90 w760 Bold", "📁 File Operations")
-        
-        openBtn := this.gui.Add("Button", "x20 y120 w150 h40 Background4a4a4a", "📂 Open File")
-        openBtn.SetFont("s10 cFFFFFF", "Segoe UI")
-        openBtn.OnEvent("Click", this.OpenFile.Bind(this))
-        
-        saveBtn := this.gui.Add("Button", "x190 y120 w150 h40 Background4a4a4a", "💾 Save File")
-        saveBtn.SetFont("s10 cFFFFFF", "Segoe UI")
-        saveBtn.OnEvent("Click", this.SaveFile.Bind(this))
-        
-        newBtn := this.gui.Add("Button", "x360 y120 w150 h40 Background4a4a4a", "📄 New File")
-        newBtn.SetFont("s10 cFFFFFF", "Segoe UI")
-        newBtn.OnEvent("Click", this.NewFile.Bind(this))
-        
-        ; Code editor
-        this.gui.Add("Text", "x20 y180 w760 Bold", "✏️ Code Editor")
-        
-        this.codeEditor := this.gui.Add("Edit", "x20 y210 w760 h200 Multi VScroll", "")
-        this.codeEditor.SetFont("s9 cFFFFFF", "Consolas")
-        this.codeEditor.BackColor := "2d2d2d"
-        
-        ; AI suggestions
-        this.gui.Add("Text", "x20 y430 w760 Bold", "🧠 AI Suggestions")
-        
-        this.suggestions := this.gui.Add("ListBox", "x20 y460 w760 h100")
-        this.suggestions.SetFont("s9 cFFFFFF", "Consolas")
-        this.suggestions.BackColor := "2d2d2d"
-        
-        ; AI actions
-        this.gui.Add("Text", "x20 y580 w760 Bold", "⚡ AI Actions")
-        
-        analyzeBtn := this.gui.Add("Button", "x20 y610 w150 h40 Background4a4a4a", "🔍 Analyze Code")
-        analyzeBtn.SetFont("s10 cFFFFFF", "Segoe UI")
-        analyzeBtn.OnEvent("Click", this.AnalyzeCode.Bind(this))
-        
-        optimizeBtn := this.gui.Add("Button", "x190 y610 w150 h40 Background4a4a4a", "⚡ Optimize")
-        optimizeBtn.SetFont("s10 cFFFFFF", "Segoe UI")
-        optimizeBtn.OnEvent("Click", this.OptimizeCode.Bind(this))
-        
-        debugBtn := this.gui.Add("Button", "x360 y610 w150 h40 Background4a4a4a", "🐛 Debug")
-        debugBtn.SetFont("s10 cFFFFFF", "Segoe UI")
-        debugBtn.OnEvent("Click", this.DebugCode.Bind(this))
-        
-        generateBtn := this.gui.Add("Button", "x530 y610 w150 h40 Background4a4a4a", "✨ Generate")
-        generateBtn.SetFont("s10 cFFFFFF", "Segoe UI")
-        generateBtn.OnEvent("Click", this.GenerateCode.Bind(this))
-        
-            ; Status
-            this.gui.Add("Text", "x20 y660 w760 Center ", "Press Ctrl+Alt+A to open • Ctrl+Alt+I for instant suggestions")
-            
+
+            title := this.gui.AddText("x20 y20 w760 Center", "🤖 AI-Powered Code Assistant")
+            title.SetFont("s12 cFFFFFF bold", "Segoe UI")
+
+            subtitle := this.gui.AddText("x20 y50 w760 Center", "Advanced coding assistance with AI suggestions")
+            subtitle.SetFont("s10 cFFFFFF", "Segoe UI")
+
+            headerFile := this.gui.AddText("x20 y90 w760", "📁 File Operations")
+            headerFile.SetFont("s10 cFFFFFF bold", "Segoe UI")
+
+            openBtn := this.gui.AddButton("x20 y120 w150 h40", "📂 Open File")
+            openBtn.SetFont("s10 cFFFFFF", "Segoe UI")
+            openBtn.OnEvent("Click", this.OpenFile.Bind(this))
+
+            saveBtn := this.gui.AddButton("x190 y120 w150 h40", "💾 Save File")
+            saveBtn.SetFont("s10 cFFFFFF", "Segoe UI")
+            saveBtn.OnEvent("Click", this.SaveFile.Bind(this))
+
+            newBtn := this.gui.AddButton("x360 y120 w150 h40", "📄 New File")
+            newBtn.SetFont("s10 cFFFFFF", "Segoe UI")
+            newBtn.OnEvent("Click", this.NewFile.Bind(this))
+
+            headerEditor := this.gui.AddText("x20 y180 w760", "✏️ Code Editor")
+            headerEditor.SetFont("s10 cFFFFFF bold", "Segoe UI")
+
+            this.codeEditor := this.gui.AddEdit("x20 y210 w760 h200 Multi VScroll")
+            this.codeEditor.SetFont("s9 cFFFFFF", "Consolas")
+            this.codeEditor.BackColor := "2d2d2d"
+
+            headerSuggestions := this.gui.AddText("x20 y430 w760", "🧠 AI Suggestions")
+            headerSuggestions.SetFont("s10 cFFFFFF bold", "Segoe UI")
+
+            this.suggestions := this.gui.AddListBox("x20 y460 w760 h100")
+            this.suggestions.SetFont("s9 cFFFFFF", "Consolas")
+            this.suggestions.BackColor := "2d2d2d"
+
+            headerActions := this.gui.AddText("x20 y580 w760", "⚡ AI Actions")
+            headerActions.SetFont("s10 cFFFFFF bold", "Segoe UI")
+
+            analyzeBtn := this.gui.AddButton("x20 y610 w150 h40", "🔍 Analyze Code")
+            analyzeBtn.SetFont("s10 cFFFFFF", "Segoe UI")
+            analyzeBtn.OnEvent("Click", this.AnalyzeCode.Bind(this))
+
+            optimizeBtn := this.gui.AddButton("x190 y610 w150 h40", "⚡ Optimize")
+            optimizeBtn.SetFont("s10 cFFFFFF", "Segoe UI")
+            optimizeBtn.OnEvent("Click", this.OptimizeCode.Bind(this))
+
+            debugBtn := this.gui.AddButton("x360 y610 w150 h40", "🐛 Debug")
+            debugBtn.SetFont("s10 cFFFFFF", "Segoe UI")
+            debugBtn.OnEvent("Click", this.DebugCode.Bind(this))
+
+            generateBtn := this.gui.AddButton("x530 y610 w150 h40", "✨ Generate")
+            generateBtn.SetFont("s10 cFFFFFF", "Segoe UI")
+            generateBtn.OnEvent("Click", this.GenerateCode.Bind(this))
+
+            status := this.gui.AddText("x20 y660 w760 Center", "Press Ctrl+Alt+A to open • Ctrl+Alt+I for instant suggestions")
+            status.SetFont("s10 cFFFFFF", "Segoe UI")
+
             this.gui.Show("w800 h700")
             this.LogDebug("GUI created successfully")
         } catch as e {
@@ -117,7 +112,8 @@ class AICodeAssistant {
     }
     
     static LogDebug(message) {
-        timestamp := FormatTime(A_Now, "HH:mm:ss")
+        timestamp := ""
+        timestamp := FormatTime(, "HH:mm:ss")
         logMsg := "[" . timestamp . "] " . message . "`n"
         try {
             FileAppend(logMsg, "ai_code_assistant_debug.log", "UTF-8")
@@ -128,7 +124,8 @@ class AICodeAssistant {
     }
     
     static AppendLog(message) {
-        timestamp := FormatTime(A_Now, "HH:mm:ss")
+        timestamp := ""
+        timestamp := FormatTime(, "HH:mm:ss")
         logMsg := "[" . timestamp . "] " . message . "`n"
         try {
             FileAppend(logMsg, "ai_code_assistant.log", "UTF-8")
@@ -155,7 +152,7 @@ class AICodeAssistant {
     static SaveFile(*) {
         try {
             if (this.currentFile) {
-                FileWrite(this.codeEditor.Value, this.currentFile)
+                this.WriteFileUtf8(this.currentFile, this.codeEditor.Value)
                 TrayTip("File Saved!", "Code saved successfully", 2)
             } else {
                 this.SaveAsFile()
@@ -170,7 +167,7 @@ class AICodeAssistant {
             filePath := FileSelect("S16",, "Save Code File", "AutoHotkey (*.ahk);;All Files (*.*)")
             if (filePath) {
                 this.currentFile := filePath
-                FileWrite(this.codeEditor.Value, filePath)
+                this.WriteFileUtf8(filePath, this.codeEditor.Value)
                 TrayTip("File Saved!", "Code saved successfully", 2)
             }
         } catch as e {
@@ -267,15 +264,11 @@ class AICodeAssistant {
             
             generateBtn := inputGui.Add("Button", "x20 y210 w140 h40 Background4a4a4a", "Generate")
             generateBtn.SetFont("s10 cFFFFFF", "Segoe UI")
-            generateBtn.OnEvent("Click", () => {
-                desc := description.Value
-                inputGui.Destroy()
-                this.GenerateCodeFromDescription(desc)
-            })
+            generateBtn.OnEvent("Click", (*) => this.HandleGenerateDialogConfirm(inputGui, description))
             
             cancelBtn := inputGui.Add("Button", "x180 y210 w140 h40 Background4a4a4a", "Cancel")
             cancelBtn.SetFont("s10 cFFFFFF", "Segoe UI")
-            cancelBtn.OnEvent("Click", () => inputGui.Destroy())
+            cancelBtn.OnEvent("Click", (*) => this.HandleGenerateDialogCancel(inputGui))
             
             inputGui.Show("w340 h270")
             
@@ -378,6 +371,16 @@ class AICodeAssistant {
         return code
     }
     
+    static HandleGenerateDialogConfirm(dialog, descriptionControl) {
+        desc := descriptionControl.Value
+        dialog.Destroy()
+        this.GenerateCodeFromDescription(desc)
+    }
+
+    static HandleGenerateDialogCancel(dialog) {
+        dialog.Destroy()
+    }
+
     static CloseGUI(*) {
         if (WinExist("AI Code Assistant")) {
             WinClose("AI Code Assistant")
@@ -393,6 +396,15 @@ class AICodeAssistant {
         
         ; Close with Escape
         Hotkey("Escape", (*) => this.CloseGUI())
+    }
+
+    static WriteFileUtf8(path, content) {
+        file := FileOpen(path, "w", "UTF-8")
+        if (!file) {
+            throw Error("Unable to open file: " . path)
+        }
+        file.Write(content)
+        file.Close()
     }
 }
 

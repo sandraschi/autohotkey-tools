@@ -20,17 +20,11 @@
 
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
+#Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
 
 ; Suppress error popups - log to file instead
 OnError(LogError)
-
-LogError(Thrown, Mode) {
-    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
-    FileAppend(errorMsg, "office365_automation_errors.log", "UTF-8")
-    OutputDebug(errorMsg)  ; Enable LLM debugging
-    return 1  ; Suppress popup (1 = suppress, 0 = show)
-}
 
 class Office365Automation {
     static gui := ""
@@ -215,11 +209,7 @@ class Office365Automation {
                 
                 for i, template in replyTemplates {
                     btn := templateGui.Add("Button", "w280 h40", template.name)
-                    btn.OnEvent("Click", (*) => {
-                        reply.Body := template.content
-                        reply.Display()
-                        templateGui.Destroy()
-                    })
+                    btn.OnEvent("Click", ObjBindMethod(this, "HandleQuickReplyTemplate", templateGui, reply, template))
                 }
                 
                 templateGui.Show("w320 h" . (replyTemplates.Length * 50 + 100))
@@ -269,17 +259,7 @@ class Office365Automation {
             locationEdit := meetingGui.Add("Edit", "w280 h20")
             
             scheduleBtn := meetingGui.Add("Button", "w280 h30", "Schedule Meeting")
-            scheduleBtn.OnEvent("Click", (*) => {
-                meeting.Subject := subjectEdit.Text
-                meeting.Recipients.Add(attendeesEdit.Text)
-                meeting.Start := startTimeEdit.Text
-                meeting.Duration := durationEdit.Text
-                meeting.Location := locationEdit.Text
-                meeting.Body := "Meeting scheduled via Office 365 Automation Suite"
-                meeting.Send()
-                meetingGui.Destroy()
-                TrayTip("Meeting Scheduled!", "Meeting has been scheduled successfully", 2)
-            })
+            scheduleBtn.OnEvent("Click", ObjBindMethod(this, "HandleScheduleMeeting", meetingGui, meeting, subjectEdit, attendeesEdit, startTimeEdit, durationEdit, locationEdit))
             
             meetingGui.Show("w320 h300")
         } catch as e {
@@ -302,12 +282,7 @@ class Office365Automation {
             
             for i, template in templates {
                 btn := templateGui.Add("Button", "w380 h40", template.name)
-                btn.OnEvent("Click", (*) => {
-                    ; Copy template to clipboard
-                    A_Clipboard := template.content
-                    TrayTip("Template Copied!", "Email template copied to clipboard", 2)
-                    templateGui.Destroy()
-                })
+                btn.OnEvent("Click", ObjBindMethod(this, "HandleEmailTemplateSelection", templateGui, template))
             }
             
             templateGui.Show("w400 h" . (templates.Length * 50 + 100))
@@ -367,8 +342,8 @@ class Office365Automation {
             }
             
             ; Get current date and time
-            currentDate := FormatTime(A_Now, "yyyy-MM-dd")
-            currentTime := FormatTime(A_Now, "HH:mm")
+            currentDate := FormatTime(, "yyyy-MM-dd")
+            currentTime := FormatTime(, "HH:mm")
             
             ; Create quick note
             noteContent := "Quick Note - " . currentDate . " " . currentTime . "`n`n" . 
@@ -400,7 +375,9 @@ class Office365Automation {
             titleEdit := meetingGui.Add("Edit", "w380 h20")
             
             meetingGui.Add("Text", "w400 y+20", "Date:")
-            dateEdit := meetingGui.Add("Edit", "w380 h20", FormatTime(A_Now, "yyyy-MM-dd"))
+            dateStr := ""
+            dateStr := FormatTime(, "yyyy-MM-dd")
+            dateEdit := meetingGui.Add("Edit", "w380 h20", dateStr)
             
             meetingGui.Add("Text", "w400 y+20", "Attendees:")
             attendeesEdit := meetingGui.Add("Edit", "w380 h20")
@@ -409,33 +386,7 @@ class Office365Automation {
             agendaEdit := meetingGui.Add("Edit", "w380 h40")
             
             createBtn := meetingGui.Add("Button", "w380 h30", "Create Meeting Notes")
-            createBtn.OnEvent("Click", (*) => {
-                ; Create meeting notes template
-                notesContent := "Meeting Notes`n" . 
-                              "=============`n`n" . 
-                              "Title: " . titleEdit.Text . "`n" . 
-                              "Date: " . dateEdit.Text . "`n" . 
-                              "Attendees: " . attendeesEdit.Text . "`n`n" . 
-                              "Agenda:`n" . agendaEdit.Text . "`n`n" . 
-                              "Notes:`n" . 
-                              "- `n" . 
-                              "- `n" . 
-                              "- `n`n" . 
-                              "Action Items:`n" . 
-                              "- [ ] `n" . 
-                              "- [ ] `n" . 
-                              "- [ ] `n`n" . 
-                              "Decisions:`n" . 
-                              "- `n" . 
-                              "- `n`n" . 
-                              "Next Meeting:`n" . 
-                              "Date: `n" . 
-                              "Agenda: `n"
-                
-                A_Clipboard := notesContent
-                meetingGui.Destroy()
-                TrayTip("Meeting Notes Created!", "Meeting notes template copied to clipboard", 2)
-            })
+            createBtn.OnEvent("Click", ObjBindMethod(this, "HandleMeetingNotesCreate", meetingGui, titleEdit, dateEdit, attendeesEdit, agendaEdit))
             
             meetingGui.Show("w420 h300")
         } catch as e {
@@ -450,15 +401,7 @@ class Office365Automation {
             searchEdit := searchGui.Add("Edit", "w380 h20")
             
             searchBtn := searchGui.Add("Button", "w380 h30", "Search Notes")
-            searchBtn.OnEvent("Click", (*) => {
-                searchTerm := searchEdit.Text
-                if (searchTerm) {
-                    ; Open OneNote search
-                    Run("onenote:search/" . searchTerm)
-                    searchGui.Destroy()
-                    TrayTip("Searching OneNote", "Search opened for: " . searchTerm, 2)
-                }
-            })
+            searchBtn.OnEvent("Click", ObjBindMethod(this, "HandleSearchNotes", searchGui, searchEdit))
             
             searchGui.Show("w420 h100")
         } catch as e {
@@ -501,15 +444,7 @@ class Office365Automation {
             contactEdit := callGui.Add("Edit", "w280 h20")
             
             callBtn := callGui.Add("Button", "w280 h30", "Start Call")
-            callBtn.OnEvent("Click", (*) => {
-                contact := contactEdit.Text
-                if (contact) {
-                    ; Start Teams call
-                    Run("msteams://teams.microsoft.com/l/call/0/0?users=" . contact)
-                    callGui.Destroy()
-                    TrayTip("Starting Call", "Initiating call to " . contact, 2)
-                }
-            })
+            callBtn.OnEvent("Click", ObjBindMethod(this, "HandleQuickCall", callGui, contactEdit))
             
             callGui.Show("w320 h100")
         } catch as e {
@@ -524,13 +459,7 @@ class Office365Automation {
             replyEdit := replyGui.Add("Edit", "w380 h60", "I'm currently busy and will respond to your message shortly.")
             
             replyBtn := replyGui.Add("Button", "w380 h30", "Set Auto-Reply")
-            replyBtn.OnEvent("Click", (*) => {
-                replyMessage := replyEdit.Text
-                ; Copy message to clipboard for manual setup
-                A_Clipboard := replyMessage
-                replyGui.Destroy()
-                TrayTip("Auto-Reply Ready", "Message copied to clipboard. Set up auto-reply in Teams settings.", 2)
-            })
+            replyBtn.OnEvent("Click", ObjBindMethod(this, "HandleTeamsAutoReply", replyGui, replyEdit))
             
             replyGui.Show("w420 h150")
         } catch as e {
@@ -601,10 +530,7 @@ class Office365Automation {
             
             for i, template in templates {
                 btn := templateGui.Add("Button", "w380 h40", template)
-                btn.OnEvent("Click", (*) => {
-                    this.CreateDocumentTemplate(template)
-                    templateGui.Destroy()
-                })
+                btn.OnEvent("Click", ObjBindMethod(this, "HandleDocumentTemplateSelection", templateGui, template))
             }
             
             templateGui.Show("w420 h" . (templates.Length * 50 + 100))
@@ -628,8 +554,8 @@ class Office365Automation {
                 case "Meeting Minutes":
                     doc.Content.Text := "Meeting Minutes`n" . 
                                       "===============`n`n" . 
-                                      "Date: " . FormatTime(A_Now, "yyyy-MM-dd") . "`n" . 
-                                      "Time: " . FormatTime(A_Now, "HH:mm") . "`n" . 
+                                      "Date: " . FormatTime(, "yyyy-MM-dd") . "`n" . 
+                                      "Time: " . FormatTime(, "HH:mm") . "`n" . 
                                       "Attendees: `n`n" . 
                                       "Agenda:`n" . 
                                       "1. `n" . 
@@ -645,7 +571,7 @@ class Office365Automation {
                     doc.Content.Text := "Project Proposal`n" . 
                                       "=================`n`n" . 
                                       "Project Name: `n" . 
-                                      "Date: " . FormatTime(A_Now, "yyyy-MM-dd") . "`n" . 
+                                      "Date: " . FormatTime(, "yyyy-MM-dd") . "`n" . 
                                       "Proposed By: `n`n" . 
                                       "Executive Summary:`n" . 
                                       "`n`n" . 
@@ -730,12 +656,7 @@ class Office365Automation {
             contentText := syncGui.Add("Text", "w280 h100", currentClipboard)
             
             syncBtn := syncGui.Add("Button", "w280 h30", "Sync to OneNote")
-            syncBtn.OnEvent("Click", (*) => {
-                ; Copy to OneNote
-                A_Clipboard := "Clipboard Sync - " . FormatTime(A_Now, "yyyy-MM-dd HH:mm:ss") . "`n`n" . currentClipboard
-                syncGui.Destroy()
-                TrayTip("Clipboard Synced!", "Content copied to OneNote", 2)
-            })
+            syncBtn.OnEvent("Click", ObjBindMethod(this, "HandleClipboardSync", syncGui, currentClipboard))
             
             syncGui.Show("w320 h200")
         } catch as e {
@@ -820,10 +741,7 @@ class Office365Automation {
             settingsGui.Add("Text", "w380", "Ctrl+Alt+E - Excel shortcuts")
             
             saveBtn := settingsGui.Add("Button", "w380 h30", "Save Settings")
-            saveBtn.OnEvent("Click", (*) => {
-                TrayTip("Settings Saved!", "Settings have been saved", 2)
-                settingsGui.Destroy()
-            })
+            saveBtn.OnEvent("Click", ObjBindMethod(this, "HandleSettingsSave", settingsGui))
             
             settingsGui.Show("w420 h350")
         } catch as e {
@@ -883,11 +801,161 @@ class Office365Automation {
         Hotkey("^!e", (*) => this.ExcelShortcuts())
         
         ; Close with Escape
-        Hotkey("Escape", (*) => {
-            if (WinExist("Office 365 Automation Suite")) {
-                WinClose("Office 365 Automation Suite")
-            }
-        })
+        Hotkey("Escape", (*) => this.CloseSuite())
+    }
+
+    static HandleQuickReplyTemplate(templateGui, reply, template) {
+        reply.Body := template.content
+        reply.Display()
+        templateGui.Destroy()
+    }
+
+    static HandleScheduleMeeting(meetingGui, meeting, subjectEdit, attendeesEdit, startTimeEdit, durationEdit, locationEdit) {
+        meeting.Subject := subjectEdit.Text
+        meeting.Recipients.Add(attendeesEdit.Text)
+        meeting.Start := startTimeEdit.Text
+        meeting.Duration := durationEdit.Text
+        meeting.Location := locationEdit.Text
+        meeting.Body := "Meeting scheduled via Office 365 Automation Suite"
+        meeting.Send()
+        meetingGui.Destroy()
+        TrayTip("Meeting Scheduled!", "Meeting has been scheduled successfully", 2)
+    }
+
+    static HandleEmailTemplateSelection(templateGui, template) {
+        A_Clipboard := template.content
+        TrayTip("Template Copied!", "Email template copied to clipboard", 2)
+        templateGui.Destroy()
+    }
+
+    static HandleMarkAsRead(msgGui, message) {
+        message.UnRead := false
+        msgGui.Destroy()
+    }
+
+    static HandleMoveToArchive(msgGui, message) {
+        archiveFolder := this.outlookApp.GetNamespace("MAPI").GetDefaultFolder(6).Folders.Item("Archive")
+        message.Move(archiveFolder)
+        msgGui.Destroy()
+    }
+
+    static HandleOpenMailNotification(notification, message) {
+        message.Display()
+        notification.Destroy()
+    }
+
+    static HandleQuickReplyNotification(notification) {
+        this.QuickEmailReply()
+        notification.Destroy()
+    }
+
+    static HandleMarkAsDoneNotification(notification, message) {
+        message.Categories := "Completed"
+        message.Save()
+        notification.Destroy()
+    }
+
+    static HandleTaskSnooze(reminderGui, task) {
+        task.ReminderTime := DateAdd(A_Now, 5, "Minutes")
+        task.Save()
+        reminderGui.Destroy()
+    }
+
+    static HandleTaskComplete(reminderGui, task) {
+        task.MarkComplete()
+        reminderGui.Destroy()
+    }
+
+    static HandleProjectStart(progressGui, progressList, projects) {
+        selected := progressList.GetNext()
+        if (selected) {
+            project := projects[selected]
+            TrayTip("Starting Project", project.title, 2)
+            progressGui.Destroy()
+        }
+    }
+
+    static HandleProjectViewSchedule(progressList, projects) {
+        selected := progressList.GetNext()
+        if (selected) {
+            project := projects[selected]
+            MsgBox("Schedule for " . project.title . "`n`n" . project.schedule, "Project Schedule")
+        }
+    }
+
+    static HandleMeetingNotesCreate(meetingGui, titleEdit, dateEdit, attendeesEdit, agendaEdit) {
+        notesContent := "Meeting Notes`n" . 
+                      "=============`n`n" . 
+                      "Title: " . titleEdit.Text . "`n" . 
+                      "Date: " . dateEdit.Text . "`n" . 
+                      "Attendees: " . attendeesEdit.Text . "`n`n" . 
+                      "Agenda:`n" . agendaEdit.Text . "`n`n" . 
+                      "Notes:`n" . 
+                      "- `n" . 
+                      "- `n" . 
+                      "- `n`n" . 
+                      "Action Items:`n" . 
+                      "- [ ] `n" . 
+                      "- [ ] `n" . 
+                      "- [ ] `n`n" . 
+                      "Decisions:`n" . 
+                      "- `n" . 
+                      "- `n`n" . 
+                      "Next Meeting:`n" . 
+                      "Date: `n" . 
+                      "Agenda: `n"
+        A_Clipboard := notesContent
+        meetingGui.Destroy()
+        TrayTip("Meeting Notes Created!", "Meeting notes template copied to clipboard", 2)
+    }
+
+    static HandleSearchNotes(searchGui, searchEdit) {
+        searchTerm := searchEdit.Text
+        if (searchTerm) {
+            Run("onenote:search/" . searchTerm)
+            searchGui.Destroy()
+            TrayTip("Searching OneNote", "Search opened for: " . searchTerm, 2)
+        }
+    }
+
+    static HandleQuickCall(callGui, contactEdit) {
+        contact := contactEdit.Text
+        if (contact) {
+            Run("msteams://teams.microsoft.com/l/call/0/0?users=" . contact)
+            callGui.Destroy()
+            TrayTip("Starting Call", "Initiating call to " . contact, 2)
+        }
+    }
+
+    static HandleTeamsAutoReply(replyGui, replyEdit) {
+        replyMessage := replyEdit.Text
+        A_Clipboard := replyMessage
+        replyGui.Destroy()
+        TrayTip("Auto-Reply Ready", "Message copied to clipboard. Set up auto-reply in Teams settings.", 2)
+    }
+
+    static HandleDocumentTemplateSelection(templateGui, template) {
+        this.CreateDocumentTemplate(template)
+        templateGui.Destroy()
+    }
+
+    static HandleClipboardSync(syncGui, currentClipboard) {
+        timestamp := ""
+        timestamp := FormatTime(, "yyyy-MM-dd HH:mm:ss")
+        A_Clipboard := "Clipboard Sync - " . timestamp . "`n`n" . currentClipboard
+        syncGui.Destroy()
+        TrayTip("Clipboard Synced!", "Content copied to OneNote", 2)
+    }
+
+    static HandleSettingsSave(settingsGui) {
+        TrayTip("Settings Saved!", "Settings have been saved", 2)
+        settingsGui.Destroy()
+    }
+
+    static CloseSuite() {
+        if (WinExist("Office 365 Automation Suite")) {
+            WinClose("Office 365 Automation Suite")
+        }
     }
 }
 

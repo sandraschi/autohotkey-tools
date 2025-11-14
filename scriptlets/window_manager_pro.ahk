@@ -1,272 +1,390 @@
 ; ==============================================================================
 ; Window Manager Pro
 ; @name: Window Manager Pro
-; @version: 1.0.0
-; @description: Advanced window management with snapping, tiling, and organization. Professional window management with multiple layout modes and snapping zones.
-; @description: Features window snapping to edges and corners, grid tiling layouts, window switching, and workspace organization. Supports custom snapping zones and layout presets.
-; @description: Essential productivity tool for power users managing multiple windows who need efficient window organization and navigation.
+; @version: 2.0.0
+; @description: Window snapping, tiling and quick layouts with logging and safe hotkeys.
 ; @category: utilities
 ; @author: Sandra
-; @hotkeys: #Left, #Right, #Up, #Down, #Space, #Tab
+; @hotkeys: #Left, #Right, #Up, #Down, #Space, #Tab, F9
 ; @enabled: true
 ; @priority: 25
-; @tag: window-management, productivity, utilities, snapping, tiling, organization, multi-monitor
-; @cli: --snap <direction> - Snap active window (left, right, top, bottom, center)
-; @cli: --tile - Arrange windows in grid layout
-; @cli: --layout <name> - Apply window layout preset
-; @cli: --help - Show CLI usage and window manager options
-; @dependencies: 
+; @tag: windows, snapping, layout, productivity, gui
 ; ==============================================================================
 
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
+#Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
+OnError(WindowManagerPro.HandleScriptError)
 
-; Suppress error popups - log to file instead
-OnError(LogError)
+class WindowManagerPro {
+    static gui := ""
+    static listView := ""
+    static statusBar := ""
+    static searchBox := ""
+    static history := []
+    static HandleScriptError(Thrown, Mode) {
+        return ScriptletErrorHandler.Handle(Thrown, Mode)
+    }
 
-LogError(Thrown, Mode) {
-    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
-    FileAppend(errorMsg, "window_manager_pro_errors.log", "UTF-8")
-    OutputDebug(errorMsg)  ; Enable LLM debugging
-    return 1  ; Suppress popup (1 = suppress, 0 = show)
-}
+    static hotkeysRegistered := false
+    static logDir := ""
+    static logFile := ""
+    static progressTimer := 0
+    static isVisible := false
 
-
-class WindowManager {
-    static snapZones := Map()
-    static windowHistory := []
-    static currentLayout := "grid"
-    
     static Init() {
-        this.SetupSnapZones()
-        this.CreateGUI()
-    }
-    
-    static SetupSnapZones() {
-        ; Get screen dimensions
-        SysGet(&monitor, "Monitor")
-        screenWidth := monitor.Right - monitor.Left
-        screenHeight := monitor.Bottom - monitor.Top
-        
-        ; Define snap zones
-        this.snapZones["left"] := {x: monitor.Left, y: monitor.Top, w: screenWidth//2, h: screenHeight}
-        this.snapZones["right"] := {x: monitor.Left + screenWidth//2, y: monitor.Top, w: screenWidth//2, h: screenHeight}
-        this.snapZones["top"] := {x: monitor.Left, y: monitor.Top, w: screenWidth, h: screenHeight//2}
-        this.snapZones["bottom"] := {x: monitor.Left, y: monitor.Top + screenHeight//2, w: screenWidth, h: screenHeight//2}
-        this.snapZones["top-left"] := {x: monitor.Left, y: monitor.Top, w: screenWidth//2, h: screenHeight//2}
-        this.snapZones["top-right"] := {x: monitor.Left + screenWidth//2, y: monitor.Top, w: screenWidth//2, h: screenHeight//2}
-        this.snapZones["bottom-left"] := {x: monitor.Left, y: monitor.Top + screenHeight//2, w: screenWidth//2, h: screenHeight//2}
-        this.snapZones["bottom-right"] := {x: monitor.Left + screenWidth//2, y: monitor.Top + screenHeight//2, w: screenWidth//2, h: screenHeight//2}
-        this.snapZones["center"] := {x: monitor.Left + screenWidth//4, y: monitor.Top + screenHeight//4, w: screenWidth//2, h: screenHeight//2}
-    }
-    
-    static CreateGUI() {
-        this.gui := Gui("+AlwaysOnTop +ToolWindow", "Window Manager")
-        
-        ; Title
-        this.gui.Add("Text", "w300 h20 Center", "ðŸªŸ Window Manager Pro")
-        
-        ; Quick snap buttons
-        snapPanel := this.gui.Add("Text", "w300 h80")
-        
-        leftBtn := this.gui.Add("Button", "x10 y10 w60 h25", "â† Left")
-        rightBtn := this.gui.Add("Button", "x80 y10 w60 h25", "Right â†’")
-        topBtn := this.gui.Add("Button", "x150 y10 w60 h25", "â†‘ Top")
-        bottomBtn := this.gui.Add("Button", "x220 y10 w60 h25", "â†“ Bottom")
-        
-        tlBtn := this.gui.Add("Button", "x10 y40 w60 h25", "â†– TL")
-        trBtn := this.gui.Add("Button", "x80 y40 w60 h25", "TR â†—")
-        blBtn := this.gui.Add("Button", "x150 y40 w60 h25", "â†™ BL")
-        brBtn := this.gui.Add("Button", "x220 y40 w60 h25", "BR â†˜")
-        
-        leftBtn.OnEvent("Click", this.SnapWindow.Bind(this, "left"))
-        rightBtn.OnEvent("Click", this.SnapWindow.Bind(this, "right"))
-        topBtn.OnEvent("Click", this.SnapWindow.Bind(this, "top"))
-        bottomBtn.OnEvent("Click", this.SnapWindow.Bind(this, "bottom"))
-        tlBtn.OnEvent("Click", this.SnapWindow.Bind(this, "top-left"))
-        trBtn.OnEvent("Click", this.SnapWindow.Bind(this, "top-right"))
-        blBtn.OnEvent("Click", this.SnapWindow.Bind(this, "bottom-left"))
-        brBtn.OnEvent("Click", this.SnapWindow.Bind(this, "bottom-right"))
-        
-        ; Layout buttons
-        layoutPanel := this.gui.Add("Text", "w300 h40")
-        
-        gridBtn := this.gui.Add("Button", "x10 y10 w80 h25", "Grid Layout")
-        cascadeBtn := this.gui.Add("Button", "x100 y10 w80 h25", "Cascade")
-        tileBtn := this.gui.Add("Button", "x190 y10 w80 h25", "Tile")
-        
-        gridBtn.OnEvent("Click", this.GridLayout.Bind(this))
-        cascadeBtn.OnEvent("Click", this.CascadeLayout.Bind(this))
-        tileBtn.OnEvent("Click", this.TileLayout.Bind(this))
-        
-        ; Window list
-        this.gui.Add("Text", "w300 h20", "Active Windows:")
-        this.windowList := this.gui.Add("ListView", "w300 h150", ["Title", "Process", "State"])
-        this.windowList.OnEvent("DoubleClick", this.FocusWindow.Bind(this))
-        
-        ; Action buttons
-        actionPanel := this.gui.Add("Text", "w300 h40")
-        
-        refreshBtn := this.gui.Add("Button", "x10 y10 w80 h25", "Refresh")
-        minimizeBtn := this.gui.Add("Button", "x100 y10 w80 h25", "Minimize All")
-        restoreBtn := this.gui.Add("Button", "x190 y10 w80 h25", "Restore All")
-        
-        refreshBtn.OnEvent("Click", this.RefreshWindows.Bind(this))
-        minimizeBtn.OnEvent("Click", this.MinimizeAll.Bind(this))
-        restoreBtn.OnEvent("Click", this.RestoreAll.Bind(this))
-        
-        this.gui.Show("w320 h350")
-        this.RefreshWindows()
-    }
-    
-    static SnapWindow(zone) {
-        activeWin := WinGetID("A")
-        if (activeWin && this.snapZones.Has(zone)) {
-            zone := this.snapZones[zone]
-            WinMove(zone.x, zone.y, zone.w, zone.h, activeWin)
-            this.AddToHistory(activeWin)
+        WindowManagerPro.EnsureLogging()
+        if (!WindowManagerPro.gui) {
+            WindowManagerPro.CreateGui()
+            WindowManagerPro.SetupHotkeys()
+            WindowManagerPro.AppendLog("Window Manager Pro initialised.")
         }
+        WindowManagerPro.ShowGui()
+        WindowManagerPro.RefreshWindows()
     }
-    
-    static GridLayout(*) {
-        windows := this.GetVisibleWindows()
-        if (windows.Length = 0) return
-        
-        ; Calculate grid dimensions
-        cols := Ceil(Sqrt(windows.Length))
-        rows := Ceil(windows.Length / cols)
-        
-        SysGet(&monitor, "Monitor")
-        cellWidth := (monitor.Right - monitor.Left) // cols
-        cellHeight := (monitor.Bottom - monitor.Top) // rows
-        
-        for i, winId in windows {
-            row := Floor((i - 1) / cols)
-            col := (i - 1) % cols
-            
-            x := monitor.Left + col * cellWidth
-            y := monitor.Top + row * cellHeight
-            
-            WinMove(x, y, cellWidth, cellHeight, winId)
+
+    static EnsureLogging() {
+        if (WindowManagerPro.logDir) {
+            return
         }
-    }
-    
-    static CascadeLayout(*) {
-        windows := this.GetVisibleWindows()
-        if (windows.Length = 0) return
-        
-        SysGet(&monitor, "Monitor")
-        offset := 30
-        
-        for i, winId in windows {
-            x := monitor.Left + (i - 1) * offset
-            y := monitor.Top + (i - 1) * offset
-            w := 800
-            h := 600
-            
-            WinMove(x, y, w, h, winId)
+        logDirectory := A_ScriptDir . "\logs"
+        if (!DirExist(logDirectory)) {
+            DirCreate(logDirectory)
         }
+        WindowManagerPro.logDir := logDirectory
+        WindowManagerPro.logFile := logDirectory . "\window_manager_pro.log"
     }
-    
-    static TileLayout(*) {
-        windows := this.GetVisibleWindows()
-        if (windows.Length = 0) return
-        
-        SysGet(&monitor, "Monitor")
-        screenWidth := monitor.Right - monitor.Left
-        screenHeight := monitor.Bottom - monitor.Top
-        
-        if (windows.Length = 1) {
-            WinMove(monitor.Left, monitor.Top, screenWidth, screenHeight, windows[1])
-        } else if (windows.Length = 2) {
-            WinMove(monitor.Left, monitor.Top, screenWidth//2, screenHeight, windows[1])
-            WinMove(monitor.Left + screenWidth//2, monitor.Top, screenWidth//2, screenHeight, windows[2])
+
+    static AppendLog(message, level := "INFO") {
+        timestamp := ""
+        timestamp := FormatTime(, "yyyy-MM-dd HH:mm:ss")
+        line := "[" . timestamp . "] [" . level . "] " . message . "`n"
+        try {
+            FileAppend(line, WindowManagerPro.logFile, "UTF-8")
+        } catch {
+            ; ignore logging failures
+        }
+        OutputDebug("WindowManagerPro: " . message)
+    }
+
+    static CreateGui() {
+        WindowManagerPro.gui := Gui("+Resize +MinSize420x360", "Window Manager Pro")
+        WindowManagerPro.gui.SetFont("s10", "Segoe UI")
+        WindowManagerPro.gui.OnEvent("Close", WindowManagerPro.HideGui.Bind(WindowManagerPro))
+        WindowManagerPro.gui.OnEvent("Escape", WindowManagerPro.HideGui.Bind(WindowManagerPro))
+        WindowManagerPro.gui.OnEvent("Size", WindowManagerPro.HandleResize.Bind(WindowManagerPro))
+
+        WindowManagerPro.gui.Add("Text", "x12 y10 w180 h22", "Search windows:")
+        WindowManagerPro.searchBox := WindowManagerPro.gui.Add("Edit", "x12 y32 w180 h24")
+        WindowManagerPro.searchBox.OnEvent("Change", WindowManagerPro.HandleSearch.Bind(WindowManagerPro))
+
+        buttonPanel := WindowManagerPro.gui.Add("GroupBox", "x210 y10 w190 h150", "Quick layouts")
+
+        WindowManagerPro.AddButton(WindowManagerPro.gui, "Snap Left", 224, 35, (*) => WindowManagerPro.SnapActive("left"))
+        WindowManagerPro.AddButton(WindowManagerPro.gui, "Snap Right", 304, 35, (*) => WindowManagerPro.SnapActive("right"))
+        WindowManagerPro.AddButton(WindowManagerPro.gui, "Snap Top", 224, 70, (*) => WindowManagerPro.SnapActive("top"))
+        WindowManagerPro.AddButton(WindowManagerPro.gui, "Snap Bottom", 304, 70, (*) => WindowManagerPro.SnapActive("bottom"))
+        WindowManagerPro.AddButton(WindowManagerPro.gui, "Snap Center", 224, 105, (*) => WindowManagerPro.SnapActive("center"))
+        WindowManagerPro.AddButton(WindowManagerPro.gui, "Cascade", 304, 105, (*) => WindowManagerPro.CascadeLayout())
+        WindowManagerPro.AddButton(WindowManagerPro.gui, "Grid", 224, 140, (*) => WindowManagerPro.GridLayout())
+        WindowManagerPro.AddButton(WindowManagerPro.gui, "Tile", 304, 140, (*) => WindowManagerPro.TileLayout())
+
+        WindowManagerPro.gui.Add("Text", "x12 y68 w380 h20", "Active windows:")
+        WindowManagerPro.listView := WindowManagerPro.gui.Add("ListView", "x12 y92 w388 h200 -Multi", ["Title", "Process", "State"])
+        WindowManagerPro.listView.OnEvent("DoubleClick", WindowManagerPro.FocusSelected.Bind(WindowManagerPro))
+        WindowManagerPro.listView.ModifyCol(1, 200)
+        WindowManagerPro.listView.ModifyCol(2, 110)
+        WindowManagerPro.listView.ModifyCol(3, 60)
+
+        actionPanel := WindowManagerPro.gui.Add("GroupBox", "x12 y298 w388 h52", "Actions")
+        WindowManagerPro.AddButton(WindowManagerPro.gui, "Refresh", 24, 322, (*) => WindowManagerPro.RefreshWindows())
+        WindowManagerPro.AddButton(WindowManagerPro.gui, "Minimize All", 114, 322, WindowManagerPro.MinimizeAll.Bind(WindowManagerPro))
+        WindowManagerPro.AddButton(WindowManagerPro.gui, "Restore All", 224, 322, WindowManagerPro.RestoreAll.Bind(WindowManagerPro))
+        WindowManagerPro.AddButton(WindowManagerPro.gui, "History", 324, 322, WindowManagerPro.ShowHistory.Bind(WindowManagerPro))
+
+        WindowManagerPro.statusBar := WindowManagerPro.gui.Add("StatusBar")
+        WindowManagerPro.UpdateStatus("Ready. Use Win+Space to show or hide.")
+    }
+
+    static AddButton(gui, text, x, y, callback) {
+        btn := gui.Add("Button", Format("x{} y{} w80 h26", x, y), text)
+        btn.OnEvent("Click", callback)
+        return btn
+    }
+
+    static SetupHotkeys() {
+        if (WindowManagerPro.hotkeysRegistered) {
+            return
+        }
+        Hotkey("#Left", (*) => WindowManagerPro.SnapActive("left"), "On")
+        Hotkey("#Right", (*) => WindowManagerPro.SnapActive("right"), "On")
+        Hotkey("#Up", (*) => WindowManagerPro.SnapActive("top"), "On")
+        Hotkey("#Down", (*) => WindowManagerPro.SnapActive("bottom"), "On")
+        Hotkey("#Space", (*) => WindowManagerPro.ToggleGui(), "On")
+        Hotkey("#Tab", (*) => WindowManagerPro.GridLayout(), "On")
+        Hotkey("F9", (*) => WindowManagerPro.EmergencyStop(), "On")
+        WindowManagerPro.hotkeysRegistered := true
+    }
+
+    static ToggleGui(*) {
+        if (!WindowManagerPro.gui) {
+            WindowManagerPro.Init()
+            return
+        }
+        if (WindowManagerPro.isVisible) {
+            WindowManagerPro.HideGui()
         } else {
-            ; Tile remaining windows
-            remaining := windows[3:]
-            this.GridLayout()
+            WindowManagerPro.ShowGui()
+            WindowManagerPro.RefreshWindows()
         }
     }
-    
+
+    static ShowGui() {
+        WindowManagerPro.gui.Show("Center")
+        WindowManagerPro.isVisible := true
+    }
+
+    static HideGui(*) {
+        if (WindowManagerPro.gui) {
+            WindowManagerPro.gui.Hide()
+        }
+        WindowManagerPro.isVisible := false
+    }
+
+    static EmergencyStop(*) {
+        WindowManagerPro.HideGui()
+        WindowManagerPro.UpdateStatus("Emergency stop triggered. GUI hidden.")
+        WindowManagerPro.AppendLog("Emergency stop triggered by F9.", "WARN")
+    }
+
+    static HandleResize(gui, minMax, width, height) {
+        if (!WindowManagerPro.gui) {
+            return
+        }
+        padding := 12
+        listTop := 92
+        listHeight := Max(120, height - 160)
+        WindowManagerPro.listView.Move(padding, listTop, width - padding * 2, listHeight)
+        WindowManagerPro.statusBar.SetParts([width - padding * 2])
+    }
+
+    static HandleSearch(*) {
+        term := StrLower(Trim(WindowManagerPro.searchBox.Value))
+        WindowManagerPro.RefreshWindows(term)
+    }
+
+    static UpdateStatus(text) {
+        if (WindowManagerPro.statusBar) {
+            WindowManagerPro.statusBar.SetText(text, 1)
+        }
+    }
+
+    static RefreshWindows(term := "") {
+        if (!WindowManagerPro.listView) {
+            return
+        }
+        WindowManagerPro.listView.Delete()
+        windows := WindowManagerPro.GetVisibleWindows()
+        filtered := 0
+        for entry in windows {
+            title := entry.title
+            if (term && !InStr(StrLower(title), term)) {
+                continue
+            }
+            WindowManagerPro.listView.Add("", title, entry.process, entry.state)
+            WindowManagerPro.listView.SetRowData(WindowManagerPro.listView.GetCount(), entry.id)
+            filtered++
+        }
+        WindowManagerPro.UpdateStatus(Format("Tracking {1} window(s). Showing {2}.", windows.Length, filtered))
+    }
+
     static GetVisibleWindows() {
-        windows := []
-        WinGet(&winList, "List")
-        
-        Loop winList.Length {
-            winId := winList[A_Index]
-            if (WinGetMinMax(winId) != -1) { ; Not minimized
-                windows.Push(winId)
+        result := []
+        ids := WinGetList()
+        for hwnd in ids {
+            if (WinGetMinMax("ahk_id " . hwnd) = -1) {
+                continue
             }
-        }
-        
-        return windows
-    }
-    
-    static RefreshWindows(*) {
-        this.windowList.Delete()
-        WinGet(&winList, "List")
-        
-        Loop winList.Length {
-            winId := winList[A_Index]
-            try {
-                title := WinGetTitle(winId)
-                process := WinGetProcessName(winId)
-                state := WinGetMinMax(winId) = -1 ? "Minimized" : "Active"
-                
-                this.windowList.Add("", title, process, state)
-            } catch {
-                ; Skip invalid windows
+            title := WinGetTitle("ahk_id " . hwnd)
+            if (!title) {
+                continue
             }
+            process := WinGetProcessName("ahk_id " . hwnd)
+            state := WinGetMinMax("ahk_id " . hwnd) = 1 ? "Max" : "Normal"
+            result.Push(Map("id", hwnd, "title", title, "process", process, "state", state))
+        }
+        return result
+    }
+
+    static FocusSelected(*) {
+        row := WindowManagerPro.listView.GetNext()
+        if (!row) {
+            return
+        }
+        hwnd := WindowManagerPro.listView.GetRowData(row)
+        if (hwnd) {
+            WinActivate("ahk_id " . hwnd)
+            WindowManagerPro.AppendLog("Activated window id " . hwnd)
         }
     }
-    
-    static FocusWindow(*) {
-        selected := this.windowList.GetNext()
-        if (selected > 0) {
-            title := this.windowList.GetText(selected, 1)
-            WinActivate(title)
+
+    static SnapActive(direction) {
+        hwnd := WinGetID("A")
+        if (!hwnd) {
+            WindowManagerPro.UpdateStatus("No active window to snap.")
+            return
+        }
+        workArea := WindowManagerPro.GetWorkArea()
+        rect := WindowManagerPro.GetSnapRect(direction, workArea)
+        if (!rect) {
+            WindowManagerPro.UpdateStatus("Unknown snap direction: " . direction)
+            return
+        }
+        WinMove("ahk_id " . hwnd, , rect.x, rect.y, rect.w, rect.h)
+        WindowManagerPro.AppendLog("Snapped window to " . direction)
+        WindowManagerPro.PushHistory(hwnd, direction)
+    }
+
+    static GetWorkArea() {
+        MonitorGet(, &left, &top, &right, &bottom)
+        return Map("left", left, "top", top, "right", right, "bottom", bottom, "width", right - left, "height", bottom - top)
+    }
+
+    static GetSnapRect(direction, area) {
+        padding := 8
+        left := area.left + padding
+        top := area.top + padding
+        width := area.width - padding * 2
+        height := area.height - padding * 2
+        switch direction {
+            case "left":
+                return Map("x", left, "y", top, "w", width // 2, "h", height)
+            case "right":
+                return Map("x", left + width // 2, "y", top, "w", width // 2, "h", height)
+            case "top":
+                return Map("x", left, "y", top, "w", width, "h", height // 2)
+            case "bottom":
+                return Map("x", left, "y", top + height // 2, "w", width, "h", height // 2)
+            case "center":
+                return Map("x", left + width // 4, "y", top + height // 4, "w", width // 2, "h", height // 2)
+            default:
+                return 0
         }
     }
-    
+
+    static GridLayout(*) {
+        windows := WindowManagerPro.GetVisibleWindows()
+        count := windows.Length
+        if (count = 0) {
+            WindowManagerPro.UpdateStatus("No windows to arrange.")
+            return
+        }
+        cols := Ceil(Sqrt(count))
+        rows := Ceil(count / cols)
+        area := WindowManagerPro.GetWorkArea()
+        cellWidth := area.width // cols
+        cellHeight := area.height // rows
+        for index, entry in windows {
+            row := Floor((index - 1) / cols)
+            col := Mod(index - 1, cols)
+            x := area.left + col * cellWidth
+            y := area.top + row * cellHeight
+            WinMove("ahk_id " . entry.id, , x, y, cellWidth, cellHeight)
+        }
+        WindowManagerPro.AppendLog("Applied grid layout for " . count . " window(s).")
+        WindowManagerPro.UpdateStatus("Grid layout applied.")
+    }
+
+    static CascadeLayout(*) {
+        windows := WindowManagerPro.GetVisibleWindows()
+        count := windows.Length
+        if (count = 0) {
+            WindowManagerPro.UpdateStatus("No windows to cascade.")
+            return
+        }
+        area := WindowManagerPro.GetWorkArea()
+        offset := 32
+        width := Max(400, area.width - offset * count)
+        height := Max(260, area.height - offset * count)
+        step := 0
+        for entry in windows {
+            x := area.left + step * offset
+            y := area.top + step * offset
+            WinMove("ahk_id " . entry.id, , x, y, width, height)
+            step++
+        }
+        WindowManagerPro.AppendLog("Applied cascade layout for " . count . " window(s).")
+        WindowManagerPro.UpdateStatus("Cascade layout applied.")
+    }
+
+    static TileLayout(*) {
+        windows := WindowManagerPro.GetVisibleWindows()
+        count := windows.Length
+        if (count = 0) {
+            WindowManagerPro.UpdateStatus("No windows to tile.")
+            return
+        }
+        area := WindowManagerPro.GetWorkArea()
+        if (count = 1) {
+            WinMove("ahk_id " . windows[1].id, , area.left, area.top, area.width, area.height)
+            WindowManagerPro.UpdateStatus("Single window maximised.")
+            return
+        }
+        if (count = 2) {
+            WinMove("ahk_id " . windows[1].id, , area.left, area.top, area.width // 2, area.height)
+            WinMove("ahk_id " . windows[2].id, , area.left + area.width // 2, area.top, area.width // 2, area.height)
+            WindowManagerPro.UpdateStatus("Two windows tiled side by side.")
+            WindowManagerPro.AppendLog("Tile layout applied for 2 windows.")
+            return
+        }
+        WindowManagerPro.GridLayout()
+    }
+
     static MinimizeAll(*) {
-        WinGet(&winList, "List")
-        Loop winList.Length {
-            winId := winList[A_Index]
-            if (WinGetMinMax(winId) != -1) {
-                WinMinimize(winId)
+        ids := WinGetList()
+        for hwnd in ids {
+            if (WinGetMinMax("ahk_id " . hwnd) != -1) {
+                WinMinimize("ahk_id " . hwnd)
             }
         }
-        this.RefreshWindows()
+        WindowManagerPro.AppendLog("All windows minimised.")
+        WindowManagerPro.RefreshWindows()
     }
-    
+
     static RestoreAll(*) {
-        WinGet(&winList, "List")
-        Loop winList.Length {
-            winId := winList[A_Index]
-            if (WinGetMinMax(winId) = -1) {
-                WinRestore(winId)
+        ids := WinGetList()
+        for hwnd in ids {
+            if (WinGetMinMax("ahk_id " . hwnd) = -1) {
+                WinRestore("ahk_id " . hwnd)
             }
         }
-        this.RefreshWindows()
+        WindowManagerPro.AppendLog("All windows restored.")
+        WindowManagerPro.RefreshWindows()
     }
-    
-    static AddToHistory(winId) {
-        this.windowHistory.Push(winId)
-        if (this.windowHistory.Length > 10) {
-            this.windowHistory.RemoveAt(1)
+
+    static PushHistory(hwnd, action) {
+        WindowManagerPro.history.Push(Map("id", hwnd, "action", action, "time", A_Now))
+        if (WindowManagerPro.history.Length > 20) {
+            WindowManagerPro.history.RemoveAt(1)
         }
+    }
+
+    static ShowHistory(*) {
+        if (WindowManagerPro.history.Length = 0) {
+            WindowManagerPro.UpdateStatus("No snap history available.")
+            return
+        }
+        summary := ""
+        for entry in WindowManagerPro.history.Clone().Reverse() {
+            when := FormatTime(entry.time, "HH:mm:ss")
+            summary .= when . " -> " . entry.action . "`n"
+        }
+        A_Clipboard := summary
+        WindowManagerPro.UpdateStatus("Snap history copied to clipboard.")
+        ToolTip("Snap history copied to clipboard.")
+        SetTimer(() => ToolTip(), -1500)
     }
 }
-
-; Hotkeys
-#Hotkey("Left", (*) => WindowManager.SnapWindow("left")
-#Hotkey("Right", (*) => WindowManager.SnapWindow("right")
-#Hotkey("Up", (*) => WindowManager.SnapWindow("top")
-#Hotkey("Down", (*) => WindowManager.SnapWindow("bottom")
-#Hotkey("Space", (*) => WindowManager.Init()
-#Hotkey("Tab", (*) => WindowManager.GridLayout()
-
-; Initialize
-WindowManager.Init()
+WindowManagerPro.Init()
 

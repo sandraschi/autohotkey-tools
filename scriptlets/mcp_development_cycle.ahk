@@ -1,578 +1,410 @@
-; ==============================================================================
-; MCP Development Cycle
-; @name: MCP Development Cycle
-; @version: 1.0.0
-; @description: Orchestrate complete MCP development workflow from idea to deployment. Manages the full development lifecycle for MCP servers with phase tracking and automation.
-; @description: Features phase management (planning, development, testing, deployment), progress tracking, automated commands, and workflow orchestration. Supports skipping phases, resetting progress, and comprehensive development oversight.
-; @description: Essential tool for MCP developers who need structured workflow management and automated development cycle tracking from initial concept to production deployment.
-; @category: development
-; @author: Sandra
-; @hotkeys: ^!d, Ctrl+F12
-; @enabled: true
-; @priority: 5
-; @tag: mcp, development, workflow, automation, lifecycle, orchestration, productivity
-; @cli: --phase <num> - Jump to specific development phase
-; @cli: --skip - Skip current phase
-; @cli: --reset - Reset all phases to initial state
-; @cli: --help - Show CLI usage and workflow options
-; @dependencies: 
-; ==============================================================================
-
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
 
-
-; Suppress error popups - log to file instead
-OnError(LogError)
-
-LogError(Thrown, Mode) {
-    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
-    FileAppend(errorMsg, "mcp_development_cycle_errors.log", "UTF-8")
-    OutputDebug(errorMsg)  ; Enable LLM debugging
-    return 1  ; Suppress popup (1 = suppress, 0 = show)
-}
-
+OnError(MCPDevelopmentCycle.HandleError)
 
 class MCPDevelopmentCycle {
-    static projectDir := ""
-    static currentPhase := 1
     static phases := []
-    
+    static gui := ""
+    static phaseList := ""
+    static detailEdit := ""
+    static logEdit := ""
+    static statusBar := ""
+    static projectNameEdit := ""
+    static descriptionEdit := ""
+    static projectRoot := A_ScriptDir . "\mcp_projects"
+    static logFile := A_ScriptDir . "\mcp_development_cycle.log"
+    static hotkeysRegistered := false
+
     static Init() {
-        this.projectDir := A_ScriptDir . "\mcp_projects"
-        this.InitializePhases()
-        this.CreateGUI()
-    }
-    
-    static InitializePhases() {
-        this.phases := [
-            {
-                name: "Phase 1: Planning",
-                description: "Define requirements and architecture",
-                tasks: [
-                    "Define MCP server purpose and scope",
-                    "Identify required tools and capabilities", 
-                    "Plan data models and interfaces",
-                    "Create project structure",
-                    "Set up development environment"
-                ],
-                status: "pending"
-            },
-            {
-                name: "Phase 2: Development",
-                description: "Implement core functionality",
-                tasks: [
-                    "Create main server file with FastMCP",
-                    "Implement tool registration",
-                    "Add error handling and validation",
-                    "Create configuration management",
-                    "Add logging and monitoring"
-                ],
-                status: "pending"
-            },
-            {
-                name: "Phase 3: Testing",
-                description: "Validate functionality and performance",
-                tasks: [
-                    "Unit test individual tools",
-                    "Integration test with Claude Desktop",
-                    "Performance testing and optimization",
-                    "Error scenario testing",
-                    "User acceptance testing"
-                ],
-                status: "pending"
-            },
-            {
-                name: "Phase 4: Deployment",
-                description: "Package and deploy MCP server",
-                tasks: [
-                    "Create deployment package",
-                    "Update Claude Desktop configuration",
-                    "Deploy to target environment",
-                    "Monitor initial usage",
-                    "Document deployment process"
-                ],
-                status: "pending"
-            },
-            {
-                name: "Phase 5: Maintenance",
-                description: "Ongoing support and improvements",
-                tasks: [
-                    "Monitor server performance",
-                    "Collect user feedback",
-                    "Plan feature enhancements",
-                    "Handle bug reports",
-                    "Update documentation"
-                ],
-                status: "pending"
-            }
-        ]
-    }
-    
-    static CreateGUI() {
-        gui := Gui("+Resize +MinSize1000x800", "MCP Development Cycle")
-        gui.BackColor := "1a1a1a"
-        gui.SetFont("s10 cFFFFFF", "Segoe UI")
-        
-        ; Title
-        gui.Add("Text", "x20 y20 w960 Center Bold", "🚀 MCP Development Cycle")
-        gui.Add("Text", "x20 y50 w960 Center ", "Orchestrate complete MCP development workflow from idea to deployment")
-        
-        ; Project section
-        gui.Add("Text", "x20 y90 w960 Bold", "📋 Project Information")
-        
-        ; Project name
-        gui.Add("Text", "x20 y120 w150", "Project Name:")
-        projectNameEdit := gui.Add("Edit", "x180 y115 w300 h25", "my-mcp-project")
-        
-        ; Project description
-        gui.Add("Text", "x500 y120 w150", "Description:")
-        descriptionEdit := gui.Add("Edit", "x660 y115 w300 h25", "A comprehensive MCP server")
-        
-        ; Project directory
-        gui.Add("Text", "x20 y155 w150", "Project Directory:")
-        gui.Add("Text", "x180 y155 w780 ", this.projectDir . "\my-mcp-project")
-        
-        ; Development phases
-        gui.Add("Text", "x20 y190 w960 Bold", "🔄 Development Phases")
-        
-        ; Phase list
-        phaseList := gui.Add("ListBox", "x20 y220 w400 h400")
-        
-        ; Phase details
-        gui.Add("Text", "x440 y220 w540 Bold", "Phase Details")
-        phaseDetailsEdit := gui.Add("Edit", "x440 y250 w540 h200 ReadOnly Multi VScroll", "")
-        phaseDetailsEdit.BackColor := "2d2d2d"
-        
-        ; Phase controls
-        gui.Add("Button", "x440 y460 w150 h40", "▶️ Start Phase").OnEvent("Click", this.StartPhase.Bind(this))
-        gui.Add("Button", "x610 y460 w150 h40", "✅ Complete Phase").OnEvent("Click", this.CompletePhase.Bind(this))
-        gui.Add("Button", "x780 y460 w150 h40", "⏭️ Skip Phase").OnEvent("Click", this.SkipPhase.Bind(this))
-        gui.Add("Button", "x440 y510 w150 h40", "🔄 Reset Phase").OnEvent("Click", this.ResetPhase.Bind(this))
-        gui.Add("Button", "x610 y510 w150 h40", "📋 Generate Tasks").OnEvent("Click", this.GenerateTasks.Bind(this))
-        gui.Add("Button", "x780 y510 w150 h40", "📊 Phase Report").OnEvent("Click", this.PhaseReport.Bind(this))
-        
-        ; Workflow controls
-        gui.Add("Text", "x20 y640 w960 Bold", "🎯 Workflow Controls")
-        
-        gui.Add("Button", "x20 y670 w200 h50", "🚀 Start Development").OnEvent("Click", this.StartDevelopment.Bind(this))
-        gui.Add("Button", "x240 y670 w200 h50", "⏸️ Pause Development").OnEvent("Click", this.PauseDevelopment.Bind(this))
-        gui.Add("Button", "x460 y670 w200 h50", "🔄 Reset All Phases").OnEvent("Click", this.ResetAllPhases.Bind(this))
-        gui.Add("Button", "x680 y670 w200 h50", "📈 Progress Report").OnEvent("Click", this.ProgressReport.Bind(this))
-        
-        ; Status
-        gui.Add("Text", "x20 y730 w960 Center ", "Hotkeys: Ctrl+Alt+D (Start Development) | Ctrl+F12 (Progress Report) | Select phase to view details")
-        
-        ; Store references
-        gui.projectNameEdit := projectNameEdit
-        gui.descriptionEdit := descriptionEdit
-        gui.phaseList := phaseList
-        gui.phaseDetailsEdit := phaseDetailsEdit
-        
-        ; Populate phase list
-        this.PopulatePhaseList(gui)
-        
-        ; Set up hotkeys
-        this.SetupHotkeys(gui)
-        
-        gui.Show("w1000 h800")
-    }
-    
-    static PopulatePhaseList(gui) {
-        phaseText := ""
-        for i, phase in this.phases {
-            statusIcon := phase.status = "completed" ? "✅" : (phase.status = "in_progress" ? "🔄" : "⏳")
-            phaseText .= statusIcon . " " . phase.name . "`n"
+        MCPDevelopmentCycle.AppendLog("Initializing MCP Development Cycle")
+        MCPDevelopmentCycle.BuildPhaseModel()
+        if (!MCPDevelopmentCycle.gui) {
+            MCPDevelopmentCycle.CreateGui()
+            MCPDevelopmentCycle.SetupHotkeys()
         }
-        gui.phaseList.Text := phaseText
+        MCPDevelopmentCycle.RefreshPhaseList()
+        MCPDevelopmentCycle.gui.Show("w1020 h860 Center")
+        MCPDevelopmentCycle.statusBar.SetText("Ready. Press Ctrl+Alt+D to start the development cycle.")
     }
-    
+
+    static HandleError(Thrown, Mode) {
+        scriptName := HasProp(Thrown, "File") ? Thrown.File : A_ScriptFullPath
+        lineInfo := HasProp(Thrown, "Line") ? " line " . Thrown.Line : ""
+        message := "Error in " . scriptName . lineInfo . ": " . Thrown.Message
+        MCPDevelopmentCycle.AppendLog(message)
+        return 1
+    }
+
+    static AppendLog(message) {
+        timestamp := ""
+        timestamp := FormatTime(, "yyyy-MM-dd HH:mm:ss")
+        entry := "[" . timestamp . "] " . message
+        try {
+            FileAppend(entry . "`n", MCPDevelopmentCycle.logFile, "UTF-8")
+        } catch {
+        }
+        if (MCPDevelopmentCycle.logEdit) {
+            MCPDevelopmentCycle.logEdit.Value .= entry . "`n"
+            MCPDevelopmentCycle.logEdit.Redraw()
+        }
+        OutputDebug(entry)
+    }
+
+    static BuildPhaseModel() {
+        phases := []
+        phases.Push(MCPDevelopmentCycle.CreatePhase("Phase 1: Planning", "Define requirements and architecture", [
+            "Gather MCP server requirements",
+            "Outline server architecture and interfaces",
+            "List required FastMCP tools",
+            "Prepare project repository",
+            "Confirm Claude Desktop integration plan"
+        ]))
+        phases.Push(MCPDevelopmentCycle.CreatePhase("Phase 2: Development", "Implement core functionality", [
+            "Bootstrap FastMCP server",
+            "Register tool handlers",
+            "Implement error handling and validation",
+            "Add configuration management",
+            "Create logging and observability hooks"
+        ]))
+        phases.Push(MCPDevelopmentCycle.CreatePhase("Phase 3: Testing", "Validate behaviour and performance", [
+            "Unit test each tool",
+            "Run integration tests with Claude Desktop",
+            "Exercise error scenarios",
+            "Capture performance metrics",
+            "Document test evidence"
+        ]))
+        phases.Push(MCPDevelopmentCycle.CreatePhase("Phase 4: Deployment", "Package and release server", [
+            "Build deployment artefacts",
+            "Update Claude Desktop MCP configuration",
+            "Deploy to staging/production environment",
+            "Verify deployment health",
+            "Prepare release notes"
+        ]))
+        phases.Push(MCPDevelopmentCycle.CreatePhase("Phase 5: Maintenance", "Sustain and evolve server", [
+            "Monitor telemetry and logs",
+            "Capture user feedback",
+            "Plan enhancements",
+            "Triaging bug reports",
+            "Refresh documentation"
+        ]))
+        MCPDevelopmentCycle.phases := phases
+    }
+
+    static CreatePhase(name, description, tasks) {
+        return Map(
+            "name", name,
+            "description", description,
+            "tasks", tasks,
+            "status", "pending",
+            "started", "",
+            "completed", ""
+        )
+    }
+
+    static CreateGui() {
+        newGui := Gui("+Resize +MinSize1020x760", "MCP Development Cycle")
+        newGui.BackColor := "1b1b1b"
+        newGui.SetFont("s10 cFFFFFF", "Segoe UI")
+
+        newGui.AddText("x20 y20 w980 Center Bold", "🚀 MCP Development Cycle")
+        newGui.AddText("x20 y48 w980 Center cC0C0C0", "Guide MCP projects from planning through maintenance with structured phases and logging.")
+
+        newGui.AddText("x20 y90 w980 Bold", "Project Overview")
+        newGui.AddText("x20 y118 w120", "Project Name:")
+        projectName := newGui.AddEdit("x150 y112 w280 h26", "my-mcp-project")
+        newGui.AddText("x460 y118 w120", "Description:")
+        description := newGui.AddEdit("x590 y112 w410 h26", "Comprehensive MCP server")
+
+        newGui.AddText("x20 y150 w980", "Project Root: " . MCPDevelopmentCycle.projectRoot)
+
+        newGui.AddText("x20 y188 w420 Bold", "Development Phases")
+        phaseList := newGui.AddListView("x20 y216 w420 h360 -Hdr", ["Phase", "Status"])
+        phaseList.OnEvent("ItemSelect", MCPDevelopmentCycle.OnPhaseSelected)
+        MCPDevelopmentCycle.phaseList := phaseList
+
+        newGui.AddText("x460 y188 w540 Bold", "Phase Details")
+        detailEdit := newGui.AddEdit("x460 y216 w540 h360 ReadOnly Multi VScroll", "")
+        detailEdit.BackColor := "262626"
+        detailEdit.SetFont("s10", "Consolas")
+        MCPDevelopmentCycle.detailEdit := detailEdit
+
+        btnStart := newGui.AddButton("x20 y594 w200 h40", "▶️ Start Phase")
+        btnStart.OnEvent("Click", MCPDevelopmentCycle.StartPhase)
+        btnComplete := newGui.AddButton("x230 y594 w200 h40", "✅ Complete Phase")
+        btnComplete.OnEvent("Click", MCPDevelopmentCycle.CompletePhase)
+        btnSkip := newGui.AddButton("x440 y594 w200 h40", "⏭️ Skip Phase")
+        btnSkip.OnEvent("Click", MCPDevelopmentCycle.SkipPhase)
+        btnReset := newGui.AddButton("x650 y594 w200 h40", "🔄 Reset Phase")
+        btnReset.OnEvent("Click", MCPDevelopmentCycle.ResetPhase)
+        btnReport := newGui.AddButton("x860 y594 w140 h40", "📊 Phase Report")
+        btnReport.OnEvent("Click", MCPDevelopmentCycle.ShowPhaseReport)
+
+        newGui.AddText("x20 y646 w980 Bold", "Workflow Controls")
+        btnDevStart := newGui.AddButton("x20 y676 w230 h44", "🚀 Start Development")
+        btnDevStart.OnEvent("Click", MCPDevelopmentCycle.StartDevelopment)
+        btnPause := newGui.AddButton("x260 y676 w230 h44", "⏸️ Pause Development")
+        btnPause.OnEvent("Click", MCPDevelopmentCycle.PauseDevelopment)
+        btnResetAll := newGui.AddButton("x500 y676 w230 h44", "♻️ Reset All Phases")
+        btnResetAll.OnEvent("Click", MCPDevelopmentCycle.ResetAllPhases)
+        btnProgress := newGui.AddButton("x740 y676 w230 h44", "📈 Progress Report")
+        btnProgress.OnEvent("Click", MCPDevelopmentCycle.ShowProgressReport)
+
+        newGui.AddText("x20 y730 w980 Bold", "Activity Log")
+        logEdit := newGui.AddEdit("x20 y758 w980 h120 ReadOnly VScroll", "")
+        logEdit.BackColor := "242424"
+        logEdit.SetFont("s9", "Consolas")
+        MCPDevelopmentCycle.logEdit := logEdit
+
+        status := newGui.AddStatusBar("Simple")
+        status.SetText("Ready")
+        MCPDevelopmentCycle.statusBar := status
+
+        MCPDevelopmentCycle.projectNameEdit := projectName
+        MCPDevelopmentCycle.descriptionEdit := description
+
+        newGui.OnEvent("Close", MCPDevelopmentCycle.HideGui)
+        newGui.OnEvent("Escape", MCPDevelopmentCycle.HideGui)
+        newGui.OnEvent("Size", MCPDevelopmentCycle.OnResize)
+        MCPDevelopmentCycle.gui := newGui
+    }
+
+    static SetupHotkeys() {
+        if (MCPDevelopmentCycle.hotkeysRegistered) {
+            return
+        }
+        Hotkey("^!d", MCPDevelopmentCycle.StartDevelopment)
+        Hotkey("^F12", MCPDevelopmentCycle.ShowProgressReport)
+        Hotkey("F9", MCPDevelopmentCycle.HideGui)
+        Hotkey("Escape", MCPDevelopmentCycle.HideGui)
+        MCPDevelopmentCycle.hotkeysRegistered := true
+    }
+
+    static OnResize(gui, minMax, width, height) {
+        if (!MCPDevelopmentCycle.gui) {
+            return
+        }
+        padding := 20
+        phaseWidth := 420
+        listHeight := height - 320
+        MCPDevelopmentCycle.phaseList.Move(padding, 216, phaseWidth, listHeight)
+        MCPDevelopmentCycle.detailEdit.Move(padding + phaseWidth + 20, 216, width - phaseWidth - (padding * 2) - 20, listHeight)
+        MCPDevelopmentCycle.logEdit.Move(padding, height - 140, width - padding * 2, 110)
+    }
+
+    static RefreshPhaseList() {
+        if (!MCPDevelopmentCycle.phaseList) {
+            return
+        }
+        MCPDevelopmentCycle.phaseList.Delete()
+        for phase in MCPDevelopmentCycle.phases {
+            status := phase["status"]
+            symbol := status = "completed" ? "✅" : (status = "in_progress" ? "🔄" : "⏳")
+            MCPDevelopmentCycle.phaseList.Add(, phase["name"], symbol . " " . status)
+        }
+        MCPDevelopmentCycle.phaseList.ModifyCol()
+    }
+
+    static OnPhaseSelected(*) {
+        MCPDevelopmentCycle.UpdateDetails()
+    }
+
+    static UpdateDetails() {
+        row := MCPDevelopmentCycle.phaseList.GetNext()
+        if (row = 0) {
+            MCPDevelopmentCycle.detailEdit.Value := "Select a phase to view details."
+            return
+        }
+        phase := MCPDevelopmentCycle.phases[row]
+        text := "Phase: " . phase["name"] . "`n"
+        text .= "Status: " . phase["status"] . "`n"
+        if (phase["started"]) {
+            text .= "Started: " . phase["started"] . "`n"
+        }
+        if (phase["completed"]) {
+            text .= "Completed: " . phase["completed"] . "`n"
+        }
+        text .= "`nDescription:`n" . phase["description"] . "`n`nTasks:`n"
+        for index, task in phase["tasks"] {
+            text .= index . ". " . task . "`n"
+        }
+        MCPDevelopmentCycle.detailEdit.Value := text
+    }
+
     static StartPhase(*) {
-        try {
-            selectedPhase := this.GetSelectedPhase()
-            if (selectedPhase = 0) {
-                MsgBox("Please select a phase to start.", "No Phase Selected", "Icon!")
-                return
-            }
-            
-            phase := this.phases[selectedPhase]
-            phase.status := "in_progress"
-            this.currentPhase := selectedPhase
-            
-            ; Update GUI
-            this.PopulatePhaseList(GuiFromHwnd(WinGetID("MCP Development Cycle")))
-            this.UpdatePhaseDetails(GuiFromHwnd(WinGetID("MCP Development Cycle")))
-            
-            ; Show phase start message
-            startText := "🚀 Starting Phase: " . phase.name . "`n`n"
-            startText .= "Description: " . phase.description . "`n`n"
-            startText .= "Tasks to complete:`n"
-            for task in phase.tasks {
-                startText .= "• " . task . "`n"
-            }
-            startText .= "`nPress Complete Phase when finished."
-            
-            MsgBox(startText, "Phase Started", "Iconi")
-            
-        } catch as e {
-            MsgBox("Error starting phase: " . e.Message, "Error", "Iconx")
+        row := MCPDevelopmentCycle.GetSelectedRow()
+        if (row = 0) {
+            MsgBox("Select a phase first.", "MCP Development Cycle", "Icon!")
+            return
         }
+        phase := MCPDevelopmentCycle.phases[row]
+        phase["status"] := "in_progress"
+        phase["started"] := FormatTime(, "yyyy-MM-dd HH:mm")
+        MCPDevelopmentCycle.AppendLog("Phase started: " . phase["name"])
+        MCPDevelopmentCycle.RefreshPhaseList()
+        MCPDevelopmentCycle.UpdateDetails()
     }
-    
+
     static CompletePhase(*) {
-        try {
-            selectedPhase := this.GetSelectedPhase()
-            if (selectedPhase = 0) {
-                MsgBox("Please select a phase to complete.", "No Phase Selected", "Icon!")
-                return
-            }
-            
-            phase := this.phases[selectedPhase]
-            phase.status := "completed"
-            
-            ; Update GUI
-            this.PopulatePhaseList(GuiFromHwnd(WinGetID("MCP Development Cycle")))
-            
-            ; Show completion message
-            completionText := "✅ Phase Completed: " . phase.name . "`n`n"
-            completionText .= "Great work! This phase has been marked as complete.`n`n"
-            
-            ; Check if there's a next phase
-            if (selectedPhase < this.phases.Length) {
-                nextPhase := this.phases[selectedPhase + 1]
-                completionText .= "Next phase: " . nextPhase.name . "`n"
-                completionText .= "Description: " . nextPhase.description
-            } else {
-                completionText .= "🎉 All phases completed! Your MCP development cycle is finished."
-            }
-            
-            MsgBox(completionText, "Phase Completed", "Iconi")
-            
-        } catch as e {
-            MsgBox("Error completing phase: " . e.Message, "Error", "Iconx")
+        row := MCPDevelopmentCycle.GetSelectedRow()
+        if (row = 0) {
+            MsgBox("Select a phase first.", "MCP Development Cycle", "Icon!")
+            return
         }
+        phase := MCPDevelopmentCycle.phases[row]
+        phase["status"] := "completed"
+        phase["completed"] := FormatTime(, "yyyy-MM-dd HH:mm")
+        MCPDevelopmentCycle.AppendLog("Phase completed: " . phase["name"])
+        MCPDevelopmentCycle.RefreshPhaseList()
+        MCPDevelopmentCycle.UpdateDetails()
     }
-    
+
     static SkipPhase(*) {
-        try {
-            selectedPhase := this.GetSelectedPhase()
-            if (selectedPhase = 0) {
-                MsgBox("Please select a phase to skip.", "No Phase Selected", "Icon!")
-                return
-            }
-            
-            result := MsgBox("Are you sure you want to skip this phase?`n`nThis will mark it as completed without doing the work.", "Confirm Skip", "Icon? YesNo")
-            if (result = "Yes") {
-                phase := this.phases[selectedPhase]
-                phase.status := "completed"
-                
-                ; Update GUI
-                this.PopulatePhaseList(GuiFromHwnd(WinGetID("MCP Development Cycle")))
-                
-                MsgBox("Phase skipped successfully.", "Phase Skipped", "Iconi")
-            }
-            
-        } catch as e {
-            MsgBox("Error skipping phase: " . e.Message, "Error", "Iconx")
+        row := MCPDevelopmentCycle.GetSelectedRow()
+        if (row = 0) {
+            MsgBox("Select a phase first.", "MCP Development Cycle", "Icon!")
+            return
         }
+        confirm := MsgBox("Skip this phase and mark it completed?", "MCP Development Cycle", "Icon? YesNo")
+        if (confirm != "Yes") {
+            return
+        }
+        phase := MCPDevelopmentCycle.phases[row]
+        phase["status"] := "completed"
+        phase["completed"] := FormatTime(, "yyyy-MM-dd HH:mm")
+        MCPDevelopmentCycle.AppendLog("Phase skipped and marked complete: " . phase["name"])
+        MCPDevelopmentCycle.RefreshPhaseList()
+        MCPDevelopmentCycle.UpdateDetails()
     }
-    
+
     static ResetPhase(*) {
-        try {
-            selectedPhase := this.GetSelectedPhase()
-            if (selectedPhase = 0) {
-                MsgBox("Please select a phase to reset.", "No Phase Selected", "Icon!")
-                return
-            }
-            
-            result := MsgBox("Are you sure you want to reset this phase?`n`nThis will mark it as pending and clear any progress.", "Confirm Reset", "Icon? YesNo")
-            if (result = "Yes") {
-                phase := this.phases[selectedPhase]
-                phase.status := "pending"
-                
-                ; Update GUI
-                this.PopulatePhaseList(GuiFromHwnd(WinGetID("MCP Development Cycle")))
-                
-                MsgBox("Phase reset successfully.", "Phase Reset", "Iconi")
-            }
-            
-        } catch as e {
-            MsgBox("Error resetting phase: " . e.Message, "Error", "Iconx")
+        row := MCPDevelopmentCycle.GetSelectedRow()
+        if (row = 0) {
+            MsgBox("Select a phase first.", "MCP Development Cycle", "Icon!")
+            return
         }
-    }
-    
-    static GenerateTasks(*) {
-        try {
-            selectedPhase := this.GetSelectedPhase()
-            if (selectedPhase = 0) {
-                MsgBox("Please select a phase to generate tasks for.", "No Phase Selected", "Icon!")
-                return
-            }
-            
-            phase := this.phases[selectedPhase]
-            
-            ; Generate detailed task breakdown
-            taskText := "📋 Detailed Tasks for " . phase.name . "`n`n"
-            taskText .= "Description: " . phase.description . "`n`n"
-            taskText .= "Task Breakdown:`n`n"
-            
-            for i, task in phase.tasks {
-                taskText .= (i) . ". " . task . "`n"
-                taskText .= "   Status: Not Started`n"
-                taskText .= "   Estimated Time: 30-60 minutes`n"
-                taskText .= "   Dependencies: None`n`n"
-            }
-            
-            taskText .= "Additional Recommendations:`n"
-            taskText .= "• Use version control (Git) for all code changes`n"
-            taskText .= "• Document all decisions and changes`n"
-            taskText .= "• Test frequently during development`n"
-            taskText .= "• Keep Claude Desktop configuration updated`n"
-            
-            MsgBox(taskText, "Generated Tasks", "Iconi")
-            
-        } catch as e {
-            MsgBox("Error generating tasks: " . e.Message, "Error", "Iconx")
+        confirm := MsgBox("Reset this phase to pending?", "MCP Development Cycle", "Icon? YesNo")
+        if (confirm != "Yes") {
+            return
         }
+        phase := MCPDevelopmentCycle.phases[row]
+        phase["status"] := "pending"
+        phase["started"] := ""
+        phase["completed"] := ""
+        MCPDevelopmentCycle.AppendLog("Phase reset: " . phase["name"])
+        MCPDevelopmentCycle.RefreshPhaseList()
+        MCPDevelopmentCycle.UpdateDetails()
     }
-    
-    static PhaseReport(*) {
-        try {
-            selectedPhase := this.GetSelectedPhase()
-            if (selectedPhase = 0) {
-                MsgBox("Please select a phase to generate report for.", "No Phase Selected", "Icon!")
-                return
-            }
-            
-            phase := this.phases[selectedPhase]
-            
-            reportText := "📊 Phase Report: " . phase.name . "`n`n"
-            reportText .= "Status: " . phase.status . "`n"
-            reportText .= "Description: " . phase.description . "`n`n"
-            reportText .= "Tasks (" . phase.tasks.Length . " total):`n"
-            
-            for i, task in phase.tasks {
-                reportText .= "• " . task . "`n"
-            }
-            
-            reportText .= "`nPhase Metrics:`n"
-            reportText .= "• Total Tasks: " . phase.tasks.Length . "`n"
-            reportText .= "• Estimated Duration: 2-4 hours`n"
-            reportText .= "• Complexity: Medium`n"
-            reportText .= "• Dependencies: Previous phases`n"
-            
-            MsgBox(reportText, "Phase Report", "Iconi")
-            
-        } catch as e {
-            MsgBox("Error generating phase report: " . e.Message, "Error", "Iconx")
+
+    static ShowPhaseReport(*) {
+        row := MCPDevelopmentCycle.GetSelectedRow()
+        if (row = 0) {
+            MsgBox("Select a phase first.", "MCP Development Cycle", "Icon!")
+            return
         }
+        phase := MCPDevelopmentCycle.phases[row]
+        report := "📊 Phase Report`n`n"
+        report .= "Name: " . phase["name"] . "`n"
+        report .= "Status: " . phase["status"] . "`n"
+        if (phase["started"]) {
+            report .= "Started: " . phase["started"] . "`n"
+        }
+        if (phase["completed"]) {
+            report .= "Completed: " . phase["completed"] . "`n"
+        }
+        report .= "`nTasks:`n"
+        for task in phase["tasks"] {
+            report .= "• " . task . "`n"
+        }
+        MsgBox(report, "MCP Development Cycle", "Iconi")
     }
-    
+
     static StartDevelopment(*) {
-        try {
-            projectName := GuiFromHwnd(WinGetID("MCP Development Cycle")).projectNameEdit.Text
-            description := GuiFromHwnd(WinGetID("MCP Development Cycle")).descriptionEdit.Text
-            
-            if (projectName = "") {
-                MsgBox("Please enter a project name.", "No Project Name", "Icon!")
-                return
-            }
-            
-            ; Create project directory
-            projectPath := this.projectDir . "\" . projectName
-            if (!DirExist(projectPath)) {
-                DirCreate(projectPath)
-            }
-            
-            ; Start with Phase 1
-            this.phases[1].status := "in_progress"
-            this.currentPhase := 1
-            
-            ; Update GUI
-            this.PopulatePhaseList(GuiFromHwnd(WinGetID("MCP Development Cycle")))
-            
-            startText := "🚀 MCP Development Started!`n`n"
-            startText .= "Project: " . projectName . "`n"
-            startText .= "Description: " . description . "`n"
-            startText .= "Location: " . projectPath . "`n`n"
-            startText .= "Starting with Phase 1: Planning`n"
-            startText .= "Select the phase in the list to view details and begin work."
-            
-            MsgBox(startText, "Development Started", "Iconi")
-            
-        } catch as e {
-            MsgBox("Error starting development: " . e.Message, "Error", "Iconx")
+        name := MCPDevelopmentCycle.projectNameEdit.Value
+        if (Trim(name) = "") {
+            MsgBox("Enter a project name before starting.", "MCP Development Cycle", "Icon!")
+            return
         }
+        target := MCPDevelopmentCycle.projectRoot . "\" . name
+        try {
+            if (!DirExist(MCPDevelopmentCycle.projectRoot)) {
+                DirCreate(MCPDevelopmentCycle.projectRoot)
+            }
+            if (!DirExist(target)) {
+                DirCreate(target)
+            }
+        } catch as e {
+            MsgBox("Failed to prepare project directory: " . e.Message, "MCP Development Cycle", "Iconx")
+            return
+        }
+        MCPDevelopmentCycle.phases[1]["status"] := "in_progress"
+        MCPDevelopmentCycle.phases[1]["started"] := FormatTime(, "yyyy-MM-dd HH:mm")
+        MCPDevelopmentCycle.RefreshPhaseList()
+        MCPDevelopmentCycle.phaseList.Modify(1, "Select")
+        MCPDevelopmentCycle.UpdateDetails()
+        TrayTip("MCP Development Cycle", "Development cycle started")
+        MCPDevelopmentCycle.AppendLog("Development cycle started for project " . name)
+        MCPDevelopmentCycle.statusBar.SetText("Development cycle in progress for " . name)
     }
-    
+
     static PauseDevelopment(*) {
-        try {
-            pauseText := "⏸️ Development Paused`n`n"
-            pauseText .= "Current phase: " . this.phases[this.currentPhase].name . "`n"
-            pauseText .= "Status: " . this.phases[this.currentPhase].status . "`n`n"
-            pauseText .= "You can resume development at any time by selecting`n"
-            pauseText .= "the current phase and continuing with tasks."
-            
-            MsgBox(pauseText, "Development Paused", "Iconi")
-            
-        } catch as e {
-            MsgBox("Error pausing development: " . e.Message, "Error", "Iconx")
-        }
+        row := MCPDevelopmentCycle.GetSelectedRow()
+        phaseName := row ? MCPDevelopmentCycle.phases[row]["name"] : "(none selected)"
+        MsgBox("Development paused." . "`nCurrent focus: " . phaseName, "MCP Development Cycle", "Iconi")
+        MCPDevelopmentCycle.AppendLog("Development paused at phase " . phaseName)
     }
-    
+
     static ResetAllPhases(*) {
-        try {
-            result := MsgBox("Are you sure you want to reset ALL phases?`n`nThis will mark all phases as pending and clear all progress.", "Confirm Reset All", "Icon? YesNo")
-            if (result = "Yes") {
-                for phase in this.phases {
-                    phase.status := "pending"
-                }
-                this.currentPhase := 1
-                
-                ; Update GUI
-                this.PopulatePhaseList(GuiFromHwnd(WinGetID("MCP Development Cycle")))
-                
-                MsgBox("All phases reset successfully.", "All Phases Reset", "Iconi")
-            }
-            
-        } catch as e {
-            MsgBox("Error resetting all phases: " . e.Message, "Error", "Iconx")
+        confirm := MsgBox("Reset all phases to pending?", "MCP Development Cycle", "Icon? YesNo")
+        if (confirm != "Yes") {
+            return
         }
-    }
-    
-    static ProgressReport(*) {
-        try {
-            completedPhases := 0
-            inProgressPhases := 0
-            pendingPhases := 0
-            
-            for phase in this.phases {
-                switch phase.status {
-                    case "completed": completedPhases++
-                    case "in_progress": inProgressPhases++
-                    case "pending": pendingPhases++
-                }
-            }
-            
-            totalPhases := this.phases.Length
-            progressPercent := Round((completedPhases / totalPhases) * 100)
-            
-            reportText := "📈 MCP Development Progress Report`n`n"
-            reportText .= "Overall Progress: " . progressPercent . "%`n`n"
-            reportText .= "Phase Status:`n"
-            reportText .= "✅ Completed: " . completedPhases . "`n"
-            reportText .= "🔄 In Progress: " . inProgressPhases . "`n"
-            reportText .= "⏳ Pending: " . pendingPhases . "`n`n"
-            
-            if (this.currentPhase <= totalPhases) {
-                currentPhase := this.phases[this.currentPhase]
-                reportText .= "Current Phase: " . currentPhase.name . "`n"
-                reportText .= "Status: " . currentPhase.status . "`n`n"
-            }
-            
-            reportText .= "Next Steps:`n"
-            if (inProgressPhases > 0) {
-                reportText .= "• Complete current phase tasks`n"
-            } else if (pendingPhases > 0) {
-                reportText .= "• Start next pending phase`n"
-            } else {
-                reportText .= "• 🎉 All phases completed!`n"
-            }
-            
-            MsgBox(reportText, "Progress Report", "Iconi")
-            
-        } catch as e {
-            MsgBox("Error generating progress report: " . e.Message, "Error", "Iconx")
+        for phase in MCPDevelopmentCycle.phases {
+            phase["status"] := "pending"
+            phase["started"] := ""
+            phase["completed"] := ""
         }
+        MCPDevelopmentCycle.RefreshPhaseList()
+        MCPDevelopmentCycle.detailEdit.Value := "Phases reset. Select a phase to view details."
+        MCPDevelopmentCycle.AppendLog("All phases reset to pending")
     }
-    
-    static GetSelectedPhase() {
-        try {
-            if (WinExist("MCP Development Cycle")) {
-                gui := GuiFromHwnd(WinGetID("MCP Development Cycle"))
-                selectedText := gui.phaseList.Text
-                
-                ; Find which phase is selected (simplified)
-                for i, phase in this.phases {
-                    if (InStr(selectedText, phase.name)) {
-                        return i
-                    }
-                }
+
+    static ShowProgressReport(*) {
+        total := MCPDevelopmentCycle.phases.Length
+        completed := 0
+        inProgress := 0
+        for phase in MCPDevelopmentCycle.phases {
+            switch phase["status"] {
+                case "completed": completed += 1
+                case "in_progress": inProgress += 1
             }
-        } catch {
-            ; Handle error
         }
-        return 0
+        pending := total - completed - inProgress
+        percent := total ? Round((completed / total) * 100) : 0
+        report := "📈 MCP Development Progress`n`n"
+        report .= "Completed: " . completed . "`n"
+        report .= "In Progress: " . inProgress . "`n"
+        report .= "Pending: " . pending . "`n"
+        report .= "Overall Progress: " . percent . "%"
+        MsgBox(report, "MCP Development Cycle", "Iconi")
+        MCPDevelopmentCycle.AppendLog("Progress report viewed")
     }
-    
-    static UpdatePhaseDetails(gui) {
-        try {
-            selectedPhase := this.GetSelectedPhase()
-            if (selectedPhase > 0) {
-                phase := this.phases[selectedPhase]
-                
-                detailsText := "Phase: " . phase.name . "`n"
-                detailsText .= "Status: " . phase.status . "`n"
-                detailsText .= "Description: " . phase.description . "`n`n"
-                detailsText .= "Tasks:`n"
-                
-                for i, task in phase.tasks {
-                    detailsText .= (i) . ". " . task . "`n"
-                }
-                
-                gui.phaseDetailsEdit.Text := detailsText
-            }
-        } catch {
-            ; Handle error
-        }
+
+    static GetSelectedRow() {
+        row := MCPDevelopmentCycle.phaseList.GetNext()
+        return row
     }
-    
-    static ShowHelp(*) {
-        helpText := "🚀 MCP Development Cycle Help`n`n"
-        helpText .= "This tool orchestrates complete MCP development:`n`n"
-        helpText .= "🔄 Development Phases:`n"
-        helpText .= "1. Planning: Define requirements and architecture`n"
-        helpText .= "2. Development: Implement core functionality`n"
-        helpText .= "3. Testing: Validate functionality and performance`n"
-        helpText .= "4. Deployment: Package and deploy MCP server`n"
-        helpText .= "5. Maintenance: Ongoing support and improvements`n`n"
-        helpText .= "🎯 Workflow Controls:`n"
-        helpText .= "• Start Development: Begin the complete cycle`n"
-        helpText .= "• Pause Development: Temporarily stop work`n"
-        helpText .= "• Reset All Phases: Clear all progress`n"
-        helpText .= "• Progress Report: View overall status`n`n"
-        helpText .= "📋 Phase Management:`n"
-        helpText .= "• Start Phase: Begin working on selected phase`n"
-        helpText .= "• Complete Phase: Mark phase as finished`n"
-        helpText .= "• Skip Phase: Mark as complete without work`n"
-        helpText .= "• Reset Phase: Clear phase progress`n"
-        helpText .= "• Generate Tasks: Get detailed task breakdown`n"
-        helpText .= "• Phase Report: View phase status and metrics`n`n"
-        helpText .= "Hotkeys:`n"
-        helpText .= "• Ctrl+Alt+D: Start development`n"
-        helpText .= "• Ctrl+F12: Progress report`n"
-        helpText .= "• Escape: Close tool"
-        
-        MsgBox(helpText, "MCP Development Cycle Help", "Iconi")
-    }
-    
-    static SetupHotkeys(gui) {
-        Hotkey("^!d", (*) => this.StartDevelopment()
-        Hotkey("^F12", (*) => this.ProgressReport()
-        
-        Escape::{
-            if (WinExist("MCP Development Cycle")) {
-                WinClose("MCP Development Cycle")
-            }
+
+    static HideGui(*) {
+        if (MCPDevelopmentCycle.gui) {
+            MCPDevelopmentCycle.gui.Hide()
+            MCPDevelopmentCycle.statusBar.SetText("GUI hidden. Press Ctrl+Alt+D to resume.")
         }
     }
 }
 
-; Hotkeys
-Hotkey("^!d", (*) => MCPDevelopmentCycle.Init()
-Hotkey("^F12", (*) => MCPDevelopmentCycle.Init()
-
-; Initialize
 MCPDevelopmentCycle.Init()
+
+OnExit((*) => MCPDevelopmentCycle.AppendLog("Script exiting."))
 
 

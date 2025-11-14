@@ -20,393 +20,301 @@
 
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
+#Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
+OnError(FroggerApp.HandleError)
 
-; Suppress error popups - log to file instead
-OnError(LogError)
-
-LogError(Thrown, Mode) {
-    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
-    FileAppend(errorMsg, "classic_frogger_errors.log", "UTF-8")
-    OutputDebug(errorMsg)  ; Enable LLM debugging
-    return 1  ; Suppress popup (1 = suppress, 0 = show)
-}
-
-
-class FroggerGame {
-    static gameGui := ""
-    static gameRunning := false
-    static frogX := 0
-    static frogY := 0
-    static frogSize := 20
-    static gameWidth := 800
-    static gameHeight := 600
-    static lives := 3
+class FroggerApp {
+    static gui := ""
+    static boardCtrl := ""
+    static statusCtrl := ""
+    static scoreCtrl := ""
+    static timerId := 0
+    static boardWidth := 9
+    static boardHeight := 7
+    static frog := {x: 4, y: 6}
     static score := 0
-    static level := 1
     static cars := []
-    static logs := []
-    static turtles := []
-    static carsSpeed := 2
-    static logsSpeed := 1
-    static turtlesSpeed := 1
-    static soundEnabled := true
-    
+    static lanes := []
+    static tickInterval := 500
+
     static Init() {
-        this.gameRunning := false
-        this.lives := 3
-        this.score := 0
-        this.level := 1
-        this.ResetFrog()
-        this.InitializeObstacles()
-        this.CreateGameGUI()
+        FroggerApp.SetupLanes()
+        FroggerApp.CreateGui()
+        FroggerApp.SetupHotkeys()
+        FroggerApp.ResetGame()
     }
-    
-    static CreateGameGUI() {
-        if (this.gameGui) {
-            this.gameGui.Close()
-        }
-        
-        this.gameGui := Gui("+Resize +MinSize800x600", "Classic Frogger - Use Arrow Keys")
-        this.gameGui.BackColor := "006600"
-        this.gameGui.SetFont("s14 cFFFFFF Bold", "Arial")
-        
-        ; Game area
-        this.gameGui.Add("Text", "x10 y10 w780 h580 Border Center", "FROGGER")
-        
-        ; Status display
-        this.gameGui.Add("Text", "x50 y50 w150 h30", "Lives: " . this.lives)
-        this.gameGui.Add("Text", "x300 y50 w150 h30", "Score: " . this.score)
-        this.gameGui.Add("Text", "x550 y50 w150 h30", "Level: " . this.level)
-        
-        ; Controls info
-        this.gameGui.Add("Text", "x10 y570 w780 h20 Center", "Arrow Keys: Move | SPACE: Start | R: Reset | M: Menu")
-        
-        ; Menu button
-        this.gameGui.Add("Button", "x350 y100 w100 h40", "Start Game").OnEvent("Click", this.StartGame.Bind(this))
-        this.gameGui.Add("Button", "x350 y150 w100 h40", "Instructions").OnEvent("Click", this.ShowInstructions.Bind(this))
-        
-        ; Set up hotkeys
-        this.SetupHotkeys()
-        
-        this.gameGui.Show("w800 h600")
+
+    static HandleError(Thrown, Mode) {
+        message := "Frogger error: " . Thrown.Message . " at line " . Thrown.Line
+        try FileAppend(message . "`n", "classic_frogger_errors.log", "UTF-8")
+        OutputDebug(message)
+        return 1
     }
-    
-    static StartGame(*) {
-        this.gameRunning := true
-        this.StartGameLoop()
+
+    static SetupLanes() {
+        FroggerApp.lanes := [
+            {speed: 400, direction: 1, start: [0,3,6]},
+            {speed: 520, direction: -1, start: [2,5]},
+            {speed: 460, direction: 1, start: [1,4,7]},
+            {speed: 540, direction: -1, start: [0,6]},
+            {speed: 480, direction: 1, start: [3]},
+            {speed: 500, direction: -1, start: [1,5]}
+        ]
     }
-    
-    static ResetFrog() {
-        this.frogX := this.gameWidth // 2
-        this.frogY := this.gameHeight - 50
+
+    static CreateGui() {
+        if (FroggerApp.gui) {
+            FroggerApp.gui.Destroy()
+        }
+        newGui := Gui("+Resize +MinSize320x360", "Classic Frogger")
+        newGui.BackColor := "1f1f1f"
+        newGui.SetFont("s10", "Segoe UI")
+
+        newGui.AddText("x20 y16 w280 Center cFFFFFF", "Frogger – reach the goal without getting hit!")
+        FroggerApp.boardCtrl := newGui.AddText("x20 y48 w200 h220 Background000000 Border", "")
+        FroggerApp.boardCtrl.SetFont("s12", "Consolas")
+
+        FroggerApp.scoreCtrl := newGui.AddText("x240 y60 w80 h24 cFFFFFF", "Score: 0")
+        btnStart := newGui.AddButton("x240 y96 w80 h30", "Start")
+        btnStart.OnEvent("Click", (*) => FroggerApp.StartGame())
+        btnPause := newGui.AddButton("x240 y136 w80 h30", "Pause")
+        btnPause.OnEvent("Click", (*) => FroggerApp.PauseGame())
+        btnReset := newGui.AddButton("x240 y176 w80 h30", "Reset")
+        btnReset.OnEvent("Click", (*) => FroggerApp.ResetGame())
+        btnClose := newGui.AddButton("x240 y216 w80 h30", "Close")
+        btnClose.OnEvent("Click", (*) => FroggerApp.HideGui())
+
+        FroggerApp.statusCtrl := newGui.AddText("x20 y286 w280 h24 cFFFFFF", "Use Arrow keys to hop. Space=Start, P=Pause, R=Reset")
+
+        newGui.OnEvent("Close", FroggerApp.HideGui)
+        newGui.OnEvent("Escape", FroggerApp.HideGui)
+        newGui.OnEvent("Size", FroggerApp.OnResize)
+
+        FroggerApp.gui := newGui
+        newGui.Show("w320 h330")
     }
-    
-    static InitializeObstacles() {
-        this.cars := []
-        this.logs := []
-        this.turtles := []
-        
-        ; Create cars (moving left to right)
-        Loop 5 {
-            this.cars.Push({
-                x: Random(0, this.gameWidth),
-                y: 500 + (A_Index * 20),
-                speed: this.carsSpeed + Random(-1, 1),
-                width: 40,
-                height: 20
-            })
-        }
-        
-        ; Create logs (moving right to left)
-        Loop 4 {
-            this.logs.Push({
-                x: Random(0, this.gameWidth),
-                y: 300 + (A_Index * 30),
-                speed: this.logsSpeed + Random(-1, 1),
-                width: 60,
-                height: 25
-            })
-        }
-        
-        ; Create turtles (moving left to right)
-        Loop 3 {
-            this.turtles.Push({
-                x: Random(0, this.gameWidth),
-                y: 200 + (A_Index * 25),
-                speed: this.turtlesSpeed + Random(-1, 1),
-                width: 30,
-                height: 20,
-                submerged: false,
-                submergeTimer: 0
-            })
-        }
-    }
-    
-    static StartGameLoop() {
-        if (!this.gameRunning) {
-            return
-        }
-        
-        this.UpdateGame()
-        this.DrawGame()
-        
-        ; Continue game loop
-        SetTimer(() => this.StartGameLoop(), 50) ; ~20 FPS
-    }
-    
-    static UpdateGame() {
-        if (!this.gameRunning) {
-            return
-        }
-        
-        ; Move obstacles
-        this.UpdateCars()
-        this.UpdateLogs()
-        this.UpdateTurtles()
-        
-        ; Check collisions
-        this.CheckCollisions()
-        
-        ; Check if frog reached home
-        if (this.frogY <= 50) {
-            this.score += 100 * this.level
-            this.level++
-            this.IncreaseDifficulty()
-            this.ResetFrog()
-            this.PlaySound("home")
-        }
-        
-        ; Check if frog fell in water
-        if (this.frogY > 100 && this.frogY < 400) {
-            onLog := false
-            onTurtle := false
-            
-            ; Check if on log
-            for log in this.logs {
-                if (this.frogX >= log.x && this.frogX <= log.x + log.width &&
-                    this.frogY >= log.y && this.frogY <= log.y + log.height) {
-                    onLog := true
-                    this.frogX += log.speed
-                    break
-                }
-            }
-            
-            ; Check if on turtle
-            for turtle in this.turtles {
-                if (!turtle.submerged && 
-                    this.frogX >= turtle.x && this.frogX <= turtle.x + turtle.width &&
-                    this.frogY >= turtle.y && this.frogY <= turtle.y + turtle.height) {
-                    onTurtle := true
-                    this.frogX += turtle.speed
-                    break
-                }
-            }
-            
-            ; If not on log or turtle, frog drowns
-            if (!onLog && !onTurtle) {
-                this.LoseLife()
-            }
-        }
-        
-        ; Keep frog in bounds
-        if (this.frogX < 0) {
-            this.frogX := 0
-        } else if (this.frogX > this.gameWidth - this.frogSize) {
-            this.frogX := this.gameWidth - this.frogSize
-        }
-    }
-    
-    static UpdateCars() {
-        for car in this.cars {
-            car.x += car.speed
-            if (car.x > this.gameWidth) {
-                car.x := -car.width
-            }
-        }
-    }
-    
-    static UpdateLogs() {
-        for log in this.logs {
-            log.x -= log.speed
-            if (log.x < -log.width) {
-                log.x := this.gameWidth
-            }
-        }
-    }
-    
-    static UpdateTurtles() {
-        for turtle in this.turtles {
-            turtle.x += turtle.speed
-            if (turtle.x > this.gameWidth) {
-                turtle.x := -turtle.width
-            }
-            
-            ; Turtles submerge occasionally
-            turtle.submergeTimer++
-            if (turtle.submergeTimer > 100) {
-                turtle.submerged := !turtle.submerged
-                turtle.submergeTimer := 0
-            }
-        }
-    }
-    
-    static CheckCollisions() {
-        ; Check collision with cars
-        for car in this.cars {
-            if (this.frogX < car.x + car.width && this.frogX + this.frogSize > car.x &&
-                this.frogY < car.y + car.height && this.frogY + this.frogSize > car.y) {
-                this.LoseLife()
-                return
-            }
-        }
-    }
-    
-    static LoseLife() {
-        this.lives--
-        this.PlaySound("death")
-        
-        if (this.lives <= 0) {
-            this.GameOver()
-        } else {
-            this.ResetFrog()
-        }
-    }
-    
-    static IncreaseDifficulty() {
-        this.carsSpeed += 0.5
-        this.logsSpeed += 0.3
-        this.turtlesSpeed += 0.3
-        
-        ; Add more obstacles
-        if (Mod(this.level, 3) = 0) {
-            this.cars.Push({
-                x: Random(0, this.gameWidth),
-                y: 500 + Random(0, 100),
-                speed: this.carsSpeed,
-                width: 40,
-                height: 20
-            })
-        }
-    }
-    
-    static DrawGame() {
-        if (!this.gameGui) {
-            return
-        }
-        
-        ; Update status display
-        try {
-            this.gameGui.Control["Text1"].Text := "Lives: " . this.lives
-            this.gameGui.Control["Text2"].Text := "Score: " . this.score
-            this.gameGui.Control["Text3"].Text := "Level: " . this.level
-        } catch {
-            ; Controls might not exist yet
-        }
-    }
-    
-    static GameOver() {
-        this.gameRunning := false
-        MsgBox("Game Over!`n`nFinal Score: " . this.score . "`nLevel Reached: " . this.level . "`n`nPress OK to play again.", "Frogger Game Over", "Icon!")
-        this.Init()
-    }
-    
-    static PlaySound(type) {
-        if (!this.soundEnabled) {
-            return
-        }
-        
-        switch (type) {
-            case "home":
-                SoundBeep(1000, 200)
-            case "death":
-                SoundBeep(200, 500)
-            case "move":
-                SoundBeep(800, 50)
-        }
-    }
-    
-    static ShowInstructions(*) {
-        instructionsText := "🐸 HOW TO PLAY FROGGER 🐸`n`n"
-        instructionsText .= "OBJECTIVE:`n"
-        instructionsText .= "Help the frog cross the road and river to reach home!`n`n"
-        instructionsText .= "CONTROLS:`n"
-        instructionsText .= "• ↑: Move UP`n"
-        instructionsText .= "• ↓: Move DOWN`n"
-        instructionsText .= "• ←: Move LEFT`n"
-        instructionsText .= "• →: Move RIGHT`n"
-        instructionsText .= "• SPACE: Start/Pause game`n"
-        instructionsText .= "• R: Reset game`n`n"
-        instructionsText .= "RULES:`n"
-        instructionsText .= "• Avoid cars on the road`n"
-        instructionsText .= "• Jump on logs to cross the river`n"
-        instructionsText .= "• Jump on turtles (but they submerge!)`n"
-        instructionsText .= "• Reach the top to score points`n"
-        instructionsText .= "• You have 3 lives`n`n"
-        instructionsText .= "SCORING:`n"
-        instructionsText .= "• Reach home: 100 points × level`n"
-        instructionsText .= "• Each level increases difficulty`n`n"
-        instructionsText .= "TIPS:`n"
-        instructionsText .= "• Time your jumps carefully`n"
-        instructionsText .= "• Watch turtle submerge patterns`n"
-        instructionsText .= "• Use logs to cross the river safely`n`n"
-        instructionsText .= "Press OK to start playing!"
-        
-        MsgBox(instructionsText, "Frogger Instructions", "Iconi")
-    }
-    
+
     static SetupHotkeys() {
-        ; Frog movement
-        Hotkey("Up", (*) => {
-            if (FroggerGame.gameRunning) {
-                FroggerGame.frogY -= 20
-                FroggerGame.PlaySound("move")
-            }
+        static registered := false
+        if (registered) {
+            return
         }
+        ; Global hotkey to launch/show the game
+        Hotkey("^!f", (*) => FroggerApp.ShowGui())
         
-        Hotkey("Down", (*) => {
-            if (FroggerGame.gameRunning) {
-                FroggerGame.frogY += 20
-                FroggerGame.PlaySound("move")
-            }
+        ; Context-sensitive hotkeys - only work when Frogger window is active
+        Hotkey("Up", (*) => FroggerApp.MoveFrogIfActive(0, -1))
+        Hotkey("Down", (*) => FroggerApp.MoveFrogIfActive(0, 1))
+        Hotkey("Left", (*) => FroggerApp.MoveFrogIfActive(-1, 0))
+        Hotkey("Right", (*) => FroggerApp.MoveFrogIfActive(1, 0))
+        Hotkey("Space", (*) => FroggerApp.StartGameIfActive())
+        Hotkey("p", (*) => FroggerApp.PauseGameIfActive())
+        Hotkey("r", (*) => FroggerApp.ResetGameIfActive())
+        Hotkey("Escape", (*) => FroggerApp.HideGui())
+        registered := true
+    }
+    
+    static IsFroggerWindowActive() {
+        if (!FroggerApp.gui || !FroggerApp.gui.Hwnd) {
+            return false
         }
-        
-        Hotkey("Left", (*) => {
-            if (FroggerGame.gameRunning) {
-                FroggerGame.frogX -= 20
-                FroggerGame.PlaySound("move")
-            }
+        return WinActive("ahk_id " . FroggerApp.gui.Hwnd)
+    }
+    
+    static MoveFrogIfActive(dx, dy) {
+        if (FroggerApp.IsFroggerWindowActive()) {
+            FroggerApp.MoveFrog(dx, dy)
         }
-        
-        Hotkey("Right", (*) => {
-            if (FroggerGame.gameRunning) {
-                FroggerGame.frogX += 20
-                FroggerGame.PlaySound("move")
-            }
+    }
+    
+    static StartGameIfActive() {
+        if (FroggerApp.IsFroggerWindowActive()) {
+            FroggerApp.StartGame()
         }
-        
-        ; Game controls
-        ; NOTE: Space hotkey disabled to avoid interfering with typing
-        ; Users should use the GUI buttons or other controls
-        
-        Hotkey("r", (*) => FroggerGame.Init()
-        Hotkey("m", (*) => FroggerGame.ShowInstructions())
-        
-        ; Escape to close
-        Hotkey("Escape", (*) => {
-            FroggerGame.gameRunning := false
-            if (FroggerGame.gameGui) {
-                FroggerGame.gameGui.Close()
+    }
+    
+    static PauseGameIfActive() {
+        if (FroggerApp.IsFroggerWindowActive()) {
+            FroggerApp.PauseGame()
+        }
+    }
+    
+    static ResetGameIfActive() {
+        if (FroggerApp.IsFroggerWindowActive()) {
+            FroggerApp.ResetGame()
+        }
+    }
+    
+    static ShowGui(*) {
+        if (FroggerApp.gui) {
+            FroggerApp.gui.Show()
+            WinActivate(FroggerApp.gui.Hwnd)
+        } else {
+            FroggerApp.Init()
+        }
+    }
+
+    static ResetGame() {
+        FroggerApp.PauseGame()
+        FroggerApp.frog := {x: 4, y: FroggerApp.boardHeight - 1}
+        FroggerApp.score := 0
+        FroggerApp.ResetCars()
+        FroggerApp.UpdateBoard()
+        FroggerApp.UpdateScore()
+        FroggerApp.UpdateStatus("Press Start to begin.")
+    }
+
+    static ResetCars() {
+        FroggerApp.cars := []
+        for laneIndex, lane in FroggerApp.lanes {
+            positions := []
+            for startX in lane.start {
+                positions.Push(startX)
             }
+            FroggerApp.cars.Push({positions: positions.Clone(), timer: 0})
+        }
+    }
+
+    static StartGame() {
+        if (FroggerApp.timerId) {
+            return
+        }
+        FroggerApp.timerId := SetTimer(FroggerApp.Tick.Bind(FroggerApp), 200)
+        FroggerApp.UpdateStatus("Game running.")
+    }
+
+    static PauseGame() {
+        if (FroggerApp.timerId) {
+            SetTimer(FroggerApp.timerId, 0)
+            FroggerApp.timerId := 0
+            FroggerApp.UpdateStatus("Paused.")
+        }
+    }
+
+    static HideGui(*) {
+        FroggerApp.PauseGame()
+        if (FroggerApp.gui) {
+            FroggerApp.gui.Hide()
+        }
+    }
+
+    static Tick() {
+        FroggerApp.AdvanceCars()
+        FroggerApp.CheckCollision()
+        FroggerApp.UpdateBoard()
+    }
+
+    static AdvanceCars() {
+        for idx, laneData in FroggerApp.cars {
+            lane := FroggerApp.lanes[idx]
+            speed := lane.speed
+            laneData.timer += 200
+            if (laneData.timer < speed) {
+                continue
+            }
+            laneData.timer := 0
+            newPositions := []
+            for pos in laneData.positions {
+                nextPos := pos + lane.direction
+                if (nextPos < 0) {
+                    nextPos := FroggerApp.boardWidth - 1
+                } else if (nextPos >= FroggerApp.boardWidth) {
+                    nextPos := 0
+                }
+                newPositions.Push(nextPos)
+            }
+            laneData.positions := newPositions
+        }
+    }
+
+    static MoveFrog(dx, dy) {
+        newX := FroggerApp.frog.x + dx
+        newY := FroggerApp.frog.y + dy
+        if (newX < 0 || newX >= FroggerApp.boardWidth || newY < 0 || newY >= FroggerApp.boardHeight) {
+            return
+        }
+        FroggerApp.frog.x := newX
+        FroggerApp.frog.y := newY
+        if (newY = 0) {
+            FroggerApp.score += 100
+            FroggerApp.UpdateScore()
+            FroggerApp.ResetCars()
+            FroggerApp.frog := {x: 4, y: FroggerApp.boardHeight - 1}
+            FroggerApp.UpdateStatus("Nice! You reached the goal.")
+        }
+        FroggerApp.CheckCollision()
+        FroggerApp.UpdateBoard()
+    }
+
+    static CheckCollision() {
+        laneIndex := FroggerApp.frog.y - 1
+        if (laneIndex < 0 || laneIndex >= FroggerApp.cars.Length) {
+            return
+        }
+        carLane := FroggerApp.cars[laneIndex]
+        if (carLane.positions.Has(FroggerApp.frog.x)) {
+            FroggerApp.GameOver()
+        }
+    }
+
+    static GameOver() {
+        FroggerApp.PauseGame()
+        FroggerApp.UpdateStatus("Ouch! Hit by traffic. Press Reset to try again.")
+        MsgBox("Game Over! Score: " . FroggerApp.score, "Frogger", "Iconi")
+        FroggerApp.ResetGame()
+    }
+
+    static UpdateBoard() {
+        rows := []
+        Loop FroggerApp.boardHeight {
+            rowIndex := A_Index - 1
+            rowText := ""
+            Loop FroggerApp.boardWidth {
+                colIndex := A_Index - 1
+                if (rowIndex = FroggerApp.frog.y && colIndex = FroggerApp.frog.x) {
+                    rowText .= "🐸"
+                } else if (rowIndex = 0) {
+                    rowText .= "🏁"
+                } else if (rowIndex = FroggerApp.boardHeight - 1) {
+                    rowText .= "🌱"
+                } else {
+                    laneIndex := rowIndex - 1
+                    laneCars := FroggerApp.cars[laneIndex]
+                    rowText .= laneCars.positions.Has(colIndex) ? "🚗" : "·"
+                }
+            }
+            rows.Push(rowText)
+        }
+        FroggerApp.boardCtrl.Text := rows.Join("`n")
+    }
+
+    static UpdateScore() {
+        if (FroggerApp.scoreCtrl) {
+            FroggerApp.scoreCtrl.Text := "Score: " . FroggerApp.score
+        }
+    }
+
+    static UpdateStatus(message) {
+        if (FroggerApp.statusCtrl) {
+            FroggerApp.statusCtrl.Text := message
+        }
+    }
+
+    static OnResize(gui, minMax, width, height) {
+        if (!FroggerApp.boardCtrl) {
+            return
+        }
+        boardHeight := height - 140
+        FroggerApp.boardCtrl.Move(20, 48, Min(200, width - 120), boardHeight)
+        if (FroggerApp.statusCtrl) {
+            FroggerApp.statusCtrl.Move(20, height - 40, width - 40, 24)
         }
     }
 }
 
-; Hotkeys
-Hotkey("^!f", (*) => FroggerGame.Init()
-Hotkey("F6", (*) => FroggerGame.Init()
+FroggerApp.Init()
 
-; Initialize
-FroggerGame.Init()
+OnExit((*) => FroggerApp.UpdateStatus(""))
 
 

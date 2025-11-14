@@ -1,16 +1,10 @@
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
+#Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
 
 ; Suppress error popups - log to file instead
 OnError(LogError)
-
-LogError(Thrown, Mode) {
-    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
-    FileAppend(errorMsg, "smart_clipboard_manager_errors.log", "UTF-8")
-    OutputDebug(errorMsg)  ; Enable LLM debugging
-    return 1  ; Suppress popup (1 = suppress, 0 = show)
-}
 
 
 ; ==============================================================================
@@ -63,9 +57,11 @@ class SmartClipboard {
     }
     
     static AddToHistory(text) {
+        timestamp := ""
+        timestamp := FormatTime(, "yyyy-MM-dd HH:mm:ss")
         this.history.Push({
             text: text,
-            timestamp: FormatTime(A_Now, "yyyy-MM-dd HH:mm:ss"),
+            timestamp: timestamp,
             length: StrLen(text),
             type: this.DetectType(text)
         })
@@ -279,7 +275,8 @@ class SmartClipboard {
     static AppendLog(message) {
         if (!this.logArea return
         
-        timestamp := FormatTime(A_Now, "HH:mm:ss")
+        timestamp := ""
+        timestamp := FormatTime(, "HH:mm:ss")
         this.logArea.Text .= "[" . timestamp . "] " . message . "`n"
         
         ; Auto-scroll to bottom

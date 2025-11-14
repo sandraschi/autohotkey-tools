@@ -21,456 +21,453 @@
 
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
+#Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
+OnError(HandleScriptError)
 
-; Suppress error popups - log to file instead
-OnError(LogError)
-
-LogError(Thrown, Mode) {
-    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
-    FileAppend(errorMsg, "autohotkey_debug_helper_errors.log", "UTF-8")
-    OutputDebug(errorMsg)  ; Enable LLM debugging
-    return 1  ; Suppress popup (1 = suppress, 0 = show)
+HandleScriptError(Thrown, Mode) {
+    return AHDebugHelper.HandleScriptError(Thrown, Mode)
 }
 
-
 class AHDebugHelper {
-    static debugMode := false
+    static mainGui := ""
+    static debugOutput := ""
+    static scriptPathEdit := ""
+    static errorStdOutCheck := ""
+    static noTrayIconCheck := ""
+    static forceReloadCheck := ""
     static debugLog := []
-    
+    static isVisible := false
+    static logDir := ""
+    static logFilePath := ""
+    static logInitialized := false
+
     static Init() {
-        this.CreateGUI()
-        this.SetupHotkeys()
+        AHDebugHelper.EnsureLogInfrastructure()
+        if (!AHDebugHelper.mainGui) {
+            AHDebugHelper.CreateGUI()
+            AHDebugHelper.SetupHotkeys()
+            AHDebugHelper.AddDebugOutput("Debug helper initialized.")
+        }
     }
-    
+
     static CreateGUI() {
         try {
-            gui := Gui("+Resize +MinSize800x600", "AutoHotkey Debug Helper")
-            gui.BackColor := "1a1a1a"
-            gui.SetFont("s10 cFFFFFF", "Segoe UI")
-        
-        ; Title
-        gui.Add("Text", "x20 y20 w760 Center Bold", "🔧 AutoHotkey Debug Helper")
-        gui.Add("Text", "x20 y50 w760 Center ", "Comprehensive debugging tools for AutoHotkey v2 scripts")
-        
-        ; Debug Controls
-        gui.Add("Text", "x20 y90 w760 Bold", "🎯 Debug Controls")
-        
-        gui.Add("Button", "x20 y120 w150 h40", "📊 List Variables").OnEvent("Click", this.ListVariables.Bind(this))
-        gui.Add("Button", "x190 y120 w150 h40", "📝 List Lines").OnEvent("Click", this.ListLines.Bind(this))
-        gui.Add("Button", "x360 y120 w150 h40", "⌨️ Key History").OnEvent("Click", this.KeyHistory.Bind(this))
-        gui.Add("Button", "x530 y120 w150 h40", "📋 Debug Log").OnEvent("Click", this.ShowDebugLog.Bind(this))
-        
-        ; Script Analysis
-        gui.Add("Text", "x20 y180 w760 Bold", "🔍 Script Analysis")
-        
-        gui.Add("Button", "x20 y210 w150 h40", "🔍 Analyze Script").OnEvent("Click", this.AnalyzeScript.Bind(this))
-        gui.Add("Button", "x190 y210 w150 h40", "⚠️ Check Syntax").OnEvent("Click", this.CheckSyntax.Bind(this))
-        gui.Add("Button", "x360 y210 w150 h40", "🔗 Find Dependencies").OnEvent("Click", this.FindDependencies.Bind(this))
-        gui.Add("Button", "x530 y210 w150 h40", "📊 Performance").OnEvent("Click", this.PerformanceAnalysis.Bind(this))
-        
-        ; Command Line Debugging
-        gui.Add("Text", "x20 y270 w760 Bold", "💻 Command Line Debugging")
-        
-        gui.Add("Text", "x20 y300 w150", "Script Path:")
-        scriptPathEdit := gui.Add("Edit", "x180 y295 w400 h25", A_ScriptDir . "\test_script.ahk")
-        
-        gui.Add("Button", "x600 y295 w150 h40", "🚀 Run with Debug").OnEvent("Click", this.RunWithDebug.Bind(this))
-        
-        ; Debug flags
-        gui.Add("CheckBox", "x20 y330 w200", "ErrorStdOut").Value := 1
-        gui.Add("CheckBox", "x240 y330 w200", "NoTrayIcon").Value := 1
-        gui.Add("CheckBox", "x460 y330 w200", "Force Reload").Value := 0
-        
-        ; Debug Output
-        gui.Add("Text", "x20 y370 w760 Bold", "📋 Debug Output")
-        
-        debugOutput := gui.Add("Edit", "x20 y400 w760 h150 ReadOnly Multi VScroll", "")
-        debugOutput.BackColor := "2d2d2d"
-        debugOutput.SetFont("s9 cFFFFFF", "Consolas")
-        
-        ; Actions
-        gui.Add("Button", "x20 y560 w150 h40", "💾 Save Debug Log").OnEvent("Click", this.SaveDebugLog.Bind(this))
-        gui.Add("Button", "x190 y560 w150 h40", "📋 Copy Output").OnEvent("Click", this.CopyOutput.Bind(this))
-        gui.Add("Button", "x360 y560 w150 h40", "🧹 Clear Output").OnEvent("Click", this.ClearOutput.Bind(this))
-        gui.Add("Button", "x530 y560 w150 h40", "❓ Help").OnEvent("Click", this.ShowHelp.Bind(this))
-        
-        ; Status
-        gui.Add("Text", "x20 y610 w760 Center ", "Hotkeys: Ctrl+Alt+D (Debug Mode) | F3 (List Vars) | Ctrl+Alt+V (List Lines) | Ctrl+Alt+K (Key History)")
-        
-        ; Store references
-        gui.scriptPathEdit := scriptPathEdit
-        gui.debugOutput := debugOutput
-        
-        ; Set up hotkeys
-        this.SetupHotkeys()
-        
-            gui.Show("w800 h650")
-            this.LogDebug("Debug Helper GUI created successfully")
+            newGui := Gui("+Resize +MinSize800x650", "AutoHotkey Debug Helper")
+            newGui.BackColor := "1a1a1a"
+            newGui.SetFont("s10 cFFFFFF", "Segoe UI")
+
+            newGui.AddText("x20 y20 w760 Center Bold", "🔧 AutoHotkey Debug Helper")
+            newGui.AddText("x20 y50 w760 Center", "Comprehensive debugging tools for AutoHotkey v2 scripts")
+
+            newGui.AddText("x20 y90 w760 Bold", "🎯 Debug Controls")
+            newGui.AddButton("x20 y120 w150 h40", "📊 List Variables").OnEvent("Click", (*) => AHDebugHelper.ListVariables())
+            newGui.AddButton("x190 y120 w150 h40", "📝 List Lines").OnEvent("Click", (*) => AHDebugHelper.ListLines())
+            newGui.AddButton("x360 y120 w150 h40", "⌨️ Key History").OnEvent("Click", (*) => AHDebugHelper.KeyHistory())
+            newGui.AddButton("x530 y120 w150 h40", "📋 Debug Log").OnEvent("Click", (*) => AHDebugHelper.ShowDebugLog())
+
+            newGui.AddText("x20 y180 w760 Bold", "🔍 Script Analysis")
+            newGui.AddButton("x20 y210 w150 h40", "🔍 Analyze Script").OnEvent("Click", (*) => AHDebugHelper.AnalyzeScript())
+            newGui.AddButton("x190 y210 w150 h40", "⚠️ Check Syntax").OnEvent("Click", (*) => AHDebugHelper.CheckSyntax())
+            newGui.AddButton("x360 y210 w150 h40", "🔗 Dependencies").OnEvent("Click", (*) => AHDebugHelper.FindDependencies())
+            newGui.AddButton("x530 y210 w150 h40", "📊 Performance").OnEvent("Click", (*) => AHDebugHelper.PerformanceAnalysis())
+
+            newGui.AddText("x20 y270 w760 Bold", "💻 Command Line Debugging")
+            newGui.AddText("x20 y300 w150", "Script Path:")
+            scriptPathEdit := newGui.AddEdit("x180 y295 w400 h25", A_ScriptDir . "\test_script.ahk")
+            newGui.AddButton("x600 y295 w150 h40", "🚀 Run with Debug").OnEvent("Click", (*) => AHDebugHelper.RunWithDebug())
+
+            errorStdOutCheck := newGui.AddCheckBox("x20 y330 w200", "ErrorStdOut")
+            errorStdOutCheck.Value := 1
+            noTrayIconCheck := newGui.AddCheckBox("x240 y330 w200", "NoTrayIcon")
+            noTrayIconCheck.Value := 1
+            forceReloadCheck := newGui.AddCheckBox("x460 y330 w200", "Restart (Force reload)")
+            forceReloadCheck.Value := 0
+
+            newGui.AddText("x20 y370 w760 Bold", "📋 Debug Output")
+            debugOutput := newGui.AddEdit("x20 y400 w760 h170 ReadOnly Multi VScroll", "")
+            debugOutput.BackColor := "2d2d2d"
+            debugOutput.SetFont("s9 cFFFFFF", "Consolas")
+
+            newGui.AddButton("x20 y580 w150 h40", "💾 Save Log").OnEvent("Click", (*) => AHDebugHelper.SaveDebugLog())
+            newGui.AddButton("x190 y580 w150 h40", "📋 Copy Output").OnEvent("Click", (*) => AHDebugHelper.CopyOutput())
+            newGui.AddButton("x360 y580 w150 h40", "🧹 Clear Output").OnEvent("Click", (*) => AHDebugHelper.ClearOutput())
+            newGui.AddButton("x530 y580 w150 h40", "❓ Help").OnEvent("Click", (*) => AHDebugHelper.ShowHelp())
+
+            newGui.AddText("x20 y630 w760 Center", "Hotkeys: Ctrl+Alt+D (Toggle) • F3 (List Vars) • Ctrl+Alt+V (List Lines) • Ctrl+Alt+K (Key History)")
+
+            newGui.OnEvent("Close", (*) => AHDebugHelper.CloseGUI())
+
+            AHDebugHelper.mainGui := newGui
+            AHDebugHelper.debugOutput := debugOutput
+            AHDebugHelper.scriptPathEdit := scriptPathEdit
+            AHDebugHelper.errorStdOutCheck := errorStdOutCheck
+            AHDebugHelper.noTrayIconCheck := noTrayIconCheck
+            AHDebugHelper.forceReloadCheck := forceReloadCheck
         } catch as e {
             errorMsg := "Error creating GUI: " . e.Message . "`n" . e.Stack
             FileAppend(errorMsg, "autohotkey_debug_helper_errors.log", "UTF-8")
             OutputDebug(errorMsg)
-            MsgBox("Error creating GUI: " . e.Message . "`n`nCheck autohotkey_debug_helper_errors.log for details", "Error", "Iconx")
+            MsgBox("Error creating GUI: " . e.Message, "AutoHotkey Debug Helper", "Iconx")
         }
     }
-    
-    static LogDebug(message) {
-        timestamp := FormatTime(A_Now, "HH:mm:ss")
-        logMsg := "[" . timestamp . "] " . message . "`n"
-        try {
-            FileAppend(logMsg, "autohotkey_debug_helper_debug.log", "UTF-8")
-        } catch {
-            ; Ignore file logging errors
-        }
-        OutputDebug(logMsg)
+
+    static SetupHotkeys() {
+        Hotkey("^!d", (*) => AHDebugHelper.ToggleGUI())
+        Hotkey("F3", (*) => AHDebugHelper.ListVariables())
+        Hotkey("^!v", (*) => AHDebugHelper.ListLines())
+        Hotkey("^!k", (*) => AHDebugHelper.KeyHistory())
+        Hotkey("Escape", (*) => AHDebugHelper.CloseGUI())
     }
-    
-    static AppendLog(message) {
-        timestamp := FormatTime(A_Now, "HH:mm:ss")
-        logMsg := "[" . timestamp . "] " . message . "`n"
-        try {
-            FileAppend(logMsg, "autohotkey_debug_helper.log", "UTF-8")
-        } catch {
-            ; Ignore file logging errors
+
+    static ToggleGUI() {
+        if (!AHDebugHelper.mainGui) {
+            return
         }
-        OutputDebug(logMsg)
+        if (!AHDebugHelper.isVisible) {
+            AHDebugHelper.mainGui.Show("w800 h650")
+            AHDebugHelper.isVisible := true
+        } else {
+            AHDebugHelper.mainGui.Hide()
+            AHDebugHelper.isVisible := false
+        }
     }
-    
+
+    static CloseGUI(*) {
+        if (AHDebugHelper.mainGui) {
+            AHDebugHelper.mainGui.Hide()
+            AHDebugHelper.isVisible := false
+        }
+    }
+
     static ListVariables(*) {
-        try {
-            this.AddDebugOutput("=== VARIABLES DEBUG ===")
-            this.AddDebugOutput("Listing all variables...")
-            
-            ; Use ListVars command
-            ListVars
-            Pause
-            
-            this.AddDebugOutput("Variables listed. Check the ListVars window.")
-            
-        } catch as e {
-            this.AddDebugOutput("Error listing variables: " . e.Message)
-        }
+        AHDebugHelper.AddDebugOutput("=== VARIABLES DEBUG ===")
+        ListVars()
+        AHDebugHelper.AddDebugOutput("ListVars window opened.")
     }
-    
+
     static ListLines(*) {
-        try {
-            this.AddDebugOutput("=== LINES DEBUG ===")
-            this.AddDebugOutput("Listing recent execution lines...")
-            
-            ; Use ListLines command
-            ListLines
-            Pause
-            
-            this.AddDebugOutput("Lines listed. Check the ListLines window.")
-            
-        } catch as e {
-            this.AddDebugOutput("Error listing lines: " . e.Message)
-        }
+        AHDebugHelper.AddDebugOutput("=== LINES DEBUG ===")
+        ListLines()
+        AHDebugHelper.AddDebugOutput("ListLines window opened.")
     }
-    
+
     static KeyHistory(*) {
-        try {
-            this.AddDebugOutput("=== KEY HISTORY DEBUG ===")
-            this.AddDebugOutput("Listing key history...")
-            
-            ; Use KeyHistory command
-            KeyHistory
-            Pause
-            
-            this.AddDebugOutput("Key history listed. Check the KeyHistory window.")
-            
-        } catch as e {
-            this.AddDebugOutput("Error listing key history: " . e.Message)
-        }
+        AHDebugHelper.AddDebugOutput("=== KEY HISTORY DEBUG ===")
+        KeyHistory()
+        AHDebugHelper.AddDebugOutput("KeyHistory window opened.")
     }
-    
+
     static ShowDebugLog(*) {
-        try {
-            this.AddDebugOutput("=== DEBUG LOG ===")
-            
-            if (this.debugLog.Length = 0) {
-                this.AddDebugOutput("No debug messages logged yet.")
-                return
-            }
-            
-            for i, message in this.debugLog {
-                this.AddDebugOutput(i . ": " . message)
-            }
-            
-        } catch as e {
-            this.AddDebugOutput("Error showing debug log: " . e.Message)
+        AHDebugHelper.AddDebugOutput("=== DEBUG LOG ===")
+        if (AHDebugHelper.debugLog.Length = 0) {
+            AHDebugHelper.AddDebugOutput("No debug messages logged yet.")
+            return
+        }
+        for index, message in AHDebugHelper.debugLog {
+            AHDebugHelper.AddDebugOutput(index . ": " . message)
         }
     }
-    
+
     static AnalyzeScript(*) {
-        try {
-            scriptPath := GuiFromHwnd(WinGetID("AutoHotkey Debug Helper")).scriptPathEdit.Value
-            
-            if (!FileExist(scriptPath)) {
-                this.AddDebugOutput("Script file not found: " . scriptPath)
-                return
-            }
-            
-            this.AddDebugOutput("=== SCRIPT ANALYSIS ===")
-            this.AddDebugOutput("Analyzing: " . scriptPath)
-            
-            ; Read script content
-            scriptContent := FileRead(scriptPath)
-            
-            ; Basic analysis
-            lines := StrSplit(scriptContent, "`n")
-            this.AddDebugOutput("Total lines: " . lines.Length)
-            
-            ; Count different elements
-            functions := 0
-            classes := 0
-            hotkeys := 0
-            variables := 0
-            
-            for line in lines {
-                trimmed := Trim(line)
-                if (RegExMatch(trimmed, "^\w+\s*\(.*\)\s*\{$")) {
-                    functions++
-                } else if (RegExMatch(trimmed, "^class\s+\w+")) {
-                    classes++
-                } else if (RegExMatch(trimmed, "^\w+::")) {
-                    hotkeys++
-                } else if (RegExMatch(trimmed, "^\w+\s*:=")) {
-                    variables++
-                }
-            }
-            
-            this.AddDebugOutput("Functions: " . functions)
-            this.AddDebugOutput("Classes: " . classes)
-            this.AddDebugOutput("Hotkeys: " . hotkeys)
-            this.AddDebugOutput("Variables: " . variables)
-            
-        } catch as e {
-            this.AddDebugOutput("Error analyzing script: " . e.Message)
+        scriptPath := AHDebugHelper.scriptPathEdit.Value
+        if (!FileExist(scriptPath)) {
+            AHDebugHelper.AddDebugOutput("Script file not found: " . scriptPath)
+            return
         }
+        AHDebugHelper.AddDebugOutput("=== SCRIPT ANALYSIS ===")
+        AHDebugHelper.AddDebugOutput("Analyzing: " . scriptPath)
+        scriptContent := FileRead(scriptPath, "UTF-8")
+        lines := StrSplit(scriptContent, "`n")
+        AHDebugHelper.AddDebugOutput("Total lines: " . lines.Length)
+        functions := 0
+        classes := 0
+        hotkeys := 0
+        assignments := 0
+        for , line in lines {
+            trimmed := Trim(line)
+            if (RegExMatch(trimmed, "^\w+\s*\(.*\)\s*\{")) {
+                functions += 1
+            } else if (RegExMatch(trimmed, "^class\s+\w+")) {
+                classes += 1
+            } else if (RegExMatch(trimmed, "^[^;]*::")) {
+                hotkeys += 1
+            } else if (RegExMatch(trimmed, "^\w+\s*:=")) {
+                assignments += 1
+            }
+        }
+        AHDebugHelper.AddDebugOutput("Functions: " . functions)
+        AHDebugHelper.AddDebugOutput("Classes: " . classes)
+        AHDebugHelper.AddDebugOutput("Hotkeys: " . hotkeys)
+        AHDebugHelper.AddDebugOutput("Assignments: " . assignments)
     }
-    
+
     static CheckSyntax(*) {
+        scriptPath := AHDebugHelper.scriptPathEdit.Value
+        if (!FileExist(scriptPath)) {
+            AHDebugHelper.AddDebugOutput("Script file not found: " . scriptPath)
+            return
+        }
+        AHDebugHelper.AddDebugOutput("=== SYNTAX CHECK ===")
         try {
-            scriptPath := GuiFromHwnd(WinGetID("AutoHotkey Debug Helper")).scriptPathEdit.Value
-            
-            if (!FileExist(scriptPath)) {
-                this.AddDebugOutput("Script file not found: " . scriptPath)
-                return
-            }
-            
-            this.AddDebugOutput("=== SYNTAX CHECK ===")
-            this.AddDebugOutput("Checking syntax: " . scriptPath)
-            
-            ; Try to compile/validate the script
-            try {
-                ; This would normally use AutoHotkey's syntax checking
-                this.AddDebugOutput("✅ Syntax appears valid")
-            } catch as e {
-                this.AddDebugOutput("❌ Syntax error: " . e.Message)
-            }
-            
+            RunWait('"' . A_AhkPath . '" /ErrorStdOut /iLib "' . scriptPath . '"', "", "Hide")
+            AHDebugHelper.AddDebugOutput("✅ Syntax command executed (check console output)")
         } catch as e {
-            this.AddDebugOutput("Error checking syntax: " . e.Message)
+            AHDebugHelper.AddDebugOutput("❌ Syntax check failed: " . e.Message)
         }
     }
-    
+
     static FindDependencies(*) {
-        try {
-            scriptPath := GuiFromHwnd(WinGetID("AutoHotkey Debug Helper")).scriptPathEdit.Value
-            
-            if (!FileExist(scriptPath)) {
-                this.AddDebugOutput("Script file not found: " . scriptPath)
-                return
+        scriptPath := AHDebugHelper.scriptPathEdit.Value
+        if (!FileExist(scriptPath)) {
+            AHDebugHelper.AddDebugOutput("Script file not found: " . scriptPath)
+            return
+        }
+        AHDebugHelper.AddDebugOutput("=== DEPENDENCIES ANALYSIS ===")
+        includes := []
+        for , line in StrSplit(FileRead(scriptPath, "UTF-8"), "`n") {
+            if (RegExMatch(line, "i)#Include\s+(.+)", &match)) {
+                includes.Push(Trim(match[1]))
             }
-            
-            this.AddDebugOutput("=== DEPENDENCIES ANALYSIS ===")
-            this.AddDebugOutput("Finding dependencies: " . scriptPath)
-            
-            scriptContent := FileRead(scriptPath)
-            
-            ; Find #Include statements
-            includes := []
-            Loop Parse, scriptContent, "`n" {
-                if (RegExMatch(A_LoopField, "i)#Include\s+(.+)")) {
-                    includes.Push(Trim(RegExReplace(A_LoopField, "i)#Include\s+", "")))
-                }
-            }
-            
-            this.AddDebugOutput("Found " . includes.Length . " includes:")
-            for include in includes {
-                this.AddDebugOutput("  - " . include)
-            }
-            
-        } catch as e {
-            this.AddDebugOutput("Error finding dependencies: " . e.Message)
+        }
+        AHDebugHelper.AddDebugOutput("Found " . includes.Length . " include statements:")
+        for , includePath in includes {
+            AHDebugHelper.AddDebugOutput("  - " . includePath)
         }
     }
-    
+
     static PerformanceAnalysis(*) {
-        try {
-            this.AddDebugOutput("=== PERFORMANCE ANALYSIS ===")
-            
-            ; Get script performance info
-            this.AddDebugOutput("Script running time: " . A_TickCount . " ms")
-            this.AddDebugOutput("Memory usage: " . A_WorkingSet . " bytes")
-            this.AddDebugOutput("CPU usage: " . A_CPUUsage . "%")
-            
-        } catch as e {
-            this.AddDebugOutput("Error in performance analysis: " . e.Message)
+        AHDebugHelper.AddDebugOutput("=== PERFORMANCE ANALYSIS ===")
+        AHDebugHelper.AddDebugOutput("Uptime: " . A_TickCount . " ms")
+        if (IsSet(A_WorkingSet) && A_WorkingSet !== "") {
+            workingSetMb := Round((A_WorkingSet + 0) / 1024 / 1024, 2)
+            AHDebugHelper.AddDebugOutput("Working Set: " . workingSetMb . " MB")
+        } else {
+            AHDebugHelper.AddDebugOutput("Working Set: unavailable")
+        }
+        if (IsSet(A_CPUUsage)) {
+            AHDebugHelper.AddDebugOutput("CPU Usage: " . A_CPUUsage . "%")
+        } else {
+            AHDebugHelper.AddDebugOutput("CPU Usage: unavailable")
         }
     }
-    
+
     static RunWithDebug(*) {
+        scriptPath := AHDebugHelper.scriptPathEdit.Value
+        if (!FileExist(scriptPath)) {
+            AHDebugHelper.AddDebugOutput("Script file not found: " . scriptPath)
+            return
+        }
+        cmdParts := [A_AhkPath]
+        if (AHDebugHelper.errorStdOutCheck.Value) {
+            cmdParts.Push("/ErrorStdOut")
+        }
+        if (AHDebugHelper.noTrayIconCheck.Value) {
+            cmdParts.Push("/NoTrayIcon")
+        }
+        if (AHDebugHelper.forceReloadCheck.Value) {
+            cmdParts.Push("/restart")
+        }
+        cmdParts.Push(scriptPath)
+        command := '"' . cmdParts[1] . '"'
+        for index, part in cmdParts {
+            if (index = 1) {
+                continue
+            }
+            command .= ' "' . part . '"'
+        }
+        AHDebugHelper.AddDebugOutput("Command: " . command)
         try {
-            scriptPath := GuiFromHwnd(WinGetID("AutoHotkey Debug Helper")).scriptPathEdit.Value
-            
-            if (!FileExist(scriptPath)) {
-                this.AddDebugOutput("Script file not found: " . scriptPath)
-                return
-            }
-            
-            this.AddDebugOutput("=== RUNNING WITH DEBUG FLAGS ===")
-            this.AddDebugOutput("Script: " . scriptPath)
-            
-            ; Build command line with debug flags
-            cmd := '"' . A_AhkPath . '"'
-            
-            ; Add debug flags based on checkboxes
-            if (WinExist("AutoHotkey Debug Helper")) {
-                gui := GuiFromHwnd(WinGetID("AutoHotkey Debug Helper"))
-                ; Note: In a real implementation, you'd check the checkbox states
-                cmd .= ' /ErrorStdOut'
-                cmd .= ' /NoTrayIcon'
-            }
-            
-            cmd .= ' "' . scriptPath . '"'
-            
-            this.AddDebugOutput("Command: " . cmd)
-            
-            ; Run the script
-            Run(cmd)
-            this.AddDebugOutput("✅ Script launched with debug flags")
-            
+            Run(command)
+            AHDebugHelper.AddDebugOutput("✅ Script launched with selected debug flags")
         } catch as e {
-            this.AddDebugOutput("Error running script: " . e.Message)
+            AHDebugHelper.AddDebugOutput("Error launching script: " . e.Message)
         }
     }
-    
+
     static AddDebugOutput(message) {
-        try {
-            timestamp := FormatTime(A_Now, "HH:mm:ss")
-            logEntry := "[" . timestamp . "] " . message
-            
-            this.debugLog.Push(logEntry)
-            
-            if (WinExist("AutoHotkey Debug Helper")) {
-                gui := GuiFromHwnd(WinGetID("AutoHotkey Debug Helper"))
-                currentText := gui.debugOutput.Value
-                gui.debugOutput.Value := currentText . logEntry . "`n"
-                
-                ; Auto-scroll to bottom
-                gui.debugOutput.Focus()
-                Send("^{End}")
-            }
-        } catch {
-            ; Ignore errors
-        }
+        AHDebugHelper.AppendLog(message, "INFO")
     }
-    
+
     static SaveDebugLog(*) {
         try {
             logFile := A_Temp . "\autohotkey_debug_log.txt"
-            
-            logContent := "AutoHotkey Debug Log`n"
-            logContent .= "Generated: " . FormatTime(A_Now, "yyyy-MM-dd HH:mm:ss") . "`n`n"
-            
-            for message in this.debugLog {
-                logContent .= message . "`n"
+            writer := FileOpen(logFile, "w", "UTF-8")
+            if (!writer) {
+                AHDebugHelper.AddDebugOutput("Unable to open log file for writing.")
+                return
             }
-            
-            FileAppend(logContent, logFile)
-            this.AddDebugOutput("Debug log saved to: " . logFile)
-            
+            writer.WriteLine("AutoHotkey Debug Log")
+            timestamp := ""
+            timestamp := FormatTime(, "yyyy-MM-dd HH:mm:ss")
+            writer.WriteLine("Generated: " . timestamp)
+            writer.WriteLine("")
+            for message in AHDebugHelper.debugLog {
+                writer.WriteLine(message)
+            }
+            writer.Close()
+            AHDebugHelper.AddDebugOutput("Debug log saved to: " . logFile)
         } catch as e {
-            this.AddDebugOutput("Error saving debug log: " . e.Message)
+            AHDebugHelper.AddDebugOutput("Error saving debug log: " . e.Message)
         }
     }
-    
+
     static CopyOutput(*) {
-        try {
-            if (WinExist("AutoHotkey Debug Helper")) {
-                gui := GuiFromHwnd(WinGetID("AutoHotkey Debug Helper"))
-                A_Clipboard := gui.debugOutput.Value
-                this.AddDebugOutput("Output copied to clipboard")
-            }
-        } catch as e {
-            this.AddDebugOutput("Error copying output: " . e.Message)
+        if (!AHDebugHelper.debugOutput) {
+            return
         }
+        A_Clipboard := AHDebugHelper.debugOutput.Value
+        AHDebugHelper.AddDebugOutput("Output copied to clipboard")
     }
-    
+
     static ClearOutput(*) {
-        try {
-            if (WinExist("AutoHotkey Debug Helper")) {
-                gui := GuiFromHwnd(WinGetID("AutoHotkey Debug Helper"))
-                gui.debugOutput.Value := ""
-                this.debugLog := []
-                this.AddDebugOutput("Output cleared")
-            }
-        } catch as e {
-            this.AddDebugOutput("Error clearing output: " . e.Message)
+        if (AHDebugHelper.debugOutput) {
+            AHDebugHelper.debugOutput.Value := ""
         }
+        AHDebugHelper.debugLog := []
+        AHDebugHelper.AddDebugOutput("Output cleared")
     }
-    
+
     static ShowHelp(*) {
-        helpText := "🔧 AutoHotkey Debug Helper`n`n"
-        helpText .= "This tool provides comprehensive debugging for AutoHotkey v2:`n`n"
-        helpText .= "🎯 Debug Controls:`n"
-        helpText .= "• List Variables: Show all variables and their values`n"
-        helpText .= "• List Lines: Show recently executed lines`n"
-        helpText .= "• Key History: Show recent keystrokes and mouse clicks`n"
-        helpText .= "• Debug Log: View logged debug messages`n`n"
-        helpText .= "🔍 Script Analysis:`n"
-        helpText .= "• Analyze Script: Count functions, classes, hotkeys, variables`n"
-        helpText .= "• Check Syntax: Validate script syntax`n"
-        helpText .= "• Find Dependencies: Locate #Include statements`n"
-        helpText .= "• Performance: Show runtime performance metrics`n`n"
-        helpText .= "💻 Command Line Debugging:`n"
-        helpText .= "• ErrorStdOut: Send errors to console instead of message boxes`n"
-        helpText .= "• NoTrayIcon: Run without tray icon`n"
-        helpText .= "• Force Reload: Force reload even if script is running`n`n"
-        helpText .= "Hotkeys:`n"
-        helpText .= "• Ctrl+Alt+D: Toggle debug mode`n"
-        helpText .= "• F3: List variables`n"
-        helpText .= "• Ctrl+Alt+V: List lines`n"
-        helpText .= "• Ctrl+Alt+K: Key history`n"
-        helpText .= "• Escape: Close tool"
-        
+        helpText := "🔧 AutoHotkey Debug Helper" . "`n`n"
+        helpText .= "Provides quick access to common debugging tasks:" . "`n`n"
+        helpText .= "🎯 Debug Controls" . "`n"
+        helpText .= "  • List Variables" . "`n"
+        helpText .= "  • List Lines" . "`n"
+        helpText .= "  • Key History" . "`n"
+        helpText .= "  • Debug Log" . "`n`n"
+        helpText .= "🔍 Script Analysis" . "`n"
+        helpText .= "  • Analyze Script" . "`n"
+        helpText .= "  • Check Syntax" . "`n"
+        helpText .= "  • Dependencies" . "`n"
+        helpText .= "  • Performance" . "`n`n"
+        helpText .= "💻 Command Line Debugging" . "`n"
+        helpText .= "  • Toggle ErrorStdOut, NoTrayIcon, Restart" . "`n`n"
+        helpText .= "Hotkeys:" . "`n"
+        helpText .= "  Ctrl+Alt+D – Toggle GUI" . "`n"
+        helpText .= "  F3 – List variables" . "`n"
+        helpText .= "  Ctrl+Alt+V – List lines" . "`n"
+        helpText .= "  Ctrl+Alt+K – Key history" . "`n"
+        helpText .= "  Escape – Hide GUI"
         MsgBox(helpText, "AutoHotkey Debug Helper Help", "Iconi")
     }
-    
-    static CloseGUI(*) {
-        if (WinExist("AutoHotkey Debug Helper")) {
-            WinClose("AutoHotkey Debug Helper")
+
+    static EnsureLogInfrastructure() {
+        if (AHDebugHelper.logInitialized) {
+            return
+        }
+        AHDebugHelper.logDir := A_ScriptDir . "\logs"
+        try {
+            if (!DirExist(AHDebugHelper.logDir)) {
+                DirCreate(AHDebugHelper.logDir)
+            }
+        } catch as dirError {
+            OutputDebug("Failed to create log directory: " . dirError.Message)
+        }
+        AHDebugHelper.logFilePath := AHDebugHelper.logDir . "\autohotkey_debug_helper.log"
+        AHDebugHelper.logInitialized := true
+    }
+
+    static AppendLog(message, severity := "INFO") {
+        AHDebugHelper.EnsureLogInfrastructure()
+        timestamp := ""
+        timestamp := FormatTime(, "yyyy-MM-dd HH:mm:ss")
+        entry := "[" . timestamp . "] [" . severity . "] " . message
+        AHDebugHelper.debugLog.Push(entry)
+        if (AHDebugHelper.debugOutput) {
+            currentText := AHDebugHelper.debugOutput.Value
+            AHDebugHelper.debugOutput.Value := currentText . entry . "`n"
+            AHDebugHelper.debugOutput.Redraw()
+            AHDebugHelper.debugOutput.Focus()
+            Send("^{End}")
+        }
+        OutputDebug(entry)
+        if (AHDebugHelper.logFilePath) {
+            try {
+                FileAppend(entry . "`n", AHDebugHelper.logFilePath, "UTF-8")
+            } catch as fileError {
+                OutputDebug("Failed to append to log file: " . fileError.Message)
+            }
         }
     }
-    
-    static SetupHotkeys() {
-        Hotkey("^!d", (*) => this.Init())
-        Hotkey("F3", (*) => this.ListVariables())
-        Hotkey("^!v", (*) => this.ListLines())
-        Hotkey("^!k", (*) => this.KeyHistory())
-        Hotkey("Escape", (*) => this.CloseGUI())
+
+    static HandleScriptError(Thrown, Mode) {
+        description := "Unhandled exception (" . Mode . "): " . Thrown.Message
+        fileName := ""
+        if (ObjHasOwnProp(Thrown, "File") && Thrown.File) {
+            fileName := Thrown.File
+        } else {
+            fileName := A_ScriptFullPath
+        }
+        lineInfo := ObjHasOwnProp(Thrown, "Line") && Thrown.Line ? Thrown.Line : "unknown"
+        location := "File: " . fileName . " | Line: " . lineInfo
+        AHDebugHelper.AppendLog(description, "ERROR")
+        AHDebugHelper.AppendLog(location, "ERROR")
+        if (Thrown.Stack) {
+            AHDebugHelper.AppendLog("Stack trace:`n" . Thrown.Stack, "TRACE")
+        }
+        if (AHDebugHelper.mainGui) {
+            try {
+                AHDebugHelper.mainGui.Hide()
+                AHDebugHelper.isVisible := false
+            } catch {
+                ; ignore GUI hide errors
+            }
+        }
+        return 1
+    }
+
+    static ReverseMouseStep(*) {
+        x := 0
+        y := 0
+        MouseGetPos(&x, &y)
+        MouseMove(A_ScreenWidth - x, A_ScreenHeight - y, 0)
+    }
+
+    static MouseJitterStep(*) {
+        x := 0
+        y := 0
+        MouseGetPos(&x, &y)
+        jitterX := Random(-5, 5)
+        jitterY := Random(-5, 5)
+        MouseMove(x + jitterX, y + jitterY, 0)
+    }
+
+    static MouseTrailStep(*) {
+        x := 0
+        y := 0
+        MouseGetPos(&x, &y)
+        trailGui := Gui("+AlwaysOnTop -Caption +ToolWindow", "")
+        trailGui.BackColor := "00ff00"
+        trailGui.Show("x" . x . " y" . y . " w4 h4")
+        AHDebugHelper.RegisterOneShot(1000, (*) => trailGui.Destroy())
+    }
+
+    static RandomClicksStep(*) {
+        x := Random(0, A_ScreenWidth)
+        y := Random(0, A_ScreenHeight)
+        Click(x, y)
+    }
+
+    static FakeTypingStep(*) {
+        fakeText := "Hello World! This is fake typing. "
+        Send(fakeText)
+    }
+
+    static RegisterOneShot(delayMs, callback) {
+        SetTimer(callback, -Abs(delayMs))
+    }
+
+    static BeginMoveWindow(gui) {
+        PostMessage(0xA1, 2, , , gui)
+    }
+
+    static ShowTrayTip(title, message) {
+        TrayTip(title, message)
     }
 }
 
-; Hotkeys
-Hotkey("^!d", (*) => AHDebugHelper.Init())
-Hotkey("F3", (*) => AHDebugHelper.ListVariables())
-Hotkey("^!v", (*) => AHDebugHelper.ListLines())
-Hotkey("^!k", (*) => AHDebugHelper.KeyHistory())
-
-; Initialize
 AHDebugHelper.Init()
+
+OnExit((*) => AHDebugHelper.CloseGUI())
 

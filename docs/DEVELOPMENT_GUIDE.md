@@ -4,6 +4,30 @@ This guide covers development practices, tools, and workflows for the AutoHotkey
 
 ## 🛠️ Development Tools
 
+### IDE Support
+
+**AutoHotkey++ Cursor Extension** - Recommended IDE enhancement:
+
+The AutoHotkey++ extension provides excellent AutoHotkey v2 support for Cursor IDE:
+
+**Features:**
+- ✅ Full IntelliSense and autocomplete for AutoHotkey v2 syntax
+- ✅ Real-time syntax checking with inline error indicators
+- ✅ Code formatting and refactoring capabilities
+- ✅ Integrated debugging support
+- ✅ Optimized syntax highlighting for v2 keywords and functions
+- ✅ Go-to-definition and symbol navigation
+- ✅ Built-in snippets for common v2 patterns
+
+**Installation:**
+1. Open Cursor IDE
+2. Go to Extensions (Ctrl+Shift+X)
+3. Search for "AutoHotkey++"
+4. Install the extension
+5. Reload Cursor to activate
+
+The extension works seamlessly with the project's linting tools and provides a much better development experience with real-time feedback as you code.
+
 ### Linting System
 
 The project includes a comprehensive linting infrastructure for AutoHotkey v2 development:
@@ -232,6 +256,7 @@ The linter identifies several categories of issues:
 - [AutoHotkey v2 Documentation](https://www.autohotkey.com/docs/v2/)
 - [Migration Guide](https://www.autohotkey.com/docs/v2/Scripts.htm#compatibility)
 - [Syntax Changes](https://www.autohotkey.com/docs/v2/Scripts.htm#syntax-changes)
+- **AutoHotkey++ Cursor Extension** - Enhanced IDE support for AutoHotkey v2 development
 
 ## 🤝 Contributing
 

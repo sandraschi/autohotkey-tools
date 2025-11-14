@@ -1,6 +1,30 @@
 # Complete AutoHotkey v1 to v2 Migration Guide
 
-## 🚨 ALL v1 Syntax Patterns That MUST Be Fixed
+## ⚠️ CRITICAL: Write v2 From The Start!
+
+**DO NOT write v1 syntax and convert it later!** This creates technical debt and errors.
+
+### ✅ CORRECT Approach for New Scripts:
+1. **Write v2 syntax from the start** - Use the patterns below as reference
+2. **Consult this guide** when unsure about v2 syntax
+3. **Check the official v2 docs** (`AutoHotkeyDocs` repository) for function signatures
+4. **Use the linter** to catch any v1 remnants immediately
+
+### ❌ WRONG Approach (What We Did Before):
+1. Write v1 syntax
+2. Try to convert it later
+3. Introduce bugs and incorrect conversions
+4. Waste hours fixing conversion mistakes
+
+### When Writing New Scripts:
+- **Always start with:** `#Requires AutoHotkey v2.0+`
+- **Use v2 syntax patterns** from this guide
+- **If in doubt:** Consult `docs/Complete_V1_to_V2_Migration_Guide.md` or the official v2 documentation
+- **Never use:** v1 command syntax, double-colon hotkeys, or any v1 patterns
+
+---
+
+## 🚨 ALL v1 Syntax Patterns That MUST Be Fixed (For Existing Scripts)
 
 ### 1. GUI COMMANDS
 
@@ -51,10 +75,20 @@ MsgBox, 64, Title, Message
 MsgBox, %text%, Option
 ```
 
-#### ✅ v2: Function with Parentheses
+#### ❌ WRONG v2 Conversion (Common Mistake!)
 ```autohotkey
-MsgBox("Message", "Title", "Iconi")
-MsgBox(text, , option)
+MsgBox("Message", "Title", "Iconi Timeout10")  ; WRONG! Invalid option string
+MsgBox("Message", "Title", "Iconi", 10)  ; WRONG! No 4th parameter in v2
+```
+
+#### ✅ v2: Function with 3 Parameters (NO TIMEOUT!)
+```autohotkey
+MsgBox("Message", "Title", "Icon!")  ; CORRECT - 3 parameters only
+MsgBox(text, , "IconX")  ; CORRECT - empty title uses comma
+
+; For timed/non-blocking messages, use TrayTip or ToolTip instead:
+TrayTip("Title", "Message", 10)  ; 10 second timeout
+ToolTip("Message", , , 10)  ; Tooltip with timeout
 ```
 
 ### 4. FORMATTIME
@@ -65,22 +99,38 @@ FormatTime, output,, yyyy-MM-dd
 FormatTime, output, A_Now
 ```
 
-#### ✅ v2: Function Syntax
+#### ❌ WRONG v2 Conversion (Common Mistake!)
 ```autohotkey
-FormatTime(output, , "yyyy-MM-dd")
-timestamp := FormatTime(A_Now, "yyyy-MM-dd")
+FormatTime(timestamp, A_Now, "yyyy-MM-dd")  ; WARNING: Variable 'timestamp' not assigned
+```
+
+#### ✅ v2: Initialize Output Variable First
+```autohotkey
+timestamp := ""  ; Initialize to suppress linter warning
+FormatTime(timestamp, A_Now, "yyyy-MM-dd")  ; CORRECT - variable initialized
+
+; Or use direct return (if supported):
+timestamp := FormatTime(A_Now, "yyyy-MM-dd")  ; Alternative syntax
 ```
 
 ### 5. RANDOM
 
-#### ❌ v1: Returns Value Directly
+#### ❌ v1: Command Syntax
 ```autohotkey
-randomValue := Random(1, 100)
+Random, outputVar, 1, 100
+Random, increment, 1, 5
 ```
 
-#### ✅ v2: Output Parameter First
+#### ❌ WRONG v2 Conversion (Common Mistake!)
 ```autohotkey
-Random(randomValue, 1, 100)
+Random(outputVar, 1, 100)  ; WRONG! This is NOT v2 syntax
+Random(increment, 1, 5)    ; WRONG! This is NOT v2 syntax
+```
+
+#### ✅ v2: Function Returns Value Directly
+```autohotkey
+outputVar := Random(1, 100)  ; CORRECT - assignment operator
+increment := Random(1, 5)    ; CORRECT - assignment operator
 ```
 
 ### 6. HOTKEYS
@@ -89,15 +139,34 @@ Random(randomValue, 1, 100)
 ```autohotkey
 ^!c::
     DoSomething()
+    ShowOSD("Done")
 return
 
 F7::Function()
 ```
 
-#### ✅ v2: Hotkey() Function
+#### ❌ WRONG v2 Conversion (Common Mistake!)
 ```autohotkey
+Hotkey("^!c", (*) => { DoSomething() ShowOSD("Done") })  ; WRONG! Missing propertyname in object literal
+Hotkey("#Up", (*) => { Send("{Volume_Up}") ShowOSD("Volume: " . GetVolume() . "%") })  ; WRONG!
+```
+
+#### ✅ v2: Use Named Functions for Multi-Statement Callbacks
+```autohotkey
+; For single statements, arrow functions work:
 Hotkey("^!c", (*) => DoSomething())
 Hotkey("F7", (*) => Function())
+
+; For multiple statements, use named functions:
+Hotkey("^!c", MyHotkeyHandler)
+
+MyHotkeyHandler(*) {
+    DoSomething()
+    ShowOSD("Done")
+}
+
+; Or use ObjBindMethod for class methods:
+Hotkey("^!c", ObjBindMethod(MyClass, "HandleHotkey"))
 ```
 
 ### 7. FOR LOOPS
@@ -107,14 +176,31 @@ Hotkey("F7", (*) => Function())
 Loop, 10
 Loop Files, C:\*.*
 for i := 1 to 10
+for i := StrLen(text) to 1  ; Reverse iteration
 ```
 
-#### ✅ v2: Methods and Ranges
+#### ❌ WRONG v2 Conversion (Common Mistake!)
 ```autohotkey
-Loop 10
-Loop Files "C:\*.*"
-for i in Range(1, 10)
-for i, item in array
+for i := 1 to 10  ; WRONG! "to" keyword doesn't exist in v2
+for i := StrLen(text) to 1  ; WRONG! This syntax is invalid
+```
+
+#### ✅ v2: Loop with A_Index or Range
+```autohotkey
+Loop 10  ; Simple count
+Loop Files "C:\*.*"  ; File loop
+for i in Range(1, 10)  ; Range iteration
+for i, item in array  ; Array iteration
+
+; Forward iteration (1 to N)
+Loop StrLen(text) {
+    i := A_Index  ; A_Index starts at 1
+}
+
+; Reverse iteration (N to 1)
+Loop StrLen(text) {
+    i := StrLen(text) - A_Index + 1  ; Calculate reverse index
+}
 ```
 
 ### 8. SETTIMER
@@ -339,6 +425,92 @@ DoClick(*) {
 }
 ```
 
+### 21. FILESELECTFOLDER → DIRSELECT
+
+#### ❌ v1: FileSelectFolder Command
+```autohotkey
+FileSelectFolder, outputVar, , 3, Select Folder
+```
+
+#### ❌ WRONG v2 Conversion (Common Mistake!)
+```autohotkey
+FileSelectFolder(outputVar, , 3, "Select Folder")  ; WRONG! Function doesn't exist
+```
+
+#### ✅ v2: Use DirSelect Function
+```autohotkey
+outputVar := DirSelect(, 3, "Select Folder")  ; CORRECT - returns path directly
+if (outputVar != "") {
+    ; User selected a folder
+}
+```
+
+### 22. FILEWRITE → FILEOPEN().WRITE()
+
+#### ❌ v1: FileWrite Command
+```autohotkey
+FileWrite, content, file.txt
+```
+
+#### ❌ WRONG v2 Conversion (Common Mistake!)
+```autohotkey
+FileWrite(content, "file.txt")  ; WRONG! Function doesn't exist
+```
+
+#### ✅ v2: Use FileOpen().Write()
+```autohotkey
+FileOpen("file.txt", "w", "UTF-8").Write(content)  ; CORRECT - explicit encoding
+```
+
+### 23. GUI TEXT OPTIONS (+Bold, etc.)
+
+#### ❌ v1: Inline Options
+```autohotkey
+Gui, Add, Text, x10 y10 w100 h20 +Bold, Heading
+```
+
+#### ❌ WRONG v2 Conversion (Common Mistake!)
+```autohotkey
+gui.Add("Text", "x10 y10 w100 h20 +Bold", "Heading")  ; WRONG! +Bold not valid in Add()
+```
+
+#### ✅ v2: Use SetFont Before Adding Text
+```autohotkey
+gui.SetFont("s12 Bold", "Segoe UI")  ; Set font first
+gui.Add("Text", "x10 y10 w100 h20", "Heading")  ; Then add text
+gui.SetFont("s10", "Segoe UI")  ; Reset font for subsequent controls
+```
+
+---
+
+## 🚨 CRITICAL CONVERSION MISTAKES SUMMARY
+
+### Patterns That Were INCORRECTLY Converted (Found in This Codebase)
+
+1. **Random() - WRONG:** `Random(outputVar, min, max)`  
+   **CORRECT:** `outputVar := Random(min, max)`
+
+2. **for loops with "to" - WRONG:** `for i := 1 to 10`  
+   **CORRECT:** `Loop 10 { i := A_Index }` or `for i in Range(1, 10)`
+
+3. **MsgBox timeout - WRONG:** `MsgBox("text", "title", "Iconi Timeout10")` or `MsgBox(..., ..., ..., 10)`  
+   **CORRECT:** `MsgBox("text", "title", "Icon!")` (no timeout - use TrayTip/ToolTip for timed messages)
+
+4. **FormatTime warnings - WRONG:** `FormatTime(timestamp, ...)` without initialization  
+   **CORRECT:** `timestamp := ""` then `FormatTime(timestamp, ...)`
+
+5. **Multi-statement hotkey callbacks - WRONG:** `Hotkey("key", (*) => { stmt1 stmt2 })`  
+   **CORRECT:** Use named functions or `ObjBindMethod`
+
+6. **FileSelectFolder - WRONG:** `FileSelectFolder(...)`  
+   **CORRECT:** `DirSelect(...)`
+
+7. **FileWrite - WRONG:** `FileWrite(...)`  
+   **CORRECT:** `FileOpen(..., "w", "UTF-8").Write(...)`
+
+8. **GUI +Bold option - WRONG:** `gui.Add("Text", "... +Bold", "...")`  
+   **CORRECT:** `gui.SetFont("s12 Bold", ...)` before adding text
+
 ---
 
 ## 📋 COMPLETE CHECKLIST
@@ -349,10 +521,14 @@ Before pushing any script, verify:
 - [ ] No `GuiControl,` (use `control.Text`)
 - [ ] No `InputBox().Result/.Value` (use direct return)
 - [ ] No `MsgBox,` (use `MsgBox()`)
+- [ ] No `MsgBox(..., ..., ..., timeout)` (v2 has NO 4th parameter - use TrayTip/ToolTip for timed messages)
+- [ ] No `MsgBox(..., ..., "Iconi Timeout10")` (invalid option string)
 - [ ] No `FormatTime,` (use `FormatTime()`)
-- [ ] No `Random()` without output param (use `Random(var, min, max)`)
+- [ ] All `FormatTime()` calls initialize output variable first: `timestamp := ""` then `FormatTime(timestamp, ...)`
+- [ ] No `Random(outputVar, min, max)` (use `outputVar := Random(min, max)`)
 - [ ] No `^!c::` hotkeys (use `Hotkey()`)
-- [ ] No `for i := 1 to 10` (use `for i in Range()`)
+- [ ] No `for i := 1 to 10` (use `Loop N { i := A_Index }` or `for i in Range()`)
+- [ ] No `for i := N to 1` (use `Loop N { i := N - A_Index + 1 }`)
 - [ ] No `SetTimer, Label` (use `SetTimer(() => Func(), period)`)
 - [ ] No label handlers (use `OnEvent()`)
 - [ ] No `Menu,` commands (use `A_TrayMenu` or `Menu()` object)
@@ -365,6 +541,10 @@ Before pushing any script, verify:
 - [ ] No empty `catch {}` (use `catch as unused`)
 - [ ] OnError with TWO parameters: `(Exception, Mode)`
 - [ ] No label handlers (convert to functions)
+- [ ] No multi-statement arrow functions in hotkeys (use named functions or `ObjBindMethod`)
+- [ ] No `FileSelectFolder()` (use `DirSelect()`)
+- [ ] No `FileWrite()` (use `FileOpen(..., "w", "UTF-8").Write()`)
+- [ ] No `+Bold` in `gui.Add("Text", ...)` (use `gui.SetFont("s12 Bold", ...)` before adding)
 
 ---
 

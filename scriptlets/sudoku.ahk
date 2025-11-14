@@ -1,827 +1,284 @@
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
 
-; ==============================================================================
-; Sudoku Puzzle Game
-; @name: Sudoku Puzzle Game
-; @version: 1.0.0
-; @description: Classic Sudoku puzzle game with puzzle generation, solving assistance, and difficulty levels. Interactive 9x9 grid puzzle solver and generator.
-; @description: Features puzzle generation at multiple difficulty levels, solving hints, validation checking, and note-taking capabilities. Includes timer, undo/redo, and puzzle saving.
-; @description: Perfect puzzle game for Sudoku enthusiasts with intelligent puzzle generation and helpful solving features for both beginners and advanced players.
-; @category: games
-; @author: Sandra
-; @hotkeys: (game controls - see documentation)
-; @enabled: true
-; @priority: 75
-; @tag: sudoku, puzzle, game, logic, brain-teaser, entertainment, classic
-; @cli: --difficulty <easy|medium|hard|expert> - Generate puzzle at specific difficulty
-; @cli: --solve - Auto-solve current puzzle
-; @cli: --validate - Check if current puzzle is valid
-; @cli: --help - Show CLI usage and game options
-; @dependencies: 
-; ==============================================================================
+OnError(SudokuApp.HandleError)
 
-; Error handling - log to file instead of showing popups
-OnError(LogError)
+class SudokuApp {
+    static gui := ""
+    static statusCtrl := ""
+    static cellData := []
+    static puzzleState := []
+    static puzzleSeed := [
+        "530070000",
+        "600195000",
+        "098000060",
+        "800060003",
+        "400803001",
+        "700020006",
+        "060000280",
+        "000419005",
+        "000080079"
+    ]
+    static puzzleSolution := [
+        "534678912",
+        "672195348",
+        "198342567",
+        "859761423",
+        "426853791",
+        "713924856",
+        "961537284",
+        "287419635",
+        "345286179"
+    ]
 
-LogError(Thrown, Mode) {
-    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
-    FileAppend(errorMsg, "sudoku_errors.log", "UTF-8")
-    OutputDebug(errorMsg)  ; Enable LLM debugging
-    return 1  ; Suppress popup (1 = suppress, 0 = show)
-}
-
-; =============================================================================
-; CONSTANTS AND CONFIGURATION
-; =============================================================================
-; Game settings
-APP_TITLE := "Sudoku"
-GRID_SIZE := 9
-CELL_SIZE := 50
-GRID_OFFSET_X := 20
-GRID_OFFSET_Y := 20
-THICK_LINE := 3
-THIN_LINE := 1
-
-; Colors
-COLOR_BG := 0xFFFFFF
-COLOR_TEXT := 0x000000
-COLOR_SELECTED := 0xFFFF00
-COLOR_HIGHLIGHT := 0xE6F3FF
-COLOR_ERROR := 0xFFCCCC
-COLOR_GRID := 0x000000
-COLOR_NOTE := 0x808080
-
-; =============================================================================
-; GLOBAL VARIABLES
-; =============================================================================
-; Main GUI and controls
-global guiSudoku
-global statusBar
-global cellControls := Map()
-global guiControls := Map()
-
-; Game state
-global board := []
-global solution := []
-global original := []
-global notes := []
-global selectedCell := {row: 0, col: 0}
-
-; Game settings
-global difficulty := "medium"
-global showHints := true
-global showMistakes := true
-global noteMode := false
-global debugMode := false
-
-; Control references
-global difficultyDDL
-global showHintsCB
-global showMistakesCB
-
-; =============================================================================
-; MAIN WINDOW
-; =============================================================================
-; Create the main window
-CreateGUI()
-
-; =============================================================================
-; HELPER FUNCTIONS
-; =============================================================================
-LogDebug(message) {
-    global debugMode
-    if (debugMode) {
-        OutputDebug("[Sudoku] " . message)
+    static Init() {
+        SudokuApp.ResetState()
+        SudokuApp.CreateGui()
+        SudokuApp.SetupHotkeys()
+        SudokuApp.UpdateStatus("Loaded starter puzzle.")
     }
-}
 
-ValidateGUI() {
-    global guiSudoku
-    if (guiSudoku = "") {
-        LogDebug("GUI instance not available")
-        return false
+    static HandleError(Thrown, Mode) {
+        message := "Sudoku error: " . Thrown.Message . " at line " . Thrown.Line
+        try FileAppend(message . "`n", "sudoku_errors.log", "UTF-8")
+        OutputDebug(message)
+        return 1
     }
-    return true
-}
 
-; =============================================================================
-; GUI CREATION
-; =============================================================================
-CreateGUI() {
-    global guiSudoku, statusBar, selectedCell, cellControls, guiControls
-    
-    try {
-        ; Create main window
-        guiSudoku := Gui("+Resize +MinSize500x600", APP_TITLE)
-        guiSudoku.OnEvent("Close", (*) => ExitApp())
-        guiSudoku.SetFont("s10", "Segoe UI")
-        
-        ; Initialize selected cell
-        selectedCell := {row: 0, col: 0}
-        
-        ; Initialize cell controls map
-        cellControls := Map()
-        guiControls := Map()
-    
-    ; Create game board
-    CreateBoard()
-    
-    ; Create control panel
-    CreateControls()
-    
-    ; Status bar
-    statusBar := guiSudoku.Add("StatusBar", , "Ready")
-    guiControls["statusBar"] := statusBar
-    
-    ; Initialize hotkeys
-    InitHotkeys()
-    
-    ; Show the window
-    guiSudoku.Show("w500 h600")
-    
-    ; Generate initial puzzle
-    GeneratePuzzle()
-    LogDebug("Sudoku GUI created successfully")
-    
-    } catch as e {
-        LogDebug("Error creating Sudoku GUI: " . e.Message)
-        MsgBox("Error creating GUI: " . e.Message, "Error", "Iconx")
-        throw
-    }
-}
-
-CreateBoard() {
-    global guiSudoku, cellControls, notes
-    
-    ; Create cells
-    cellSize := CELL_SIZE
-    thickPen := THICK_LINE
-    
-    ; Initialize arrays
-    InitializeArrays()
-    
-    ; Create cells
-    Loop GRID_SIZE {
-        i := A_Index
-        
-        Loop GRID_SIZE {
-            j := A_Index
-            
-            ; Calculate position with thicker borders for 3x3 boxes
-            xOffset := Floor((j-1) / 3) * thickPen
-            yOffset := Floor((i-1) / 3) * thickPen
-            xPos := GRID_OFFSET_X + (j-1) * cellSize + xOffset
-            yPos := GRID_OFFSET_Y + (i-1) * cellSize + yOffset
-            
-            ; Create cell
-            cell := guiSudoku.Add("Text", 
-                "x" xPos " y" yPos 
-                . " w" cellSize " h" cellSize " 0x201 Border Center BackgroundWhite")
-            
-            ; Set cell properties
-            cell.SetFont("s16 Bold", "Arial")
-            
-            ; Store cell control reference
-            cellKey := i . "_" . j
-            cellControls[cellKey] := cell
-            
-            ; Add click event
-            cell.OnEvent("Click", SelectCell.Bind(i, j))
-        }
-    }
-    
-    ; Draw grid lines
-    DrawGrid()
-}
-
-InitializeArrays() {
-    global board, solution, original, notes
-    
-    ; Initialize empty 9x9 grids
-    board := []
-    solution := []
-    original := []
-    notes := []
-    
-    Loop GRID_SIZE {
-        i := A_Index
-        board.Push([])
-        solution.Push([])
-        original.Push([])
-        notes.Push([])
-        
-        Loop GRID_SIZE {
-            board[i].Push(0)
-            solution[i].Push(0)
-            original[i].Push(0)
-            notes[i].Push([])
-        }
-    }
-}
-
-DrawGrid() {
-    global guiSudoku
-    
-    ; Draw vertical lines
-    Loop 10 {
-        lineNum := A_Index - 1
-        xOffset := Floor(lineNum / 3) * THICK_LINE
-        xPos := GRID_OFFSET_X + lineNum * CELL_SIZE + xOffset
-        lineWidth := (Mod(lineNum, 3) = 0) ? THICK_LINE : THIN_LINE
-        
-        guiSudoku.Add("Progress", "x" xPos " y" GRID_OFFSET_Y " w" lineWidth " h" (CELL_SIZE*9 + THICK_LINE*4) 
-            . " Background000000 -Smooth", 100)
-    }
-    
-    ; Draw horizontal lines
-    Loop 10 {
-        lineNum := A_Index - 1
-        yOffset := Floor(lineNum / 3) * THICK_LINE
-        yPos := GRID_OFFSET_Y + lineNum * CELL_SIZE + yOffset
-        lineHeight := (Mod(lineNum, 3) = 0) ? THICK_LINE : THIN_LINE
-        
-        guiSudoku.Add("Progress", "x" GRID_OFFSET_X " y" yPos " w" (CELL_SIZE*9 + THICK_LINE*4) " h" lineHeight 
-            . " Background000000 -Smooth", 100)
-    }
-}
-
-CreateControls() {
-    global guiSudoku, difficultyDDL, showHintsCB, showMistakesCB
-    
-    ; Game controls
-    yPos := GRID_OFFSET_Y + (CELL_SIZE * 9) + 40
-    
-    ; Top row of buttons
-    newGameBtn := guiSudoku.Add("Button", "x20 y" yPos " w100 h30", "&New Game")
-    newGameBtn.OnEvent("Click", NewGame)
-    
-    checkBtn := guiSudoku.Add("Button", "x130 y" yPos " w100 h30", "&Check")
-    checkBtn.OnEvent("Click", CheckSolution)
-    
-    hintBtn := guiSudoku.Add("Button", "x240 y" yPos " w100 h30", "&Hint")
-    hintBtn.OnEvent("Click", ShowHint)
-    
-    solveBtn := guiSudoku.Add("Button", "x350 y" yPos " w100 h30", "&Solve")
-    solveBtn.OnEvent("Click", SolvePuzzleButton)
-    
-    ; Second row of controls
-    yPos += 40
-    guiSudoku.Add("Text", "x20 y" yPos+5 " w60 h30", "Difficulty:")
-    difficultyDDL := guiSudoku.Add("DropDownList", "x90 y" yPos " w100 Choose2", ["Easy", "Medium", "Hard", "Expert"])
-    
-    ; Toggle options
-    showHintsCB := guiSudoku.Add("CheckBox", "x210 y" yPos " w100 h30 Checked", "Show Hints")
-    showMistakesCB := guiSudoku.Add("CheckBox", "x320 y" yPos " w120 h30 Checked", "Show Mistakes")
-    
-    ; Number pad
-    yPos += 40
-    guiSudoku.Add("Text", "x20 y" yPos " w100 h30", "Number Pad:")
-    yPos += 30
-    
-    ; Create number buttons 1-9 in 3x3 grid
-    Loop 9 {
-        i := A_Index
-        row := Floor((i-1) / 3)
-        col := Mod(i-1, 3)
-        xPos := 20 + col * 40
-        yPosBtn := yPos + row * 40
-        
-        btn := guiSudoku.Add("Button", "x" xPos " y" yPosBtn " w35 h35", i)
-        btn.OnEvent("Click", NumberButton.Bind(i))
-    }
-    
-    ; Add note button and clear button
-    yPos += 120
-    noteBtn := guiSudoku.Add("Button", "x200 y" yPos " w100 h35", "&Note Mode (N)")
-    noteBtn.OnEvent("Click", ToggleNoteMode)
-    
-    clearBtn := guiSudoku.Add("Button", "x310 y" yPos " w100 h35", "&Clear (Del)")
-    clearBtn.OnEvent("Click", ClearCell)
-}
-
-; =============================================================================
-; GAME LOGIC
-; =============================================================================
-GeneratePuzzle() {
-    global board, solution, original, notes, difficulty, difficultyDDL, statusBar
-    
-    ; Get selected difficulty
-    diffText := difficultyDDL.Text
-    difficulty := diffText ? StrLower(diffText) : "medium"
-    
-    ; Initialize arrays
-    InitializeArrays()
-    
-    ; Generate a solved puzzle
-    SolvePuzzle(solution)
-    
-    ; Determine number of cells to remove based on difficulty
-    cellsToRemove := Map(
-        "easy", 40,
-        "medium", 50, 
-        "hard", 55,
-        "expert", 60
-    )
-    
-    removeCount := cellsToRemove.Has(difficulty) ? cellsToRemove[difficulty] : 50
-    
-    ; Create a copy of the solution
-    CopyArray(solution, board)
-    
-    ; Remove numbers to create the puzzle
-    removed := 0
-    attempts := 0
-    maxAttempts := 200
-    
-    while (removed < removeCount && attempts < maxAttempts) {
-        row := Random(1, GRID_SIZE)
-        col := Random(1, GRID_SIZE)
-        
-        ; Skip if already empty
-        if (board[row][col] = 0) {
-            attempts++
-            continue
-        }
-        
-        ; Try removing this cell
-        value := board[row][col]
-        board[row][col] := 0
-        
-        ; For now, just remove cells (proper uniqueness check would be complex)
-        original[row][col] := 0
-        removed++
-        attempts++
-    }
-    
-    ; Mark the remaining cells as original
-    Loop GRID_SIZE {
-        i := A_Index
-        Loop GRID_SIZE {
-            j := A_Index
-            if (board[i][j] != 0) {
-                original[i][j] := board[i][j]
+    static ResetState() {
+        SudokuApp.puzzleState := []
+        for rowText in SudokuApp.puzzleSeed {
+            row := []
+            Loop StrLen(rowText) {
+                row.Push(SubStr(rowText, A_Index, 1))
             }
+            SudokuApp.puzzleState.Push(row)
         }
     }
-    
-    ; Update the UI
-    UpdateUI()
-    statusBar.Text := "New " difficulty " puzzle generated."
-}
 
-CopyArray(source, dest) {
-    Loop source.Length {
-        i := A_Index
-        Loop source[i].Length {
-            j := A_Index
-            dest[i][j] := source[i][j]
+    static CreateGui() {
+        if (SudokuApp.gui) {
+            SudokuApp.gui.Destroy()
         }
-    }
-}
+        gui := Gui("+Resize +MinSize460x540", "Sudoku")
+        gui.BackColor := "1f1f1f"
+        gui.SetFont("s10", "Segoe UI")
 
-SolvePuzzle(puzzle, row := 1, col := 1) {
-    ; Find the next empty cell
-    while (row <= GRID_SIZE) {
-        while (col <= GRID_SIZE) {
-            if (puzzle[row][col] = 0) {
-                break 2
+        gui.AddText("x20 y16 w420 Center cFFFFFF", "Sudoku – fill the grid so each row, column, and 3×3 box contains 1‑9.")
+
+        SudokuApp.cellData := []
+        cellSize := 42
+        baseX := 40
+        baseY := 48
+
+        Loop 9 {
+            rowIndex := A_Index
+            rowSet := []
+            Loop 9 {
+                colIndex := A_Index
+                x := baseX + (colIndex - 1) * cellSize
+                y := baseY + (rowIndex - 1) * cellSize
+                boxShade := Mod(Floor((rowIndex - 1) / 3) + Floor((colIndex - 1) / 3), 2)
+                backColor := boxShade ? "0xF2F2F2" : "0xFFFFFF"
+                ctrl := gui.AddEdit(Format("x{} y{} w{} h{} Limit1 Center +0x200 Background{}", x, y, cellSize - 2, cellSize - 2, backColor), "")
+                ctrl.SetFont("s16", "Segoe UI")
+                ctrl.OnEvent("Change", SudokuApp.OnCellChange.Bind(SudokuApp, rowIndex, colIndex))
+                ctrl.OnEvent("Focus", SudokuApp.OnCellFocus.Bind(SudokuApp, rowIndex, colIndex))
+                rowSet.Push({ctrl: ctrl, baseColor: backColor, given: false})
             }
-            col++
+            SudokuApp.cellData.Push(rowSet)
         }
-        row++
-        col := 1
-    }
-    
-    ; If we've gone past the grid, puzzle is solved
-    if (row > GRID_SIZE) {
-        return true
-    }
-    
-    ; Try numbers 1-9
-    numbers := [1,2,3,4,5,6,7,8,9]
-    ShuffleArray(&numbers)
-    
-    for num in numbers {
-        if (IsValidMove(puzzle, row, col, num)) {
-            ; Try this number
-            puzzle[row][col] := num
-            
-            ; Recursively try to solve the rest
-            if (SolvePuzzle(puzzle, row, col)) {
-                return true
-            }
-            
-            ; If we get here, the number didn't work, so backtrack
-            puzzle[row][col] := 0
-        }
-    }
-    
-    return false  ; Trigger backtracking
-}
 
-IsValidMove(puzzle, row, col, num) {
-    ; Check row
-    Loop GRID_SIZE {
-        j := A_Index
-        if (puzzle[row][j] = num && j != col) {
+        btnCheck := gui.AddButton("x40 y440 w120 h32", "Check Puzzle")
+        btnCheck.OnEvent("Click", (*) => SudokuApp.CheckPuzzle())
+        btnReset := gui.AddButton("x180 y440 w120 h32", "Reset")
+        btnReset.OnEvent("Click", (*) => SudokuApp.ResetBoard())
+        btnClose := gui.AddButton("x320 y440 w120 h32", "Close")
+        btnClose.OnEvent("Click", (*) => SudokuApp.HideGui())
+
+        SudokuApp.statusCtrl := gui.AddText("x20 y488 w420 h24 cFFFFFF", "")
+
+        gui.OnEvent("Close", SudokuApp.HideGui)
+        gui.OnEvent("Escape", SudokuApp.HideGui)
+        gui.OnEvent("Size", SudokuApp.OnResize)
+
+        SudokuApp.gui := gui
+        SudokuApp.ResetBoard()
+        gui.Show("w460 h520")
+    }
+
+    static SetupHotkeys() {
+        static registered := false
+        if (registered) {
+            return
+        }
+        ; Global hotkey to launch/show the game
+        Hotkey("^!s", (*) => SudokuApp.ShowGui())
+        
+        ; Context-sensitive hotkeys - only work when Sudoku window is active
+        Hotkey("r", (*) => SudokuApp.ResetBoardIfActive())
+        Hotkey("c", (*) => SudokuApp.CheckPuzzleIfActive())
+        Hotkey("Escape", (*) => SudokuApp.HideGui())
+        registered := true
+    }
+    
+    static IsSudokuWindowActive() {
+        if (!SudokuApp.gui || !SudokuApp.gui.Hwnd) {
             return false
         }
+        return WinActive("ahk_id " . SudokuApp.gui.Hwnd)
     }
     
-    ; Check column
-    Loop GRID_SIZE {
-        i := A_Index
-        if (puzzle[i][col] = num && i != row) {
-            return false
+    static ResetBoardIfActive() {
+        if (SudokuApp.IsSudokuWindowActive()) {
+            SudokuApp.ResetBoard()
         }
     }
     
-    ; Check 3x3 box
-    boxStartRow := Floor((row - 1) / 3) * 3 + 1
-    boxStartCol := Floor((col - 1) / 3) * 3 + 1
-    
-    Loop 3 {
-        i := boxStartRow + A_Index - 1
-        Loop 3 {
-            j := boxStartCol + A_Index - 1
-            if (puzzle[i][j] = num && (i != row || j != col)) {
-                return false
-            }
+    static CheckPuzzleIfActive() {
+        if (SudokuApp.IsSudokuWindowActive()) {
+            SudokuApp.CheckPuzzle()
         }
     }
     
-    return true
-}
+    static ShowGui(*) {
+        if (SudokuApp.gui) {
+            SudokuApp.gui.Show()
+            WinActivate(SudokuApp.gui.Hwnd)
+        } else {
+            SudokuApp.Init()
+        }
+    }
 
-; =============================================================================
-; UI UPDATES
-; =============================================================================
-UpdateUI() {
-    global cellControls, board, original, notes, selectedCell, showMistakesCB, solution, showMistakes
-    
-    showMistakes := showMistakesCB.Value
-    
-    Loop GRID_SIZE {
-        i := A_Index
-        Loop GRID_SIZE {
-            j := A_Index
-            cellValue := board[i][j]
-            cellKey := i . "_" . j
-            cellControl := cellControls[cellKey]
-            
-            ; Update cell appearance
-            if (cellValue != 0) {
-                ; Show number
-                cellControl.Text := cellValue
-                
-                ; Style based on whether it's an original number or user input
-                if (original[i][j] != 0) {
-                    cellControl.SetFont("s16 Bold ", "Arial")  ; Blue for original numbers
+    static ResetBoard() {
+        SudokuApp.ResetState()
+        Loop 9 {
+            rowIndex := A_Index
+            Loop 9 {
+                colIndex := A_Index
+                cell := SudokuApp.cellData[rowIndex][colIndex]
+                value := SudokuApp.puzzleState[rowIndex][colIndex]
+                solutionDigit := SubStr(SudokuApp.puzzleSolution[rowIndex], colIndex, 1)
+                if (value != "0") {
+                    cell.ctrl.Value := value
+                    cell.ctrl.Opt("+ReadOnly")
+                    cell.ctrl.SetFont("s16 Bold", "Segoe UI")
+                    cell.given := true
                 } else {
-                    ; Check for mistakes if enabled
-                    if (showMistakes && cellValue != 0 && cellValue != solution[i][j]) {
-                        cellControl.SetFont("s16 Bold ", "Arial")  ; Red for mistakes
+                    cell.ctrl.Value := ""
+                    cell.ctrl.Opt("-ReadOnly")
+                    cell.ctrl.SetFont("s16", "Segoe UI")
+                    cell.given := false
+                }
+                cell.ctrl.Opt("Background" . cell.baseColor)
+            }
+        }
+        SudokuApp.UpdateStatus("Board reset to starting puzzle.")
+    }
+
+    static OnCellFocus(rowIndex, colIndex, ctrl, info) {
+        SudokuApp.HighlightSelection(rowIndex, colIndex)
+    }
+
+    static OnCellChange(rowIndex, colIndex, ctrl, info) {
+        cell := SudokuApp.cellData[rowIndex][colIndex]
+        if (cell.given) {
+            ctrl.Value := SubStr(SudokuApp.puzzleSeed[rowIndex], colIndex, 1)
+            return
+        }
+        text := Trim(ctrl.Value)
+        if (text = "") {
+            SudokuApp.puzzleState[rowIndex][colIndex] := "0"
+        } else if (text ~= "^[1-9]$") {
+            SudokuApp.puzzleState[rowIndex][colIndex] := text
+        } else {
+            ctrl.Value := ""
+            SudokuApp.puzzleState[rowIndex][colIndex] := "0"
+        }
+        SudokuApp.HighlightSelection(rowIndex, colIndex)
+    }
+
+    static HighlightSelection(selRow, selCol) {
+        Loop 9 {
+            rowIndex := A_Index
+            Loop 9 {
+                colIndex := A_Index
+                cell := SudokuApp.cellData[rowIndex][colIndex]
+                baseColor := cell.baseColor
+                highlight := (rowIndex = selRow || colIndex = selCol || (Floor((rowIndex - 1) / 3) = Floor((selRow - 1) / 3) && Floor((colIndex - 1) / 3) = Floor((selCol - 1) / 3)))
+                color := highlight ? "0xFFF7CC" : baseColor
+                cell.ctrl.Opt("Background" . color)
+            }
+        }
+    }
+
+    static CheckPuzzle() {
+        mistakes := 0
+        Loop 9 {
+            rowIndex := A_Index
+            rowSolution := SudokuApp.puzzleSolution[rowIndex]
+            Loop 9 {
+                colIndex := A_Index
+                expected := SubStr(rowSolution, colIndex, 1)
+                cell := SudokuApp.cellData[rowIndex][colIndex]
+                current := SudokuApp.puzzleState[rowIndex][colIndex]
+                if (!cell.given) {
+                    if (current = "0") {
+                        cell.ctrl.Opt("Background0xFFEFCC")
+                        mistakes++
+                    } else if (current != expected) {
+                        cell.ctrl.Opt("Background0xFFCCCC")
+                        mistakes++
                     } else {
-                        cellControl.SetFont("s16 ", "Arial")  ; Black for user input
+                        cell.ctrl.Opt("Background0xE6FFE6")
                     }
                 }
-            } else {
-                ; Show notes if any
-                cellNotes := notes[i][j]
-                if (cellNotes.Length > 0) {
-                    ; Create a simple note display
-                    noteText := ""
-                    for note in cellNotes {
-                        noteText .= note . " "
-                    }
-                    cellControl.Text := Trim(noteText)
-                    cellControl.SetFont("s8 ", "Arial")  ; Gray for notes
-                } else {
-                    cellControl.Text := ""
-                }
-            }
-            
-            ; Highlight selected cell
-            if (i = selectedCell.row && j = selectedCell.col) {
-                cellControl.Opt("+BackgroundYellow")
-            } else {
-                cellControl.Opt("+BackgroundWhite")
             }
         }
-    }
-}
-
-; =============================================================================
-; EVENT HANDLERS
-; =============================================================================
-SelectCell(row, col, *) {
-    global selectedCell
-    
-    selectedCell := {row: row, col: col}
-    UpdateUI()
-}
-
-NumberButton(num, *) {
-    global board, original, notes, selectedCell, statusBar
-    
-    ; Check if a cell is selected and it's not an original number
-    if (selectedCell.row = 0 || selectedCell.col = 0 || original[selectedCell.row][selectedCell.col] != 0) {
-        return
-    }
-    
-    ; Toggle the number in the selected cell
-    if (board[selectedCell.row][selectedCell.col] = num) {
-        ; If the number is already set, clear it
-        board[selectedCell.row][selectedCell.col] := 0
-    } else {
-        ; Otherwise, set the number
-        board[selectedCell.row][selectedCell.col] := num
-        notes[selectedCell.row][selectedCell.col] := []  ; Clear notes when setting a number
-    }
-    
-    ; Check if the puzzle is complete
-    if (IsBoardComplete() && IsBoardCorrect()) {
-        statusBar.Text := "Congratulations! You've solved the puzzle!"
-    }
-    
-    UpdateUI()
-}
-
-ToggleNoteMode(*) {
-    global noteMode, statusBar
-    
-    ; Toggle the note mode
-    noteMode := !noteMode
-    
-    statusBar.Text := noteMode ? "Note mode: ON" : "Note mode: OFF"
-}
-
-ClearCell(*) {
-    global board, original, notes, selectedCell, statusBar
-    
-    row := selectedCell.row
-    col := selectedCell.col
-    
-    ; Check for invalid cell
-    if (row = 0 || col = 0) {
-        return
-    }
-    
-    ; Check if the cell is not an original number
-    if (original[row][col] = 0) {
-        ; Clear the cell
-        board[row][col] := 0
-        
-        ; Clear any notes for this cell
-        notes[row][col] := []
-        
-        ; Update the UI
-        UpdateUI()
-        statusBar.Text := "Cell cleared"
-    } else {
-        statusBar.Text := "Cannot clear an original number"
-    }
-}
-
-NewGame(*) {
-    GeneratePuzzle()
-}
-
-CheckSolution(*) {
-    global statusBar
-    
-    if (IsBoardComplete()) {
-        if (IsBoardCorrect()) {
-            statusBar.Text := "Congratulations! The solution is correct!"
+        if (mistakes = 0) {
+            SudokuApp.UpdateStatus("Great job! Puzzle solved correctly.")
         } else {
-            statusBar.Text := "The solution is not correct. Keep trying!"
+            SudokuApp.UpdateStatus(mistakes . " cell(s) need attention.")
         }
-    } else {
-        statusBar.Text := "The puzzle is not complete yet!"
     }
-}
 
-ShowHint(*) {
-    global board, solution, selectedCell, showHintsCB, statusBar
-    
-    if (!showHintsCB.Value) {
-        statusBar.Text := "Hints are disabled. Enable them in the options."
-        return
-    }
-    
-    ; If a cell is selected, show the correct number
-    if (selectedCell.row != 0 && selectedCell.col != 0) {
-        if (board[selectedCell.row][selectedCell.col] = 0) {
-            board[selectedCell.row][selectedCell.col] := solution[selectedCell.row][selectedCell.col]
-            statusBar.Text := "Hint: The correct number is " solution[selectedCell.row][selectedCell.col]
-            UpdateUI()
-            
-            ; Check if the puzzle is complete
-            if (IsBoardComplete() && IsBoardCorrect()) {
-                statusBar.Text := "Congratulations! You've solved the puzzle with a hint!"
-            }
-        } else {
-            statusBar.Text := "This cell already has a number. Select an empty cell for a hint."
+    static UpdateStatus(message) {
+        if (SudokuApp.statusCtrl) {
+            SudokuApp.statusCtrl.Text := message
         }
-    } else {
-        ; Find the first empty cell and fill it
-        found := false
-        Loop GRID_SIZE {
-            i := A_Index
-            Loop GRID_SIZE {
-                j := A_Index
-                if (board[i][j] = 0) {
-                    board[i][j] := solution[i][j]
-                    selectedCell := {row: i, col: j}
-                    statusBar.Text := "Hint: Filled in one empty cell"
-                    UpdateUI()
-                    found := true
-                    break 2
-                }
+    }
+
+    static OnResize(gui, minMax, newW, newH) {
+        if (!SudokuApp.cellData.Length) {
+            return
+        }
+        padding := 80
+        squareSize := Min(newW - padding, newH - 180) // 9
+        baseX := (newW - squareSize * 9) // 2
+        baseY := 48
+        Loop 9 {
+            rowIndex := A_Index
+            Loop 9 {
+                colIndex := A_Index
+                ctrl := SudokuApp.cellData[rowIndex][colIndex].ctrl
+                x := baseX + (colIndex - 1) * squareSize
+                y := baseY + (rowIndex - 1) * squareSize
+                ctrl.Move(x, y, squareSize - 2, squareSize - 2)
             }
         }
-        
-        if (!found) {
-            statusBar.Text := "The puzzle is already complete!"
+        if (SudokuApp.statusCtrl) {
+            SudokuApp.statusCtrl.Move(baseX, baseY + squareSize * 9 + 40, squareSize * 9, 24)
+        }
+    }
+
+    static HideGui(*) {
+        if (SudokuApp.gui) {
+            SudokuApp.gui.Hide()
+            SudokuApp.UpdateStatus("GUI hidden. Press Ctrl+Alt+S to reopen.")
         }
     }
 }
 
-SolvePuzzleButton(*) {
-    global board, solution, original, statusBar
-    
-    ; Confirm before solving
-    result := MsgBox("This will solve the puzzle for you. Continue?", "Solve Puzzle", "YesNo")
-    if (result = "No") {
-        return
-    }
-    
-    ; Copy solution to board
-    Loop GRID_SIZE {
-        i := A_Index
-        Loop GRID_SIZE {
-            j := A_Index
-            if (original[i][j] = 0) {  ; Only fill in empty cells
-                board[i][j] := solution[i][j]
-            }
-        }
-    }
-    
-    UpdateUI()
-    statusBar.Text := "Puzzle solved!"
-}
+SudokuApp.Init()
 
-; =============================================================================
-; HELPER FUNCTIONS
-; =============================================================================
-IsBoardComplete() {
-    global board
-    
-    Loop GRID_SIZE {
-        i := A_Index
-        Loop GRID_SIZE {
-            j := A_Index
-            if (board[i][j] = 0) {
-                return false
-            }
-        }
-    }
-    
-    return true
-}
-
-IsBoardCorrect() {
-    global board
-    
-    Loop GRID_SIZE {
-        i := A_Index
-        Loop GRID_SIZE {
-            j := A_Index
-            if (board[i][j] != 0 && !IsValidMove(board, i, j, board[i][j])) {
-                return false
-            }
-        }
-    }
-    
-    return true
-}
-
-ShuffleArray(&arr) {
-    ; Fisher-Yates shuffle algorithm
-    Loop arr.Length {
-        i := A_Index
-        j := Random(1, arr.Length)
-        if (i != j) {
-            temp := arr[i]
-            arr[i] := arr[j]
-            arr[j] := temp
-        }
-    }
-}
-
-; =============================================================================
-; KEYBOARD HANDLING
-; =============================================================================
-HandleNumberKey(num) {
-    global noteMode, board, original, notes, selectedCell, statusBar
-    
-    ; Get cell position
-    cellRow := selectedCell.row
-    cellCol := selectedCell.col
-    
-    ; Check for invalid selection and original numbers
-    if (cellRow = 0 || cellCol = 0 || original[cellRow][cellCol] != 0) {
-        return
-    }
-    
-    ; Handle note mode
-    if (noteMode) {
-        ; Toggle note
-        currentNotes := notes[cellRow][cellCol]
-        
-        ; Check if note exists
-        found := false
-        foundIndex := 0
-        Loop currentNotes.Length {
-            if (currentNotes[A_Index] = num) {
-                found := true
-                foundIndex := A_Index
-                break
-            }
-        }
-        
-        if (found) {
-            currentNotes.RemoveAt(foundIndex)
-        } else {
-            currentNotes.Push(num)
-        }
-    } else {
-        ; Set number or clear if same number pressed
-        currentVal := board[cellRow][cellCol]
-        if (currentVal = num) {
-            board[cellRow][cellCol] := 0
-        } else {
-            board[cellRow][cellCol] := num
-            notes[cellRow][cellCol] := []  ; Clear notes
-        }
-        
-        ; Check for win
-        if (IsBoardComplete() && IsBoardCorrect()) {
-            statusBar.Text := "Congratulations! You've solved the puzzle!"
-        }
-    }
-    
-    ; Update the UI
-    UpdateUI()
-}
-
-MoveSelection(rowDelta, colDelta) {
-    global selectedCell
-    
-    if (selectedCell.row = 0 || selectedCell.col = 0) {
-        return
-    }
-    
-    newRow := selectedCell.row + rowDelta
-    newCol := selectedCell.col + colDelta
-    
-    ; Keep within bounds
-    if (newRow < 1) newRow := 1
-    if (newRow > GRID_SIZE) newRow := GRID_SIZE
-    if (newCol < 1) newCol := 1
-    if (newCol > GRID_SIZE) newCol := GRID_SIZE
-    
-    selectedCell := {row: newRow, col: newCol}
-    UpdateUI()
-}
-
-; Initialize hotkeys
-InitHotkeys() {
-    ; Handle number keys 1-9
-    Loop 9 {
-        num := A_Index
-        Hotkey(num, (*) => HandleNumberKey(num))
-    }
-    
-    ; Handle arrow keys for navigation
-    Hotkey("Left", (*) => MoveSelection(0, -1))
-    Hotkey("Right", (*) => MoveSelection(0, 1))
-    Hotkey("Up", (*) => MoveSelection(-1, 0))
-    Hotkey("Down", (*) => MoveSelection(1, 0))
-    
-    ; Handle backspace/delete to clear cell
-    Hotkey("Backspace", (*) => ClearCell())
-    Hotkey("Delete", (*) => ClearCell())
-    
-    ; Toggle note mode with N
-    Hotkey("n", (*) => ToggleNoteMode())
-}
-
-; =============================================================================
-; MAIN ENTRY POINT
-; =============================================================================
-; Initialize the game
-CreateSudokuGUI()
-SetupGameHotkeys()
-StartNewGame()
+OnExit((*) => SudokuApp.UpdateStatus(""))

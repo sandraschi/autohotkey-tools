@@ -1,222 +1,350 @@
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
 
-; ==============================================================================
-; Fun Games Collection
-; @name: Fun Games
-; @version: 1.0.0
-; @description: Collection of classic mini-games including Snake, Tetris-like puzzles, and quick entertainment games.
-; @description: Quick-access games for breaks and entertainment. Features simple controls, nostalgic gameplay, and minimal setup required.
-; @description: Perfect for short gaming sessions during breaks or as a fun diversion from work tasks.
-; @category: games
-; @author: Sandra
-; @hotkeys: ^!s
-; @enabled: true
-; @priority: 80
-; @tag: games, snake, entertainment, mini-games, classic, nostalgic, quick-play
-; @cli: --game <name> - Launch specific game (snake)
-; @cli: --difficulty <easy|medium|hard> - Set game difficulty
-; @cli: --help - Show CLI usage and game options
-; @dependencies: 
-; ==============================================================================
+OnError(HandleScriptError)
 
-; Error handling - log to file instead of showing popups
-OnError(LogError)
-
-LogError(Thrown, Mode) {
-    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
-    FileAppend(errorMsg, "fun_games_errors.log", "UTF-8")
-    OutputDebug(errorMsg)  ; Enable LLM debugging
-    return 1  ; Suppress popup (1 = suppress, 0 = show)
+HandleScriptError(Thrown, Mode) {
+    return SnakeApp.HandleScriptError(Thrown, Mode)
 }
 
+class SnakeApp {
+    static gui := ""
+    static boardCtrl := ""
+    static statusCtrl := ""
+    static timerId := 0
+    static width := 20
+    static height := 12
+    static snake := []
+    static direction := {x: 1, y: 0}
+    static food := {x: 5, y: 5}
+    static alive := false
+    static logInitialized := false
+    static logPath := ""
 
-; Snake Game
-^!s:: {
-    snake := SnakeGame()
-    snake.Start()
-}
+    static Init() {
+        SnakeApp.EnsureLogging()
+        SnakeApp.CreateGui()
+        SnakeApp.SetupHotkeys()
+        SnakeApp.ResetGame()
+        SnakeApp.AppendLog("Snake game initialized.")
+    }
 
-class SnakeGame {
-    gridSize := 20
-    gridWidth := 30
-    gridHeight := 20
-    snake := []
-    snakeLength := 5
-    direction := "right"
-    foodX := 0
-    foodY := 0
-    gui := ""
-    canvas := ""
-    
-    Start() {
-        this.snake := []
-        this.snakeLength := 5
-        this.direction := "right"
-        
-        ; Initialize snake
-        Loop this.snakeLength {
-            this.snake.Push({x: A_Index, y: 1})
+    static HandleScriptError(Thrown, Mode) {
+        message := "Unhandled exception (" . Mode . "): " . Thrown.Message
+        location := "File: " . (ObjHasOwnProp(Thrown, "File") && Thrown.File ? Thrown.File : A_ScriptFullPath) . " | Line: " . (ObjHasOwnProp(Thrown, "Line") && Thrown.Line ? Thrown.Line : "unknown")
+        SnakeApp.AppendLog(message, "ERROR")
+        SnakeApp.AppendLog(location, "ERROR")
+        if (Thrown.Stack) {
+            SnakeApp.AppendLog("Stack trace:`n" . Thrown.Stack, "TRACE")
         }
-        
-        ; Place first food
-        Random(tempX, 1, this.gridWidth)
-        Random(tempY, 1, this.gridHeight)
-        this.foodX := tempX
-        this.foodY := tempY
-        
-        ; Create GUI
-        this.gui := Gui("+AlwaysOnTop -Caption +ToolWindow")
-        this.gui.BackColor := "000000"
-        this.canvas := this.gui.AddText("w600 h400 vCanvas", "")
-        
-        ; Create timer
-        SetTimer (this.GameLoop.Bind(this)), 150
-        
-        ; Show game window
-        this.gui.Show("w600 h400", "Snake Game")
-        
-        ; Control snake with arrow keys
-        Hotkey("Up", (this) => this.SetDirection("up"), "On")
-        Hotkey("Down", (this) => this.SetDirection("down"), "On")
-        Hotkey("Left", (this) => this.SetDirection("left"), "On")
-        Hotkey("Right", (this) => this.SetDirection("right"), "On")
-        
-        this.gui.OnEvent("Close", (*) => this.Cleanup())
+        SnakeApp.ShowNotification("Snake Error", Thrown.Message)
+        SnakeApp.PauseGame()
+        if (SnakeApp.gui) {
+            try {
+                SnakeApp.gui.Hide()
+            } catch {
+            }
+        }
+        return 1
     }
-    
-    SetDirection(dir) {
-        if ((dir = "up" && this.direction != "down") ||
-            (dir = "down" && this.direction != "up") ||
-            (dir = "left" && this.direction != "right") ||
-            (dir = "right" && this.direction != "left")) {
-            this.direction := dir
-        }
+
+    static CreateGui() {
+        SnakeApp.gui := Gui("+Resize +MinSize320x280", "Snake Game")
+        SnakeApp.gui.BackColor := 0x101010
+        SnakeApp.gui.SetFont("s10", "Consolas")
+
+        SnakeApp.gui.AddText("x20 y16 w260 Center c00FF00", "Snake – eat food, avoid crashing")
+        SnakeApp.boardCtrl := SnakeApp.gui.AddText("x20 y48 w200 h180 Background000000 Border", "")
+        startBtn := SnakeApp.gui.AddButton("x240 y60 w80 h30", "Start")
+        startBtn.OnEvent("Click", (*) => SnakeApp.StartGame())
+        pauseBtn := SnakeApp.gui.AddButton("x240 y100 w80 h30", "Pause")
+        pauseBtn.OnEvent("Click", (*) => SnakeApp.PauseGame())
+        resetBtn := SnakeApp.gui.AddButton("x240 y140 w80 h30", "Reset")
+        resetBtn.OnEvent("Click", (*) => SnakeApp.ResetGame())
+        closeBtn := SnakeApp.gui.AddButton("x240 y180 w80 h30", "Close")
+        closeBtn.OnEvent("Click", (*) => SnakeApp.HideGui())
+
+        SnakeApp.statusCtrl := SnakeApp.gui.AddText("x20 y240 w260 h24 cFFFFFF", "Use Ctrl+Alt+Arrow keys to steer.")
+
+        SnakeApp.gui.OnEvent("Close", ObjBindMethod(SnakeApp, "HideGui"))
+        SnakeApp.gui.OnEvent("Escape", ObjBindMethod(SnakeApp, "HideGui"))
+        SnakeApp.gui.OnEvent("Size", ObjBindMethod(SnakeApp, "OnResize"))
+
+        SnakeApp.gui.Show("w320 h280")
+        SnakeApp.AppendLog("GUI created successfully.")
     }
-    
-    GameLoop() {
-        ; Move snake
-        headX := this.snake[1].x
-        headY := this.snake[1].y
-        
-        switch this.direction {
-            case "right": headX++
-            case "left": headX--
-            case "up": headY--
-            case "down": headY++
-        }
-        
-        ; Check collisions
-        if (headX < 1 || headX > this.gridWidth || headY < 1 || headY > this.gridHeight) {
-            this.GameOver()
+
+    static EnsureLogging() {
+        if (SnakeApp.logInitialized) {
             return
         }
-        
-        ; Check if food eaten
-        if (headX = this.foodX && headY = this.foodY) {
-            this.snakeLength++
-            Random(tempX, 1, this.gridWidth)
-            Random(tempY, 1, this.gridHeight)
-            this.foodX := tempX
-            this.foodY := tempY
-        } else {
-            this.snake.Pop()
-        }
-        
-        ; Add new head
-        this.snake.InsertAt(1, {x: headX, y: headY})
-        
-        ; Draw game
-        this.Draw()
-    }
-    
-    Draw() {
-        grid := ""
-        Loop this.gridHeight {
-            y := A_Index
-            row := ""
-            Loop this.gridWidth {
-                x := A_Index
-                cell := " "
-                
-                ; Check if cell contains snake or food
-                for i, segment in this.snake {
-                    if (segment.x = x && segment.y = y) {
-                        cell := (i = 1) ? "O" : "o"
-                        break
-                    }
-                }
-                
-                if (x = this.foodX && y = this.foodY)
-                    cell := "@"
-                    
-                row .= cell " "
+        logDir := A_ScriptDir . "\logs"
+        try {
+            if (!DirExist(logDir)) {
+                DirCreate(logDir)
             }
-            grid .= row "`n"
+        } catch as dirError {
+            OutputDebug("Snake log dir error: " . dirError.Message)
         }
+        SnakeApp.logPath := logDir . "\fun_games.log"
+        SnakeApp.logInitialized := true
+    }
+
+    static SetupHotkeys() {
+        static registered := false
+        if (registered) {
+            return
+        }
+        ; Global hotkey to launch/show the game
+        Hotkey("^!s", (*) => SnakeApp.ShowGui())
         
-        this.canvas.Value := "Score: " this.snakeLength "`n`n" grid
+        ; Context-sensitive hotkeys - only work when Snake window is active
+        Hotkey("Up", (*) => SnakeApp.SetDirectionIfActive(0, -1))
+        Hotkey("Down", (*) => SnakeApp.SetDirectionIfActive(0, 1))
+        Hotkey("Left", (*) => SnakeApp.SetDirectionIfActive(-1, 0))
+        Hotkey("Right", (*) => SnakeApp.SetDirectionIfActive(1, 0))
+        Hotkey("Space", (*) => SnakeApp.ToggleStartIfActive())
+        Hotkey("p", (*) => SnakeApp.PauseGameIfActive())
+        Hotkey("r", (*) => SnakeApp.ResetGameIfActive())
+        Hotkey("Escape", (*) => SnakeApp.HideGui())
+        registered := true
     }
     
-    GameOver() {
-        this.Cleanup()
-        MsgBox("Game Over! Your score: " . this.snakeLength, "Snake Game", "Icon!")
+    static IsSnakeWindowActive() {
+        if (!SnakeApp.gui || !SnakeApp.gui.Hwnd) {
+            return false
+        }
+        return WinActive("ahk_id " . SnakeApp.gui.Hwnd)
     }
     
-    Cleanup() {
-        SetTimer (this.GameLoop.Bind(this)), 0
-        Hotkey("Up", "Off")
-        Hotkey("Down", "Off")
-        Hotkey("Left", "Off")
-        Hotkey("Right", "Off")
+    static SetDirectionIfActive(dx, dy) {
+        if (SnakeApp.IsSnakeWindowActive()) {
+            SnakeApp.SetDirection(dx, dy)
+        }
+    }
+    
+    static ToggleStartIfActive() {
+        if (SnakeApp.IsSnakeWindowActive()) {
+            SnakeApp.ToggleStart()
+        }
+    }
+    
+    static PauseGameIfActive() {
+        if (SnakeApp.IsSnakeWindowActive()) {
+            SnakeApp.PauseGame()
+        }
+    }
+    
+    static ResetGameIfActive() {
+        if (SnakeApp.IsSnakeWindowActive()) {
+            SnakeApp.ResetGame()
+        }
+    }
+    
+    static ShowGui(*) {
+        if (SnakeApp.gui) {
+            SnakeApp.gui.Show()
+            WinActivate(SnakeApp.gui.Hwnd)
+        } else {
+            SnakeApp.Init()
+        }
+    }
+
+    static ToggleStart() {
+        if (SnakeApp.alive && SnakeApp.timerId) {
+            SnakeApp.PauseGame()
+        } else {
+            SnakeApp.StartGame()
+        }
+    }
+
+    static StartGame() {
+        if (SnakeApp.timerId) {
+            return
+        }
+        SnakeApp.alive := true
+        SnakeApp.timerId := SetTimer(SnakeApp.Tick.Bind(SnakeApp), 200)
+        SnakeApp.UpdateStatus("Game running.")
+        SnakeApp.AppendLog("Game started.")
+    }
+
+    static PauseGame() {
+        if (SnakeApp.timerId) {
+            SetTimer(SnakeApp.timerId, 0)
+            SnakeApp.timerId := 0
+            SnakeApp.UpdateStatus("Paused.")
+            SnakeApp.AppendLog("Game paused.")
+        }
+    }
+
+    static HideGui(*) {
+        SnakeApp.PauseGame()
+        if (SnakeApp.gui) {
+            SnakeApp.gui.Hide()
+            SnakeApp.AppendLog("GUI hidden.")
+        }
+    }
+
+    static ResetGame() {
+        SnakeApp.PauseGame()
+        SnakeApp.snake := [{x: 4, y: 6}, {x: 3, y: 6}, {x: 2, y: 6}]
+        SnakeApp.direction := {x: 1, y: 0}
+        SnakeApp.food := SnakeApp.RandomEmptyCell()
+        SnakeApp.alive := true
+        SnakeApp.UpdateBoard()
+        SnakeApp.UpdateStatus("Press Start or Ctrl+Alt+S to play.")
+        SnakeApp.AppendLog("Game reset.")
+    }
+
+    static SetDirection(dx, dy) {
+        if (!SnakeApp.alive) {
+            return
+        }
+        ; Prevent reversing
+        if (SnakeApp.snake.Length >= 2) {
+            head := SnakeApp.snake[1]
+            neck := SnakeApp.snake[2]
+            if (head.x + dx = neck.x && head.y + dy = neck.y) {
+                return
+            }
+        }
+        SnakeApp.direction := {x: dx, y: dy}
+    }
+
+    static Tick() {
+        if (!SnakeApp.alive) {
+            SnakeApp.PauseGame()
+            return
+        }
+        head := SnakeApp.snake[1]
+        newHead := {x: head.x + SnakeApp.direction.x, y: head.y + SnakeApp.direction.y}
+        if (newHead.x < 0 || newHead.x >= SnakeApp.width || newHead.y < 0 || newHead.y >= SnakeApp.height || SnakeApp.IsBody(newHead)) {
+            SnakeApp.GameOver()
+            return
+        }
+        SnakeApp.snake.InsertAt(1, newHead)
+        if (newHead.x = SnakeApp.food.x && newHead.y = SnakeApp.food.y) {
+            SnakeApp.food := SnakeApp.RandomEmptyCell()
+        } else {
+            SnakeApp.snake.Pop()
+        }
+        SnakeApp.UpdateBoard()
+    }
+
+    static IsBody(point) {
+        for seg in SnakeApp.snake {
+            if (point.x = seg.x && point.y = seg.y) {
+                return true
+            }
+        }
+        return false
+    }
+
+    static RandomEmptyCell() {
+        attempts := 0
+        Loop 100 {
+            attempts++
+            x := Random(0, SnakeApp.width - 1)
+            y := Random(0, SnakeApp.height - 1)
+            if (!SnakeApp.IsBody({x: x, y: y})) {
+                SnakeApp.AppendLog("Food placed after " . attempts . " attempt(s).")
+                return {x: x, y: y}
+            }
+        }
+        SnakeApp.AppendLog("Failed to find empty cell after 100 attempts.", "WARN")
+        return {x: 0, y: 0}
+    }
+
+    static UpdateBoard() {
+        rows := []
+        Loop SnakeApp.height {
+            y := A_Index - 1
+            row := ""
+            Loop SnakeApp.width {
+                x := A_Index - 1
+                if (SnakeApp.snake[1].x = x && SnakeApp.snake[1].y = y) {
+                    row .= "🟡"
+                } else if (SnakeApp.IsBody({x: x, y: y})) {
+                    row .= "🟢"
+                } else if (SnakeApp.food.x = x && SnakeApp.food.y = y) {
+                    row .= "🍒"
+                } else {
+                    row .= "·"
+                }
+            }
+            rows.Push(row)
+        }
+        SnakeApp.boardCtrl.Text := SnakeApp.JoinArray(rows, "`n")
+    }
+
+    static GameOver() {
+        SnakeApp.alive := false
+        SnakeApp.PauseGame()
+        SnakeApp.UpdateStatus("Game over! Reset to play again.")
+        SnakeApp.AppendLog("Game over. Score: " . (SnakeApp.snake.Length - 3), "INFO")
+        SnakeApp.ShowNotification("Snake", "Game over! Score: " . (SnakeApp.snake.Length - 3))
+    }
+
+    static UpdateStatus(message) {
+        if (SnakeApp.statusCtrl) {
+            SnakeApp.statusCtrl.Text := message
+        }
+    }
+
+    static OnResize(gui, minMax, width, height) {
+        if (!SnakeApp.boardCtrl) {
+            return
+        }
+        SnakeApp.boardCtrl.Move(20, 48, Min(200, width - 120), height - 120)
+        if (SnakeApp.statusCtrl) {
+            SnakeApp.statusCtrl.Move(20, height - 40, width - 40, 24)
+        }
+    }
+
+    static AppendLog(message, severity := "INFO") {
+        SnakeApp.EnsureLogging()
+        timestamp := ""
+        timestamp := FormatTime(, "yyyy-MM-dd HH:mm:ss")
+        entry := "[" . timestamp . "] [" . severity . "] " . message
+        OutputDebug(entry)
+        if (SnakeApp.logPath) {
+            try {
+                FileAppend(entry . "`n", SnakeApp.logPath, "UTF-8")
+            } catch as fileError {
+                OutputDebug("Snake log append failed: " . fileError.Message)
+            }
+        }
+        if (SnakeApp.statusCtrl && severity = "ERROR") {
+            SnakeApp.statusCtrl.Text := message
+        }
+    }
+
+    static JoinArray(values, delimiter := "`n") {
+        if (!values || values.Length = 0) {
+            return ""
+        }
+        result := values[1]
+        for index, value in values {
+            if (index = 1) {
+                continue
+            }
+            result .= delimiter . value
+        }
+        return result
+    }
+
+    static ShowNotification(title, message, durationMs := 10000) {
         try {
-            this.gui.Destroy()
+            display := title ? (title . ": " . message) : message
+            ToolTip(display, 30, 30)
+            SetTimer((*) => ToolTip(), -Abs(durationMs))
+        } catch as e {
+            SnakeApp.AppendLog("Notification failed: " . e.Message, "WARN")
         }
     }
 }
 
-; Prank: Mouse Jiggler
-^!j:: {
-    static jigglerOn := false
-    jigglerOn := !jigglerOn
-    if (jigglerOn) {
-        SetTimer JiggleMouse, 60000  ; Jiggle every minute
-        TrayTip("Mouse Jiggler", "Mouse Jiggler: ON")
-    } else {
-        SetTimer JiggleMouse, 0
-        TrayTip("Mouse Jiggler", "Mouse Jiggler: OFF")
-    }
-}
+SnakeApp.Init()
 
-JiggleMouse(*) {
-    MouseMove(10, 0, 1, "R")
-    Sleep(50)
-    MouseMove(-10, 0, 1, "R")
-}
-
-; Prank: Fake Error Message
-^!e:: {
-    MsgBox("Windows has encountered a critical error!`nError Code: 0x80070002`n`nYour computer will now explode in 10 seconds...", "Critical Error", "Icon! T10")
-}
-
-; Prank: Toggle Screen Orientation
-^!f:: {
-    static flipped := false
-    if (!flipped) {
-        ; Try to rotate screen
-        try {
-            Run("DisplaySwitch.exe /internal")
-            flipped := true
-        } catch {
-            MsgBox("Display rotation failed", "Prank", "Icon!")
-        }
-    } else {
-        try {
-            Run("DisplaySwitch.exe /internal")
-            flipped := false
-        } catch {
-            ; Ignore
-        }
-    }
-}
+OnExit((*) => SnakeApp.UpdateStatus(""))
 

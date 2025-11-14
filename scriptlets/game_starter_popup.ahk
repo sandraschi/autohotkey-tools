@@ -20,17 +20,11 @@
 
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
+#Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
 
 ; Suppress error popups - log to file instead
 OnError(LogError)
-
-LogError(Thrown, Mode) {
-    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
-    FileAppend(errorMsg, "game_starter_popup_errors.log", "UTF-8")
-    OutputDebug(errorMsg)  ; Enable LLM debugging
-    return 1  ; Suppress popup (1 = suppress, 0 = show)
-}
 
 
 class GameStarter {
@@ -258,11 +252,25 @@ class GameStarter {
     static LogGameLaunch(game) {
         try {
             logFile := A_Temp . "\game_launcher.log"
-            timestamp := FormatTime(A_Now, "yyyy-MM-dd HH:mm:ss")
+            timestamp := ""
+            timestamp := FormatTime(, "yyyy-MM-dd HH:mm:ss")
             logEntry := "[" . timestamp . "] Launched: " . game.name . " (" . game.script . ")" . "`n"
             FileAppend(logEntry, logFile)
         } catch {
             ; Ignore logging errors
+        }
+    }
+    
+    static HandleEscape(*) {
+        if (WinExist("Game Starter")) {
+            GameStarter.ClosePopup()
+        }
+    }
+    
+    static HandleEnter(*) {
+        if (WinExist("Game Starter")) {
+            ; Could implement selection logic here
+            GameStarter.ClosePopup()
         }
     }
     
@@ -271,19 +279,10 @@ class GameStarter {
         Hotkey("^!g", (*) => this.CreateGamePopup())
         
         ; Close with Escape
-        Hotkey("Escape", (*) => {
-            if (WinExist("Game Starter")) {
-                GameStarter.ClosePopup()
-            }
-        })
+        Hotkey("Escape", GameStarter.HandleEscape)
         
         ; Close with Enter (launch selected)
-        Hotkey("Enter", (*) => {
-            if (WinExist("Game Starter")) {
-                ; Could implement selection logic here
-                GameStarter.ClosePopup()
-            }
-        })
+        Hotkey("Enter", GameStarter.HandleEnter)
     }
 }
 

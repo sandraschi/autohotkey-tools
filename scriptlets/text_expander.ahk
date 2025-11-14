@@ -1,5 +1,6 @@
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
+#Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
 ; ==============================================================================
 ; Text Expander
@@ -23,13 +24,6 @@
 
 ; Error handling - log to file instead of showing popups
 OnError(LogError)
-
-LogError(Thrown, Mode) {
-    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
-    FileAppend(errorMsg, "text_expander_errors.log", "UTF-8")
-    OutputDebug(errorMsg)  ; Enable LLM debugging
-    return 1  ; Suppress popup (1 = suppress, 0 = show)
-}
 
 #Warn
 
@@ -82,7 +76,7 @@ if (!FileExist(snippetsFile)) {
 ; Main script
 SetWorkingDir A_ScriptDir
 Hotkey HOTKEY_SHOW_MENU, ShowSnippetsMenu
-TrayTip "Text Expander", "Press " HOTKEY_SHOW_MENU " to show snippets", "Iconi"
+TrayTip "Text Expander", "Press " HOTKEY_SHOW_MENU " to show snippets"
 SetTimer () => TrayTip(), 3000
 
 ; Show snippets menu
@@ -131,8 +125,10 @@ InsertSnippet(snippetKey) {
         snippet := Snippets[snippetKey]
         
         ; Process placeholders
-        snippet := StrReplace(snippet, "{date}", FormatTime(, "yyyy-MM-dd"))
-        snippet := StrReplace(snippet, "{time}", FormatTime(, "HH:mm:ss"))
+        dateStr := FormatTime(, "yyyy-MM-dd")
+        timeStr := FormatTime(, "HH:mm:ss")
+        snippet := StrReplace(snippet, "{date}", dateStr)
+        snippet := StrReplace(snippet, "{time}", timeStr)
         snippet := StrReplace(snippet, "{user}", A_UserName)
         snippet := StrReplace(snippet, "{computer}", A_ComputerName)
         
@@ -213,7 +209,7 @@ SaveSnippet(guiEditor, editTrigger, editSnippet, isNew) {
         SaveSnippets(Snippets)
         
         guiEditor.Destroy()
-        TrayTip "Snippet saved", "Trigger: " key, "Iconi"
+        TrayTip "Snippet saved", "Trigger: " key
         SetTimer () => TrayTip(), 3000
         
     } catch as e {

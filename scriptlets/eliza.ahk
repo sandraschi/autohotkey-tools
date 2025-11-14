@@ -1,5 +1,6 @@
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
+#Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
 ; ==============================================================================
 ; ELIZA Chatbot
@@ -23,13 +24,6 @@
 
 ; Error handling - log to file instead of showing popups
 OnError(LogError)
-
-LogError(Thrown, Mode) {
-    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
-    FileAppend(errorMsg, "eliza_errors.log", "UTF-8")
-    OutputDebug(errorMsg)  ; Enable LLM debugging
-    return 1  ; Suppress popup (1 = suppress, 0 = show)
-}
 
 ; =============================================================================
 ; CONFIGURATION
@@ -140,7 +134,7 @@ AddToChat(text) {
     global chatHistory
     
     ; Add timestamp
-    timestamp := FormatTime("HH:mm:ss")
+    timestamp := FormatTime(, "HH:mm:ss")
     fullText := "[" timestamp "] " text "`n"
     
     ; Append to chat history

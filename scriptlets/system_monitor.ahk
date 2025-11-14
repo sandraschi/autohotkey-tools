@@ -1,5 +1,6 @@
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
+#Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
 ; ==============================================================================
 ; System Monitor
@@ -23,13 +24,6 @@
 
 ; Error handling - log to file instead of showing popups
 OnError(LogError)
-
-LogError(Thrown, Mode) {
-    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
-    FileAppend(errorMsg, "system_monitor_errors.log", "UTF-8")
-    OutputDebug(errorMsg)  ; Enable LLM debugging
-    return 1  ; Suppress popup (1 = suppress, 0 = show)
-}
 
 #Warn
 
@@ -129,7 +123,7 @@ UpdateSystemInfo(*) {
         cpuUsage := GetCpuUsage()
         guiMain["CpuMeter"].Value := cpuUsage
         guiMain["CpuText"].Text := cpuUsage "%"
-        guiMain["CpuCores"].Text := A_ProcessorCount " cores detected"
+        guiMain["CpuCores"].Text := GetProcessorCount() " cores detected"
         
         ; Update Memory
         mem := GetMemoryInfo()
@@ -226,6 +220,36 @@ GetMemoryInfo() {
     } catch as e {
         OutputDebug("Memory info error: " e.Message "`n")
         return {total: 0, used: 0, usage: 0}
+    }
+}
+
+GetProcessorCount() {
+    static processorCount := 0
+    
+    ; Return cached value if already retrieved
+    if (processorCount > 0) {
+        return processorCount
+    }
+    
+    try {
+        ; Get processor count using WMI
+        wmi := ComObjGet("winmgmts:")
+        queryStr := "SELECT NumberOfLogicalProcessors FROM Win32_ComputerSystem"
+        
+        for system in wmi.ExecQuery(queryStr) {
+            processorCount := system.NumberOfLogicalProcessors
+            return processorCount
+        }
+        
+        ; Fallback: use GetSystemInfo API
+        sysInfo := Buffer(48, 0)
+        DllCall("kernel32\GetSystemInfo", "Ptr", sysInfo)
+        processorCount := NumGet(sysInfo, 20, "UInt")  ; dwNumberOfProcessors
+        return processorCount
+        
+    } catch as e {
+        OutputDebug("Processor count error: " e.Message "`n")
+        return 1  ; Default fallback
     }
 }
 
@@ -327,7 +351,7 @@ CopySystemInfo(*) {
         info := "=== SYSTEM MONITOR REPORT ===`n"
         info .= "Computer: " A_ComputerName "`n"
         info .= "OS: " A_OSVersion "`n" 
-        info .= "CPU Cores: " A_ProcessorCount "`n"
+        info .= "CPU Cores: " GetProcessorCount() "`n"
         info .= "CPU Usage: " cpuUsage "`n"
         info .= "Memory Usage: " memUsage "`n"
         info .= "Memory Details: " memDetails "`n"

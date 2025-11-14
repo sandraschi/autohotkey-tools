@@ -11,17 +11,11 @@
 
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
+#Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
 
 ; Suppress error popups - log to file instead
 OnError(LogError)
-
-LogError(Thrown, Mode) {
-    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
-    FileAppend(errorMsg, "scriptlet_tester_errors.log", "UTF-8")
-    OutputDebug(errorMsg)  ; Enable LLM debugging
-    return 1  ; Suppress popup (1 = suppress, 0 = show)
-}
 
 
 class ScriptletTester {
@@ -111,8 +105,8 @@ class ScriptletTester {
 }
 
 ; Hotkeys
-Hotkey("^!t", (*) => ScriptletTester.TestAllScriptlets()
-^!f::ScriptletTester.ShowQuickFix()
+Hotkey("^!t", (*) => ScriptletTester.TestAllScriptlets())
+Hotkey("^!f", (*) => ScriptletTester.ShowQuickFix())
 
 ; Test specific scriptlet (you can change this)
 ; ScriptletTester.TestScriptlet(A_ScriptDir . "\scriptlets\system_monitor.ahk")

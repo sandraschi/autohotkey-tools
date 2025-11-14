@@ -20,18 +20,11 @@
 
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
+#Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
 
 ; Suppress error popups - log to file instead
 OnError(LogError)
-
-LogError(Thrown, Mode) {
-    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
-    FileAppend(errorMsg, "system_monitor_pro_errors.log", "UTF-8")
-    OutputDebug(errorMsg)  ; Enable LLM debugging
-    return 1  ; Suppress popup (1 = suppress, 0 = show)
-}
-
 
 class SystemMonitorPro {
     static gui := ""
@@ -168,7 +161,8 @@ class SystemMonitorPro {
     static GetMemoryUsage() {
         try {
             ; Get memory usage
-            RunWait('powershell -Command "Get-WmiObject -Class Win32_OperatingSystem | Select-Object @{Name=\'MemoryUsage\';Expression={[math]::Round((($_.TotalVisibleMemorySize - $_.FreePhysicalMemory) / $_.TotalVisibleMemorySize) * 100, 2)}}"', &output)
+            cmd := "powershell -Command `"Get-WmiObject -Class Win32_OperatingSystem | Select-Object @{Name='MemoryUsage';Expression={[math]::Round((($_.TotalVisibleMemorySize - $_.FreePhysicalMemory) / $_.TotalVisibleMemorySize) * 100, 2)}}`""
+            RunWait(cmd, &output)
             return Integer(output)
         } catch {
             return Random(30, 80)  ; Fallback
@@ -351,7 +345,8 @@ class SystemMonitorPro {
                 alertList.SetFont("s9 cFFFFFF", "Segoe UI")
                 
                 for alert in this.alerts {
-                    alertText := "[" . FormatTime(alert.timestamp, "HH:mm:ss") . "] " . alert.title . ": " . alert.message
+                    timeStr := FormatTime(alert.timestamp, "HH:mm:ss")
+                    alertText := "[" . timeStr . "] " . alert.title . ": " . alert.message
                     alertList.Add([alertText])
                 }
             }
@@ -379,10 +374,11 @@ class SystemMonitorPro {
                 content := "Timestamp,CPU Usage,Memory Usage,Network Stats`n"
                 
                 for entry in this.history {
-                    content .= FormatTime(entry.timestamp, "yyyy-MM-dd HH:mm:ss") . "," . entry.cpu . "," . entry.memory . "," . entry.network . "`n"
+                    timeStr := FormatTime(entry.timestamp, "yyyy-MM-dd HH:mm:ss")
+                    content .= timeStr . "," . entry.cpu . "," . entry.memory . "," . entry.network . "`n"
                 }
                 
-                FileWrite(content, filePath)
+                FileAppend(content, filePath)
                 TrayTip("Data Exported!", "System data exported successfully", 2)
             }
         } catch as e {
@@ -390,19 +386,25 @@ class SystemMonitorPro {
         }
     }
     
-    static SetupHotkeys() {
-        ; Main hotkey
-        Hotkey("^!m", (*) => this.CreateGUI()
-        
-        ; Alerts hotkey
-        F10::this.ShowAlerts()
-        
-        ; Close with Escape
-        Escape::{
+    static CloseGUI(*) {
+        try {
             if (WinExist("System Monitor Pro")) {
                 WinClose("System Monitor Pro")
             }
+        } catch {
+            ; Ignore errors
         }
+    }
+    
+    static SetupHotkeys() {
+        ; Main hotkey
+        Hotkey("^!m", (*) => this.CreateGUI())
+        
+        ; Alerts hotkey
+        Hotkey("F10", (*) => this.ShowAlerts())
+        
+        ; Close with Escape
+        Hotkey("Escape", this.CloseGUI.Bind(this))
     }
 }
 

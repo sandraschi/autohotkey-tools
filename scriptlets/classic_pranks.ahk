@@ -1,5 +1,6 @@
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
+#Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
 ; ==============================================================================
 ; Classic Pranks Collection - AutoHotkey v2 Version
@@ -22,13 +23,6 @@
 
 ; Suppress error popups - log to file instead
 OnError(LogError)
-
-LogError(Thrown, Mode) {
-    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
-    FileAppend(errorMsg, "classic_pranks_errors.log", "UTF-8")
-    OutputDebug(errorMsg)  ; Enable LLM debugging
-    return 1  ; Suppress popup (1 = suppress, 0 = show)
-}
 
 class ClassicPranks {
     static bugCount := 0
@@ -92,7 +86,7 @@ class ClassicPranks {
         
         ; Store bug info
         bug := {
-            gui: bugGui(
+            gui: bugGui,
             x: x,
             y: y,
             speedX: speedX,
@@ -103,7 +97,7 @@ class ClassicPranks {
         ; Start movement timer
         SetTimer(() => this.MoveBug(bug), 50)
         
-        TrayTip("Bug Created!", "Bug #" . this.bugCount . " is now crawling around!", 2)
+        this.ShowTrayTip("Bug Created!", "Bug #" . this.bugCount . " is now crawling around!")
     }
     
     static MoveBug(bug) {
@@ -179,7 +173,7 @@ class ClassicPranks {
         ; Auto-close after 10 seconds
         SetTimer(() => bsodGui.Close(), -10000)
         
-        TrayTip("Fake BSOD!", "Blue screen of death activated!", 2)
+        this.ShowTrayTip("Fake BSOD!", "Blue screen of death activated!")
     }
     
     static StartEliza(*) {
@@ -201,10 +195,10 @@ class ClassicPranks {
         
         elizaGui.Show("w600 h400")
         
-        TrayTip("ELIZA Started!", "Your virtual therapist is ready to listen!", 2)
+        this.ShowTrayTip("ELIZA Started!", "Your virtual therapist is ready to listen!")
     }
     
-    static ElizaSend(Gui( chatDisplay, userInput) {
+    static ElizaSend(chatDisplay, userInput) {
         if (userInput.Text = "") {
             return
         }
@@ -220,7 +214,7 @@ class ClassicPranks {
         userInput.Focus()
     }
     
-    static ElizaRespond(Gui( chatDisplay, userInput) {
+    static ElizaRespond(chatDisplay, userInput) {
         ; This could be enhanced to respond on Enter key
     }
     
@@ -229,8 +223,8 @@ class ClassicPranks {
         sudokuGui.SetFont("s16", "Consolas")
         
         ; Create 9x9 grid
-        for row := 1 to 9 {
-            for col := 1 to 9 {
+        for row in Range(1, 9) {
+            for col in Range(1, 9) {
                 x := 10 + (col - 1) * 40
                 y := 10 + (row - 1) * 40
                 
@@ -263,20 +257,20 @@ class ClassicPranks {
         
         sudokuGui.Show("w400 h420")
         
-        TrayTip("Sudoku Started!", "A new Sudoku puzzle is ready!", 2)
+        this.ShowTrayTip("Sudoku Started!", "A new Sudoku puzzle is ready!")
     }
     
     static NewSudokuGame(gui) {
         ; Simple puzzle generation (simplified)
-        TrayTip("New Game", "Generating new Sudoku puzzle...", 1)
+        this.ShowTrayTip("New Game", "Generating new Sudoku puzzle...")
     }
     
     static CheckSudokuSolution(gui) {
-        TrayTip("Check Solution", "Checking your solution...", 1)
+        this.ShowTrayTip("Check Solution", "Checking your solution...")
     }
     
     static SolveSudoku(gui) {
-        TrayTip("Solve Puzzle", "Solving the puzzle...", 1)
+        this.ShowTrayTip("Solve Puzzle", "Solving the puzzle...")
     }
     
     static CleanupBugs(*) {
@@ -290,7 +284,11 @@ class ClassicPranks {
         this.bugs := []
         this.bugCount := 0
         
-        TrayTip("Cleanup Complete!", "All bugs have been exterminated!", 2)
+        this.ShowTrayTip("Cleanup Complete!", "All bugs have been exterminated!")
+    }
+
+    static ShowTrayTip(title, message) {
+        TrayTip(title, message)
     }
 }
 

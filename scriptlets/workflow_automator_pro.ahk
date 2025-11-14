@@ -20,17 +20,11 @@
 
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
+#Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
 
 ; Suppress error popups - log to file instead
 OnError(LogError)
-
-LogError(Thrown, Mode) {
-    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
-    FileAppend(errorMsg, "workflow_automator_pro_errors.log", "UTF-8")
-    OutputDebug(errorMsg)  ; Enable LLM debugging
-    return 1  ; Suppress popup (1 = suppress, 0 = show)
-}
 
 
 class WorkflowAutomator {
@@ -39,6 +33,7 @@ class WorkflowAutomator {
     static conditions := Map()
     static actions := Map()
     static activeWorkflows := []
+    static lastWindow := ""
     
     static Init() {
         this.LoadBuiltinWorkflows()
@@ -167,33 +162,37 @@ class WorkflowAutomator {
     
     static StartMonitoring() {
         ; Start monitoring for various triggers
-        SetTimer(() => {
-            this.CheckTimeBasedTriggers()
-            this.CheckSystemTriggers()
-            this.CheckFileTriggers()
-            this.CheckAppTriggers()
-        }, 5000) ; Check every 5 seconds
+        SetTimer(WorkflowAutomator.MonitorTriggers.Bind(WorkflowAutomator), 5000) ; Check every 5 seconds
         
         ; Monitor clipboard changes
-        OnClipboardChange(this.ClipboardChangeTrigger.Bind(this))
+        OnClipboardChange(WorkflowAutomator.ClipboardChangeTrigger.Bind(WorkflowAutomator))
         
         ; Monitor window focus changes
-        SetTimer(() => {
-            try {
-                currentWin := WinGetTitle("A")
-                if (currentWin != this.lastWindow) {
-                    this.lastWindow := currentWin
-                    this.WindowFocusedTrigger(currentWin)
-                }
-            } catch {
-                ; Ignore errors
+        SetTimer(WorkflowAutomator.MonitorWindowFocus.Bind(WorkflowAutomator), 1000)
+    }
+    
+    static MonitorTriggers(*) {
+        this.CheckTimeBasedTriggers()
+        this.CheckSystemTriggers()
+        this.CheckFileTriggers()
+        this.CheckAppTriggers()
+    }
+    
+    static MonitorWindowFocus(*) {
+        try {
+            currentWin := WinGetTitle("A")
+            if (currentWin != this.lastWindow) {
+                this.lastWindow := currentWin
+                this.WindowFocusedTrigger(currentWin)
             }
-        }, 1000)
+        } catch as e {
+            ; Ignore errors
+        }
     }
     
     static CheckTimeBasedTriggers() {
-        currentTime := FormatTime(, "HH:mm")
-        currentDay := FormatTime(, "dddd")
+        currentTime := FormatTime(A_Now, "HH:mm")
+        currentDay := FormatTime(A_Now, "dddd")
         
         for name, workflow in this.workflows {
             if (workflow.enabled && workflow.trigger = "time_based") {
@@ -204,19 +203,26 @@ class WorkflowAutomator {
     
     static CheckSystemTriggers() {
         ; Check disk space
-        DriveGet(&freeSpace, "FreeSpace", "C:")
-        DriveGet(&totalSpace, "TotalSpace", "C:")
-        freePercent := (freeSpace / totalSpace) * 100
-        
-        if (freePercent < 10) {
-            this.ExecuteWorkflow("System Health")
+        try {
+            freeSpaceMB := DriveGetSpace("C:")
+            ; Get total space using COM FileSystemObject
+            fso := ComObject("Scripting.FileSystemObject")
+            drive := fso.GetDrive("C:")
+            totalSpaceMB := drive.TotalSize / 1024 / 1024  ; Convert bytes to MB
+            freePercent := (freeSpaceMB / totalSpaceMB) * 100
+            
+            if (freePercent < 10) {
+                this.ExecuteWorkflow("System Health")
+            }
+        } catch as e {
+            this.AppendLog("Error checking disk space: " . e.Message)
         }
         
         ; Check battery level
         try {
             RunWait("powercfg /batteryreport /output battery_report.html", , "Hide")
             ; Parse battery report (simplified)
-        } catch {
+        } catch as e {
             ; Ignore errors
         }
     }
@@ -247,10 +253,11 @@ class WorkflowAutomator {
     
     static ClipboardChangeTrigger(type) {
         if (type = 1) { ; Text
-            this.AppendLog("Clipboard changed: " . SubStr(ClipboardAll(), 1, 50))
+            clipboardText := A_Clipboard
+            this.AppendLog("Clipboard changed: " . SubStr(clipboardText, 1, 50))
             
             ; Check for specific clipboard patterns
-            if (InStr(ClipboardAll(), "http")) {
+            if (InStr(clipboardText, "http")) {
                 this.AppendLog("URL detected in clipboard")
             }
         }
@@ -265,6 +272,116 @@ class WorkflowAutomator {
             if (InStr(StrLower(windowTitle), keyword)) {
                 this.ExecuteWorkflow("Focus Mode")
                 break
+            }
+        }
+    }
+    
+    static TimeBasedTrigger(*) {
+        this.AppendLog("Time-based trigger fired")
+        ; Time-based triggers are handled by CheckTimeBasedTriggers()
+    }
+    
+    static DailyTrigger(*) {
+        this.AppendLog("Daily trigger fired")
+        ; Execute workflows with daily trigger
+        for name, workflow in this.workflows {
+            if (workflow.enabled && workflow.trigger = "daily") {
+                this.ExecuteWorkflow(name)
+            }
+        }
+    }
+    
+    static HourlyTrigger(*) {
+        this.AppendLog("Hourly trigger fired")
+        ; Execute workflows with hourly trigger
+        for name, workflow in this.workflows {
+            if (workflow.enabled && workflow.trigger = "hourly") {
+                this.ExecuteWorkflow(name)
+            }
+        }
+    }
+    
+    static FileCreatedTrigger(filePath := "") {
+        this.AppendLog("File created trigger fired: " . filePath)
+        ; Execute workflows with file_created trigger
+        for name, workflow in this.workflows {
+            if (workflow.enabled && workflow.trigger = "file_created") {
+                this.ExecuteWorkflow(name)
+            }
+        }
+    }
+    
+    static FileModifiedTrigger(filePath := "") {
+        this.AppendLog("File modified trigger fired: " . filePath)
+        ; Execute workflows with file_modified trigger
+        for name, workflow in this.workflows {
+            if (workflow.enabled && workflow.trigger = "file_modified") {
+                this.ExecuteWorkflow(name)
+            }
+        }
+    }
+    
+    static FileDeletedTrigger(filePath := "") {
+        this.AppendLog("File deleted trigger fired: " . filePath)
+        ; Execute workflows with file_deleted trigger
+        for name, workflow in this.workflows {
+            if (workflow.enabled && workflow.trigger = "file_deleted") {
+                this.ExecuteWorkflow(name)
+            }
+        }
+    }
+    
+    static AppOpenedTrigger(appName := "") {
+        this.AppendLog("App opened trigger fired: " . appName)
+        ; Execute workflows with app_opened trigger
+        for name, workflow in this.workflows {
+            if (workflow.enabled && workflow.trigger = "app_opened") {
+                this.ExecuteWorkflow(name)
+            }
+        }
+    }
+    
+    static AppClosedTrigger(appName := "") {
+        this.AppendLog("App closed trigger fired: " . appName)
+        ; Execute workflows with app_closed trigger
+        for name, workflow in this.workflows {
+            if (workflow.enabled && workflow.trigger = "app_closed") {
+                this.ExecuteWorkflow(name)
+            }
+        }
+    }
+    
+    static SystemCheckTrigger(*) {
+        this.AppendLog("System check trigger fired")
+        ; System checks are handled by CheckSystemTriggers()
+    }
+    
+    static LowBatteryTrigger(*) {
+        this.AppendLog("Low battery trigger fired")
+        ; Execute workflows with low_battery trigger
+        for name, workflow in this.workflows {
+            if (workflow.enabled && workflow.trigger = "low_battery") {
+                this.ExecuteWorkflow(name)
+            }
+        }
+    }
+    
+    static NetworkChangeTrigger(*) {
+        this.AppendLog("Network change trigger fired")
+        ; Execute workflows with network_change trigger
+        for name, workflow in this.workflows {
+            if (workflow.enabled && workflow.trigger = "network_change") {
+                this.ExecuteWorkflow(name)
+            }
+        }
+    }
+    
+    static HotkeyTrigger(*) {
+        this.AppendLog("Hotkey trigger fired")
+        ; Execute workflows with hotkey trigger
+        for name, workflow in this.workflows {
+            if (workflow.enabled && workflow.trigger = "hotkey") {
+                this.ExecuteWorkflow(name)
             }
         }
     }
@@ -319,17 +436,20 @@ class WorkflowAutomator {
         this.AppendLog("Generating daily report...")
         
         ; Create report content
-        report := "Daily Report - " . FormatTime(, "yyyy-MM-dd") . "`n`n"
+        dateStr := FormatTime(A_Now, "yyyy-MM-dd")
+        report := "Daily Report - " . dateStr . "`n`n"
         report .= "System Status: OK`n"
         report .= "Active Workflows: " . this.activeWorkflows.Length . "`n"
-        report .= "Last Check: " . FormatTime(, "HH:mm:ss") . "`n"
+        timeStr := FormatTime(A_Now, "HH:mm:ss")
+        report .= "Last Check: " . timeStr . "`n"
         
         ; Save report
-        reportFile := "DailyReport_" . FormatTime(, "yyyyMMdd") . ".txt"
+        dateStr2 := FormatTime(A_Now, "yyyyMMdd")
+        reportFile := "DailyReport_" . dateStr2 . ".txt"
         try {
             FileAppend(report, reportFile)
             this.AppendLog("Report saved: " . reportFile)
-        } catch {
+        } catch as e {
             this.AppendLog("Failed to save report")
         }
     }
@@ -343,7 +463,7 @@ class WorkflowAutomator {
         this.AppendLog("Minimizing distracting application...")
         try {
             WinMinimize("A")
-        } catch {
+        } catch as e {
             this.AppendLog("Failed to minimize window")
         }
     }
@@ -357,7 +477,11 @@ class WorkflowAutomator {
         nameInput := workflowGui.Add("Edit", "x120 y28 w250 h25", "")
         
         workflowGui.Add("Text", "x10 y60 w100 h20", "Trigger:")
-        triggerCombo := workflowGui.Add("DropDownList", "x120 y58 w250", Array.from(this.triggers.Keys))
+        triggerList := []
+        for key in this.triggers.Keys {
+            triggerList.Push(key)
+        }
+        triggerCombo := workflowGui.Add("DropDownList", "x120 y58 w250", triggerList)
         
         workflowGui.Add("Text", "x10 y90 w100 h20", "Condition:")
         conditionCombo := workflowGui.Add("DropDownList", "x120 y88 w250", ["always", "contains_keyword", "in_folder", "weekday"])
@@ -371,30 +495,31 @@ class WorkflowAutomator {
         saveBtn := workflowGui.Add("Button", "x10 y180 w80 h25", "Save")
         cancelBtn := workflowGui.Add("Button", "x100 y180 w80 h25", "Cancel")
         
-        saveBtn.OnEvent("Click", (*) => {
-            name := nameInput.Text
-            trigger := triggerCombo.Text
-            condition := conditionCombo.Text
-            action := actionCombo.Text
-            enabled := enabledCheck.Value
-            
-            if (name && trigger && condition && action) {
-                this.workflows[name] := {
-                    trigger: trigger,
-                    condition: condition,
-                    action: action,
-                    enabled: enabled
-                }
-                
-                this.UpdateWorkflowList()
-                workflowGui.Close()
-                this.AppendLog("Workflow created: " . name)
-            }
-        })
-        
+        saveBtn.OnEvent("Click", this.SaveWorkflow.Bind(this, nameInput, triggerCombo, conditionCombo, actionCombo, enabledCheck, workflowGui))
         cancelBtn.OnEvent("Click", (*) => workflowGui.Close())
         
         workflowGui.Show("w400 h220")
+    }
+    
+    static SaveWorkflow(nameInput, triggerCombo, conditionCombo, actionCombo, enabledCheck, workflowGui, *) {
+        name := nameInput.Text
+        trigger := triggerCombo.Text
+        condition := conditionCombo.Text
+        action := actionCombo.Text
+        enabled := enabledCheck.Value
+        
+        if (name && trigger && condition && action) {
+            WorkflowAutomator.workflows[name] := {
+                trigger: trigger,
+                condition: condition,
+                action: action,
+                enabled: enabled
+            }
+            
+            WorkflowAutomator.UpdateWorkflowList()
+            workflowGui.Close()
+            WorkflowAutomator.AppendLog("Workflow created: " . name)
+        }
     }
     
     static EditWorkflow(*) {
@@ -437,7 +562,7 @@ class WorkflowAutomator {
     }
     
     static AppendLog(message) {
-        timestamp := FormatTime(, "HH:mm:ss")
+        timestamp := FormatTime(A_Now, "HH:mm:ss")
         this.logArea.Text .= "[" . timestamp . "] " . message . "`n"
         
         ; Auto-scroll to bottom
@@ -447,9 +572,9 @@ class WorkflowAutomator {
 }
 
 ; Hotkeys
-Hotkey("^!w", (*) => WorkflowAutomator.Init()
-Hotkey("^!r", (*) => WorkflowAutomator.GenerateReport()
-Hotkey("^!t", (*) => WorkflowAutomator.ExecuteWorkflow("Daily Report")
+Hotkey("^!w", (*) => WorkflowAutomator.Init())
+Hotkey("^!r", (*) => WorkflowAutomator.GenerateReport())
+Hotkey("^!t", (*) => WorkflowAutomator.ExecuteWorkflow("Daily Report"))
 
 ; Initialize
 WorkflowAutomator.Init()

@@ -1,5 +1,6 @@
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
+#Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
 ; ==============================================================================
 ; Dev Context Music (System Sounds Edition)
@@ -23,13 +24,6 @@
 
 ; Error handling - log to file instead of showing popups
 OnError(LogError)
-
-LogError(Thrown, Mode) {
-    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
-    FileAppend(errorMsg, "dev_context_music_errors.log", "UTF-8")
-    OutputDebug(errorMsg)  ; Enable LLM debugging
-    return 1  ; Suppress popup (1 = suppress, 0 = show)
-}
 
 ; ========================================
 ; CONFIGURATION
@@ -193,32 +187,16 @@ CheckRepoHealth() {
 ; ========================================
 
 ; Play a sad march
-Hotkey("^!s", (*) => {  ; Ctrl+Alt+S for sad march
-    PlayContextSound("sad_march")
-    TrayTip("Playing a sad march... 🎵", "Mood Music", 1)
-    SetTimer(() => TrayTip(), -3000)
-})
+Hotkey("^!s", (*) => PlaySadMarch())  ; Ctrl+Alt+S for sad march
 
 ; Play a triumphant piece
-Hotkey("^!t", (*) => {  ; Ctrl+Alt+T for triumphant music
-    PlayContextSound("triumphant")
-    TrayTip("Playing something triumphant! 🎺", "Mood Music", 1)
-    SetTimer(() => TrayTip(), -3000)
-})
+Hotkey("^!t", (*) => PlayTriumphant())  ; Ctrl+Alt+T for triumphant music
 
 ; Play a random Betty Boop cartoon
-Hotkey("^!b", (*) => {  ; Ctrl+Alt+B for Betty Boop
-    PlayContextSound("betty_boop")
-    TrayTip("Betty Boop beep-a-boop! 🎭", "Plex", 1)
-    SetTimer(() => TrayTip(), -3000)
-})
+Hotkey("^!b", (*) => PlayBettyBoop())  ; Ctrl+Alt+B for Betty Boop
 
 ; Play a classical piece
-Hotkey("^!c", (*) => {  ; Ctrl+Alt+C for classical
-    PlayContextSound("classical")
-    TrayTip("Playing a classical piece... 🎼", "Classical Music", 1)
-    SetTimer(() => TrayTip(), -3000)
-})
+Hotkey("^!c", (*) => PlayClassical())  ; Ctrl+Alt+C for classical
 
 ; ========================================
 ; TIME-BASED TRIGGERS
@@ -226,7 +204,9 @@ Hotkey("^!c", (*) => {  ; Ctrl+Alt+C for classical
 
 ; Check time and play appropriate music
 CheckTime() {
-    hour := Integer(FormatTime(A_Now, "H"))  ; 24-hour format
+    hourStr := ""
+    hourStr := FormatTime(, "H")
+    hour := Integer(hourStr)  ; 24-hour format
     
     if (hour >= 22 || hour < 6) {
         ; Late night coding

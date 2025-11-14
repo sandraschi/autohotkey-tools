@@ -2,6 +2,17 @@
 
 ## 🚀 AutoHotkey v2.0+ Syntax Reference
 
+### 💡 IDE Support
+
+For the best development experience, we recommend using the **AutoHotkey++ Cursor Extension**:
+- Full IntelliSense for AutoHotkey v2 syntax
+- Real-time error detection and syntax checking
+- Code completion for built-in functions and methods
+- Integrated debugging capabilities
+- Optimized syntax highlighting
+
+Install from the Cursor extensions marketplace for enhanced AutoHotkey v2 development.
+
 ### Key Differences from v1
 
 | Feature | v1 Syntax | v2 Syntax | Notes |

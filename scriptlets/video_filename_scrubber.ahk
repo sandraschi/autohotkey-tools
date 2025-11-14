@@ -11,18 +11,17 @@
 
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
+#Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
 ; Show that script is starting
 TrayTip("Video Filename Scrubber", "Script starting...", 3)
 
 ; Log errors but allow GUI errors to show
-OnError(LogError)
+OnError(VideoFilenameScrubberLogError)
 
-LogError(Thrown, Mode) {
-    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
-    FileAppend(errorMsg, "video_filename_scrubber_errors.log", "UTF-8")
-    OutputDebug(errorMsg)
-    if (InStr(Thrown.Message, "GUI") || InStr(Thrown.Stack, "CreateGUI")) {
+VideoFilenameScrubberLogError(Thrown, Mode) {
+    ScriptletErrorHandler.Handle(Thrown, Mode)
+    if (Thrown && (InStr(Thrown.Message, "GUI") || (HasProp(Thrown, "Stack") && InStr(Thrown.Stack, "CreateGUI")))) {
         return 0
     }
     return 1
@@ -38,6 +37,7 @@ class VideoFilenameScrubber {
     static resultArea := ""
     static guiInstance := ""
     static statsArea := ""
+    static dirTextControl := ""
     static processedCount := 0
     static movedCount := 0
     static renamedCount := 0
@@ -48,18 +48,71 @@ class VideoFilenameScrubber {
     
     static Init() {
         try {
-            MsgBox("Init() called!", "Debug", "Icon!")
-            this.targetDir := "L:\Tixati"
+            ; Try to load saved directory from config, or use default
+            this.targetDir := this.LoadTargetDirectory()
             this.logFile := "video_filename_scrubber.log"
             this.videoExtensions := [".mkv", ".mp4", ".avi", ".mov", ".wmv", ".flv", ".webm", ".m4v"]
             this.operations := []
             this.directoriesToCheck := []
-            MsgBox("About to create GUI...", "Debug", "Icon!")
             TrayTip("Video Filename Scrubber", "Starting GUI...", 2)
             this.CreateGUI()
-            MsgBox("GUI created!", "Debug", "Icon!")
         } catch as e {
-            MsgBox("Init error: " . e.Message . "`n" . e.Stack, "Error", "Iconx")
+            MsgBox("Init error: " . e.Message . "`n" . e.Stack, "Error", "Icon!")
+        }
+    }
+    
+    static LoadTargetDirectory() {
+        configFile := "video_filename_scrubber_config.ini"
+        if (FileExist(configFile)) {
+            try {
+                configContent := FileRead(configFile)
+                if (RegExMatch(configContent, "i)TargetDir\s*=\s*(.+)", &match)) {
+                    savedDir := Trim(match[1])
+                    if (DirExist(savedDir)) {
+                        return savedDir
+                    }
+                }
+            } catch {
+                ; If config read fails, use default
+            }
+        }
+        ; Default to user's Videos folder if it exists
+        videosDir := A_MyDocuments . "\..\Videos"
+        if (DirExist(videosDir)) {
+            return videosDir
+        }
+        return A_MyDocuments
+    }
+    
+    static SaveTargetDirectory(dirPath) {
+        configFile := "video_filename_scrubber_config.ini"
+        try {
+            FileOpen(configFile, "w", "UTF-8").Write("TargetDir=" . dirPath)
+        } catch {
+            ; Ignore save errors
+        }
+    }
+    
+    static SelectDirectory(*) {
+        selectedDir := DirSelect(, 3, "Select Target Directory for Video Files")
+        if (selectedDir != "") {
+            this.targetDir := selectedDir
+            this.SaveTargetDirectory(selectedDir)
+            ; Update GUI display
+            if (this.guiInstance && this.guiInstance.Hwnd) {
+                ; Find and update the target directory text control
+                try {
+                    ; We'll need to store a reference to the dirText control
+                    if (this.dirTextControl && this.dirTextControl.Hwnd) {
+                        this.dirTextControl.Text := "Target: " . this.targetDir
+                    }
+                } catch {
+                    ; If update fails, recreate GUI
+                    this.guiInstance.Destroy()
+                    this.CreateGUI()
+                }
+            }
+            TrayTip("Video Filename Scrubber", "Target directory set to: " . selectedDir, 3)
         }
     }
     
@@ -74,7 +127,12 @@ class VideoFilenameScrubber {
             
             statusText := this.dryRun ? "[DRY RUN] No changes will be made" : "[LIVE] Changes will be applied"
             this.guiInstance.Add("Text", "x20 y50 w760 Center cYellow", statusText)
-            this.guiInstance.Add("Text", "x20 y80 w760 Center cGray", "Target: " . this.targetDir)
+            
+            ; Directory selection row
+            this.guiInstance.Add("Text", "x20 y80 w100 h25", "Target Directory:")
+            this.dirTextControl := this.guiInstance.Add("Text", "x130 y80 w500 h25 cGray", this.targetDir)
+            btnSelectDir := this.guiInstance.Add("Button", "x640 y78 w120 h28", "&Select Directory")
+            btnSelectDir.OnEvent("Click", ObjBindMethod(this, "SelectDirectory"))
             
             this.guiInstance.Add("Text", "x20 y110", "Results:")
             this.resultArea := this.guiInstance.Add("Edit", "x20 y130 w760 h200 +Multi +ReadOnly VScroll", "")
@@ -361,7 +419,8 @@ class VideoFilenameScrubber {
     }
     
     static AppendLog(message) {
-        FormatTime(timestamp, A_Now, "HH:mm:ss")
+        timestamp := ""
+        timestamp := FormatTime(, "HH:mm:ss")
         logMessage := "[" . timestamp . "] " . message . "`n"
         try {
             if (this.logArea && this.logArea.Hwnd) {
@@ -465,7 +524,8 @@ class VideoFilenameScrubber {
             }
             version++
             if (version > 999) {
-                FormatTime(timestamp, A_Now, "yyyyMMdd_HHmmss")
+                timestamp := ""
+                timestamp := FormatTime(, "yyyyMMdd_HHmmss")
                 return baseName . " (" . timestamp . ")" . ext
             }
         }
@@ -509,7 +569,9 @@ class VideoFilenameScrubber {
         try {
             logContent := "Video Filename Scrubber Log`n"
             logContent .= "========================`n`n"
-            logContent .= "Date: " . FormatTime(A_Now, "yyyy-MM-dd HH:mm:ss") . "`n"
+            dateTime := ""
+            dateTime := FormatTime(, "yyyy-MM-dd HH:mm:ss")
+            logContent .= "Date: " . dateTime . "`n"
             logContent .= "Mode: " . (this.dryRun ? "DRY RUN" : "LIVE") . "`n"
             logContent .= "Target Directory: " . this.targetDir . "`n`n"
             logContent .= "Operations:`n"
@@ -523,7 +585,8 @@ class VideoFilenameScrubber {
             logContent .= "Moved: " . this.movedCount . "`n"
             logContent .= "Directories Deleted: " . this.deletedDirCount . "`n"
             logContent .= "Errors: " . this.errorCount . "`n"
-            timestamp := FormatTime(A_Now, "yyyyMMdd_HHmmss")
+            timestamp := ""
+            timestamp := FormatTime(, "yyyyMMdd_HHmmss")
             logFileName := "video_filename_scrubber_report_" . timestamp . ".txt"
             FileAppend(logContent, logFileName, "UTF-8")
             this.AppendLog("Report saved to: " . logFileName)

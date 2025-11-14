@@ -1,4 +1,4 @@
-﻿#NoEnv
+#NoEnv
 #SingleInstance Force
 #Warn
 #MaxHotkeysPerInterval 200

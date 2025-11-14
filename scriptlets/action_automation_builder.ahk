@@ -1,6 +1,6 @@
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
-
+#Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
 ; ==============================================================================
 ; Action Automation Builder
@@ -19,333 +19,532 @@
 ; @cli: --open <workflow> - Open existing workflow file
 ; @cli: --test - Test current workflow
 ; @cli: --help - Show CLI usage and builder options
-; @dependencies: 
+; @dependencies:
 ; ==============================================================================
 
-; Error handling - log to file instead of showing popups
-OnError(LogError)
+OnError(HandleScriptError)
 
-LogError(Thrown, Mode) {
-    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
-    FileAppend(errorMsg, "action_automation_errors.log", "UTF-8")
-    OutputDebug(errorMsg)  ; Enable LLM debugging
-    return 1  ; Suppress popup (1 = suppress, 0 = show)
+HandleScriptError(Thrown, Mode) {
+    return AutomationBuilder.HandleScriptError(Thrown, Mode)
 }
 
 class AutomationBuilder {
     static gui := ""
-    static workflow := []
     static canvas := ""
+    static nodeList := ""
+    static logOutput := ""
+    static workflow := []
     static selectedNode := 0
-    
+    static logDir := ""
+    static logFilePath := ""
+    static logInitialized := false
+    static isVisible := false
+
     static Init() {
-        this.CreateGUI()
-        Hotkey("^!b", (*) => this.ToggleGUI())
+        AutomationBuilder.EnsureLogInfrastructure()
+        AutomationBuilder.CreateGUI()
+        Hotkey("^!b", (*) => AutomationBuilder.ToggleGUI())
+        AutomationBuilder.AppendLog("Automation Builder initialized.")
     }
-    
+
     static CreateGUI() {
         try {
-            this.gui := Gui("+Resize", "Action Automation Builder")
-            this.gui.BackColor := "222222"
-        
-        ; Title
-        this.gui.AddText("x10 y10 w500 h30 Center", "Action Automation Builder")
-            .SetFont("s12 bold cFFFFFF")
-        
-        ; Toolbar
-        this.gui.AddButton("x10 y50 w100 h30 vRecordBtn", "Record Action")
-            .OnEvent("Click", AutomationBuilder.RecordAction)
-        
-        this.gui.AddButton("x120 y50 w100 h30 vConditionBtn", "Add Condition")
-            .OnEvent("Click", AutomationBuilder.AddCondition)
-        
-        this.gui.AddButton("x230 y50 w100 h30 vLoopBtn", "Add Loop")
-            .OnEvent("Click", AutomationBuilder.AddLoop)
-        
-        this.gui.AddButton("x340 y50 w100 h30 vDelayBtn", "Add Delay")
-            .OnEvent("Click", AutomationBuilder.AddDelay)
-        
-        this.gui.AddButton("x450 y50 w100 h30 vRunBtn", "Run Workflow")
-            .OnEvent("Click", AutomationBuilder.RunWorkflow)
-        
-        ; Canvas for visual workflow
-        this.canvas := this.gui.AddText("x10 y95 w580 h350 Border vCanvas", "Canvas")
-            .BackColor := "FFFFFF"
-        
-        ; Node list
-        this.gui.AddText("x600 y50 w180 h20", "Workflow Nodes:")
-        this.nodeList := this.gui.AddListView("x600 y75 w180 h370 vNodeList", ["Node"])
-            .OnEvent("Click", AutomationBuilder.NodeSelected)
-        
-        ; Control buttons
-        this.gui.AddButton("x600 y455 w80 h30 vDeleteNodeBtn", "Delete")
-            .OnEvent("Click", AutomationBuilder.DeleteNode)
-        
-        this.gui.AddButton("x690 y455 w90 h30 vSaveWorkflowBtn", "Save Workflow")
-            .OnEvent("Click", AutomationBuilder.SaveWorkflow)
-        
-            Hotkey("Escape", (*) => this.gui.Hide(), this.gui)
-            this.gui.Show("w800 h500")
-            this.LogDebug("GUI created successfully")
+            AutomationBuilder.gui := Gui("+Resize", "Action Automation Builder")
+            AutomationBuilder.gui.BackColor := 0x222222
+            AutomationBuilder.gui.SetFont("s10 cFFFFFF", "Segoe UI")
+            AutomationBuilder.gui.MinSize := "820x560"
+
+            title := AutomationBuilder.gui.AddText("x10 y10 w520 h30 Center", "Action Automation Builder")
+            title.SetFont("s12 bold")
+
+            AutomationBuilder.gui.AddButton("x10 y50 w120 h30", "Record Action").OnEvent("Click", ObjBindMethod(AutomationBuilder, "RecordAction"))
+            AutomationBuilder.gui.AddButton("x140 y50 w120 h30", "Add Condition").OnEvent("Click", ObjBindMethod(AutomationBuilder, "AddCondition"))
+            AutomationBuilder.gui.AddButton("x270 y50 w120 h30", "Add Loop").OnEvent("Click", ObjBindMethod(AutomationBuilder, "AddLoop"))
+            AutomationBuilder.gui.AddButton("x400 y50 w120 h30", "Add Delay").OnEvent("Click", ObjBindMethod(AutomationBuilder, "AddDelay"))
+            AutomationBuilder.gui.AddButton("x530 y50 w120 h30", "Run Workflow").OnEvent("Click", ObjBindMethod(AutomationBuilder, "RunWorkflow"))
+
+            AutomationBuilder.gui.AddText("x10 y90 w520 h20", "Workflow Canvas:")
+            canvasControl := AutomationBuilder.gui.AddEdit("x10 y115 w520 h280 ReadOnly Multi VScroll -WantReturn", "No nodes defined. Use the toolbar to add workflow steps.")
+            canvasControl.BackColor := 0xFFFFFF
+            canvasControl.SetFont("c000000")
+            AutomationBuilder.canvas := canvasControl
+
+            AutomationBuilder.gui.AddText("x550 y90 w240 h20", "Workflow Nodes:")
+            AutomationBuilder.nodeList := AutomationBuilder.gui.AddListView("x550 y115 w250 h280", ["Node"])
+            AutomationBuilder.nodeList.OnEvent("Click", ObjBindMethod(AutomationBuilder, "NodeSelected"))
+
+            AutomationBuilder.gui.AddButton("x550 y405 w120 h32", "Delete Node").OnEvent("Click", ObjBindMethod(AutomationBuilder, "DeleteNode"))
+            AutomationBuilder.gui.AddButton("x680 y405 w120 h32", "Save Workflow").OnEvent("Click", ObjBindMethod(AutomationBuilder, "SaveWorkflow"))
+
+            AutomationBuilder.gui.AddText("x10 y405 w520 h20", "Log Output:")
+            logControl := AutomationBuilder.gui.AddEdit("x10 y430 w810 h110 ReadOnly Multi VScroll -WantReturn", "")
+            logControl.BackColor := 0x1a1a1a
+            logControl.SetFont("s9 cFFFFFF", "Consolas")
+            AutomationBuilder.logOutput := logControl
+
+            AutomationBuilder.gui.OnEvent("Escape", ObjBindMethod(AutomationBuilder, "HideGUI"))
+            AutomationBuilder.gui.OnEvent("Close", ObjBindMethod(AutomationBuilder, "HideGUI"))
+
+            AutomationBuilder.RefreshCanvas()
+            AutomationBuilder.gui.Show("w830 h580")
+            AutomationBuilder.isVisible := true
+            AutomationBuilder.AppendLog("GUI created successfully.")
         } catch as e {
-            errorMsg := "Error creating GUI: " . e.Message . "`n" . e.Stack
-            FileAppend(errorMsg, "action_automation_errors.log", "UTF-8")
-            OutputDebug(errorMsg)
-            MsgBox("Error creating GUI: " . e.Message . "`n`nCheck action_automation_errors.log for details", "Error", "Iconx")
+            AutomationBuilder.AppendLog("Error creating GUI: " . e.Message, "ERROR")
+            if (e.Stack) {
+                AutomationBuilder.AppendLog(e.Stack, "TRACE")
+            }
+            TrayTip("Initialization Error", "Unable to create the Action Automation Builder GUI.`n`n" . e.Message, 10)
         }
     }
-    
-    static LogDebug(message) {
-        timestamp := FormatTime(A_Now, "HH:mm:ss")
-        logMsg := "[" . timestamp . "] " . message . "`n"
-        try {
-            FileAppend(logMsg, "action_automation_debug.log", "UTF-8")
-        } catch {
-            ; Ignore file logging errors
+
+    static RecordAction(*) {
+        response := MsgBox("Start recording your action?", "Record Action", "Icon? YesNo")
+        if (response != "Yes") {
+            AutomationBuilder.AppendLog("Recording cancelled or timed out.", "INFO")
+            return
         }
-        OutputDebug(logMsg)
+
+        AutomationBuilder.AppendLog("Recording initiated (simulation).", "INFO")
+        AutomationBuilder.ShowTimedNotification("Recording", "Use Ctrl+Alt+S to stop recording.", 10000)
     }
-    
-    static RecordAction() {
-        if (MsgBox("Start recording your action?", "Record Action", "Icon? YesNo") = "Yes") {
-            ; Use AutoHotkey's built-in recording
-            Run(A_AhkPath . ' "' . A_ScriptFullPath . '"')
-            this.AppendLog("Recording started...")
-            
-            ; Wait for user to press stop
-            MsgBox("Press Ctrl+Alt+S to stop recording", "Recording", "Icon!")
+
+    static AddCondition(*) {
+        dialog := Gui("+AlwaysOnTop +ToolWindow", "Add Condition")
+        dialog.BackColor := 0x333333
+        dialog.SetFont("s9 cFFFFFF", "Segoe UI")
+        dialog.OnEvent("Escape", (*) => dialog.Destroy())
+
+        dialog.AddText("x10 y10 w280 h20", "Condition Type:")
+        conditionType := dialog.AddDDL("x10 y35 w260", ["Window", "File", "Network", "Custom"])
+
+        dialog.AddText("x10 y70 w280 h20", "Condition Expression:")
+        conditionEdit := dialog.AddEdit("x10 y95 w260 h90 -WantReturn")
+
+        dialog.AddButton("x10 y195 w120 h32", "OK").OnEvent("Click", (*) => AutomationBuilder.AddConditionConfirm(dialog, conditionType, conditionEdit))
+        dialog.AddButton("x150 y195 w120 h32", "Cancel").OnEvent("Click", (*) => dialog.Destroy())
+
+        dialog.Show("w280 h240")
+    }
+
+    static AddConditionConfirm(dialog, conditionType, conditionEdit) {
+        typeValue := AutomationBuilder.TrimValue(conditionType.Text)
+        expression := AutomationBuilder.TrimValue(conditionEdit.Value)
+
+        if (!typeValue || !expression) {
+            AutomationBuilder.AppendLog("Condition requires both a type and an expression.", "WARN")
+            AutomationBuilder.ShowTimedNotification("Validation", "Provide condition type and expression.", 10000)
+            return
         }
+
+        node := {type: "condition", conditionType: typeValue, expression: expression}
+        AutomationBuilder.workflow.Push(node)
+        AutomationBuilder.UpdateNodeList()
+        AutomationBuilder.RefreshCanvas()
+        AutomationBuilder.AppendLog("Added condition node (" . typeValue . ").")
+        dialog.Destroy()
     }
-    
-    static AddCondition() {
-        dialog := Gui("+AlwaysOnTop", "Add Condition")
-        dialog.BackColor := "222222"
-        
-        dialog.AddText("x10 y10 w300 h20", "Add Condition Node")
-            .SetFont("s10 bold")
-        
-        dialog.AddText("x10 y40 w100 h20", "Condition Type:")
-        conditionType := dialog.AddDDL("x120 y35 w150 vConditionType", ["Window", "File", "Network", "Custom"])
-        
-        dialog.AddText("x10 y70 w100 h20", "Condition Expression:")
-        conditionEdit := dialog.AddEdit("x10 y95 w280 h100 vConditionExpr")
-        
-        dialog.AddButton("x10 y205 w130 h35 vOkBtn", "OK")
-            .OnEvent("Click", (*) => {
-                this.workflow.Push({
-                    type: "condition",
-                    conditionType: conditionType.Text,
-                    expression: conditionEdit.Text
-                })
-                this.UpdateNodeList()
-                dialog.Destroy()
-            })
-        
-        dialog.AddButton("x150 y205 w130 h35 vCancelBtn", "Cancel")
-            .OnEvent("Click", (*) => dialog.Destroy())
-        
-        dialog.Show("w300 h250")
+
+    static AddLoop(*) {
+        dialog := Gui("+AlwaysOnTop +ToolWindow", "Add Loop")
+        dialog.BackColor := 0x333333
+        dialog.SetFont("s9 cFFFFFF", "Segoe UI")
+        dialog.OnEvent("Escape", (*) => dialog.Destroy())
+
+        dialog.AddText("x10 y10 w280 h20", "Loop Type:")
+        loopType := dialog.AddDDL("x10 y35 w260", ["Count", "While", "For Each"])
+
+        dialog.AddText("x10 y70 w280 h20", "Loop Value:")
+        loopValue := dialog.AddEdit("x10 y95 w260 h70 -WantReturn")
+
+        dialog.AddButton("x10 y175 w120 h32", "OK").OnEvent("Click", (*) => AutomationBuilder.AddLoopConfirm(dialog, loopType, loopValue))
+        dialog.AddButton("x150 y175 w120 h32", "Cancel").OnEvent("Click", (*) => dialog.Destroy())
+
+        dialog.Show("w280 h220")
     }
-    
-    static AddLoop() {
-        dialog := Gui("+AlwaysOnTop", "Add Loop")
-        dialog.BackColor := "222222"
-        
-        dialog.AddText("x10 y10 w300 h20", "Add Loop Node")
-            .SetFont("s10 bold")
-        
-        dialog.AddText("x10 y40 w100 h20", "Loop Type:")
-        loopType := dialog.AddDDL("x120 y35 w150 vLoopType", ["Count", "While", "For Each"])
-        
-        dialog.AddText("x10 y70 w100 h20", "Loop Value:")
-        loopValue := dialog.AddEdit("x10 y95 w280 h80 vLoopValue")
-        
-        dialog.AddButton("x10 y185 w130 h35 vOkBtn", "OK")
-            .OnEvent("Click", (*) => {
-                this.workflow.Push({
-                    type: "loop",
-                    loopType: loopType.Text,
-                    value: loopValue.Text
-                })
-                this.UpdateNodeList()
-                dialog.Destroy()
-            })
-        
-        dialog.AddButton("x150 y185 w130 h35 vCancelBtn", "Cancel")
-            .OnEvent("Click", (*) => dialog.Destroy())
-        
-        dialog.Show("w300 h230")
+
+    static AddLoopConfirm(dialog, loopType, loopValue) {
+        typeValue := AutomationBuilder.TrimValue(loopType.Text)
+        value := AutomationBuilder.TrimValue(loopValue.Value)
+
+        if (!typeValue || !value) {
+            AutomationBuilder.AppendLog("Loop requires both a type and a value.", "WARN")
+            AutomationBuilder.ShowTimedNotification("Validation", "Provide loop type and value.", 10000)
+            return
+        }
+
+        node := {type: "loop", loopType: typeValue, value: value}
+        AutomationBuilder.workflow.Push(node)
+        AutomationBuilder.UpdateNodeList()
+        AutomationBuilder.RefreshCanvas()
+        AutomationBuilder.AppendLog("Added loop node (" . typeValue . ").")
+        dialog.Destroy()
     }
-    
-    static AddDelay() {
-        dialog := Gui("+AlwaysOnTop", "Add Delay")
-        dialog.BackColor := "222222"
-        
-        dialog.AddText("x10 y10 w200 h20", "Add Delay Node")
-            .SetFont("s10 bold")
-        
-        dialog.AddText("x10 y40 w60 h20", "Seconds:")
-        delayValue := dialog.AddEdit("x80 y35 w100 vDelayValue")
-            .Text := "1"
-        
-        dialog.AddButton("x10 y70 w80 h35 vOkBtn", "OK")
-            .OnEvent("Click", (*) => {
-                this.workflow.Push({
-                    type: "delay",
-                    seconds: delayValue.Text
-                })
-                this.UpdateNodeList()
-                dialog.Destroy()
-            })
-        
-        dialog.AddButton("x100 y70 w80 h35 vCancelBtn", "Cancel")
-            .OnEvent("Click", (*) => dialog.Destroy())
-        
-        dialog.Show("w200 h115")
+
+    static AddDelay(*) {
+        dialog := Gui("+AlwaysOnTop +ToolWindow", "Add Delay")
+        dialog.BackColor := 0x333333
+        dialog.SetFont("s9 cFFFFFF", "Segoe UI")
+        dialog.OnEvent("Escape", (*) => dialog.Destroy())
+
+        dialog.AddText("x10 y10 w180 h20", "Delay (seconds):")
+        delayValue := dialog.AddEdit("x10 y35 w180", "")
+
+        dialog.AddButton("x10 y70 w80 h30", "OK").OnEvent("Click", (*) => AutomationBuilder.AddDelayConfirm(dialog, delayValue))
+        dialog.AddButton("x110 y70 w80 h30", "Cancel").OnEvent("Click", (*) => dialog.Destroy())
+
+        dialog.Show("w210 h120")
     }
-    
+
+    static AddDelayConfirm(dialog, delayValue) {
+        seconds := AutomationBuilder.NormalizeSeconds(delayValue.Value)
+        node := {type: "delay", seconds: seconds}
+        AutomationBuilder.workflow.Push(node)
+        AutomationBuilder.UpdateNodeList()
+        AutomationBuilder.RefreshCanvas()
+        AutomationBuilder.AppendLog("Added delay node (" . seconds . " second(s)).")
+        dialog.Destroy()
+    }
+
     static UpdateNodeList() {
-        this.nodeList.Delete()
-        
-        for i, node in this.workflow {
-            this.nodeList.Add([node.type . " #" . i])
-        }
-    }
-    
-    static NodeSelected() {
-        this.selectedNode := this.nodeList.GetNext()
-    }
-    
-    static DeleteNode() {
-        if (this.selectedNode = 0) {
+        if (!AutomationBuilder.nodeList) {
             return
         }
-        
-        if (MsgBox("Delete this node?", "Confirm", "Icon? YesNo") = "Yes") {
-            this.workflow.RemoveAt(this.selectedNode)
-            this.UpdateNodeList()
-            this.AppendLog("Deleted node " . this.selectedNode)
+
+        AutomationBuilder.nodeList.Delete()
+        for index, node in AutomationBuilder.workflow {
+            AutomationBuilder.nodeList.Add([Format("{:02d} - {}", index, AutomationBuilder.DescribeNode(node))])
+        }
+        AutomationBuilder.selectedNode := 0
+    }
+
+    static NodeSelected(*) {
+        AutomationBuilder.selectedNode := AutomationBuilder.nodeList.GetNext()
+        if (AutomationBuilder.selectedNode) {
+            AutomationBuilder.AppendLog("Selected node #" . AutomationBuilder.selectedNode . ".", "INFO")
         }
     }
-    
-    static RunWorkflow() {
-        if (this.workflow.Length = 0) {
-            MsgBox("No workflow to run", "Run", "Icon!")
+
+    static DeleteNode(*) {
+        if (AutomationBuilder.selectedNode = 0) {
+            AutomationBuilder.AppendLog("Select a node before attempting to delete.", "WARN")
             return
         }
-        
-        TrayTip("Running workflow...", "Executing " . this.workflow.Length . " nodes", 1)
-        
-        for i, node in this.workflow {
-            this.ExecuteNode(node)
+
+        response := MsgBox("Delete the selected node?", "Confirm Delete", "Icon? YesNo")
+        if (response != "Yes") {
+            AutomationBuilder.AppendLog("Node deletion cancelled or timed out.", "INFO")
+            return
         }
-        
-        TrayTip("Workflow complete", "All nodes executed", 1)
+
+        AutomationBuilder.workflow.RemoveAt(AutomationBuilder.selectedNode)
+        AutomationBuilder.AppendLog("Deleted node #" . AutomationBuilder.selectedNode . ".")
+        AutomationBuilder.selectedNode := 0
+        AutomationBuilder.UpdateNodeList()
+        AutomationBuilder.RefreshCanvas()
     }
-    
-    static ExecuteNode(node) {
+
+    static RunWorkflow(*) {
+        if (AutomationBuilder.workflow.Length = 0) {
+            TrayTip("Workflow Empty", "Add workflow nodes before running.", 5)
+            return
+        }
+
+        AutomationBuilder.AppendLog("Running workflow (" . AutomationBuilder.workflow.Length . " node(s)).")
+
+        for index, node in AutomationBuilder.workflow {
+            try {
+                AutomationBuilder.ExecuteNode(node, index)
+            } catch as e {
+                AutomationBuilder.AppendLog("Node #" . index . " failed: " . e.Message, "ERROR")
+                if (e.Stack) {
+                    AutomationBuilder.AppendLog(e.Stack, "TRACE")
+                }
+            }
+        }
+
+        AutomationBuilder.AppendLog("Workflow execution complete.")
+        AutomationBuilder.ShowTimedNotification("Workflow", "Execution complete.", 10000)
+    }
+
+    static ExecuteNode(node, index) {
         switch node.type {
             case "condition":
-                this.ExecuteCondition(node)
+                AutomationBuilder.ExecuteCondition(node, index)
             case "loop":
-                this.ExecuteLoop(node)
+                AutomationBuilder.ExecuteLoop(node, index)
             case "delay":
-                Sleep(node.seconds * 1000)
+                AutomationBuilder.ExecuteDelay(node, index)
             case "action":
-                this.ExecuteAction(node)
+                AutomationBuilder.ExecuteAction(node, index)
+            default:
+                AutomationBuilder.AppendLog("Unknown node type: " . node.type, "WARN")
         }
     }
-    
-    static ExecuteCondition(node) {
-        ; Check condition
-        result := this.EvaluateCondition(node.expression)
-        
-        if (!result) {
-            this.AppendLog("Condition failed: " . node.expression)
-        } else {
-            this.AppendLog("Condition passed: " . node.expression)
-        }
+
+    static ExecuteCondition(node, index) {
+        result := AutomationBuilder.EvaluateCondition(node.expression)
+        outcome := result ? "passed" : "failed"
+        AutomationBuilder.AppendLog("Condition node #" . index . " " . outcome . ": " . node.expression)
     }
-    
-    static ExecuteLoop(node) {
-        ; Execute loop
-        this.AppendLog("Executing loop: " . node.loopType . " with value: " . node.value)
+
+    static ExecuteLoop(node, index) {
+        AutomationBuilder.AppendLog("Loop node #" . index . ": type=" . node.loopType . ", value=" . node.value)
     }
-    
-    static ExecuteAction(node) {
-        ; Execute action
-        this.AppendLog("Executing action")
+
+    static ExecuteDelay(node, index) {
+        seconds := AutomationBuilder.NormalizeSeconds(node.seconds)
+        AutomationBuilder.AppendLog("Delay node #" . index . ": waiting " . seconds . " second(s).")
+        Sleep(seconds * 1000)
     }
-    
+
+    static ExecuteAction(node, index) {
+        AutomationBuilder.AppendLog("Action node #" . index . ": executing placeholder action.")
+    }
+
     static EvaluateCondition(expression) {
-        ; Simple condition evaluator
+        trimmed := AutomationBuilder.TrimValue(expression)
+        if (!trimmed) {
+            return true
+        }
+
+        if (RegExMatch(trimmed, "i)^\s*(0|false|fail|no)\s*$")) {
+            return false
+        }
         return true
     }
-    
-    static SaveWorkflow() {
-        if (this.workflow.Length = 0) {
-            MsgBox("No workflow to save", "Save", "Icon!")
+
+    static SaveWorkflow(*) {
+        if (AutomationBuilder.workflow.Length = 0) {
+            TrayTip("Save Workflow", "No workflow nodes to save.", 5)
             return
         }
-        
-        ; Save workflow as JSON
-        filename := "workflow_" . A_Now . ".json"
-        json := this.SerializeWorkflow()
-        FileAppend(json, filename, "UTF-8")
-        
-        MsgBox("Workflow saved to: " . filename, "Save", "Icon!")
-        this.AppendLog("Saved workflow to: " . filename)
-    }
-    
-    static SerializeWorkflow() {
-        json := "{`"nodes`":["
-        
-        for i, node in this.workflow {
-            if (i > 1)
-                json .= ","
-            
-            json .= "{`"type`":`"" . node.type . "`""
-            
-            if (node.type = "condition") {
-                json .= ",`"conditionType`":`"" . node.conditionType . "`","
-                json .= "`"expression`":`"" . node.expression . "`""
-            } else if (node.type = "loop") {
-                json .= ",`"loopType`":`"" . node.loopType . "`","
-                json .= "`"value`":`"" . node.value . "`""
-            } else if (node.type = "delay") {
-                json .= ",`"seconds`":" . node.seconds
-            }
-            
-            json .= "}"
-        }
-        
-        json .= "]}"
-        return json
-    }
-    
-    static ToggleGUI() {
-        if (this.gui.Visible) {
-            this.gui.Hide()
-        } else {
-            this.gui.Show()
-        }
-    }
-    
-    static AppendLog(message) {
-        timestamp := FormatTime(A_Now, "HH:mm:ss")
-        logMsg := "[" . timestamp . "] " . message . "`n"
-        
-        ; Show tooltip
-        ToolTip(message, 0, 0)
-        SetTimer(() => ToolTip(), -3000)
-        
-        ; Also log to file
+
+        timestamp := ""
+        timestamp := FormatTime(, "yyyyMMdd_HHmmss")
+        fileName := "workflow_" . timestamp . ".json"
+        filePath := A_ScriptDir . "\" . fileName
+
         try {
-            FileAppend(logMsg, "action_automation.log", "UTF-8")
-        } catch {
-            ; Ignore file logging errors
+            json := AutomationBuilder.SerializeWorkflow()
+            file := FileOpen(filePath, "w", "UTF-8")
+            if (!file) {
+                throw Error("Could not open file for writing.")
+            }
+            file.Write(json)
+            file.Close()
+            AutomationBuilder.AppendLog("Workflow saved to " . fileName . ".")
+            AutomationBuilder.ShowTimedNotification("Workflow Saved", fileName, 10000)
+        } catch as e {
+            AutomationBuilder.AppendLog("Failed to save workflow: " . e.Message, "ERROR")
+            TrayTip("Save Error", "Unable to save the workflow.`n`n" . e.Message, 10)
         }
-        OutputDebug(logMsg)
+    }
+
+    static SerializeWorkflow() {
+        nodes := []
+        for node in AutomationBuilder.workflow {
+            fields := []
+            fields.Push('"type":"' . AutomationBuilder.JsonEscape(node.type) . '"')
+
+            if (ObjHasOwnProp(node, "conditionType")) {
+                fields.Push('"conditionType":"' . AutomationBuilder.JsonEscape(node.conditionType) . '"')
+            }
+            if (ObjHasOwnProp(node, "expression")) {
+                fields.Push('"expression":"' . AutomationBuilder.JsonEscape(node.expression) . '"')
+            }
+            if (ObjHasOwnProp(node, "loopType")) {
+                fields.Push('"loopType":"' . AutomationBuilder.JsonEscape(node.loopType) . '"')
+            }
+            if (ObjHasOwnProp(node, "value")) {
+                fields.Push('"value":"' . AutomationBuilder.JsonEscape(node.value) . '"')
+            }
+            if (ObjHasOwnProp(node, "seconds")) {
+                fields.Push('"seconds":' . AutomationBuilder.NormalizeSeconds(node.seconds))
+            }
+
+            nodes.Push("{" . AutomationBuilder.JoinArray(fields, ",") . "}")
+        }
+
+        generated := ""
+        generated := FormatTime(, "yyyy-MM-dd HH:mm:ss")
+        quote := Chr(34)
+        return "{" . quote . "nodes" . quote . ":[" . AutomationBuilder.JoinArray(nodes, ",") . "]," . quote . "generated" . quote . ":" . quote . generated . quote . "}"
+    }
+
+    static ToggleGUI(*) {
+        if (AutomationBuilder.isVisible) {
+            AutomationBuilder.HideGUI()
+        } else {
+            AutomationBuilder.ShowGUI()
+        }
+    }
+
+    static ShowGUI() {
+        if (!AutomationBuilder.gui) {
+            AutomationBuilder.CreateGUI()
+            return
+        }
+        AutomationBuilder.gui.Show()
+        AutomationBuilder.isVisible := true
+        AutomationBuilder.AppendLog("GUI shown.")
+    }
+
+    static HideGUI(*) {
+        if (!AutomationBuilder.gui) {
+            return
+        }
+        try {
+            AutomationBuilder.gui.Hide()
+        } catch {
+        }
+        AutomationBuilder.isVisible := false
+        AutomationBuilder.AppendLog("GUI hidden.")
+    }
+
+    static RefreshCanvas() {
+        if (!AutomationBuilder.canvas) {
+            return
+        }
+
+        if (AutomationBuilder.workflow.Length = 0) {
+            AutomationBuilder.canvas.Value := "No nodes defined. Use the toolbar to add workflow steps."
+            return
+        }
+
+        summary := ""
+        for index, node in AutomationBuilder.workflow {
+            summary .= Format("{:02d}. {}", index, AutomationBuilder.DescribeNode(node)) . "`r`n"
+        }
+        AutomationBuilder.canvas.Value := summary
+    }
+
+    static DescribeNode(node) {
+        if (!ObjHasOwnProp(node, "type")) {
+            return "Unknown"
+        }
+
+        switch node.type {
+            case "condition":
+                return "Condition (" . node.conditionType . ")"
+            case "loop":
+                return "Loop (" . node.loopType . ")"
+            case "delay":
+                return "Delay (" . AutomationBuilder.NormalizeSeconds(node.seconds) . "s)"
+            case "action":
+                return "Action"
+            default:
+                return AutomationBuilder.Capitalize(node.type)
+        }
+    }
+
+    static AppendLog(message, severity := "INFO") {
+        AutomationBuilder.EnsureLogInfrastructure()
+        timestamp := ""
+        timestamp := FormatTime(, "yyyy-MM-dd HH:mm:ss")
+        entry := "[" . timestamp . "] [" . severity . "] " . message
+
+        if (AutomationBuilder.logOutput) {
+            AutomationBuilder.logOutput.Value := AutomationBuilder.logOutput.Value . entry . "`n"
+            AutomationBuilder.logOutput.Redraw()
+        }
+
+        OutputDebug(entry)
+
+        if (AutomationBuilder.logFilePath) {
+            try {
+                FileAppend(entry . "`n", AutomationBuilder.logFilePath, "UTF-8")
+            } catch as fileError {
+                OutputDebug("Unable to write automation log: " . fileError.Message)
+            }
+        }
+    }
+
+    static ShowTimedNotification(title, message, durationMs := 10000) {
+        try {
+            display := title ? (title . ": " . message) : message
+            ToolTip(display, 30, 30)
+            SetTimer(ObjBindMethod(AutomationBuilder, "ClearTrayTip"), -Abs(durationMs))
+        } catch as e {
+            AutomationBuilder.AppendLog("Notification tooltip failed: " . e.Message, "WARN")
+        }
+    }
+
+    static ClearTrayTip(*) {
+        ToolTip()
+    }
+
+    static NormalizeSeconds(value) {
+        seconds := Round(Number(value))
+        if (seconds <= 0) {
+            seconds := 1
+        }
+        return seconds
+    }
+
+    static TrimValue(value) {
+        return Trim(value ?? "")
+    }
+
+    static JoinArray(values, delimiter := ",") {
+        if (!values || values.Length = 0) {
+            return ""
+        }
+        result := values[1]
+        for index, value in values {
+            if (index = 1) {
+                continue
+            }
+            result .= delimiter . value
+        }
+        return result
+    }
+
+    static JsonEscape(value) {
+        text := value ?? ""
+        backslash := Chr(92)
+        quote := Chr(34)
+        text := StrReplace(text, backslash, backslash backslash)
+        text := StrReplace(text, quote, backslash quote)
+        text := StrReplace(text, "`r`n", "\n")
+        text := StrReplace(text, "`n", "\n")
+        text := StrReplace(text, "`r", "\n")
+        return text
+    }
+
+    static Capitalize(value) {
+        text := value ?? ""
+        if (!text) {
+            return ""
+        }
+        return StrUpper(SubStr(text, 1, 1)) . StrLower(SubStr(text, 2))
+    }
+
+    static EnsureLogInfrastructure() {
+        if (AutomationBuilder.logInitialized) {
+            return
+        }
+        AutomationBuilder.logDir := A_ScriptDir . "\logs"
+        try {
+            if (!DirExist(AutomationBuilder.logDir)) {
+                DirCreate(AutomationBuilder.logDir)
+            }
+        } catch as dirError {
+            OutputDebug("Failed to create log directory: " . dirError.Message)
+        }
+        AutomationBuilder.logFilePath := AutomationBuilder.logDir . "\action_automation_builder.log"
+        AutomationBuilder.logInitialized := true
+    }
+
+    static HandleScriptError(Thrown, Mode) {
+        message := "Unhandled exception (" . Mode . "): " . Thrown.Message
+        AutomationBuilder.AppendLog(message, "ERROR")
+        if (Thrown.Stack) {
+            AutomationBuilder.AppendLog("Stack trace:`n" . Thrown.Stack, "TRACE")
+        }
+        AutomationBuilder.ShowTimedNotification("Automation Builder Error", Thrown.Message, 10000)
+        AutomationBuilder.HideGUI()
+        return 1
     }
 }
 

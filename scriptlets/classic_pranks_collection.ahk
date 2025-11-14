@@ -19,22 +19,19 @@
 
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
+#Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
 
 ; Suppress error popups - log to file instead
 OnError(LogError)
 
-LogError(Thrown, Mode) {
-    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
-    FileAppend(errorMsg, "classic_pranks_collection_errors.log", "UTF-8")
-    OutputDebug(errorMsg)  ; Enable LLM debugging
-    return 1  ; Suppress popup (1 = suppress, 0 = show)
-}
-
 
 class ClassicPranks {
     static gui := ""
     static prankRunning := false
+    static timers := Map()
+    static keySwapHotkeys := Map()
+    static flipOverlay := ""
     
     static Init() {
         this.CreateGUI()
@@ -51,7 +48,7 @@ class ClassicPranks {
         this.gui.Add("Text", "x20 y50 w560 Center ", "Harmless computer pranks and classic jokes")
         
         ; Warning
-        this.gui.Add("Text", "x20 y80 w560 Center  Bold", "⚠️ Use responsibly! These are harmless pranks.")
+        this.gui.Add("Text", "x20 y80 w560 Center Bold", "⚠️ Use responsibly! These are harmless pranks.")
         
         ; Prank categories
         this.gui.Add("Text", "x20 y120 w560 Bold", "🎯 Classic Pranks")
@@ -61,83 +58,85 @@ class ClassicPranks {
         
         desktopBtn1 := this.gui.Add("Button", "x20 y180 w250 h40 Background4a4a4a", "🔄 Flip Screen")
         desktopBtn1.SetFont("s10 cFFFFFF", "Segoe UI")
-        desktopBtn1.OnEvent("Click", this.FlipScreen.Bind(this))
+        desktopBtn1.OnEvent("Click", (*) => this.FlipScreen())
         
         desktopBtn2 := this.gui.Add("Button", "x290 y180 w250 h40 Background4a4a4a", "🖼️ Fake Blue Screen")
         desktopBtn2.SetFont("s10 cFFFFFF", "Segoe UI")
-        desktopBtn2.OnEvent("Click", this.FakeBlueScreen.Bind(this))
+        desktopBtn2.OnEvent("Click", (*) => this.FakeBlueScreen())
         
         desktopBtn3 := this.gui.Add("Button", "x20 y230 w250 h40 Background4a4a4a", "📱 Fake Phone Call")
         desktopBtn3.SetFont("s10 cFFFFFF", "Segoe UI")
-        desktopBtn3.OnEvent("Click", this.FakePhoneCall.Bind(this))
+        desktopBtn3.OnEvent("Click", (*) => this.FakePhoneCall())
         
         desktopBtn4 := this.gui.Add("Button", "x290 y230 w250 h40 Background4a4a4a", "🎭 Fake Windows Update")
         desktopBtn4.SetFont("s10 cFFFFFF", "Segoe UI")
-        desktopBtn4.OnEvent("Click", this.FakeWindowsUpdate.Bind(this))
+        desktopBtn4.OnEvent("Click", (*) => this.FakeWindowsUpdate())
         
         ; Mouse pranks
         this.gui.Add("Text", "x20 y290 w560 Bold ", "🖱️ Mouse Pranks")
         
         mouseBtn1 := this.gui.Add("Button", "x20 y320 w250 h40 Background4a4a4a", "🔄 Reverse Mouse")
         mouseBtn1.SetFont("s10 cFFFFFF", "Segoe UI")
-        mouseBtn1.OnEvent("Click", this.ReverseMouse.Bind(this))
+        mouseBtn1.OnEvent("Click", (*) => this.ReverseMouse())
         
         mouseBtn2 := this.gui.Add("Button", "x290 y320 w250 h40 Background4a4a4a", "🎯 Mouse Jitter")
         mouseBtn2.SetFont("s10 cFFFFFF", "Segoe UI")
-        mouseBtn2.OnEvent("Click", this.MouseJitter.Bind(this))
+        mouseBtn2.OnEvent("Click", (*) => this.MouseJitter())
         
         mouseBtn3 := this.gui.Add("Button", "x20 y370 w250 h40 Background4a4a4a", "🖱️ Mouse Trail")
         mouseBtn3.SetFont("s10 cFFFFFF", "Segoe UI")
-        mouseBtn3.OnEvent("Click", this.MouseTrail.Bind(this))
+        mouseBtn3.OnEvent("Click", (*) => this.MouseTrail())
         
         mouseBtn4 := this.gui.Add("Button", "x290 y370 w250 h40 Background4a4a4a", "🎪 Random Clicks")
         mouseBtn4.SetFont("s10 cFFFFFF", "Segoe UI")
-        mouseBtn4.OnEvent("Click", this.RandomClicks.Bind(this))
+        mouseBtn4.OnEvent("Click", (*) => this.RandomClicks())
         
         ; Keyboard pranks
         this.gui.Add("Text", "x20 y430 w560 Bold ", "⌨️ Keyboard Pranks")
         
         keyboardBtn1 := this.gui.Add("Button", "x20 y460 w250 h40 Background4a4a4a", "🔄 Swap Keys")
         keyboardBtn1.SetFont("s10 cFFFFFF", "Segoe UI")
-        keyboardBtn1.OnEvent("Click", this.SwapKeys.Bind(this))
+        keyboardBtn1.OnEvent("Click", (*) => this.SwapKeys())
         
         keyboardBtn2 := this.gui.Add("Button", "x290 y460 w250 h40 Background4a4a4a", "🎭 Fake Typing")
         keyboardBtn2.SetFont("s10 cFFFFFF", "Segoe UI")
-        keyboardBtn2.OnEvent("Click", this.FakeTyping.Bind(this))
+        keyboardBtn2.OnEvent("Click", (*) => this.FakeTyping())
         
         ; Emergency stop
         stopBtn := this.gui.Add("Button", "x20 y520 w540 h40 Backgroundaa0000", "🛑 EMERGENCY STOP ALL PRANKS")
         stopBtn.SetFont("s12 cFFFFFF Bold", "Segoe UI")
-        stopBtn.OnEvent("Click", this.StopAllPranks.Bind(this))
+        stopBtn.OnEvent("Click", (*) => this.StopAllPranks())
         
         this.gui.Show("w600 h580")
     }
     
     static FlipScreen(*) {
         try {
-            ; Rotate screen 180 degrees
-            Run("powershell -Command \"(Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.Screen]::AllScreens | ForEach-Object { $_.WorkingArea })\"",, "Hide")
-            
-            ; Alternative method using Display settings
-            Run("rundll32.exe user32.dll,UpdatePerUserSystemParameters")
-            
-            TrayTip("Screen Flipped!", "Screen rotated 180 degrees", 2)
-            
-            ; Auto-restore after 10 seconds
-            SetTimer(() => this.RestoreScreen(), 10000)
+            if (this.flipOverlay) {
+                this.flipOverlay.Destroy()
+            }
+            overlay := Gui("+AlwaysOnTop -Caption", "Flipped Screen")
+            overlay.BackColor := "000000"
+            overlay.SetFont("s20 cFFFFFF Bold", "Segoe UI")
+            overlay.Add("Text", "Center w" . A_ScreenWidth . " h" . A_ScreenHeight, "Screen is upside down! 😵")
+            overlay.Show("x0 y0 w" . A_ScreenWidth . " h" . A_ScreenHeight)
+            this.flipOverlay := overlay
+            this.ShowTrayTip("Screen Flipped!", "Screen rotated 180 degrees (simulated)")
+            this.RegisterOneShot(10000, (*) => this.RestoreScreen())
         } catch as e {
             MsgBox("Error flipping screen: " . e.Message, "Error", "Iconx")
         }
     }
     
     static RestoreScreen() {
-        try {
-            ; Restore screen orientation
-            Run("rundll32.exe user32.dll,UpdatePerUserSystemParameters")
-            TrayTip("Screen Restored!", "Screen orientation restored", 2)
-        } catch {
-            ; Ignore errors
+        if (this.flipOverlay) {
+            try {
+                this.flipOverlay.Destroy()
+            } catch {
+            }
+            this.flipOverlay := ""
         }
+        this.ShowTrayTip("Screen Restored!", "Screen orientation restored")
     }
     
     static FakeBlueScreen(*) {
@@ -159,8 +158,8 @@ class ClassicPranks {
             
             bsGui.Show("w600 h400")
             
-            ; Auto-close after 5 seconds
-            SetTimer(() => bsGui.Destroy(), 5000)
+            this.RegisterOneShot(5000, (*) => bsGui.Destroy())
+            this.ShowTrayTip("Fake Blue Screen!", "Blue screen prank activated")
             
         } catch as e {
             MsgBox("Error creating fake blue screen: " . e.Message, "Error", "Iconx")
@@ -180,16 +179,16 @@ class ClassicPranks {
             
             answerBtn := callGui.Add("Button", "x50 y150 w100 h40 Background00aa00", "Answer")
             answerBtn.SetFont("s12 cFFFFFF Bold", "Segoe UI")
-            answerBtn.OnEvent("Click", () => callGui.Destroy())
+            answerBtn.OnEvent("Click", (*) => callGui.Destroy())
             
             declineBtn := callGui.Add("Button", "x170 y150 w100 h40 Backgroundaa0000", "Decline")
             declineBtn.SetFont("s12 cFFFFFF Bold", "Segoe UI")
-            declineBtn.OnEvent("Click", () => callGui.Destroy())
+            declineBtn.OnEvent("Click", (*) => callGui.Destroy())
             
             callGui.Show("w340 h220")
             
-            ; Auto-decline after 10 seconds
-            SetTimer(() => callGui.Destroy(), 10000)
+            this.RegisterOneShot(10000, (*) => callGui.Destroy())
+            this.ShowTrayTip("Fake Phone Call!", "Incoming call popup shown")
             
         } catch as e {
             MsgBox("Error creating fake phone call: " . e.Message, "Error", "Iconx")
@@ -217,8 +216,8 @@ class ClassicPranks {
                 progress.Value := A_Index
                 Sleep(100)
             }
-            
             updateGui.Destroy()
+            this.ShowTrayTip("Windows Update!", "Fake update completed")
             
         } catch as e {
             MsgBox("Error creating fake Windows update: " . e.Message, "Error", "Iconx")
@@ -229,16 +228,9 @@ class ClassicPranks {
         try {
             this.prankRunning := true
             
-            ; Reverse mouse movement
-            SetTimer(() => {
-                MouseGetPos(&x, &y)
-                MouseMove(A_ScreenWidth - x, A_ScreenHeight - y, 0)
-            }, 10)
-            
-            TrayTip("Mouse Reversed!", "Mouse movement is now reversed", 2)
-            
-            ; Auto-stop after 30 seconds
-            SetTimer(() => this.StopMousePrank(), 30000)
+            this.RegisterTimer("mouseReverse", (*) => this.ReverseMouseStep(), 10)
+            this.ShowTrayTip("Mouse Reversed!", "Mouse movement is now reversed")
+            this.RegisterOneShot(30000, (*) => this.StopMousePrank())
             
         } catch as e {
             MsgBox("Error reversing mouse: " . e.Message, "Error", "Iconx")
@@ -249,18 +241,9 @@ class ClassicPranks {
         try {
             this.prankRunning := true
             
-            ; Add random jitter to mouse
-            SetTimer(() => {
-                MouseGetPos(&x, &y)
-                jitterX := Random(-5, 5)
-                jitterY := Random(-5, 5)
-                MouseMove(x + jitterX, y + jitterY, 0)
-            }, 50)
-            
-            TrayTip("Mouse Jitter!", "Mouse has random jitter", 2)
-            
-            ; Auto-stop after 20 seconds
-            SetTimer(() => this.StopMousePrank(), 20000)
+            this.RegisterTimer("mouseJitter", (*) => this.MouseJitterStep(), 50)
+            this.ShowTrayTip("Mouse Jitter!", "Mouse has random jitter")
+            this.RegisterOneShot(20000, (*) => this.StopMousePrank())
             
         } catch as e {
             MsgBox("Error adding mouse jitter: " . e.Message, "Error", "Iconx")
@@ -271,22 +254,9 @@ class ClassicPranks {
         try {
             this.prankRunning := true
             
-            ; Create mouse trail effect
-            SetTimer(() => {
-                MouseGetPos(&x, &y)
-                ; Create small window at mouse position
-                trailGui := Gui("+AlwaysOnTop -Caption +ToolWindow", "")
-                trailGui.BackColor := "00ff00"
-                trailGui.Show("x" . x . " y" . y . " w4 h4")
-                
-                ; Fade out after 1 second
-                SetTimer(() => trailGui.Destroy(), 1000)
-            }, 100)
-            
-            TrayTip("Mouse Trail!", "Mouse leaves a green trail", 2)
-            
-            ; Auto-stop after 15 seconds
-            SetTimer(() => this.StopMousePrank(), 15000)
+            this.RegisterTimer("mouseTrail", (*) => this.MouseTrailStep(), 100)
+            this.ShowTrayTip("Mouse Trail!", "Mouse leaves a green trail")
+            this.RegisterOneShot(15000, (*) => this.StopMousePrank())
             
         } catch as e {
             MsgBox("Error creating mouse trail: " . e.Message, "Error", "Iconx")
@@ -297,17 +267,9 @@ class ClassicPranks {
         try {
             this.prankRunning := true
             
-            ; Random clicks
-            SetTimer(() => {
-                x := Random(0, A_ScreenWidth)
-                y := Random(0, A_ScreenHeight)
-                Click(x, y)
-            }, 2000)
-            
-            TrayTip("Random Clicks!", "Random clicks every 2 seconds", 2)
-            
-            ; Auto-stop after 30 seconds
-            SetTimer(() => this.StopMousePrank(), 30000)
+            this.RegisterTimer("randomClicks", (*) => this.RandomClicksStep(), 2000)
+            this.ShowTrayTip("Random Clicks!", "Random clicks every 2 seconds")
+            this.RegisterOneShot(30000, (*) => this.StopMousePrank())
             
         } catch as e {
             MsgBox("Error creating random clicks: " . e.Message, "Error", "Iconx")
@@ -318,13 +280,23 @@ class ClassicPranks {
         try {
             this.prankRunning := true
             
-            ; Swap common keys
-            ; This is a simplified version - real key swapping would require more complex code
-            
-            TrayTip("Keys Swapped!", "Some keys are now swapped", 2)
-            
-            ; Auto-restore after 30 seconds
-            SetTimer(() => this.StopKeyboardPrank(), 30000)
+            if (this.keySwapHotkeys.Count = 0) {
+                swaps := [
+                    ["a", "b"],
+                    ["b", "a"],
+                    ["n", "m"],
+                    ["m", "n"]
+                ]
+                for swap in swaps {
+                    src := swap[1]
+                    dest := swap[2]
+                    callback := (*) => Send(dest)
+                    Hotkey(src, callback, "On")
+                    this.keySwapHotkeys[src] := callback
+                }
+            }
+            this.ShowTrayTip("Keys Swapped!", "Some keys are now swapped")
+            this.RegisterOneShot(30000, (*) => this.StopKeyboardPrank())
             
         } catch as e {
             MsgBox("Error swapping keys: " . e.Message, "Error", "Iconx")
@@ -335,16 +307,9 @@ class ClassicPranks {
         try {
             this.prankRunning := true
             
-            ; Fake typing in random intervals
-            SetTimer(() => {
-                fakeText := "Hello World! This is fake typing. "
-                Send(fakeText)
-            }, 3000)
-            
-            TrayTip("Fake Typing!", "Random text will be typed", 2)
-            
-            ; Auto-stop after 30 seconds
-            SetTimer(() => this.StopKeyboardPrank(), 30000)
+            this.RegisterTimer("fakeTyping", (*) => this.FakeTypingStep(), 3000)
+            this.ShowTrayTip("Fake Typing!", "Random text will be typed")
+            this.RegisterOneShot(30000, (*) => this.StopKeyboardPrank())
             
         } catch as e {
             MsgBox("Error creating fake typing: " . e.Message, "Error", "Iconx")
@@ -353,39 +318,121 @@ class ClassicPranks {
     
     static StopMousePrank() {
         this.prankRunning := false
-        SetTimer(, 0)  ; Stop all timers
-        TrayTip("Mouse Prank Stopped!", "Mouse behavior restored", 2)
+        this.StopTimer("mouseReverse")
+        this.StopTimer("mouseJitter")
+        this.StopTimer("mouseTrail")
+        this.StopTimer("randomClicks")
+        this.ShowTrayTip("Mouse Prank Stopped!", "Mouse behavior restored")
     }
     
     static StopKeyboardPrank() {
         this.prankRunning := false
-        SetTimer(, 0)  ; Stop all timers
-        TrayTip("Keyboard Prank Stopped!", "Keyboard behavior restored", 2)
+        this.StopTimer("fakeTyping")
+        this.RestoreKeySwaps()
+        this.ShowTrayTip("Keyboard Prank Stopped!", "Keyboard behavior restored")
     }
     
     static StopAllPranks(*) {
         this.prankRunning := false
-        SetTimer(, 0)  ; Stop all timers
-        
-        ; Restore screen
+        this.StopAllTimers()
+        this.RestoreKeySwaps()
         this.RestoreScreen()
-        
-        TrayTip("All Pranks Stopped!", "All pranks have been stopped", 2)
+        this.ShowTrayTip("All Pranks Stopped!", "All pranks have been stopped")
     }
     
     static SetupHotkeys() {
-        ; Main hotkey
-        Hotkey("^!p", (*) => this.CreateGUI()
-        
-        ; Emergency stop
-        Hotkey("F9", (*) => this.StopAllPranksnks()
-        
-        ; Close with Escape
-        Hotkey("Escape", (*) => {
-            if (WinExist("Classic Pranks Collection")) {
-                WinClose("Classic Pranks Collection")
+        Hotkey("^!p", (*) => this.CreateGUI())
+        Hotkey("F9", (*) => this.StopAllPranks())
+        Hotkey("Escape", (*) => this.CloseGui())
+    }
+
+    static RegisterTimer(name, callback, period) {
+        this.StopTimer(name)
+        timer := SetTimer(callback, period)
+        this.timers[name] := timer
+        return timer
+    }
+
+    static RegisterOneShot(delayMs, callback) {
+        SetTimer(callback, -Abs(delayMs))
+    }
+
+    static StopTimer(name) {
+        if (this.timers.Has(name)) {
+            timer := this.timers[name]
+            try {
+                timer.Stop()
+            } catch {
+            }
+            this.timers.Delete(name)
+        }
+    }
+
+    static StopAllTimers() {
+        for name, timer in this.timers {
+            try {
+                timer.Stop()
+            } catch {
             }
         }
+        this.timers.Clear()
+    }
+
+    static RestoreKeySwaps() {
+        for key, callback in this.keySwapHotkeys {
+            try {
+                Hotkey(key, callback, "Off")
+            } catch {
+            }
+        }
+        this.keySwapHotkeys.Clear()
+    }
+
+    static ShowTrayTip(title, message) {
+        TrayTip(title, message)
+    }
+
+    static CloseGui(*) {
+        if (WinExist("Classic Pranks Collection")) {
+            WinClose("Classic Pranks Collection")
+        }
+    }
+
+    static ReverseMouseStep(*) {
+        x := 0
+        y := 0
+        MouseGetPos(&x, &y)
+        MouseMove(A_ScreenWidth - x, A_ScreenHeight - y, 0)
+    }
+
+    static MouseJitterStep(*) {
+        x := 0
+        y := 0
+        MouseGetPos(&x, &y)
+        jitterX := Random(-5, 5)
+        jitterY := Random(-5, 5)
+        MouseMove(x + jitterX, y + jitterY, 0)
+    }
+
+    static MouseTrailStep(*) {
+        x := 0
+        y := 0
+        MouseGetPos(&x, &y)
+        trailGui := Gui("+AlwaysOnTop -Caption +ToolWindow", "")
+        trailGui.BackColor := "00ff00"
+        trailGui.Show("x" . x . " y" . y . " w4 h4")
+        this.RegisterOneShot(1000, (*) => trailGui.Destroy())
+    }
+
+    static RandomClicksStep(*) {
+        x := Random(0, A_ScreenWidth)
+        y := Random(0, A_ScreenHeight)
+        Click(x, y)
+    }
+
+    static FakeTypingStep(*) {
+        fakeText := "Hello World! This is fake typing. "
+        Send(fakeText)
     }
 }
 

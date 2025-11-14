@@ -20,18 +20,11 @@
 
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
+#Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
 
 ; Suppress error popups - log to file instead
 OnError(LogError)
-
-LogError(Thrown, Mode) {
-    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
-    FileAppend(errorMsg, "git_assistant_pro_errors.log", "UTF-8")
-    OutputDebug(errorMsg)  ; Enable LLM debugging
-    return 1  ; Suppress popup (1 = suppress, 0 = show)
-}
-
 
 class GitAssistant {
     static commitTemplates := Map()
@@ -262,6 +255,7 @@ class GitAssistant {
     }
     
     static AppendOutput(text) {
+        timestamp := ""
         timestamp := FormatTime(, "HH:mm:ss")
         this.outputArea.Text .= "[" . timestamp . "] " . text . "`n"
         

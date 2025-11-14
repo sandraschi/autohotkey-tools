@@ -1,5 +1,6 @@
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
+#Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
 ; ==============================================================================
 ; Window Management
@@ -21,13 +22,6 @@
 
 ; Error handling - log to file instead of showing popups
 OnError(LogError)
-
-LogError(Thrown, Mode) {
-    errorMsg := "Error: " . Thrown.Message . " at line " . Thrown.Line . "`n" . Thrown.Stack
-    FileAppend(errorMsg, "window_management_errors.log", "UTF-8")
-    OutputDebug(errorMsg)  ; Enable LLM debugging
-    return 1  ; Suppress popup (1 = suppress, 0 = show)
-}
 
 ; =============================================================================
 ; CONFIGURATION
@@ -89,7 +83,7 @@ Hotkey QUARTER_BOTTOM_RIGHT, SnapBottomRight
 Hotkey CENTER_WINDOW_KEY, SnapCenter
 
 ; Show notification on startup
-TrayTip "Window Manager", "Window management hotkeys are active", "Iconi"
+TrayTip "Window Manager", "Window management hotkeys are active"
 SetTimer () => TrayTip(), 3000
 
 ; =============================================================================
