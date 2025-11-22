@@ -1320,10 +1320,18 @@ PlaySnake(*) {
     score := 0
     
     ; Game loop
-    SetTimer UpdateGame, 100
+    SetTimer(UpdateGame, 100)
     
     ; Controls
-    snakeGui.OnEvent("Escape", (*) => snakeGui.Destroy())
+    CloseSnake(*) {
+        SetTimer(UpdateGame, 0)
+        snakeGui.Destroy()
+    }
+    CleanupSnake(*) {
+        SetTimer(UpdateGame, 0)
+    }
+    snakeGui.OnEvent("Escape", CloseSnake)
+    snakeGui.OnEvent("Close", CleanupSnake)
     snakeGui.OnEvent("KeyDown", HandleKeyPress)
     
     HandleKeyPress(guiObj, vk, *) {
@@ -1353,7 +1361,7 @@ PlaySnake(*) {
         ; Check collision with walls
         if (head[1] < 1 || head[1] > 40 || head[2] < 1 || head[2] > 40) {
             MsgBox("Game Over! Score: " score)
-            SetTimer , 0
+            SetTimer(UpdateGame, 0)
             snakeGui.Destroy()
             return
         }
@@ -1362,7 +1370,7 @@ PlaySnake(*) {
         for i, segment in snake {
             if (segment[1] = head[1] && segment[2] = head[2]) {
                 MsgBox("Game Over! Score: " score)
-                SetTimer , 0
+                SetTimer(UpdateGame, 0)
                 snakeGui.Destroy()
                 return
             }
@@ -1382,9 +1390,9 @@ PlaySnake(*) {
         
         ; Draw game
         gameText := ""
-        loop 40 {
+        Loop 40 {
             y := A_Index
-            loop 40 {
+            Loop 40 {
                 x := A_Index
                 cell := "  "
                 
@@ -1602,7 +1610,15 @@ CountdownTimer(*) {
         timerGui.Add("Button", "Default w80", "Start").OnEvent("Click", StartTimer)
         timerGui.Add("Button", "xp+90 yp w80", "Stop").OnEvent("Click", StopTimer)
         timerGui.Add("Button", "xp+90 yp w80", "Reset").OnEvent("Click", ResetTimer)
-        timerGui.Add("Button", "xm y+10 w80", "Close").OnEvent("Click", (*) => timerGui.Destroy())
+        CloseTimer(*) {
+            SetTimer(CountdownTick, 0)
+            timerGui.Destroy()
+        }
+        CleanupTimer(*) {
+            SetTimer(CountdownTick, 0)
+        }
+        timerGui.Add("Button", "xm y+10 w80", "Close").OnEvent("Click", CloseTimer)
+        timerGui.OnEvent("Close", CleanupTimer)
         timerGui.Show()
         
         static remainingSeconds := 0
@@ -1685,7 +1701,15 @@ SetAlarm(*) {
         alarmGui.Add("Button", "Default w100", "Set Alarm").OnEvent("Click", SetAlarmTime)
         alarmGui.Add("Button", "xp+110 yp w100", "Clear Alarm").OnEvent("Click", ClearAlarm)
         alarmGui.Add("Text", "xm y+10 w300 vAlarmStatus", "No alarm set")
-        alarmGui.Add("Button", "xm y+10 w100", "Close").OnEvent("Click", (*) => alarmGui.Destroy())
+        CloseAlarm(*) {
+            SetTimer(CheckAlarm, 0)
+            alarmGui.Destroy()
+        }
+        CleanupAlarm(*) {
+            SetTimer(CheckAlarm, 0)
+        }
+        alarmGui.Add("Button", "xm y+10 w100", "Close").OnEvent("Click", CloseAlarm)
+        alarmGui.OnEvent("Close", CleanupAlarm)
         alarmGui.Show()
         
         static alarmHour := -1
@@ -2207,7 +2231,15 @@ TypingTest(*) {
         typingGui.Add("Text", "xm y+10 w500 vStatsText", "Time: 0s | WPM: 0 | Accuracy: 0%")
         typingGui.Add("Button", "Default w100", "Start").OnEvent("Click", StartTest)
         typingGui.Add("Button", "xp+110 yp w100", "New Text").OnEvent("Click", NewText)
-        typingGui.Add("Button", "xp+110 yp w100", "Close").OnEvent("Click", (*) => typingGui.Destroy())
+        CloseTyping(*) {
+            SetTimer(UpdateStats, 0)
+            typingGui.Destroy()
+        }
+        CleanupTyping(*) {
+            SetTimer(UpdateStats, 0)
+        }
+        typingGui.Add("Button", "xp+110 yp w100", "Close").OnEvent("Click", CloseTyping)
+        typingGui.OnEvent("Close", CleanupTyping)
         typingGui.Show()
         
         StartTest(*) {
@@ -2659,7 +2691,15 @@ PlayPong(*) {
         score1 := 0
         score2 := 0
         
-        pongGui.OnEvent("Escape", (*) => pongGui.Destroy())
+        ClosePong(*) {
+            SetTimer(UpdatePong, 0)
+            pongGui.Destroy()
+        }
+        CleanupPong(*) {
+            SetTimer(UpdatePong, 0)
+        }
+        pongGui.OnEvent("Escape", ClosePong)
+        pongGui.OnEvent("Close", CleanupPong)
         pongGui.OnEvent("KeyDown", HandlePongKey)
         
         HandlePongKey(guiObj, vk, *) {
@@ -2773,7 +2813,15 @@ PlaySpaceInvaders(*) {
             }
         }
         
-        spaceGui.OnEvent("Escape", (*) => spaceGui.Destroy())
+        CloseSpace(*) {
+            SetTimer(UpdateSpaceInvaders, 0)
+            spaceGui.Destroy()
+        }
+        CleanupSpace(*) {
+            SetTimer(UpdateSpaceInvaders, 0)
+        }
+        spaceGui.OnEvent("Escape", CloseSpace)
+        spaceGui.OnEvent("Close", CleanupSpace)
         spaceGui.OnEvent("KeyDown", HandleSpaceKey)
         
         HandleSpaceKey(guiObj, vk, *) {
