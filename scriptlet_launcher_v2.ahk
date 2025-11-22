@@ -124,6 +124,7 @@ AddScriptletButtons(gui, scriptlets, tabNum) {
         btn := gui.Add("Button", "w760 y+5", key ". " value[1])
         btn.OnEvent("Click", value[2])
     }
+}
 
 ShowHttpStatusCodes(*) {
     try {
@@ -953,7 +954,6 @@ ToggleWindowOpacity(*) {
     } catch as e {
         statusBar.Text := "Error changing window opacity: " e.Message
     }
-}
 }
 
 RegisterHotkeys(scriptlets) {
