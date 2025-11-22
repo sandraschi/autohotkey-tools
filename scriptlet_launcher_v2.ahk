@@ -587,10 +587,15 @@ ShowClipboardHistory(*) {
         clipGui := Gui("+AlwaysOnTop", "Clipboard Content")
         clipGui.Add("Text",, "Current clipboard content:")
         clipGui.Add("Edit", "w500 h200 ReadOnly vClipText", A_Clipboard)
-        clipGui.Add("Button", "Default w80", "Clear").OnEvent("Click", (*) => {A_Clipboard := "", clipGui.Destroy()})
+        clipGui.Add("Button", "Default w80", "Clear").OnEvent("Click", ClearClipboard)
         clipGui.Add("Button", "xp+90 yp w80", "Close").OnEvent("Click", (*) => clipGui.Destroy())
         clipGui.Show()
         statusBar.Text := "Clipboard history displayed"
+        
+        ClearClipboard(*) {
+            A_Clipboard := ""
+            clipGui.Destroy()
+        }
     } catch as e {
         statusBar.Text := "Error showing clipboard: " e.Message
     }
@@ -665,7 +670,7 @@ ShowWifiPasswords(*) {
                 profile := Trim(profile)
                 
                 ; Get password for this profile
-                RunWait "netsh wlan show profile \"" profile "\" key=clear > " A_Temp "\profile.txt", , "Hide"
+                RunWait 'netsh wlan show profile "' profile '" key=clear > ' A_Temp '\profile.txt', , "Hide"
                 profileData := FileRead(A_Temp "\profile.txt")
                 
                 password := "No password"
@@ -755,7 +760,7 @@ ShowCalculator(*) {
         calcGui.Add("Edit", "w300 h30 vCalcInput")
         calcGui.Add("Text", "w300 h30 vCalcResult", "Result: ")
         calcGui.Add("Button", "Default w80", "Calculate").OnEvent("Click", Calculate)
-        calcGui.Add("Button", "xp+90 yp w80", "Clear").OnEvent("Click", (*) => {calcGui["CalcInput"].Value := "", calcGui["CalcResult"].Value := "Result: "})
+        calcGui.Add("Button", "xp+90 yp w80", "Clear").OnEvent("Click", ClearCalc)
         calcGui.Add("Button", "xp+90 yp w80", "Close").OnEvent("Click", (*) => calcGui.Destroy())
         calcGui.Show()
         
@@ -773,6 +778,11 @@ ShowCalculator(*) {
                 calcGui["CalcResult"].Value := "Error: Invalid expression"
                 statusBar.Text := "Calculation error"
             }
+        }
+        
+        ClearCalc(*) {
+            calcGui["CalcInput"].Value := ""
+            calcGui["CalcResult"].Value := "Result: "
         }
         
     } catch as e {
@@ -815,7 +825,7 @@ OpenCmdHere(*) {
             }
         }
         
-        Run "cmd.exe /k cd /d \"" path "\"", path
+        Run 'cmd.exe /k cd /d "' path '"', path
         statusBar.Text := "Command prompt opened at: " path
     } catch as e {
         statusBar.Text := "Error opening command prompt: " e.Message
@@ -857,7 +867,7 @@ EjectUSB(*) {
             if (selected > 0) {
                 drive := drives[selected]
                 try {
-                    RunWait "powershell.exe -Command \"(New-Object -comObject Shell.Application).Namespace(17).ParseName('" drive "').InvokeVerb('Eject')\""
+                    RunWait "powershell.exe -Command `"(New-Object -comObject Shell.Application).Namespace(17).ParseName('" drive "').InvokeVerb('Eject')`""
                     statusBar.Text := "Drive " drive " ejected successfully"
                 } catch {
                     statusBar.Text := "Failed to eject drive " drive
@@ -1260,7 +1270,7 @@ FortuneCookie(*) {
         fortuneGui := Gui("+AlwaysOnTop", "Fortune Cookie")
         fortuneGui.SetFont("s12")
         
-        Random rand, 1, fortunes.Length
+        Random(&rand, 1, fortunes.Length)
         selectedFortune := fortunes[rand]
         
         fortuneGui.Add("Text", "w400 h20 Center", "🥠 Your Fortune Cookie 🥠")
@@ -1274,7 +1284,7 @@ FortuneCookie(*) {
         fortuneGui.Show()
         
         NewFortune(*) {
-            Random rand, 1, fortunes.Length
+            Random(&rand, 1, fortunes.Length)
             newFortune := fortunes[rand]
             fortuneGui["FortuneText"].Value := newFortune
             selectedFortune := newFortune
@@ -1304,7 +1314,9 @@ PlaySnake(*) {
     ; Game state
     snake := [[10, 10], [10, 9], [10, 8]]
     direction := "right"
-    food := [Random(1, 38), Random(1, 38)]
+    Random(&foodX, 1, 38)
+    Random(&foodY, 1, 38)
+    food := [foodX, foodY]
     score := 0
     
     ; Game loop
@@ -1328,10 +1340,15 @@ PlaySnake(*) {
     UpdateGame() {
         ; Move snake
         head := snake[1].Clone()
-        if (direction = "right") head[1] += 1
-        else if (direction = "left") head[1] -= 1
-        else if (direction = "up") head[2] -= 1
-        else if (direction = "down") head[2] += 1
+        if (direction = "right") {
+            head[1] += 1
+        } else if (direction = "left") {
+            head[1] -= 1
+        } else if (direction = "up") {
+            head[2] -= 1
+        } else if (direction = "down") {
+            head[2] += 1
+        }
         
         ; Check collision with walls
         if (head[1] < 1 || head[1] > 40 || head[2] < 1 || head[2] > 40) {
@@ -1354,7 +1371,9 @@ PlaySnake(*) {
         ; Check if food is eaten
         if (head[1] = food[1] && head[2] = food[2]) {
             score += 10
-            food := [Random(1, 38), Random(1, 38)]
+            Random(&foodX, 1, 38)
+            Random(&foodY, 1, 38)
+            food := [foodX, foodY]
         } else {
             snake.Pop()
         }
