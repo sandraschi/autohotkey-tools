@@ -451,7 +451,7 @@ TimestampTool(*) {
         timestampGui.Add("Edit", "xm y+20 w420 h100 ReadOnly vTimestampResult")
         timestampGui.Show()
         
-        FormatTime currentTime, , "yyyy-MM-dd HH:mm:ss"
+        FormatTime(currentTime, A_Now, "yyyy-MM-dd HH:mm:ss")
         timestampGui["TimestampResult"].Value := "Current time: " currentTime
         
         TimestampToDate(*) {
@@ -973,7 +973,7 @@ QuickNote(*) {
     SaveNote(*) {
         savedNote := noteGui["NoteText"].Value
         if (savedNote != "") {
-            FormatTime timestamp, "yyyyMMdd_HHmmss"
+            FormatTime(timestamp, A_Now, "yyyyMMdd_HHmmss")
             noteFile := A_ScriptDir "\notes\note_" timestamp ".txt"
             DirCreate(A_ScriptDir "\notes")
             FileAppend(savedNote, noteFile, "UTF-8")
@@ -1410,7 +1410,1488 @@ PlaySnake(*) {
     }
 }
 
-; More game and utility functions would go here...
+; ========== FUN FUNCTIONS CONTINUED ==========
+
+TellDadJoke(*) {
+    try {
+        jokes := [
+            "Why don't scientists trust atoms? Because they make up everything!",
+            "I told my wife she was drawing her eyebrows too high. She looked surprised.",
+            "Why don't eggs tell jokes? They'd crack each other up!",
+            "What do you call a fake noodle? An impasta!",
+            "Why did the scarecrow win an award? He was outstanding in his field!",
+            "I'm reading a book about anti-gravity. It's impossible to put down!",
+            "Why don't skeletons fight each other? They don't have the guts!",
+            "What do you call a bear with no teeth? A gummy bear!",
+            "Why did the math book look so sad? Because it had too many problems!",
+            "What's the best thing about Switzerland? I don't know, but the flag is a big plus!",
+            "Why don't programmers like nature? It has too many bugs!",
+            "How do you organize a space party? You planet!",
+            "Why did the coffee file a police report? It got mugged!",
+            "What do you call a sleeping bull? A bulldozer!",
+            "Why don't scientists trust stairs? Because they're always up to something!"
+        ]
+        
+        Random(&rand, 1, jokes.Length)
+        selectedJoke := jokes[rand]
+        
+        jokeGui := Gui("+AlwaysOnTop", "Dad Joke")
+        jokeGui.SetFont("s11")
+        jokeGui.Add("Text", "w500 h20 Center", "😄 Dad Joke Time! 😄")
+        jokeGui.Add("Text", "w500 h2 0x10")
+        jokeGui.Add("Text", "w500 h150 Wrap Center vJokeText", selectedJoke)
+        jokeGui.Add("Text", "w500 h2 0x10")
+        jokeGui.Add("Button", "Default w120", "New Joke").OnEvent("Click", NewJoke)
+        jokeGui.Add("Button", "xp+130 yp w120", "Copy Joke").OnEvent("Click", CopyJoke)
+        jokeGui.Add("Button", "xp+130 yp w120", "Close").OnEvent("Click", (*) => jokeGui.Destroy())
+        jokeGui.Show()
+        
+        NewJoke(*) {
+            Random(&rand, 1, jokes.Length)
+            newJoke := jokes[rand]
+            jokeGui["JokeText"].Value := newJoke
+            selectedJoke := newJoke
+            statusBar.Text := "New joke loaded!"
+        }
+        
+        CopyJoke(*) {
+            A_Clipboard := selectedJoke
+            statusBar.Text := "Joke copied to clipboard"
+        }
+        
+        statusBar.Text := "Dad joke displayed - enjoy the laughs!"
+    } catch as e {
+        statusBar.Text := "Error showing dad joke: " e.Message
+    }
+}
+
+TextToEmoji(*) {
+    try {
+        emojiGui := Gui("+AlwaysOnTop", "Text to Emoji")
+        emojiGui.Add("Text",, "Enter text to convert:")
+        emojiGui.Add("Edit", "w400 h60 vEmojiText")
+        emojiGui.Add("Button", "Default w100", "Convert").OnEvent("Click", ConvertToEmoji)
+        emojiGui.Add("Edit", "w400 h150 ReadOnly vEmojiResult")
+        emojiGui.Show()
+        
+        ConvertToEmoji(*) {
+            try {
+                text := emojiGui["EmojiText"].Value
+                text := StrLower(text)
+                
+                ; Simple emoji mapping
+                emojiMap := Map(
+                    "happy", "😊", "sad", "😢", "love", "❤️", "heart", "❤️",
+                    "fire", "🔥", "star", "⭐", "thumbs up", "👍", "thumbs down", "👎",
+                    "ok", "👌", "clap", "👏", "party", "🎉", "cake", "🎂",
+                    "coffee", "☕", "pizza", "🍕", "burger", "🍔", "beer", "🍺",
+                    "car", "🚗", "plane", "✈️", "train", "🚂", "bike", "🚲",
+                    "sun", "☀️", "moon", "🌙", "rain", "🌧️", "snow", "❄️",
+                    "cat", "🐱", "dog", "🐶", "bird", "🐦", "fish", "🐟",
+                    "yes", "✅", "no", "❌", "check", "✓", "x", "✗",
+                    "money", "💰", "gift", "🎁", "balloon", "🎈", "trophy", "🏆"
+                )
+                
+                result := text
+                for word, emoji in emojiMap {
+                    result := StrReplace(result, word, emoji, false)
+                }
+                
+                ; Also convert common words
+                result := StrReplace(result, " :)", " 😊", false)
+                result := StrReplace(result, " :(", " 😢", false)
+                result := StrReplace(result, " <3", " ❤️", false)
+                
+                emojiGui["EmojiResult"].Value := result
+                A_Clipboard := result
+                statusBar.Text := "Text converted to emoji and copied"
+            } catch as e {
+                statusBar.Text := "Error converting to emoji: " e.Message
+            }
+        }
+        
+        statusBar.Text := "Text to emoji converter opened"
+    } catch as e {
+        statusBar.Text := "Error opening emoji converter: " e.Message
+    }
+}
+
+GeneratePassword(*) {
+    try {
+        passGui := Gui("+AlwaysOnTop", "Password Generator")
+        passGui.Add("Text",, "Password Length:")
+        passGui.Add("Edit", "w100 h30 vPassLength", "16")
+        passGui.Add("Text", "y+10", "Options:")
+        passGui.Add("Checkbox", "vUseUpper Checked", "Uppercase (A-Z)")
+        passGui.Add("Checkbox", "vUseLower Checked", "Lowercase (a-z)")
+        passGui.Add("Checkbox", "vUseNumbers Checked", "Numbers (0-9)")
+        passGui.Add("Checkbox", "vUseSpecial", "Special (!@#$%^&*)")
+        passGui.Add("Button", "Default w120", "Generate").OnEvent("Click", GeneratePass)
+        passGui.Add("Edit", "w400 h60 ReadOnly vPassResult")
+        passGui.Add("Button", "xp y+10 w120", "Copy").OnEvent("Click", CopyPass)
+        passGui.Add("Button", "xp+130 yp w120", "New Password").OnEvent("Click", GeneratePass)
+        passGui.Add("Button", "xp+130 yp w120", "Close").OnEvent("Click", (*) => passGui.Destroy())
+        passGui.Show()
+        
+        GeneratePass(*) {
+            try {
+                length := Integer(passGui["PassLength"].Value)
+                if (length < 4 || length > 128) {
+                    MsgBox("Password length must be between 4 and 128", "Error", "Icon!")
+                    return
+                }
+                
+                charset := ""
+                if (passGui["UseUpper"].Value)
+                    charset .= "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                if (passGui["UseLower"].Value)
+                    charset .= "abcdefghijklmnopqrstuvwxyz"
+                if (passGui["UseNumbers"].Value)
+                    charset .= "0123456789"
+                if (passGui["UseSpecial"].Value)
+                    charset .= "!@#$%^&*()_+-=[]{}|;:,.<>?"
+                
+                if (charset = "") {
+                    MsgBox("Please select at least one character type", "Error", "Icon!")
+                    return
+                }
+                
+                password := ""
+                Loop length {
+                    Random(&rand, 1, StrLen(charset))
+                    password .= SubStr(charset, rand, 1)
+                }
+                
+                passGui["PassResult"].Value := password
+                A_Clipboard := password
+                statusBar.Text := "Password generated and copied"
+            } catch as e {
+                statusBar.Text := "Error generating password: " e.Message
+            }
+        }
+        
+        CopyPass(*) {
+            password := passGui["PassResult"].Value
+            if (password != "") {
+                A_Clipboard := password
+                statusBar.Text := "Password copied to clipboard"
+            }
+        }
+        
+        ; Generate initial password
+        GeneratePass()
+        
+        statusBar.Text := "Password generator opened"
+    } catch as e {
+        statusBar.Text := "Error opening password generator: " e.Message
+    }
+}
+
+CountdownTimer(*) {
+    try {
+        timerGui := Gui("+AlwaysOnTop", "Countdown Timer")
+        timerGui.SetFont("s12 Bold")
+        timerGui.Add("Text", "w300 Center", "Countdown Timer")
+        timerGui.Add("Text", "w300 h2 0x10")
+        timerGui.Add("Text", "w300 h80 Center vTimerDisplay", "00:00:00")
+        timerGui.Add("Text", "w300 h2 0x10")
+        timerGui.Add("Text",, "Minutes:")
+        timerGui.Add("Edit", "w100 h30 vMinutes", "5")
+        timerGui.Add("Text", "y+10", "Seconds:")
+        timerGui.Add("Edit", "w100 h30 vSeconds", "0")
+        timerGui.Add("Button", "Default w80", "Start").OnEvent("Click", StartTimer)
+        timerGui.Add("Button", "xp+90 yp w80", "Stop").OnEvent("Click", StopTimer)
+        timerGui.Add("Button", "xp+90 yp w80", "Reset").OnEvent("Click", ResetTimer)
+        timerGui.Add("Button", "xm y+10 w80", "Close").OnEvent("Click", (*) => timerGui.Destroy())
+        timerGui.Show()
+        
+        static remainingSeconds := 0
+        static timerActive := false
+        
+        StartTimer(*) {
+            if (timerActive)
+                return
+            
+            mins := Integer(timerGui["Minutes"].Value)
+            secs := Integer(timerGui["Seconds"].Value)
+            remainingSeconds := (mins * 60) + secs
+            
+            if (remainingSeconds <= 0) {
+                MsgBox("Please enter a valid time", "Error", "Icon!")
+                return
+            }
+            
+            timerActive := true
+            UpdateDisplay()
+            SetTimer(CountdownTick, 1000)
+            statusBar.Text := "Timer started"
+        }
+        
+        StopTimer(*) {
+            timerActive := false
+            SetTimer(CountdownTick, 0)
+            statusBar.Text := "Timer stopped"
+        }
+        
+        ResetTimer(*) {
+            timerActive := false
+            SetTimer(CountdownTick, 0)
+            remainingSeconds := 0
+            UpdateDisplay()
+            statusBar.Text := "Timer reset"
+        }
+        
+        CountdownTick(*) {
+            if (!timerActive)
+                return
+            
+            remainingSeconds--
+            UpdateDisplay()
+            
+            if (remainingSeconds <= 0) {
+                timerActive := false
+                SetTimer(CountdownTick, 0)
+                SoundBeep(1000, 500)
+                MsgBox("Time's up!⏰", "Countdown Complete", "OK Icon!")
+                statusBar.Text := "Countdown finished"
+            }
+        }
+        
+        UpdateDisplay() {
+            hours := remainingSeconds // 3600
+            mins := (remainingSeconds // 60) - (hours * 60)
+            secs := Mod(remainingSeconds, 60)
+            display := Format("{:02d}:{:02d}:{:02d}", hours, mins, secs)
+            timerGui["TimerDisplay"].Value := display
+        }
+        
+        statusBar.Text := "Countdown timer opened"
+    } catch as e {
+        statusBar.Text := "Error opening countdown timer: " e.Message
+    }
+}
+
+SetAlarm(*) {
+    try {
+        alarmGui := Gui("+AlwaysOnTop", "Alarm Clock")
+        alarmGui.Add("Text",, "Set Alarm Time:")
+        alarmGui.Add("Text",, "Hour (0-23):")
+        alarmGui.Add("Edit", "w100 h30 vAlarmHour", "12")
+        alarmGui.Add("Text", "y+10", "Minute (0-59):")
+        alarmGui.Add("Edit", "w100 h30 vAlarmMinute", "0")
+        alarmGui.Add("Text", "y+10", "Message:")
+        alarmGui.Add("Edit", "w300 h40 vAlarmMessage", "Wake up!")
+        alarmGui.Add("Checkbox", "vAlarmEnabled", "Alarm Enabled")
+        alarmGui.Add("Button", "Default w100", "Set Alarm").OnEvent("Click", SetAlarmTime)
+        alarmGui.Add("Button", "xp+110 yp w100", "Clear Alarm").OnEvent("Click", ClearAlarm)
+        alarmGui.Add("Text", "xm y+10 w300 vAlarmStatus", "No alarm set")
+        alarmGui.Add("Button", "xm y+10 w100", "Close").OnEvent("Click", (*) => alarmGui.Destroy())
+        alarmGui.Show()
+        
+        static alarmHour := -1
+        static alarmMinute := -1
+        static alarmMsg := ""
+        static alarmSet := false
+        
+        SetAlarmTime(*) {
+            try {
+                hour := Integer(alarmGui["AlarmHour"].Value)
+                minute := Integer(alarmGui["AlarmMinute"].Value)
+                
+                if (hour < 0 || hour > 23 || minute < 0 || minute > 59) {
+                    MsgBox("Please enter valid time (Hour: 0-23, Minute: 0-59)", "Error", "Icon!")
+                    return
+                }
+                
+                alarmHour := hour
+                alarmMinute := minute
+                alarmMsg := alarmGui["AlarmMessage"].Value
+                alarmSet := alarmGui["AlarmEnabled"].Value
+                
+                if (alarmSet) {
+                    alarmGui["AlarmStatus"].Value := Format("Alarm set for {:02d}:{:02d} - {}", hour, minute, alarmMsg)
+                    SetTimer(CheckAlarm, 1000)
+                    statusBar.Text := Format("Alarm set for {:02d}:{:02d}", hour, minute)
+                } else {
+                    alarmGui["AlarmStatus"].Value := "Alarm disabled"
+                    SetTimer(CheckAlarm, 0)
+                    statusBar.Text := "Alarm disabled"
+                }
+            } catch as e {
+                statusBar.Text := "Error setting alarm: " e.Message
+            }
+        }
+        
+        ClearAlarm(*) {
+            alarmHour := -1
+            alarmMinute := -1
+            alarmSet := false
+            SetTimer(CheckAlarm, 0)
+            alarmGui["AlarmStatus"].Value := "No alarm set"
+            statusBar.Text := "Alarm cleared"
+        }
+        
+        CheckAlarm(*) {
+            if (!alarmSet || alarmHour < 0)
+                return
+            
+            FormatTime(currentTime, A_Now, "HH:mm")
+            currentHour := Integer(SubStr(currentTime, 1, 2))
+            currentMinute := Integer(SubStr(currentTime, 4, 2))
+            
+            if (currentHour = alarmHour && currentMinute = alarmMinute) {
+                SetTimer(CheckAlarm, 0)
+                SoundBeep(1000, 1000)
+                MsgBox(alarmMsg, "⏰ ALARM ⏰", "OK Icon!")
+                alarmSet := false
+                alarmGui["AlarmStatus"].Value := "Alarm triggered"
+                statusBar.Text := "Alarm triggered"
+            }
+        }
+        
+        statusBar.Text := "Alarm clock opened"
+    } catch as e {
+        statusBar.Text := "Error opening alarm clock: " e.Message
+    }
+}
+
+TextToBinary(*) {
+    try {
+        binaryGui := Gui("+AlwaysOnTop", "Text to Binary Converter")
+        binaryGui.Add("Text",, "Enter text to convert:")
+        binaryGui.Add("Edit", "w400 h100 vBinaryText")
+        binaryGui.Add("Button", "Default w120", "To Binary").OnEvent("Click", ConvertToBinary)
+        binaryGui.Add("Button", "xp+130 yp w120", "From Binary").OnEvent("Click", ConvertFromBinary)
+        binaryGui.Add("Edit", "w400 h200 ReadOnly vBinaryResult")
+        binaryGui.Show()
+        
+        ConvertToBinary(*) {
+            try {
+                text := binaryGui["BinaryText"].Value
+                binary := ""
+                
+                Loop Parse, text {
+                    charCode := Ord(A_LoopField)
+                    binaryStr := ""
+                    temp := charCode
+                    Loop 8 {
+                        binaryStr := Mod(temp, 2) . binaryStr
+                        temp := temp // 2
+                    }
+                    binary .= binaryStr . " "
+                }
+                
+                binaryGui["BinaryResult"].Value := Trim(binary)
+                A_Clipboard := Trim(binary)
+                statusBar.Text := "Text converted to binary and copied"
+            } catch as e {
+                statusBar.Text := "Error converting to binary: " e.Message
+            }
+        }
+        
+        ConvertFromBinary(*) {
+            try {
+                binary := binaryGui["BinaryText"].Value
+                binary := StrReplace(binary, " ", "")
+                
+                if (Mod(StrLen(binary), 8) != 0) {
+                    MsgBox("Invalid binary format. Must be groups of 8 bits.", "Error", "Icon!")
+                    return
+                }
+                
+                text := ""
+                pos := 1
+                while (pos <= StrLen(binary)) {
+                    byte := SubStr(binary, pos, 8)
+                    charCode := 0
+                    Loop Parse, byte {
+                        charCode := (charCode * 2) + Integer(A_LoopField)
+                    }
+                    text .= Chr(charCode)
+                    pos += 8
+                }
+                
+                binaryGui["BinaryResult"].Value := text
+                A_Clipboard := text
+                statusBar.Text := "Binary converted to text and copied"
+            } catch as e {
+                statusBar.Text := "Error converting from binary: " e.Message
+            }
+        }
+        
+        statusBar.Text := "Text to binary converter opened"
+    } catch as e {
+        statusBar.Text := "Error opening binary converter: " e.Message
+    }
+}
+
+; ========== GAME IMPLEMENTATIONS ==========
+
+PlayTicTacToe(*) {
+    try {
+        tttGui := Gui("+AlwaysOnTop", "Tic-Tac-Toe")
+        tttGui.SetFont("s20 Bold")
+        
+        static board := ["", "", "", "", "", "", "", "", ""]
+        static currentPlayer := "X"
+        static gameOver := false
+        
+        ; Create 3x3 grid
+        buttons := []
+        Loop 9 {
+            row := (A_Index - 1) // 3 + 1
+            col := Mod(A_Index - 1, 3) + 1
+            btn := tttGui.Add("Button", Format("w60 h60 x{} y{} vBtn{}", (col-1)*65+20, (row-1)*65+20, A_Index), "")
+            btn.OnEvent("Click", MakeMove)
+            buttons.Push(btn)
+        }
+        
+        tttGui.Add("Text", "xm y+10 w200 Center vStatusText", "Player X's turn")
+        tttGui.Add("Button", "xp y+10 w80", "Reset").OnEvent("Click", ResetGame)
+        tttGui.Add("Button", "xp+90 yp w80", "Close").OnEvent("Click", (*) => tttGui.Destroy())
+        tttGui.Show()
+        
+        MakeMove(btn, *) {
+            if (gameOver)
+                return
+            
+            btnNum := Integer(StrReplace(btn.Name, "Btn", ""))
+            if (board[btnNum] != "")
+                return
+            
+            board[btnNum] := currentPlayer
+            btn.Text := currentPlayer
+            
+            if (CheckWinner()) {
+                tttGui["StatusText"].Value := "Player " . currentPlayer . " wins!"
+                gameOver := true
+                statusBar.Text := "Tic-tac-toe: " . currentPlayer . " wins!"
+            } else if (IsBoardFull()) {
+                tttGui["StatusText"].Value := "It's a tie!"
+                gameOver := true
+                statusBar.Text := "Tic-tac-toe: Tie game"
+            } else {
+                currentPlayer := (currentPlayer = "X") ? "O" : "X"
+                tttGui["StatusText"].Value := "Player " . currentPlayer . "'s turn"
+            }
+        }
+        
+        CheckWinner() {
+            ; Check rows, columns, diagonals
+            lines := [
+                [1,2,3], [4,5,6], [7,8,9],  ; rows
+                [1,4,7], [2,5,8], [3,6,9],  ; columns
+                [1,5,9], [3,5,7]             ; diagonals
+            ]
+            
+            for line in lines {
+                if (board[line[1]] != "" && board[line[1]] = board[line[2]] && board[line[2]] = board[line[3]])
+                    return true
+            }
+            return false
+        }
+        
+        IsBoardFull() {
+            for cell in board {
+                if (cell = "")
+                    return false
+            }
+            return true
+        }
+        
+        ResetGame(*) {
+            board := ["", "", "", "", "", "", "", "", ""]
+            currentPlayer := "X"
+            gameOver := false
+            Loop 9 {
+                tttGui["Btn" . A_Index].Text := ""
+            }
+            tttGui["StatusText"].Value := "Player X's turn"
+            statusBar.Text := "Tic-tac-toe game reset"
+        }
+        
+        ResetGame()
+        statusBar.Text := "Tic-tac-toe game started"
+    } catch as e {
+        statusBar.Text := "Error starting tic-tac-toe: " e.Message
+    }
+}
+
+PlayHangman(*) {
+    try {
+        words := ["COMPUTER", "PROGRAMMING", "AUTOHOTKEY", "DEVELOPMENT", "SOFTWARE", 
+                  "ALGORITHM", "FUNCTION", "VARIABLE", "SYNTAX", "KEYBOARD"]
+        
+        Random(&rand, 1, words.Length)
+        word := words[rand]
+        guessed := Map()
+        wrongGuesses := 0
+        maxWrong := 6
+        
+        hangmanGui := Gui("+AlwaysOnTop", "Hangman")
+        hangmanGui.SetFont("s12")
+        hangmanGui.Add("Text", "w400 Center", "Hangman Game")
+        hangmanGui.Add("Text", "w400 h2 0x10")
+        hangmanGui.Add("Text", "w400 h100 Center vWordDisplay", "")
+        hangmanGui.Add("Text", "w400 h2 0x10")
+        hangmanGui.Add("Text", "w400 vStatusText", "Guess a letter!")
+        hangmanGui.Add("Text",, "Enter letter:")
+        hangmanGui.Add("Edit", "w50 h30 vLetterInput Limit1")
+        hangmanGui.Add("Button", "Default w80", "Guess").OnEvent("Click", MakeGuess)
+        hangmanGui.Add("Text", "xm y+10 w400 vWrongText", "Wrong guesses: 0/6")
+        hangmanGui.Add("Button", "xm y+10 w80", "New Word").OnEvent("Click", NewWord)
+        hangmanGui.Add("Button", "xp+90 yp w80", "Close").OnEvent("Click", (*) => hangmanGui.Destroy())
+        hangmanGui.Show()
+        
+        UpdateDisplay() {
+            display := ""
+            for i, char in StrSplit(word) {
+                if (guessed.Has(char))
+                    display .= char . " "
+                else
+                    display .= "_ "
+            }
+            hangmanGui["WordDisplay"].Value := display
+            
+            wrongCount := 0
+            for char in guessed {
+                if (!InStr(word, char))
+                    wrongCount++
+            }
+            hangmanGui["WrongText"].Value := Format("Wrong guesses: {}/{}", wrongCount, maxWrong)
+            
+            if (wrongCount >= maxWrong) {
+                hangmanGui["StatusText"].Value := "Game Over! The word was: " . word
+                hangmanGui["LetterInput"].Enabled := false
+            } else if (!InStr(display, "_")) {
+                hangmanGui["StatusText"].Value := "Congratulations! You won!"
+                hangmanGui["LetterInput"].Enabled := false
+            }
+        }
+        
+        MakeGuess(*) {
+            letter := StrUpper(hangmanGui["LetterInput"].Value)
+            if (StrLen(letter) != 1 || !RegExMatch(letter, "[A-Z]"))
+                return
+            
+            if (guessed.Has(letter))
+                return
+            
+            guessed[letter] := true
+            hangmanGui["LetterInput"].Value := ""
+            UpdateDisplay()
+        }
+        
+        NewWord(*) {
+            Random(&rand, 1, words.Length)
+            word := words[rand]
+            guessed := Map()
+            hangmanGui["LetterInput"].Enabled := true
+            hangmanGui["StatusText"].Value := "Guess a letter!"
+            UpdateDisplay()
+            statusBar.Text := "New word selected"
+        }
+        
+        UpdateDisplay()
+        statusBar.Text := "Hangman game started"
+    } catch as e {
+        statusBar.Text := "Error starting hangman: " e.Message
+    }
+}
+
+PlayMemoryGame(*) {
+    try {
+        memoryGui := Gui("+AlwaysOnTop", "Memory Game")
+        memoryGui.SetFont("s16 Bold")
+        
+        symbols := ["A", "B", "C", "D", "E", "F", "G", "H"]
+        cards := []
+        cards.Push(symbols*)
+        cards.Push(symbols*)
+        
+        ; Shuffle
+        Loop cards.Length {
+            Random(&rand1, 1, cards.Length)
+            Random(&rand2, 1, cards.Length)
+            temp := cards[rand1]
+            cards[rand1] := cards[rand2]
+            cards[rand2] := temp
+        }
+        
+        static revealed := []
+        static firstCard := -1
+        static matches := 0
+        static moves := 0
+        
+        Loop 16 {
+            revealed.Push(false)
+        }
+        
+        ; Create card buttons
+        Loop 4 {
+            row := A_Index
+            Loop 4 {
+                col := A_Index
+                idx := (row - 1) * 4 + col
+                btn := memoryGui.Add("Button", Format("w60 h60 x{} y{} vCard{}", (col-1)*70+20, (row-1)*70+20, idx), "?")
+                btn.OnEvent("Click", RevealCard)
+            }
+        }
+        
+        memoryGui.Add("Text", "xm y+10 w300 Center vStatusText", "Moves: 0")
+        memoryGui.Add("Button", "xm y+10 w80", "Reset").OnEvent("Click", ResetMemory)
+        memoryGui.Add("Button", "xp+90 yp w80", "Close").OnEvent("Click", (*) => memoryGui.Destroy())
+        memoryGui.Show()
+        
+        RevealCard(btn, *) {
+            idx := Integer(StrReplace(btn.Name, "Card", ""))
+            if (revealed[idx] || firstCard = idx)
+                return
+            
+            btn.Text := cards[idx]
+            revealed[idx] := true
+            
+            if (firstCard = -1) {
+                firstCard := idx
+            } else {
+                moves++
+                memoryGui["StatusText"].Value := "Moves: " . moves
+                
+                if (cards[firstCard] = cards[idx]) {
+                    matches++
+                    firstCard := -1
+                    if (matches = 8) {
+                        MsgBox("Congratulations! You won in " . moves . " moves!", "Memory Game", "OK Icon!")
+                        statusBar.Text := "Memory game completed"
+                    }
+                } else {
+                    SetTimer(() => HideCards(idx), -1000)
+                }
+            }
+        }
+        
+        HideCards(secondIdx) {
+            memoryGui["Card" . firstCard].Text := "?"
+            memoryGui["Card" . secondIdx].Text := "?"
+            revealed[firstCard] := false
+            revealed[secondIdx] := false
+            firstCard := -1
+        }
+        
+        ResetMemory(*) {
+            ; Reshuffle
+            Loop cards.Length {
+                Random(&rand1, 1, cards.Length)
+                Random(&rand2, 1, cards.Length)
+                temp := cards[rand1]
+                cards[rand1] := cards[rand2]
+                cards[rand2] := temp
+            }
+            
+            revealed := []
+            Loop 16 {
+                revealed.Push(false)
+            }
+            firstCard := -1
+            matches := 0
+            moves := 0
+            
+            Loop 16 {
+                memoryGui["Card" . A_Index].Text := "?"
+            }
+            memoryGui["StatusText"].Value := "Moves: 0"
+            statusBar.Text := "Memory game reset"
+        }
+        
+        statusBar.Text := "Memory game started"
+    } catch as e {
+        statusBar.Text := "Error starting memory game: " e.Message
+    }
+}
+
+PlayNumberGuesser(*) {
+    try {
+        Random(&secretNumber, 1, 100)
+        guesses := 0
+        maxGuesses := 7
+        
+        guessGui := Gui("+AlwaysOnTop", "Number Guesser")
+        guessGui.SetFont("s12")
+        guessGui.Add("Text", "w300 Center", "Number Guessing Game")
+        guessGui.Add("Text", "w300 h2 0x10")
+        guessGui.Add("Text", "w300 Center", "I'm thinking of a number between 1 and 100")
+        guessGui.Add("Text", "w300 Center vHintText", "Can you guess it?")
+        guessGui.Add("Text", "w300 h2 0x10")
+        guessGui.Add("Text",, "Your guess:")
+        guessGui.Add("Edit", "w100 h30 vGuessInput")
+        guessGui.Add("Button", "Default w80", "Guess").OnEvent("Click", MakeGuess)
+        guessGui.Add("Text", "xm y+10 w300 vResultText", "")
+        guessGui.Add("Text", "xm y+10 w300 vGuessesText", "Guesses: 0/" . maxGuesses)
+        guessGui.Add("Button", "xm y+10 w80", "New Game").OnEvent("Click", NewGame)
+        guessGui.Add("Button", "xp+90 yp w80", "Close").OnEvent("Click", (*) => guessGui.Destroy())
+        guessGui.Show()
+        
+        MakeGuess(*) {
+            try {
+                guess := Integer(guessGui["GuessInput"].Value)
+                if (guess < 1 || guess > 100) {
+                    guessGui["ResultText"].Value := "Please enter a number between 1 and 100"
+                    return
+                }
+                
+                guesses++
+                guessGui["GuessesText"].Value := Format("Guesses: {}/{}", guesses, maxGuesses)
+                
+                if (guess = secretNumber) {
+                    guessGui["ResultText"].Value := Format("Congratulations! You guessed it in {} tries!", guesses)
+                    guessGui["HintText"].Value := "You won!"
+                    guessGui["GuessInput"].Enabled := false
+                    statusBar.Text := "Number guessed correctly"
+                } else if (guesses >= maxGuesses) {
+                    guessGui["ResultText"].Value := Format("Game Over! The number was: {}", secretNumber)
+                    guessGui["HintText"].Value := "Better luck next time!"
+                    guessGui["GuessInput"].Enabled := false
+                    statusBar.Text := "Number guesser game over"
+                } else if (guess < secretNumber) {
+                    guessGui["ResultText"].Value := "Too low! Try again."
+                } else {
+                    guessGui["ResultText"].Value := "Too high! Try again."
+                }
+                
+                guessGui["GuessInput"].Value := ""
+            } catch as e {
+                guessGui["ResultText"].Value := "Please enter a valid number"
+            }
+        }
+        
+        NewGame(*) {
+            Random(&secretNumber, 1, 100)
+            guesses := 0
+            guessGui["GuessInput"].Enabled := true
+            guessGui["GuessInput"].Value := ""
+            guessGui["ResultText"].Value := ""
+            guessGui["HintText"].Value := "Can you guess it?"
+            guessGui["GuessesText"].Value := "Guesses: 0/" . maxGuesses
+            statusBar.Text := "New number guesser game started"
+        }
+        
+        statusBar.Text := "Number guesser game started"
+    } catch as e {
+        statusBar.Text := "Error starting number guesser: " e.Message
+    }
+}
+
+TypingTest(*) {
+    try {
+        texts := [
+            "The quick brown fox jumps over the lazy dog.",
+            "Programming is the art of telling a computer what to do.",
+            "Practice makes perfect when learning to type quickly.",
+            "AutoHotkey is a powerful automation scripting language.",
+            "Type accurately and quickly to improve your skills."
+        ]
+        
+        Random(&rand, 1, texts.Length)
+        testText := texts[rand]
+        startTime := 0
+        testActive := false
+        
+        typingGui := Gui("+AlwaysOnTop", "Typing Test")
+        typingGui.SetFont("s11")
+        typingGui.Add("Text", "w500 Center", "Typing Speed Test")
+        typingGui.Add("Text", "w500 h2 0x10")
+        typingGui.Add("Text", "w500 Wrap vTestText", testText)
+        typingGui.Add("Text", "w500 h2 0x10")
+        typingGui.Add("Text",, "Type the text above:")
+        typingGui.Add("Edit", "w500 h80 vTypedText")
+        typingGui.Add("Text", "xm y+10 w500 vStatsText", "Time: 0s | WPM: 0 | Accuracy: 0%")
+        typingGui.Add("Button", "Default w100", "Start").OnEvent("Click", StartTest)
+        typingGui.Add("Button", "xp+110 yp w100", "New Text").OnEvent("Click", NewText)
+        typingGui.Add("Button", "xp+110 yp w100", "Close").OnEvent("Click", (*) => typingGui.Destroy())
+        typingGui.Show()
+        
+        StartTest(*) {
+            testActive := true
+            startTime := A_TickCount
+            typingGui["TypedText"].Value := ""
+            typingGui["TypedText"].Focus()
+            SetTimer(UpdateStats, 100)
+            statusBar.Text := "Typing test started"
+        }
+        
+        UpdateStats(*) {
+            if (!testActive)
+                return
+            
+            elapsed := (A_TickCount - startTime) / 1000
+            typed := typingGui["TypedText"].Value
+            typedLen := StrLen(typed)
+            
+            if (typedLen > 0) {
+                wpm := Round((typedLen / 5) / (elapsed / 60), 1)
+                
+                ; Calculate accuracy
+                correct := 0
+                Loop Min(typedLen, StrLen(testText)) {
+                    if (SubStr(typed, A_Index, 1) = SubStr(testText, A_Index, 1))
+                        correct++
+                }
+                accuracy := Round((correct / typedLen) * 100, 1)
+                
+                typingGui["StatsText"].Value := Format("Time: {:.1f}s | WPM: {} | Accuracy: {}%", elapsed, wpm, accuracy)
+                
+                ; Check if complete
+                if (typed = testText) {
+                    testActive := false
+                    SetTimer(UpdateStats, 0)
+                    elapsed := (A_TickCount - startTime) / 1000
+                    wpm := Round((StrLen(testText) / 5) / (elapsed / 60), 1)
+                    MsgBox(Format("Congratulations!`nTime: {:.1f}s`nWPM: {}`nAccuracy: {}%", elapsed, wpm, accuracy), "Typing Test Complete", "OK Icon!")
+                    statusBar.Text := "Typing test completed"
+                }
+            } else {
+                typingGui["StatsText"].Value := Format("Time: {:.1f}s | WPM: 0 | Accuracy: 0%", elapsed)
+            }
+        }
+        
+        NewText(*) {
+            Random(&rand, 1, texts.Length)
+            testText := texts[rand]
+            typingGui["TestText"].Value := testText
+            testActive := false
+            SetTimer(UpdateStats, 0)
+            typingGui["TypedText"].Value := ""
+            typingGui["StatsText"].Value := "Time: 0s | WPM: 0 | Accuracy: 0%"
+            statusBar.Text := "New text loaded"
+        }
+        
+        statusBar.Text := "Typing test opened"
+    } catch as e {
+        statusBar.Text := "Error opening typing test: " e.Message
+    }
+}
+
+PlayMinesweeper(*) {
+    try {
+        ; Simple 8x8 minesweeper
+        gridSize := 8
+        mineCount := 10
+        
+        mines := []
+        revealed := []
+        flagged := []
+        
+        Loop gridSize {
+            row := []
+            revealedRow := []
+            flaggedRow := []
+            Loop gridSize {
+                row.Push(false)
+                revealedRow.Push(false)
+                flaggedRow.Push(false)
+            }
+            mines.Push(row)
+            revealed.Push(revealedRow)
+            flagged.Push(flaggedRow)
+        }
+        
+        ; Place mines randomly
+        placed := 0
+        while (placed < mineCount) {
+            Random(&row, 1, gridSize)
+            Random(&col, 1, gridSize)
+            if (!mines[row][col]) {
+                mines[row][col] := true
+                placed++
+            }
+        }
+        
+        minesweeperGui := Gui("+AlwaysOnTop", "Minesweeper")
+        minesweeperGui.SetFont("s10")
+        
+        ; Create grid
+        buttons := []
+        Loop gridSize {
+            row := A_Index
+            Loop gridSize {
+                col := A_Index
+                btn := minesweeperGui.Add("Button", Format("w30 h30 x{} y{} vBtn{}_{}", (col-1)*35+20, (row-1)*35+50, row, col), "")
+                btn.OnEvent("Click", RevealCell)
+                btn.OnEvent("RButton", FlagCell)
+                buttons.Push(btn)
+            }
+        }
+        
+        minesweeperGui.Add("Text", "xm y+10 w300 Center vStatusText", "Mines: " . mineCount)
+        minesweeperGui.Add("Button", "xm y+10 w80", "Reset").OnEvent("Click", ResetMinesweeper)
+        minesweeperGui.Add("Button", "xp+90 yp w80", "Close").OnEvent("Click", (*) => minesweeperGui.Destroy())
+        minesweeperGui.Show()
+        
+        CountMines(row, col) {
+            count := 0
+            Loop 3 {
+                r := row + A_Index - 2
+                Loop 3 {
+                    c := col + A_Index - 2
+                    if (r >= 1 && r <= gridSize && c >= 1 && c <= gridSize && mines[r][c])
+                        count++
+                }
+            }
+            return count
+        }
+        
+        RevealCell(btn, *) {
+            coords := StrSplit(StrReplace(btn.Name, "Btn", ""), "_")
+            row := Integer(coords[1])
+            col := Integer(coords[2])
+            
+            if (flagged[row][col] || revealed[row][col])
+                return
+            
+            if (mines[row][col]) {
+                ; Game over
+                Loop gridSize {
+                    r := A_Index
+                    Loop gridSize {
+                        c := A_Index
+                        if (mines[r][c])
+                            minesweeperGui["Btn" . r . "_" . c].Text := "💣"
+                    }
+                }
+                minesweeperGui["StatusText"].Value := "Game Over!"
+                MsgBox("You hit a mine! Game Over!", "Minesweeper", "OK Icon!")
+                statusBar.Text := "Minesweeper game over"
+                return
+            }
+            
+            RevealRecursive(row, col)
+            CheckWin()
+        }
+        
+        RevealRecursive(row, col) {
+            if (row < 1 || row > gridSize || col < 1 || col > gridSize || revealed[row][col])
+                return
+            
+            revealed[row][col] := true
+            count := CountMines(row, col)
+            
+            if (count > 0) {
+                minesweeperGui["Btn" . row . "_" . col].Text := count
+            } else {
+                minesweeperGui["Btn" . row . "_" . col].Text := ""
+                ; Reveal adjacent cells
+                Loop 3 {
+                    r := row + A_Index - 2
+                    Loop 3 {
+                        c := col + A_Index - 2
+                        if (r >= 1 && r <= gridSize && c >= 1 && c <= gridSize)
+                            RevealRecursive(r, c)
+                    }
+                }
+            }
+        }
+        
+        FlagCell(btn, *) {
+            coords := StrSplit(StrReplace(btn.Name, "Btn", ""), "_")
+            row := Integer(coords[1])
+            col := Integer(coords[2])
+            
+            if (revealed[row][col])
+                return
+            
+            flagged[row][col] := !flagged[row][col]
+            minesweeperGui["Btn" . row . "_" . col].Text := flagged[row][col] ? "🚩" : ""
+        }
+        
+        CheckWin() {
+            revealedCount := 0
+            Loop gridSize {
+                r := A_Index
+                Loop gridSize {
+                    c := A_Index
+                    if (revealed[r][c] && !mines[r][c])
+                        revealedCount++
+                }
+            }
+            
+            if (revealedCount = (gridSize * gridSize - mineCount)) {
+                MsgBox("Congratulations! You cleared all mines!", "Minesweeper", "OK Icon!")
+                minesweeperGui["StatusText"].Value := "You Win!"
+                statusBar.Text := "Minesweeper completed"
+            }
+        }
+        
+        ResetMinesweeper(*) {
+            ; Reset and regenerate mines
+            mines := []
+            revealed := []
+            flagged := []
+            
+            Loop gridSize {
+                row := []
+                revealedRow := []
+                flaggedRow := []
+                Loop gridSize {
+                    row.Push(false)
+                    revealedRow.Push(false)
+                    flaggedRow.Push(false)
+                }
+                mines.Push(row)
+                revealed.Push(revealedRow)
+                flagged.Push(flaggedRow)
+            }
+            
+            placed := 0
+            while (placed < mineCount) {
+                Random(&row, 1, gridSize)
+                Random(&col, 1, gridSize)
+                if (!mines[row][col]) {
+                    mines[row][col] := true
+                    placed++
+                }
+            }
+            
+            Loop gridSize {
+                r := A_Index
+                Loop gridSize {
+                    c := A_Index
+                    minesweeperGui["Btn" . r . "_" . c].Text := ""
+                }
+            }
+            minesweeperGui["StatusText"].Value := "Mines: " . mineCount
+            statusBar.Text := "Minesweeper reset"
+        }
+        
+        statusBar.Text := "Minesweeper game started"
+    } catch as e {
+        statusBar.Text := "Error starting minesweeper: " e.Message
+    }
+}
+
+PlayBlackjack(*) {
+    try {
+        blackjackGui := Gui("+AlwaysOnTop", "Blackjack")
+        blackjackGui.SetFont("s11")
+        
+        deck := []
+        suits := ["♠", "♥", "♦", "♣"]
+        ranks := ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]
+        
+        for suit in suits {
+            for rank in ranks {
+                deck.Push(rank . suit)
+            }
+        }
+        
+        playerHand := []
+        dealerHand := []
+        gameOver := false
+        
+        blackjackGui.Add("Text", "w400 Center", "Blackjack")
+        blackjackGui.Add("Text", "w400 h2 0x10")
+        blackjackGui.Add("Text", "w400 vDealerText", "Dealer: ")
+        blackjackGui.Add("Text", "w400 vPlayerText", "Player: ")
+        blackjackGui.Add("Text", "w400 h2 0x10")
+        blackjackGui.Add("Text", "w400 vStatusText", "")
+        blackjackGui.Add("Button", "Default w80", "Hit").OnEvent("Click", Hit)
+        blackjackGui.Add("Button", "xp+90 yp w80", "Stand").OnEvent("Click", Stand)
+        blackjackGui.Add("Button", "xm y+10 w80", "New Game").OnEvent("Click", NewBlackjack)
+        blackjackGui.Add("Button", "xp+90 yp w80", "Close").OnEvent("Click", (*) => blackjackGui.Destroy())
+        blackjackGui.Show()
+        
+        ShuffleDeck() {
+            Loop deck.Length {
+                Random(&rand1, 1, deck.Length)
+                Random(&rand2, 1, deck.Length)
+                temp := deck[rand1]
+                deck[rand1] := deck[rand2]
+                deck[rand2] := temp
+            }
+        }
+        
+        GetCardValue(card) {
+            rank := SubStr(card, 1, -1)
+            if (rank = "A")
+                return 11
+            else if (rank = "J" || rank = "Q" || rank = "K")
+                return 10
+            else
+                return Integer(rank)
+        }
+        
+        GetHandValue(hand) {
+            value := 0
+            aces := 0
+            for card in hand {
+                cardValue := GetCardValue(card)
+                if (cardValue = 11)
+                    aces++
+                value += cardValue
+            }
+            
+            ; Adjust for aces
+            while (value > 21 && aces > 0) {
+                value -= 10
+                aces--
+            }
+            return value
+        }
+        
+        DealCard(hand) {
+            Random(&rand, 1, deck.Length)
+            card := deck[rand]
+            deck.RemoveAt(rand)
+            hand.Push(card)
+            return card
+        }
+        
+        UpdateDisplay() {
+            dealerDisplay := "Dealer: "
+            if (gameOver) {
+                for card in dealerHand {
+                    dealerDisplay .= card . " "
+                }
+                dealerDisplay .= "(" . GetHandValue(dealerHand) . ")"
+            } else {
+                dealerDisplay .= dealerHand[1] . " ??"
+            }
+            blackjackGui["DealerText"].Value := dealerDisplay
+            
+            playerDisplay := "Player: "
+            for card in playerHand {
+                playerDisplay .= card . " "
+            }
+            playerDisplay .= "(" . GetHandValue(playerHand) . ")"
+            blackjackGui["PlayerText"].Value := playerDisplay
+        }
+        
+        Hit(*) {
+            if (gameOver)
+                return
+            
+            DealCard(playerHand)
+            UpdateDisplay()
+            
+            if (GetHandValue(playerHand) > 21) {
+                blackjackGui["StatusText"].Value := "Bust! You lose!"
+                gameOver := true
+                statusBar.Text := "Blackjack: Player bust"
+            }
+        }
+        
+        Stand(*) {
+            if (gameOver)
+                return
+            
+            gameOver := true
+            
+            ; Dealer draws until 17+
+            while (GetHandValue(dealerHand) < 17) {
+                DealCard(dealerHand)
+            }
+            
+            UpdateDisplay()
+            
+            playerValue := GetHandValue(playerHand)
+            dealerValue := GetHandValue(dealerHand)
+            
+            if (dealerValue > 21) {
+                blackjackGui["StatusText"].Value := "Dealer busts! You win!"
+                statusBar.Text := "Blackjack: Player wins"
+            } else if (playerValue > dealerValue) {
+                blackjackGui["StatusText"].Value := "You win!"
+                statusBar.Text := "Blackjack: Player wins"
+            } else if (playerValue < dealerValue) {
+                blackjackGui["StatusText"].Value := "Dealer wins!"
+                statusBar.Text := "Blackjack: Dealer wins"
+            } else {
+                blackjackGui["StatusText"].Value := "Push! It's a tie!"
+                statusBar.Text := "Blackjack: Tie game"
+            }
+        }
+        
+        NewBlackjack(*) {
+            ; Reset deck
+            deck := []
+            for suit in suits {
+                for rank in ranks {
+                    deck.Push(rank . suit)
+                }
+            }
+            ShuffleDeck()
+            
+            playerHand := []
+            dealerHand := []
+            gameOver := false
+            
+            DealCard(playerHand)
+            DealCard(dealerHand)
+            DealCard(playerHand)
+            DealCard(dealerHand)
+            
+            UpdateDisplay()
+            blackjackGui["StatusText"].Value := ""
+            statusBar.Text := "New blackjack game started"
+        }
+        
+        NewBlackjack()
+        statusBar.Text := "Blackjack game started"
+    } catch as e {
+        statusBar.Text := "Error starting blackjack: " e.Message
+    }
+}
+
+PlayPong(*) {
+    try {
+        pongGui := Gui("+AlwaysOnTop -Caption", "Pong")
+        pongGui.BackColor := "Black"
+        pongGui.SetFont("s12 cWhite", "Consolas")
+        pongGui.Add("Text", "w400 h300 vGameArea", "")
+        pongGui.Show("w420 h320")
+        
+        ; Game state
+        ballX := 200
+        ballY := 150
+        ballSpeedX := 2
+        ballSpeedY := 2
+        paddle1Y := 120
+        paddle2Y := 120
+        score1 := 0
+        score2 := 0
+        
+        pongGui.OnEvent("Escape", (*) => pongGui.Destroy())
+        pongGui.OnEvent("KeyDown", HandlePongKey)
+        
+        HandlePongKey(guiObj, vk, *) {
+            if (vk = 87) && (paddle1Y > 0)  ; W
+                paddle1Y -= 10
+            else if (vk = 83) && (paddle1Y < 200)  ; S
+                paddle1Y += 10
+        }
+        
+        SetTimer(UpdatePong, 50)
+        
+        UpdatePong() {
+            ; Move ball
+            ballX += ballSpeedX
+            ballY += ballSpeedY
+            
+            ; Bounce off top/bottom
+            if (ballY <= 0 || ballY >= 280)
+                ballSpeedY := -ballSpeedY
+            
+            ; Paddle collisions
+            if (ballX <= 20 && ballY >= paddle1Y && ballY <= paddle1Y + 60)
+                ballSpeedX := Abs(ballSpeedX)
+            else if (ballX >= 380 && ballY >= paddle2Y && ballY <= paddle2Y + 60)
+                ballSpeedX := -Abs(ballSpeedX)
+            
+            ; Simple AI for paddle 2
+            if (ballY < paddle2Y + 30)
+                paddle2Y -= 1
+            else if (ballY > paddle2Y + 30)
+                paddle2Y += 1
+            
+            ; Score
+            if (ballX < 0) {
+                score2++
+                ballX := 200
+                ballY := 150
+                ballSpeedX := 2
+                ballSpeedY := 2
+            } else if (ballX > 400) {
+                score1++
+                ballX := 200
+                ballY := 150
+                ballSpeedX := -2
+                ballSpeedY := 2
+            }
+            
+            ; Draw game
+            gameText := ""
+            Loop 30 {
+                y := A_Index * 10
+                line := ""
+                Loop 40 {
+                    x := A_Index * 10
+                    char := " "
+                    
+                    ; Draw paddles
+                    if (x = 10 && y >= paddle1Y && y <= paddle1Y + 60)
+                        char := "|"
+                    else if (x = 390 && y >= paddle2Y && y <= paddle2Y + 60)
+                        char := "|"
+                    
+                    ; Draw ball
+                    if (Abs(x - ballX) < 5 && Abs(y - ballY) < 5)
+                        char := "O"
+                    
+                    line .= char
+                }
+                gameText .= line . "`n"
+            }
+            
+            pongGui["GameArea"].Value := gameText . "`nScore: " . score1 . " - " . score2 . "`nW/S to move left paddle"
+            
+            if (score1 >= 5 || score2 >= 5) {
+                winner := score1 >= 5 ? "Player 1" : "Player 2"
+                MsgBox(winner . " wins!", "Pong", "OK")
+                SetTimer(UpdatePong, 0)
+                pongGui.Destroy()
+                statusBar.Text := "Pong game finished"
+            }
+        }
+        
+        statusBar.Text := "Pong game started - Use W/S keys"
+    } catch as e {
+        statusBar.Text := "Error starting pong: " e.Message
+    }
+}
+
+PlaySpaceInvaders(*) {
+    try {
+        spaceGui := Gui("+AlwaysOnTop -Caption", "Space Invaders")
+        spaceGui.BackColor := "Black"
+        spaceGui.SetFont("s10 cLime", "Consolas")
+        spaceGui.Add("Text", "w500 h400 vGameArea", "")
+        spaceGui.Show("w520 h420")
+        
+        ; Game state
+        playerX := 250
+        invaders := []
+        bullets := []
+        invaderBullets := []
+        score := 0
+        lives := 3
+        
+        ; Create invaders
+        Loop 5 {
+            row := A_Index
+            Loop 10 {
+                col := A_Index
+                invaders.Push([col * 40 + 20, row * 30 + 20])
+            }
+        }
+        
+        spaceGui.OnEvent("Escape", (*) => spaceGui.Destroy())
+        spaceGui.OnEvent("KeyDown", HandleSpaceKey)
+        
+        HandleSpaceKey(guiObj, vk, *) {
+            if (vk = 37) && (playerX > 0)  ; Left
+                playerX -= 10
+            else if (vk = 39) && (playerX < 450)  ; Right
+                playerX += 10
+            else if (vk = 32)  ; Space
+                bullets.Push([playerX, 380])
+        }
+        
+        SetTimer(UpdateSpaceInvaders, 100)
+        
+        UpdateSpaceInvaders() {
+            ; Move bullets
+            newBullets := []
+            for bullet in bullets {
+                bullet[2] -= 5
+                if (bullet[2] > 0)
+                    newBullets.Push(bullet)
+            }
+            bullets := newBullets
+            
+            ; Move invader bullets
+            newInvaderBullets := []
+            for bullet in invaderBullets {
+                bullet[2] += 3
+                if (bullet[2] < 400)
+                    newInvaderBullets.Push(bullet)
+                else if (bullet[2] >= 380 && Abs(bullet[1] - playerX) < 20) {
+                    lives--
+                    if (lives <= 0) {
+                        MsgBox("Game Over! Score: " . score, "Space Invaders", "OK")
+                        SetTimer(UpdateSpaceInvaders, 0)
+                        spaceGui.Destroy()
+                        statusBar.Text := "Space Invaders game over"
+                        return
+                    }
+                }
+            }
+            invaderBullets := newInvaderBullets
+            
+            ; Check bullet collisions
+            newInvaders := []
+            for invader in invaders {
+                hit := false
+                for bullet in bullets {
+                    if (Abs(bullet[1] - invader[1]) < 15 && Abs(bullet[2] - invader[2]) < 15) {
+                        hit := true
+                        score += 10
+                        break
+                    }
+                }
+                if (!hit)
+                    newInvaders.Push(invader)
+            }
+            invaders := newInvaders
+            
+            ; Random invader shooting
+            if (invaders.Length > 0) {
+                Random(&rand, 1, 100)
+                if (rand = 1) {
+                    Random(&randIdx, 1, invaders.Length)
+                    invaderBullets.Push([invaders[randIdx][1], invaders[randIdx][2]])
+                }
+            }
+            
+            ; Draw game
+            gameText := ""
+            Loop 40 {
+                y := A_Index * 10
+                line := ""
+                Loop 50 {
+                    x := A_Index * 10
+                    char := " "
+                    
+                    ; Draw player
+                    if (y = 380 && Abs(x - playerX) < 10)
+                        char := "^"
+                    
+                    ; Draw invaders
+                    for invader in invaders {
+                        if (Abs(x - invader[1]) < 5 && Abs(y - invader[2]) < 5)
+                            char := "M"
+                    }
+                    
+                    ; Draw bullets
+                    for bullet in bullets {
+                        if (Abs(x - bullet[1]) < 2 && Abs(y - bullet[2]) < 2)
+                            char := "|"
+                    }
+                    
+                    ; Draw invader bullets
+                    for bullet in invaderBullets {
+                        if (Abs(x - bullet[1]) < 2 && Abs(y - bullet[2]) < 2)
+                            char := "."
+                    }
+                    
+                    line .= char
+                }
+                gameText .= line . "`n"
+            }
+            
+            spaceGui["GameArea"].Value := gameText . "`nScore: " . score . " | Lives: " . lives . " | Left/Right arrows, Space to shoot"
+            
+            if (invaders.Length = 0) {
+                MsgBox("You win! Score: " . score, "Space Invaders", "OK")
+                SetTimer(UpdateSpaceInvaders, 0)
+                spaceGui.Destroy()
+                statusBar.Text := "Space Invaders completed"
+            }
+        }
+        
+        statusBar.Text := "Space Invaders started - Arrow keys and Space"
+    } catch as e {
+        statusBar.Text := "Error starting Space Invaders: " e.Message
+    }
+}
 
 ; Clean up on exit
 OnExit(ExitReason, ExitCode) {
