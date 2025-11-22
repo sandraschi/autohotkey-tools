@@ -1,6 +1,6 @@
 ; ==============================================================================
-; Claude Desktop Restart Helper
-; @name: Claude Desktop Restart Helper
+; Claude Desktop Restarter
+; @name: Claude Desktop Restarter
 ; @version: 1.0.0
 ; @description: Intelligent Claude Desktop restart with graceful shutdown and fallback mechanisms. Automatically detects Claude Desktop installation and restarts it safely.
 ; @description: Provides multiple restart methods including graceful shutdown, force termination, and process monitoring. Ensures Claude Desktop restarts cleanly for MCP server updates.
@@ -31,12 +31,54 @@ class ClaudeRestart {
     static claudeExe := ""
     static configFile := ""
     static tempDir := ""
+    static requiresElevation := false
     
     static Init() {
         this.FindClaudeExecutable()
         this.configFile := A_AppData . "\Claude\claude_desktop_config.json"
         this.tempDir := A_Temp . "\"
+        this.CheckElevationStatus()
         this.CreateGUI()
+    }
+    
+    static CheckElevationStatus() {
+        ; Check if running as administrator
+        this.requiresElevation := !A_IsAdmin
+        if (this.requiresElevation) {
+            this.LogOperation("Warning: Not running as administrator - taskkill may require elevation")
+        }
+    }
+    
+    static RunTaskKill(command) {
+        ; Run taskkill with elevation if needed
+        if (this.requiresElevation) {
+            ; Request UAC elevation for taskkill
+            ; Use cmd.exe as wrapper since *RunAs doesn't work well with direct command strings
+            try {
+                Run("*RunAs cmd.exe /c taskkill " . command, , "Hide")
+                Sleep(500)
+                return true
+            } catch as e {
+                this.LogOperation("Elevation failed: " . e.Message)
+                ; Try without elevation as fallback
+                try {
+                    Run("cmd.exe /c taskkill " . command, , "Hide")
+                    Sleep(500)
+                    return true
+                } catch {
+                    return false
+                }
+            }
+        } else {
+            ; Already running as admin, run directly
+            try {
+                Run("cmd.exe /c taskkill " . command, , "Hide")
+                Sleep(500)
+                return true
+            } catch {
+                return false
+            }
+        }
     }
     
     static FindClaudeExecutable() {
@@ -74,12 +116,12 @@ class ClaudeRestart {
     }
     
     static CreateGUI() {
-        newGui := Gui("+Resize +MinSize600x400", "Claude Desktop Restart Helper")
+        newGui := Gui("+Resize +MinSize600x400", "Claude Desktop Restarter")
         newGui.BackColor := "2d2d2d"
         newGui.SetFont("s10 cFFFFFF", "Segoe UI")
         
         ; Title
-        newGui.Add("Text", "x20 y20 w560 Center Bold", "🚀 Claude Desktop Restart Helper")
+        newGui.Add("Text", "x20 y20 w560 Center Bold", "🚀 Claude Desktop Restarter")
         newGui.Add("Text", "x20 y50 w560 Center ", "Intelligent restart with graceful shutdown and fallback")
         
         ; Status section
@@ -87,29 +129,35 @@ class ClaudeRestart {
         newGui.Add("Text", "x20 y115 w560", "Claude Executable: " . (this.claudeExe ? this.claudeExe : "Not Found"))
         newGui.Add("Text", "x20 y140 w560", "Config File: " . this.configFile)
         newGui.Add("Text", "x20 y165 w560", "Temp Directory: " . this.tempDir)
+        adminStatus := this.requiresElevation ? "⚠️ May require elevation" : "✓ Running as admin"
+        newGui.Add("Text", "x20 y190 w560", "Admin Status: " . adminStatus)
         
         ; Restart options
-        newGui.Add("Text", "x20 y200 w560 Bold", "🔄 Restart Options")
+        newGui.Add("Text", "x20 y220 w560 Bold", "🔄 Restart Options")
         
         ; Intelligent Restart
-        newGui.Add("Button", "x20 y230 w200 h50", "Intelligent Restart").OnEvent("Click", this.IntelligentRestart.Bind(this))
-        newGui.Add("Text", "x240 y240 w340 ", "Graceful shutdown → Force kill → Restart")
+        newGui.Add("Button", "x20 y250 w200 h50", "Intelligent Restart").OnEvent("Click", this.IntelligentRestart.Bind(this))
+        newGui.Add("Text", "x240 y260 w340 ", "Graceful shutdown → Force kill → Restart")
         
         ; Emergency Restart
-        newGui.Add("Button", "x20 y290 w200 h50", "Emergency Restart").OnEvent("Click", this.EmergencyRestart.Bind(this))
-        newGui.Add("Text", "x240 y300 w340 ", "Force kill all processes → Clean restart")
+        newGui.Add("Button", "x20 y310 w200 h50", "Emergency Restart").OnEvent("Click", this.EmergencyRestart.Bind(this))
+        newGui.Add("Text", "x240 y320 w340 ", "Force kill all processes → Clean restart")
         
         ; Config Reload
-        newGui.Add("Button", "x20 y350 w200 h50", "Config Reload").OnEvent("Click", this.ConfigReload.Bind(this))
-        newGui.Add("Text", "x240 y360 w340 ", "Validate config → Restart Claude")
+        newGui.Add("Button", "x20 y370 w200 h50", "Config Reload").OnEvent("Click", this.ConfigReload.Bind(this))
+        newGui.Add("Text", "x240 y380 w340 ", "Validate config → Restart Claude")
         
         ; Controls
-        newGui.Add("Text", "x20 y420 w560 Center ", "Hotkeys: Ctrl+Alt+R (Intelligent) | Ctrl+Alt+X (Emergency) | F8 (Config Reload)")
+        newGui.Add("Text", "x20 y440 w560 Center ", "Hotkeys: Ctrl+Alt+R (Intelligent) | Ctrl+Alt+X (Emergency) | F8 (Config Reload)")
         
         ; Set up hotkeys
         this.SetupHotkeys()
         
-        newGui.Show("w600 h450")
+        
+        ; Add exit handlers
+        newGui.OnEvent("Close", (*) => ExitApp())
+        newGui.OnEvent("Escape", (*) => ExitApp())
+        newGui.Show("w600 h470")
     }
     
     static IntelligentRestart(*) {
@@ -126,8 +174,8 @@ class ClaudeRestart {
             ; Wait for process to close
             WinWaitClose("Claude",, 10)
         } catch {
-            ; Fallback to force kill
-            Run("taskkill /f /im Claude.exe", , "Hide")
+            ; Fallback to force kill with elevation if needed
+            this.RunTaskKill("/f /im Claude.exe")
             Sleep(2000)
         }
         
@@ -153,9 +201,9 @@ class ClaudeRestart {
         this.LogOperation("Emergency Restart")
         TrayTip("Emergency Restart", "Force killing and restarting...", 2)
         
-        ; Force kill all related processes
-        Run("taskkill /f /im Claude.exe /t", , "Hide")
-        Run("taskkill /f /im python.exe /f", , "Hide")
+        ; Force kill all related processes with elevation if needed
+        this.RunTaskKill("/f /im Claude.exe /t")
+        this.RunTaskKill("/f /im python.exe /t")
         
         Sleep(3000)
         
@@ -218,12 +266,19 @@ class ClaudeRestart {
     static LogOperation(operation) {
         try {
             logFile := this.tempDir . "claude_restart.log"
-            timestamp := ""
-            timestamp := FormatTime(, "yyyy-MM-dd HH:mm:ss")
+            timestamp := FormatTime(A_Now, "yyyy-MM-dd HH:mm:ss")
             logEntry := timestamp . " - " . operation . "`n"
             FileAppend(logEntry, logFile)
         } catch {
             ; Ignore logging errors
+        }
+    }
+    
+    static ShowNotification(message, title) {
+        try {
+            MsgBox(message, title, "0x40")
+        } catch {
+            TrayTip(title, message, 5)
         }
     }
     
@@ -242,8 +297,8 @@ class ClaudeRestart {
     }
 
     static CloseHelper() {
-        if (WinExist("Claude Desktop Restart Helper")) {
-            WinClose("Claude Desktop Restart Helper")
+        if (WinExist("Claude Desktop Restarter")) {
+            WinClose("Claude Desktop Restarter")
         }
     }
 }

@@ -1,7 +1,8 @@
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
+#Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
-OnError(PacmanLauncher.HandleError)
+OnError(LogError)
 
 class PacmanLauncher {
     static gui := ""

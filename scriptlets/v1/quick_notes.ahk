@@ -81,11 +81,11 @@ SaveNotes:
     
     ; Show notification
     TrayTip, Quick Notes, Notes saved successfully!, 2, 1
-    SetTimer, HideTrayTip, 2000
+    SetTimer(HideTrayTip,  2000
 return
 
 ClearNotes:
-    MsgBox( Clear Notes, Are you sure you want to clear all notes?
+    MsgBox, 4, Clear Notes, Are you sure you want to clear all notes?
     IfMsgBox Yes
     {
         GuiControl,, NotesEdit, 
@@ -111,7 +111,7 @@ ToggleAlwaysOnTop:
 return
 
 HideTrayTip:
-    SetTimer, HideTrayTip, Off
+    SetTimer(HideTrayTip,  Off
     TrayTip
 return
 

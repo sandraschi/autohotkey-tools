@@ -438,4 +438,7 @@ class MacroRecorder {
 }
 
 ; Initialize the recorder
+; Register exit handler
+OnExit((*) => MacroRecorder.Stop())
+
 MacroRecorder.Init()

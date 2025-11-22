@@ -16,6 +16,7 @@ This directory contains documentation for the AutoHotkey Development Tools proje
 ### Development Guides
 - **[DEVELOPMENT_GUIDE.md](DEVELOPMENT_GUIDE.md)** - Development workflow and best practices (includes IDE setup with AutoHotkey++ Cursor Extension)
 - **[AutoHotkey_Debugging_Guide.md](AutoHotkey_Debugging_Guide.md)** - Debugging techniques and tools
+- **[REPOSITORY_HEALTH_IMPROVEMENT_PLAN.md](REPOSITORY_HEALTH_IMPROVEMENT_PLAN.md)** ⭐ - Action plan to improve repository health from POOR to GOOD
 
 ## IDE Support
 

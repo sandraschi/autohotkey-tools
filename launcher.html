@@ -268,182 +268,12 @@
             </div>
         </header>
 
-        <div class="tabs">
-            <div class="tab active" data-tab="utilities">Utilities</div>
-            <div class="tab" data-tab="games">Games</div>
-            <div class="tab" data-tab="pranks">Pranks</div>
-            <div class="tab" data-tab="advanced">Advanced</div>
+        <div class="tabs" id="categoryTabs">
+            <!-- Tabs will be generated dynamically -->
         </div>
 
-        <!-- Utilities Tab -->
-        <div id="utilities" class="tab-content active">
-            <div class="card">
-                <div class="card-header">
-                    <i class="fas fa-window-maximize"></i>
-                    <h3>Window Management</h3>
-                </div>
-                <div class="card-body">
-                    <p>Manage and organize your windows with ease. Snap, resize, and arrange windows quickly.</p>
-                    <button class="btn btn-primary" onclick="runScript('window_management.ahk')">
-                        <i class="fas fa-play"></i> Run
-                    </button>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <i class="fas fa-clipboard"></i>
-                    <h3>Clipboard Manager</h3>
-                </div>
-                <div class="card-body">
-                    <p>Access your clipboard history and manage copied items efficiently.</p>
-                    <button class="btn btn-primary" onclick="runScript('clipboard_manager.ahk')">
-                        <i class="fas fa-play"></i> Run
-                    </button>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <i class="fas fa-volume-up"></i>
-                    <h3>Volume Control</h3>
-                </div>
-                <div class="card-body">
-                    <p>Quickly adjust your system volume with hotkeys and visual feedback.</p>
-                    <button class="btn btn-primary" onclick="runScript('volume_control.ahk')">
-                        <i class="fas fa-play"></i> Run
-                    </button>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <i class="fas fa-sticky-note"></i>
-                    <h3>Quick Notes</h3>
-                </div>
-                <div class="card-body">
-                    <p>Take quick notes with hotkeys and organize your thoughts.</p>
-                    <button class="btn btn-primary" onclick="runScript('quick_notes.ahk')">
-                        <i class="fas fa-play"></i> Run
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Games Tab -->
-        <div id="games" class="tab-content">
-            <div class="card">
-                <div class="card-header">
-                    <i class="fas fa-gamepad"></i>
-                    <h3>Snake Game</h3>
-                </div>
-                <div class="card-body">
-                    <p>Classic Snake game. Use Ctrl+Alt+S to start when script is running.</p>
-                    <button class="btn btn-primary" onclick="runScript('fun_games.ahk')">
-                        <i class="fas fa-play"></i> Play
-                    </button>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <i class="fas fa-puzzle-piece"></i>
-                    <h3>Sudoku</h3>
-                </div>
-                <div class="card-body">
-                    <p>Play Sudoku with multiple difficulty levels and solver assistance.</p>
-                    <button class="btn btn-primary" onclick="runScript('sudoku.ahk')">
-                        <i class="fas fa-play"></i> Play
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Pranks Tab -->
-        <div id="pranks" class="tab-content">
-            <div class="card">
-                <div class="card-header">
-                    <i class="fas fa-keyboard"></i>
-                    <h3>Classic Pranks</h3>
-                </div>
-                <div class="card-body">
-                    <p>Harmless pranks including fake typing, mouse jiggle, and fake BSOD.</p>
-                    <button class="btn btn-primary" onclick="runScript('classic_pranks.ahk')">
-                        <i class="fas fa-smile"></i> Start
-                    </button>
-                    <button class="btn btn-danger" onclick="stopScript('classic_pranks.ahk')">
-                        <i class="fas fa-stop"></i> Stop
-                    </button>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <i class="fas fa-volume-off"></i>
-                    <h3>Annoying Sounds</h3>
-                </div>
-                <div class="card-body">
-                    <p>Play random annoying sounds at intervals. Use with caution!</p>
-                    <button class="btn btn-primary" id="soundsBtn" onclick="toggleSounds()">
-                        <i class="fas fa-play"></i> Start Sounds
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Advanced Tab -->
-        <div id="advanced" class="tab-content">
-            <div class="card">
-                <div class="card-header">
-                    <i class="fas fa-robot"></i>
-                    <h3>Ollama Chatbot</h3>
-                </div>
-                <div class="card-body">
-                    <p>Full-featured AI chat client with model switching and TTS support.</p>
-                    <button class="btn btn-success" onclick="runScript('ollama_chatbot.ahk')">
-                        <i class="fas fa-comments"></i> Open Chat
-                    </button>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <i class="fas fa-cloud-sun"></i>
-                    <h3>Weather Widget</h3>
-                </div>
-                <div class="card-body">
-                    <p>Always-on-top weather widget with Vienna forecast and conditions.</p>
-                    <button class="btn btn-success" onclick="runScript('weather_widget.ahk')">
-                        <i class="fas fa-thermometer-half"></i> Show Weather
-                    </button>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <i class="fas fa-chart-line"></i>
-                    <h3>System Monitor</h3>
-                </div>
-                <div class="card-body">
-                    <p>Real-time system performance monitoring with CPU, RAM, and disk usage.</p>
-                    <button class="btn btn-success" onclick="runScript('system_monitor.ahk')">
-                        <i class="fas fa-desktop"></i> Monitor
-                    </button>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <i class="fas fa-user-md"></i>
-                    <h3>Eliza Chatbot</h3>
-                </div>
-                <div class="card-body">
-                    <p>Classic ELIZA therapeutic chatbot for nostalgic AI conversations.</p>
-                    <button class="btn btn-success" onclick="runScript('eliza.ahk')">
-                        <i class="fas fa-brain"></i> Talk to Eliza
-                    </button>
-                </div>
-            </div>
+        <div id="scriptletsContainer">
+            <!-- Scriptlet cards will be generated dynamically -->
         </div>
 
         <div class="status-bar">
@@ -457,26 +287,229 @@
     <script>
         let isServerOnline = false;
         let serverURL = 'http://localhost:8765';
+        let allScriptlets = [];
+        let categories = new Set();
 
         // Check server connection on load
         window.addEventListener('load', () => {
             checkServerConnection();
+            loadScriptlets();
             setInterval(checkServerConnection, 5000); // Check every 5 seconds
+            setInterval(loadScriptlets, 10000); // Reload scriptlets every 10 seconds to update running status
         });
 
-        // Tab switching
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                // Remove active class from all tabs and contents
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        // Load scriptlets from API
+        async function loadScriptlets() {
+            if (!isServerOnline) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${serverURL}/scriptlets`, {
+                    method: 'GET',
+                    timeout: 5000
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const data = await response.json();
                 
-                // Add active class to clicked tab and corresponding content
-                tab.classList.add('active');
-                const tabId = tab.getAttribute('data-tab');
-                document.getElementById(tabId).classList.add('active');
+                // Handle both array and object responses
+                if (Array.isArray(data)) {
+                    allScriptlets = data;
+                } else if (data && typeof data === 'object') {
+                    // If it's an object, try to extract array
+                    allScriptlets = Object.values(data).flat();
+                } else {
+                    throw new Error('Invalid response format');
+                }
+
+                // Extract categories
+                categories = new Set(allScriptlets.map(s => s.category || 'utilities'));
+                
+                // Generate UI
+                generateTabs();
+                generateScriptletCards();
+                
+                updateStatus(`Loaded ${allScriptlets.length} scriptlets`);
+            } catch (error) {
+                console.error('Failed to load scriptlets:', error);
+                updateStatus(`Error loading scriptlets: ${error.message}`);
+            }
+        }
+
+        // Update running status for all scriptlets
+        function updateRunningStatus() {
+            allScriptlets.forEach(scriptlet => {
+                updateButtonStates(scriptlet.id + '.ahk', scriptlet.running || false);
             });
-        });
+        }
+
+        // Generate category tabs dynamically
+        function generateTabs() {
+            const tabsContainer = document.getElementById('categoryTabs');
+            tabsContainer.innerHTML = '';
+
+            const categoryOrder = ['utilities', 'system', 'productivity', 'development', 'games', 'fun', 'office'];
+            const categoryLabels = {
+                'utilities': 'Utilities',
+                'system': 'System',
+                'productivity': 'Productivity',
+                'development': 'Development',
+                'games': 'Games',
+                'fun': 'Fun',
+                'office': 'Office'
+            };
+
+            // Add tabs in order, then any remaining categories
+            const sortedCategories = [...categoryOrder.filter(c => categories.has(c)), ...Array.from(categories).filter(c => !categoryOrder.includes(c))];
+
+            sortedCategories.forEach((category, index) => {
+                const tab = document.createElement('div');
+                tab.className = 'tab' + (index === 0 ? ' active' : '');
+                tab.setAttribute('data-tab', category);
+                tab.textContent = categoryLabels[category] || category.charAt(0).toUpperCase() + category.slice(1);
+                tab.addEventListener('click', () => switchTab(category));
+                tabsContainer.appendChild(tab);
+            });
+        }
+
+        // Generate scriptlet cards dynamically
+        function generateScriptletCards() {
+            const container = document.getElementById('scriptletsContainer');
+            container.innerHTML = '';
+
+            // Group scriptlets by category
+            const scriptletsByCategory = {};
+            allScriptlets.forEach(scriptlet => {
+                const cat = scriptlet.category || 'utilities';
+                if (!scriptletsByCategory[cat]) {
+                    scriptletsByCategory[cat] = [];
+                }
+                scriptletsByCategory[cat].push(scriptlet);
+            });
+
+            // Create tab content for each category
+            Object.keys(scriptletsByCategory).forEach((category, index) => {
+                const tabContent = document.createElement('div');
+                tabContent.id = category;
+                tabContent.className = 'tab-content' + (index === 0 ? ' active' : '');
+                
+                scriptletsByCategory[category].forEach(scriptlet => {
+                    const card = createScriptletCard(scriptlet);
+                    tabContent.appendChild(card);
+                });
+
+                container.appendChild(tabContent);
+            });
+        }
+
+        // Create a card for a scriptlet
+        function createScriptletCard(scriptlet) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.setAttribute('data-scriptlet-id', scriptlet.id);
+
+            const icon = getIconForScriptlet(scriptlet);
+            const description = scriptlet.description || `Run ${scriptlet.name}`;
+            const isRunning = scriptlet.running || false;
+            const runDisabled = isRunning ? 'disabled' : '';
+            const stopDisabled = isRunning ? '' : 'disabled';
+
+            card.innerHTML = `
+                <div class="card-header">
+                    <i class="${icon}"></i>
+                    <h3>${escapeHtml(scriptlet.name)}</h3>
+                </div>
+                <div class="card-body">
+                    <p>${escapeHtml(description)}</p>
+                    <button class="btn btn-primary run-btn" onclick="runScript('${escapeHtml(scriptlet.id)}.ahk', this)" ${runDisabled}>
+                        <i class="fas fa-play"></i> Run
+                    </button>
+                    <button class="btn btn-danger stop-btn" onclick="stopScript('${escapeHtml(scriptlet.id)}.ahk', this)" ${stopDisabled} style="margin-left: 0.5rem;">
+                        <i class="fas fa-stop"></i> Stop
+                    </button>
+                </div>
+            `;
+
+            return card;
+        }
+
+        // Get icon based on scriptlet name/category
+        function getIconForScriptlet(scriptlet) {
+            const name = (scriptlet.name || '').toLowerCase();
+            const id = (scriptlet.id || '').toLowerCase();
+            const category = (scriptlet.category || '').toLowerCase();
+
+            // Game icons
+            if (category === 'games' || name.includes('game') || id.includes('game')) {
+                if (name.includes('chess') || id.includes('chess')) return 'fas fa-chess';
+                if (name.includes('tetris') || id.includes('tetris')) return 'fas fa-th';
+                if (name.includes('snake') || id.includes('snake')) return 'fas fa-snake';
+                if (name.includes('sudoku') || id.includes('sudoku')) return 'fas fa-puzzle-piece';
+                if (name.includes('pacman') || id.includes('pacman')) return 'fas fa-ghost';
+                return 'fas fa-gamepad';
+            }
+
+            // System icons
+            if (category === 'system' || name.includes('system') || id.includes('system')) {
+                if (name.includes('monitor') || id.includes('monitor')) return 'fas fa-chart-line';
+                if (name.includes('window') || id.includes('window')) return 'fas fa-window-maximize';
+                if (name.includes('clipboard') || id.includes('clipboard')) return 'fas fa-clipboard';
+                if (name.includes('volume') || id.includes('volume')) return 'fas fa-volume-up';
+                return 'fas fa-cog';
+            }
+
+            // Development icons
+            if (category === 'development' || name.includes('dev') || id.includes('dev') || name.includes('mcp') || id.includes('mcp')) {
+                if (name.includes('git') || id.includes('git')) return 'fab fa-git-alt';
+                if (name.includes('code') || id.includes('code')) return 'fas fa-code';
+                return 'fas fa-laptop-code';
+            }
+
+            // Fun/Prank icons
+            if (category === 'fun' || name.includes('prank') || id.includes('prank') || name.includes('fun') || id.includes('fun')) {
+                return 'fas fa-smile';
+            }
+
+            // Productivity icons
+            if (category === 'productivity') {
+                if (name.includes('note') || id.includes('note')) return 'fas fa-sticky-note';
+                if (name.includes('text') || id.includes('text')) return 'fas fa-font';
+                return 'fas fa-tasks';
+            }
+
+            // Office icons
+            if (category === 'office') {
+                return 'fas fa-briefcase';
+            }
+
+            // Default
+            return 'fas fa-rocket';
+        }
+
+        // Escape HTML to prevent XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Switch tabs
+        function switchTab(category) {
+            // Remove active class from all tabs and contents
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            // Add active class to clicked tab and corresponding content
+            const tab = document.querySelector(`.tab[data-tab="${category}"]`);
+            const content = document.getElementById(category);
+            
+            if (tab) tab.classList.add('active');
+            if (content) content.classList.add('active');
+        }
 
         // Check if server is running
         async function checkServerConnection() {
@@ -495,6 +528,10 @@
                     indicator.className = 'status-indicator status-online';
                     status.textContent = 'AHK Bridge Online';
                     serverStatus.textContent = 'COM Bridge: Connected';
+                    // Reload scriptlets when connection is restored
+                    if (allScriptlets.length === 0) {
+                        loadScriptlets();
+                    }
                 } else {
                     throw new Error('Server responded with error');
                 }
@@ -507,7 +544,7 @@
         }
 
         // Run a script via the COM bridge
-        async function runScript(scriptName) {
+        async function runScript(scriptName, buttonElement) {
             if (!isServerOnline) {
                 updateStatus('ERROR: COM Bridge is offline. Please start ScriptletCOMBridge.ahk');
                 return;
@@ -526,13 +563,18 @@
                 const result = await response.text();
                 updateStatus(result);
 
-                // Visual feedback for successful launch
+                // Update button states if successful
                 if (result.includes('SUCCESS')) {
-                    const button = event.target;
-                    button.style.background = '#28a745';
-                    setTimeout(() => {
-                        button.style.background = '';
-                    }, 1000);
+                    updateButtonStates(scriptName, true);
+                    // Visual feedback
+                    if (buttonElement) {
+                        buttonElement.style.background = '#28a745';
+                        setTimeout(() => {
+                            buttonElement.style.background = '';
+                        }, 1000);
+                    }
+                    // Refresh scriptlet list to get updated running status
+                    setTimeout(() => loadScriptlets(), 1000);
                 }
 
             } catch (error) {
@@ -541,7 +583,7 @@
         }
 
         // Stop a script
-        async function stopScript(scriptName) {
+        async function stopScript(scriptName, buttonElement) {
             if (!isServerOnline) {
                 updateStatus('ERROR: COM Bridge is offline');
                 return;
@@ -557,27 +599,33 @@
                 const result = await response.text();
                 updateStatus(result);
 
+                // Update button states
+                updateButtonStates(scriptName, false);
+                // Refresh scriptlet list to get updated running status
+                setTimeout(() => loadScriptlets(), 1000);
+
             } catch (error) {
                 updateStatus(`ERROR: Failed to stop ${scriptName} - ${error.message}`);
             }
         }
 
-        // Toggle annoying sounds
-        function toggleSounds() {
-            const btn = document.getElementById('soundsBtn');
-            
-            if (btn.innerHTML.includes('Start')) {
-                btn.innerHTML = '<i class="fas fa-stop"></i> Stop Sounds';
-                btn.classList.remove('btn-primary');
-                btn.classList.add('btn-danger');
-                runScript('annoying_sounds.ahk');
-            } else {
-                btn.innerHTML = '<i class="fas fa-play"></i> Start Sounds';
-                btn.classList.remove('btn-danger');
-                btn.classList.add('btn-primary');
-                stopScript('annoying_sounds.ahk');
+        // Update button states for a scriptlet
+        function updateButtonStates(scriptName, isRunning) {
+            const scriptletId = scriptName.replace('.ahk', '');
+            const card = document.querySelector(`[data-scriptlet-id="${scriptletId}"]`);
+            if (!card) return;
+
+            const runBtn = card.querySelector('.run-btn');
+            const stopBtn = card.querySelector('.stop-btn');
+
+            if (runBtn) {
+                runBtn.disabled = isRunning;
+            }
+            if (stopBtn) {
+                stopBtn.disabled = !isRunning;
             }
         }
+
 
         // Update status message
         function updateStatus(message) {

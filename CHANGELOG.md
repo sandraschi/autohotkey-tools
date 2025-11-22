@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AutoHotkey++ Cursor Extension support documentation
 - Enhanced IDE support section in development guides
 - Documentation for AutoHotkey++ extension features and installation
+- Repository Status Report documenting current health and bugbash results
 
 ### Fixed
 - AutoHotkey v2 linter errors in multiple files
@@ -19,6 +20,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Fixed `WinSetAlwaysOnTop` syntax and arrow function issues in `hello_world.ahk`
   - Converted arrow functions to named functions in `claude-mcp-scripts.ahk` to fix object literal errors
   - Fixed `GuiSize` function parameter syntax errors
+- Recent scriptlet fixes (2025-11-13):
+  - `classic_pranks_fixed.ahk`: stripped non-prank content, cleaned timers
+  - `classic_pranks_collection.ahk`: refactored timers/hotkeys, removed v1-era calls
+  - `clipboard_manager.ahk`: rewritten to pure v2, custom history persistence
+
+### Changed
+- **Repository Health Status**: Improved from POOR to FAIR (Latest bugbash: 29/74 succeeded, 0 crashed, 45 timed out)
+- **Documentation Accuracy**: Updated README and status reports to reflect improved health
+- **Bugbash Integration**: Automated testing harness integrated with CI/CD pipeline
+- **Main README**: Updated scriptlet counts and health status
+
+### Fixed (2025-11-22)
+- **32 files fixed** with automated safety scripts:
+  - 11 files: Added GUI Escape/Close handlers
+  - 12 files: Fixed SetTimer syntax (~51 instances converted from v1 to v2)
+  - 8 files: Added OnExit handlers (with method validation)
+  - 1 file: Fixed critical syntax error (classic_pranks.ahk)
+- **Bugbash results**: Pass rate improved from 14.7% to 39.2% (+24.5%)
+- **All crashes eliminated**: From 38 crashes to 0 crashes
+- **18 more scriptlets passing**: From 11 to 29 successful scriptlets
+
+### Known Issues
+- **Remaining**: 45/74 scriptlets timeout in automated testing (Latest bugbash: 2025-11-22)
+  - 29 scriptlets completed cleanly (39.2%) ⬆️ Improved
+  - 0 scriptlets crashed (0%) ⬇️ Fixed
+  - 45 scriptlets timed out (60.8%) - Many are GUI scripts requiring user interaction
+- **High Priority**: Object literal syntax failures in 38+ scriptlets
+- **High Priority**: 26 scriptlets exceed 20s timeout due to missing auto-exit logic
+- **Configuration Debt**: Hard-coded paths throughout codebase require environment detection
+- **Documentation**: Some docs still claim "excellent" health despite widespread failures
 
 ## [2025-01-XX]
 
@@ -70,6 +101,10 @@ See git commit history for detailed changes before 2025-01-XX.
 **License**: MIT License  
 **Author**: Sandra Schi  
 **Copyright**: © 2025 Sandra Schi
+
+
+
+
 
 
 

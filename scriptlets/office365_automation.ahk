@@ -148,6 +148,10 @@ class Office365Automation {
         statusText := this.gui.Add("Text", "x20 y590 w760 h30 Center ", "Ready - Office 365 apps initialized")
         statusText.Name := "StatusText"
         
+        
+        ; Add exit handlers
+        this.gui.OnEvent("Close", (*) => ExitApp())
+        this.gui.OnEvent("Escape", (*) => ExitApp())
         this.gui.Show("w800 h630")
     }
     

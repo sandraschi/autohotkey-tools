@@ -1,21 +1,12 @@
 ; ==============================================================================
-; MCP Config Manager
-; @name: MCP Config Manager
+; Video Filename Scrubber
+; @name: Video Filename Scrubber
 ; @version: 1.0.0
-; @description: Manage Claude Desktop MCP configuration with validation and backup. Comprehensive GUI tool for managing MCP server configurations in Claude Desktop.
-; @description: Provides JSON editing, server management, validation, backup/restore, and MCP server tools display. Features syntax highlighting, error detection, and server information retrieval.
-; @description: Essential development tool for MCP developers to manage Claude Desktop configuration files, validate JSON syntax, and configure MCP servers efficiently.
-; @category: development
+; @description: Cleans and organizes video filenames by removing brackets, replacing dots with spaces, and formatting episodes/movies correctly.
+; @category: utilities
 ; @author: Sandra
-; @hotkeys: ^!c, F12
+; @hotkeys: ^!v
 ; @enabled: true
-; @priority: 5
-; @tag: mcp, config, management, claude-desktop, development, json, validation, servers
-; @cli: --load - Load configuration file
-; @cli: --validate - Validate JSON syntax
-; @cli: --backup - Create configuration backup
-; @cli: --help - Show CLI usage and config manager options
-; @dependencies: 
 ; ==============================================================================
 
 #Requires AutoHotkey v2.0+
@@ -23,12 +14,12 @@
 #Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
 ; Show that script is starting
-TrayTip("MCP Config Manager", "Script starting...", 3)
+TrayTip("Video Filename Scrubber", "Script starting...", 3)
 
 ; Log errors but allow GUI errors to show
 OnError(LogError)
 
-LogError(Thrown, Mode) {
+VideoFilenameScrubberLogError(Thrown, Mode) {
     ScriptletErrorHandler.Handle(Thrown, Mode)
     if (Thrown && (InStr(Thrown.Message, "GUI") || (HasProp(Thrown, "Stack") && InStr(Thrown.Stack, "CreateGUI")))) {
         return 0
@@ -36,1111 +27,445 @@ LogError(Thrown, Mode) {
     return 1
 }
 
-class MCPConfigManager {
-    static claudeConfig := ""
-    static backupDir := ""
-    static configData := ""
-    static debugMode := false
-    static debugLog := []
+class VideoFilenameScrubber {
+    static targetDir := ""
+    static logFile := ""
+    static dryRun := false
+    static enableLog := true
+    static videoExtensions := []
+    static logArea := ""
+    static resultArea := ""
     static guiInstance := ""
-    static guiControls := Map()
+    static statsArea := ""
+    static dirTextControl := ""
+    static processedCount := 0
+    static movedCount := 0
+    static renamedCount := 0
+    static errorCount := 0
+    static deletedDirCount := 0
+    static operations := []
+    static directoriesToCheck := []
     
     static Init() {
         try {
-            this.claudeConfig := A_AppData . "\Claude\claude_desktop_config.json"
-            this.backupDir := A_ScriptDir . "\config_backups"
-            this.debugMode := A_Args.Length > 0 && A_Args[1] = "/debug"
-            this.LogDebug("MCP Config Manager initialized" . (this.debugMode ? " in DEBUG mode" : ""))
-            
-            ; Show initial message to verify script is running
-            TrayTip("MCP Config Manager", "Starting GUI...", 2)
-            
+            ; Try to load saved directory from config, or use default
+            this.targetDir := this.LoadTargetDirectory()
+            this.logFile := "video_filename_scrubber.log"
+            this.videoExtensions := [".mkv", ".mp4", ".avi", ".mov", ".wmv", ".flv", ".webm", ".m4v"]
+            this.operations := []
+            this.directoriesToCheck := []
+            TrayTip("Video Filename Scrubber", "Starting GUI...", 2)
             this.CreateGUI()
         } catch as e {
-            MsgBox("Init error: " . e.Message . "`n" . e.Stack, "Error", "Iconx")
+            MsgBox("Init error: " . e.Message . "`n" . e.Stack, "Error", "Icon!")
         }
     }
     
-    static LogDebug(message) {
-        if (this.debugMode) {
-            timestamp := ""
-            timestamp := FormatTime(, "HH:mm:ss")
-            logEntry := "[" . timestamp . "] " . message
-            this.debugLog.Push(logEntry)
-            OutputDebug(logEntry)
+    static LoadTargetDirectory() {
+        configFile := "video_filename_scrubber_config.ini"
+        if (FileExist(configFile)) {
+            try {
+                configContent := FileRead(configFile)
+                if (RegExMatch(configContent, "i)TargetDir\s*=\s*(.+)", &match)) {
+                    savedDir := Trim(match[1])
+                    if (DirExist(savedDir)) {
+                        return savedDir
+                    }
+                }
+            } catch {
+                ; If config read fails, use default
+            }
+        }
+        ; Default to user's Videos folder if it exists
+        videosDir := A_MyDocuments . "\..\Videos"
+        if (DirExist(videosDir)) {
+            return videosDir
+        }
+        return A_MyDocuments
+    }
+    
+    static SaveTargetDirectory(dirPath) {
+        configFile := "video_filename_scrubber_config.ini"
+        try {
+            FileOpen(configFile, "w", "UTF-8").Write("TargetDir=" . dirPath)
+        } catch {
+            ; Ignore save errors
         }
     }
     
-    static ValidateGUI() {
-        if (this.guiInstance = "") {
-            this.LogDebug("GUI instance not available")
-            return false
+    static SelectDirectory(*) {
+        selectedDir := DirSelect(, 3, "Select Target Directory for Video Files")
+        if (selectedDir != "") {
+            this.targetDir := selectedDir
+            this.SaveTargetDirectory(selectedDir)
+            ; Update GUI display
+            if (this.guiInstance && this.guiInstance.Hwnd) {
+                ; Find and update the target directory text control
+                try {
+                    ; We'll need to store a reference to the dirText control
+                    if (this.dirTextControl && this.dirTextControl.Hwnd) {
+                        this.dirTextControl.Text := "Target: " . this.targetDir
+                    }
+                } catch {
+                    ; If update fails, recreate GUI
+                    this.guiInstance.Destroy()
+                    this.CreateGUI()
+                }
+            }
+            TrayTip("Video Filename Scrubber", "Target directory set to: " . selectedDir, 3)
         }
-        return true
     }
     
     static CreateGUI() {
         try {
-            ; Store the GUI instance at class level
-            this.guiInstance := Gui("+Resize +MinSize800x600", "MCP Config Manager")
+            this.guiInstance := Gui("+Resize +MinSize800x600", "Video Filename Scrubber")
             this.guiInstance.BackColor := "1a1a1a"
             this.guiInstance.SetFont("s10 cFFFFFF", "Segoe UI")
             
-            ; Title
-            titleText := this.guiInstance.Add("Text", "x20 y20 w760 Center", "⚙️ MCP Config Manager")
+            titleText := this.guiInstance.Add("Text", "x20 y20 w760 Center", "Video Filename Scrubber")
             titleText.SetFont("Bold")
-            this.guiInstance.Add("Text", "x20 y50 w760 Center cCCCCCC", "Manage Claude Desktop MCP configuration with validation and backup")
             
-            ; Configuration file section
-            fileText := this.guiInstance.Add("Text", "x20 y90 w760", "📁 Configuration File")
-            fileText.SetFont("Bold")
-            this.guiInstance.Add("Text", "x20 y115 w150", "Config Path:")
-            this.guiInstance.Add("Text", "x180 y115 w580 cCCCCCC", this.claudeConfig)
+            statusText := this.dryRun ? "[DRY RUN] No changes will be made" : "[LIVE] Changes will be applied"
+            this.guiInstance.Add("Text", "x20 y50 w760 Center cYellow", statusText)
             
-            ; File operations
-            this.guiInstance.Add("Button", "x20 y150 w150 h40", "📖 Load Config").OnEvent("Click", this.LoadConfig.Bind(this))
-            this.guiInstance.Add("Button", "x190 y150 w150 h40", "💾 Save Config").OnEvent("Click", this.SaveConfig.Bind(this))
-            this.guiInstance.Add("Button", "x360 y150 w150 h40", "📋 Backup Config").OnEvent("Click", this.BackupConfig.Bind(this))
-            this.guiInstance.Add("Button", "x530 y150 w150 h40", "🔄 Restore Config").OnEvent("Click", this.RestoreConfig.Bind(this))
+            ; Directory selection row
+            this.guiInstance.Add("Text", "x20 y80 w100 h25", "Target Directory:")
+            this.dirTextControl := this.guiInstance.Add("Text", "x130 y80 w500 h25 cGray", this.targetDir)
+            btnSelectDir := this.guiInstance.Add("Button", "x640 y78 w120 h28", "&Select Directory")
+            btnSelectDir.OnEvent("Click", ObjBindMethod(this, "SelectDirectory"))
             
-            ; MCP Servers section
-            serverText := this.guiInstance.Add("Text", "x20 y210 w760", "🖥️ MCP Servers")
-            serverText.SetFont("Bold")
+            this.guiInstance.Add("Text", "x20 y110", "Results:")
+            this.resultArea := this.guiInstance.Add("Edit", "x20 y130 w760 h200 +Multi +ReadOnly VScroll", "")
+            this.resultArea.BackColor := "252526"
             
-            ; Server list
-            serverList := this.guiInstance.Add("ListBox", "x20 y240 w400 h200")
-            this.guiControls["serverList"] := serverList
+            this.guiInstance.Add("Text", "x20 y340", "Log:")
+            this.logArea := this.guiInstance.Add("Edit", "x20 y360 w760 h180 +Multi +ReadOnly VScroll", "")
+            this.logArea.BackColor := "252526"
             
-            ; Server controls
-            this.guiInstance.Add("Button", "x440 y240 w150 h40", "➕ Add Server").OnEvent("Click", this.AddServer.Bind(this))
-            this.guiInstance.Add("Button", "x610 y240 w150 h40", "✏️ Edit Server").OnEvent("Click", this.EditServer.Bind(this))
-            this.guiInstance.Add("Button", "x440 y290 w150 h40", "🗑️ Remove Server").OnEvent("Click", this.RemoveServer.Bind(this))
-            this.guiInstance.Add("Button", "x610 y290 w150 h40", "📋 Duplicate Server").OnEvent("Click", this.DuplicateServer.Bind(this))
-            this.guiInstance.Add("Button", "x440 y340 w150 h40", "✅ Test Server").OnEvent("Click", this.TestServer.Bind(this))
-            this.guiInstance.Add("Button", "x610 y340 w150 h40", "📊 Server Info").OnEvent("Click", this.ServerInfo.Bind(this))
+            btnStart := this.guiInstance.Add("Button", "x20 y550 w120 h30", "&Start Processing")
+            btnStart.OnEvent("Click", (*) => this.ProcessDirectory())
             
-            ; Configuration editor
-            editorText := this.guiInstance.Add("Text", "x20 y460 w760", "✏️ Configuration Editor")
-            editorText.SetFont("Bold")
+            btnClose := this.guiInstance.Add("Button", "x150 y550 w120 h30", "&Close")
+            btnClose.OnEvent("Click", (*) => this.guiInstance.Close())
             
-            ; JSON editor
-            configEdit := this.guiInstance.Add("Edit", "x20 y490 w760 h100 Multi VScroll Background2d2d2d cFFFFFF", "")
-            configEdit.SetFont("s9", "Consolas")
-            this.guiControls["configEdit"] := configEdit
+            this.statsArea := this.guiInstance.Add("Text", "x300 y550 w480", "Ready to process...")
             
-            ; Validation and actions
-            this.guiInstance.Add("Button", "x20 y600 w150 h40", "✅ Validate JSON").OnEvent("Click", this.ValidateJSON.Bind(this))
-            this.guiInstance.Add("Button", "x190 y600 w150 h40", "🎨 Format JSON").OnEvent("Click", this.FormatJSON.Bind(this))
-            this.guiInstance.Add("Button", "x360 y600 w150 h40", "🔄 Reset to Default").OnEvent("Click", this.ResetToDefault.Bind(this))
-            this.guiInstance.Add("Button", "x530 y600 w150 h40", "❓ Help").OnEvent("Click", this.ShowHelp.Bind(this))
+            this.guiInstance.OnEvent("Close", (*) => ExitApp())
+            this.guiInstance.OnEvent("Escape", (*) => this.guiInstance.Close())
             
-            ; Status
-            this.guiInstance.Add("Text", "x20 y650 w760 Center c888888", "Hotkeys: Ctrl+Alt+C (Load Config) | F12 (Validate) | Press Load Config to start")
-            
-            ; Set up hotkeys
-            this.SetupHotkeys()
-            
-            ; Show the GUI
-            this.guiInstance.Show("w800 h700 Center")
-            this.LogDebug("GUI created and shown successfully")
-            
-            ; Force GUI to be visible and active
+            this.guiInstance.Show("w800 h600 Center")
             WinShow(this.guiInstance.Hwnd)
             WinActivate(this.guiInstance.Hwnd)
-            
         } catch as e {
             errorMsg := "Error creating GUI: " . e.Message . "`n" . e.Stack
-            FileAppend(errorMsg, "mcp_config_errors.log", "UTF-8")
+            FileAppend(errorMsg, "video_filename_scrubber_errors.log", "UTF-8")
             OutputDebug(errorMsg)
-            MsgBox("Error creating GUI: " . e.Message . "`n`nCheck mcp_config_errors.log for details", "Error", "Iconx")
+            MsgBox("Error creating GUI: " . e.Message, "Error", "Iconx")
             throw
         }
     }
     
-    static LoadConfig(*) {
+    static ProcessDirectory() {
+        this.processedCount := 0
+        this.movedCount := 0
+        this.renamedCount := 0
+        this.errorCount := 0
+        this.deletedDirCount := 0
+        this.operations := []
+        this.directoriesToCheck := []
+        
         try {
-            this.LogDebug("LoadConfig() called")
+            this.AppendLog("Starting directory scan: " . this.targetDir)
             
-            if (!FileExist(this.claudeConfig)) {
-                this.LogDebug("Config file not found: " . this.claudeConfig)
-                result := MsgBox("Claude config file not found: " . this.claudeConfig . "`n`nWould you like to create a default configuration?", "Config Not Found", "Icon? YesNo")
-                if (result = "Yes") {
-                    this.LogDebug("Creating default config")
-                    this.CreateDefaultConfig()
-                } else {
-                    this.LogDebug("User cancelled config creation")
-                    return
-                }
+            if (!DirExist(this.targetDir)) {
+                errorMsg := "Target directory does not exist: " . this.targetDir
+                this.AppendResult("[ERROR] " . errorMsg)
+                this.AppendLog("ERROR: " . errorMsg)
+                MsgBox(errorMsg, "Directory Error", "Icon!")
+                return
             }
             
-            this.LogDebug("Reading config file: " . this.claudeConfig)
-            configContent := FileRead(this.claudeConfig)
-            this.configData := configContent
-            this.LogDebug("Config loaded successfully, size: " . StrLen(configContent) . " characters")
+            this.ProcessDirectoryRecursive(this.targetDir)
+            this.AppendLog("Checking for empty directories to delete...")
+            this.CleanupEmptyDirectories()
             
-            ; Update GUI
+            this.AppendResult("`n" . this.StrRepeat("=", 60))
+            this.AppendResult("SUMMARY:")
+            this.AppendResult("Processed: " . this.processedCount . " files")
+            this.AppendResult("Renamed: " . this.renamedCount . " files")
+            this.AppendResult("Moved: " . this.movedCount . " files")
+            this.AppendResult("Directories deleted: " . this.deletedDirCount)
+            this.AppendResult("Errors: " . this.errorCount . " files")
+            
             try {
-                if (this.guiInstance != "" && this.guiControls.Has("configEdit")) {
-                    this.guiControls["configEdit"].Value := configContent
-                    this.LogDebug("Config editor updated")
+                statsText := "Processed: " . this.processedCount . " | Renamed: " . this.renamedCount . " | Moved: " . this.movedCount . " | Dirs deleted: " . this.deletedDirCount . " | Errors: " . this.errorCount
+                if (this.statsArea && this.statsArea.Hwnd) {
+                    this.statsArea.Text := statsText
                 }
-            } catch as e {
-                this.LogDebug("Error updating config editor: " . e.Message)
+            } catch {
+                OutputDebug("Could not update stats display")
             }
             
-            ; Parse and display servers
-            this.ParseServers()
+            this.AppendLog("Processing complete. Total operations: " . this.processedCount)
             
-            MsgBox("Configuration loaded successfully!", "Config Loaded", "Iconi")
-            this.LogDebug("LoadConfig completed successfully")
-            
-        } catch as e {
-            this.LogDebug("LoadConfig error: " . e.Message)
-            if (this.debugMode) {
-                this.LogDebug("Error details - File: " . e.File . ", Line: " . e.Line)
-                ListVars
-                Pause
-            }
-            MsgBox("Error loading config: " . e.Message, "Error", "Iconx")
-        }
-    }
-    
-    static SaveConfig(*) {
-        try {
-            if (this.configData = "") {
-                MsgBox("No configuration data to save. Please load a config first.", "No Data", "Icon!")
-                return
-            }
-            
-            ; Validate JSON before saving
-            if (!this.ValidateJSONContent(this.configData)) {
-                MsgBox("Configuration contains invalid JSON. Please fix errors before saving.", "Invalid JSON", "Iconx")
-                return
-            }
-            
-            ; Create backup before saving
-            this.CreateBackup()
-            
-            ; Get current content from editor if available
-            try {
-                if (this.guiInstance != "" && this.guiControls.Has("configEdit")) {
-                    this.configData := this.guiControls["configEdit"].Value
+            if (this.enableLog) {
+                try {
+                    this.SaveLogToFile()
+                } catch as saveErr {
+                    this.AppendLog("WARNING: Could not save log file: " . saveErr.Message)
                 }
-            } catch as e {
-                this.LogDebug("Error reading from editor: " . e.Message)
             }
-            
-            ; Save config (overwrite if exists)
-            if (FileExist(this.claudeConfig)) {
-                FileDelete(this.claudeConfig)
-            }
-            FileAppend(this.configData, this.claudeConfig)
-            
-            MsgBox("Configuration saved successfully!", "Config Saved", "Iconi")
-            
-        } catch as e {
-            MsgBox("Error saving config: " . e.Message, "Error", "Iconx")
+        } catch as procErr {
+            this.AppendLog("FATAL ERROR: " . procErr.Message)
+            this.AppendResult("[FATAL ERROR] " . procErr.Message)
+            MsgBox("Processing Error: " . procErr.Message, "Error", "Icon!")
         }
     }
     
-    static BackupConfig(*) {
+    static ProcessDirectoryRecursive(dirPath) {
+        if (!DirExist(dirPath)) {
+            this.AppendLog("WARNING: Directory does not exist: " . dirPath)
+            return
+        }
+        
+        this.AppendLog("Scanning directory: " . dirPath)
+        
         try {
-            if (!DirExist(this.backupDir)) {
-                DirCreate(this.backupDir)
+            files := []
+            Loop Files, dirPath . "\*" {
+                if (this.IsVideoFile(A_LoopFileName)) {
+                    files.Push(A_LoopFileFullPath)
+                }
             }
             
-            if (!FileExist(this.claudeConfig)) {
-                MsgBox("No config file to backup.", "No Config", "Icon!")
-                return
+            for filePath in files {
+                this.ProcessFile(filePath)
             }
             
-            timestamp := ""
-            timestamp := FormatTime(, "yyyy-MM-dd_HH-mm-ss")
-            backupFile := this.backupDir . "\claude_config_backup_" . timestamp . ".json"
-            
-            FileCopy(this.claudeConfig, backupFile)
-            
-            MsgBox("Configuration backed up to: " . backupFile, "Backup Created", "Iconi")
-            
-        } catch as e {
-            MsgBox("Error creating backup: " . e.Message, "Error", "Iconx")
+            Loop Files, dirPath . "\*", "D" {
+                this.ProcessDirectoryRecursive(A_LoopFileFullPath)
+            }
+        } catch as err {
+            errorMsg := "ERROR processing directory " . dirPath . ": " . err.Message
+            this.AppendLog(errorMsg)
+            this.AppendResult("[ERROR] " . dirPath . " - " . err.Message)
+            this.errorCount++
         }
     }
     
-    static RestoreConfig(*) {
+    static ProcessFile(filePath) {
+        this.processedCount++
+        
         try {
-            if (!DirExist(this.backupDir)) {
-                MsgBox("No backup directory found.", "No Backups", "Icon!")
+            SplitPath(filePath, &fileName, &fileDir, &fileExt)
+            this.AppendLog("Processing: " . fileName)
+            
+            isInTargetDir := (StrLower(fileDir) = StrLower(this.targetDir))
+            cleanedName := this.CleanFilename(fileName)
+            formattedName := this.FormatFilename(cleanedName)
+            finalFormattedName := this.ResolveDuplicateFilename(formattedName, this.targetDir)
+            finalPath := this.targetDir . "\" . finalFormattedName
+            
+            needsMove := !isInTargetDir
+            needsRename := (StrLower(finalFormattedName) != StrLower(fileName))
+            
+            if (!needsMove && !needsRename) {
+                this.AppendLog("  [OK] No changes needed")
                 return
             }
             
-            ; List available backups
-            backups := []
-            Loop Files this.backupDir . "\*.json" {
-                backups.Push(A_LoopFilePath)
+            operation := ""
+            if (needsMove && needsRename) {
+                operation := "Move & Rename"
+            } else if (needsMove) {
+                operation := "Move"
+            } else if (needsRename) {
+                operation := "Rename"
             }
             
-            if (backups.Length = 0) {
-                MsgBox("No backup files found.", "No Backups", "Icon!")
-                return
-            }
-            
-            ; Show backup selection dialog
-            backupText := "Available Backups:`n`n"
-            for i, backup in backups {
-                fileName := RegExReplace(backup, ".*\\", "")
-                backupText .= i . ". " . fileName . "`n"
-            }
-            backupText .= "`nEnter backup number to restore:"
-            
-            backupInput := InputBox(backupText, "Restore Backup")
-            if (backupInput.Result != "OK") {
-                return
-            }
-            if (backupInput.Value = "") {
-                return
-            }
-            backupNum := Integer(backupInput.Value)
-            
-            if (backupNum >= 1 && backupNum <= backups.Length) {
-                selectedBackup := backups[backupNum]
-                
-                ; Create current backup before restore
-                this.CreateBackup()
-                
-                ; Restore selected backup
-                FileCopy(selectedBackup, this.claudeConfig, true)
-                
-            MsgBox("Configuration restored from: " . RegExReplace(selectedBackup, ".*\\", ""), "Config Restored", "Iconi")
-                
-                ; Reload config
-                this.LoadConfig()
-            }
-            
-        } catch as e {
-            MsgBox("Error restoring config: " . e.Message, "Error", "Iconx")
-        }
-    }
-    
-    static AddServer(*) {
-        try {
-            ; Show add server dialog
-            nameInput := InputBox("Enter server name:", "Add MCP Server")
-            if (nameInput.Result != "OK") {
-                return
-            }
-            if (nameInput.Value = "") {
-                return
-            }
-            name := nameInput.Value
-            
-            commandInput := InputBox("Enter command (e.g., python):", "Add MCP Server")
-            if (commandInput.Result != "OK") {
-                return
-            }
-            if (commandInput.Value = "") {
-                return
-            }
-            command := commandInput.Value
-            
-            argsInput := InputBox("Enter arguments (e.g., main.py):", "Add MCP Server")
-            if (argsInput.Result != "OK") {
-                return
-            }
-            if (argsInput.Value = "") {
-                return
-            }
-            args := argsInput.Value
-            
-            cwdInput := InputBox("Enter working directory (optional):", "Add MCP Server")
-            cwd := (cwdInput.Result = "OK") ? cwdInput.Value : ""
-            
-            ; Create server configuration
-            serverConfig := "    `"" . name . "`": {`n"
-            serverConfig .= "      `"command`": `"" . command . "`",`n"
-            serverConfig .= "      `"args`": [`"" . args . "`"]`n"
-            if (cwd != "") {
-                serverConfig .= "      `"cwd`": `"" . cwd . "`"`n"
-            }
-            serverConfig .= "    }`n"
-            
-            ; Add to config
-            this.AddServerToConfig(name, serverConfig)
-            
-            MsgBox("Server '" . name . "' added successfully!", "Server Added", "Iconi")
-            
-        } catch as e {
-            MsgBox("Error adding server: " . e.Message, "Error", "Iconx")
-        }
-    }
-    
-    static EditServer(*) {
-        try {
-            ; Get selected server
-            selectedServer := this.GetSelectedServer()
-            if (selectedServer = "") {
-                MsgBox("Please select a server to edit.", "No Server Selected", "Icon!")
-                return
-            }
-            
-            ; Show edit dialog with current values
-            MsgBox("Edit server functionality would open a detailed editor for: " . selectedServer, "Edit Server", "Iconi")
-            
-        } catch as e {
-            MsgBox("Error editing server: " . e.Message, "Error", "Iconx")
-        }
-    }
-    
-    static RemoveServer(*) {
-        try {
-            selectedServer := this.GetSelectedServer()
-            if (selectedServer = "") {
-                MsgBox("Please select a server to remove.", "No Server Selected", "Icon!")
-                return
-            }
-            
-            result := MsgBox("Are you sure you want to remove server '" . selectedServer . "'?", "Confirm Removal", "Icon? YesNo")
-            if (result = "Yes") {
-                this.RemoveServerFromConfig(selectedServer)
-                MsgBox("Server '" . selectedServer . "' removed successfully!", "Server Removed", "Iconi")
-            }
-            
-        } catch as e {
-            MsgBox("Error removing server: " . e.Message, "Error", "Iconx")
-        }
-    }
-    
-    static DuplicateServer(*) {
-        try {
-            selectedServer := this.GetSelectedServer()
-            if (selectedServer = "") {
-                MsgBox("Please select a server to duplicate.", "No Server Selected", "Icon!")
-                return
-            }
-            
-            nameInput := InputBox("Enter new server name:", "Duplicate Server")
-            if (nameInput.Result != "OK") {
-                return
-            }
-            if (nameInput.Value = "") {
-                return
-            }
-            name := nameInput.Value
-            
-            this.DuplicateServerInConfig(selectedServer, name)
-            MsgBox("Server duplicated as '" . name . "'!", "Server Duplicated", "Iconi")
-            
-        } catch as e {
-            MsgBox("Error duplicating server: " . e.Message, "Error", "Iconx")
-        }
-    }
-    
-    static TestServer(*) {
-        try {
-            selectedServer := this.GetSelectedServer()
-            if (selectedServer = "") {
-                MsgBox("Please select a server to test.", "No Server Selected", "Icon!")
-                return
-            }
-            
-            MsgBox("Testing server '" . selectedServer . "'...`n`nThis would run the server and check for errors.", "Test Server", "Iconi")
-            
-        } catch as e {
-            MsgBox("Error testing server: " . e.Message, "Error", "Iconx")
-        }
-    }
-    
-    static ServerInfo(*) {
-        try {
-            selectedServer := this.GetSelectedServer()
-            if (selectedServer = "") {
-                MsgBox("Please select a server to view info.", "No Server Selected", "Icon!")
-                return
-            }
-            
-            ; Extract server configuration from JSON
-            serverConfig := this.GetServerConfig(selectedServer)
-            if (serverConfig = "") {
-                MsgBox("Could not find configuration for server: " . selectedServer, "Server Not Found", "Iconx")
-                return
-            }
-            
-            ; Parse server details
-            command := this.ExtractJSONValue(serverConfig, "command")
-            args := this.ExtractJSONValue(serverConfig, "args")
-            cwd := this.ExtractJSONValue(serverConfig, "cwd")
-            env := this.ExtractJSONValue(serverConfig, "env")
-            alwaysAllow := this.ExtractJSONValue(serverConfig, "alwaysAllow")
-            description := this.ExtractJSONValue(serverConfig, "description")
-            
-            ; Build info display
-            infoText := "📊 Server Information: " . selectedServer . "`n`n"
-            
-            ; Command
-            if (command != "") {
-                infoText .= "🔧 Command: " . command . "`n"
+            if (this.dryRun) {
+                this.AppendResult("[DRY RUN] [" . operation . "] " . fileName)
+                this.AppendResult("    -> " . finalFormattedName)
+                if (needsMove) {
+                    this.AppendResult("    Move from: " . fileDir)
+                }
             } else {
-                infoText .= "🔧 Command: ❌ Not specified`n"
-            }
-            
-            ; Arguments
-            if (args != "") {
-                infoText .= "📝 Arguments: " . args . "`n"
-            } else {
-                infoText .= "📝 Arguments: (none)`n"
-            }
-            
-            ; Working Directory
-            if (cwd != "") {
-                ; Check if path exists
-                cwdExists := FileExist(cwd) || DirExist(cwd) ? "✅" : "❌"
-                infoText .= "📁 Working Directory: " . cwd . " " . cwdExists . "`n"
-            } else {
-                infoText .= "📁 Working Directory: (not specified)`n"
-            }
-            
-            ; Environment Variables
-            if (env != "") {
-                ; Parse env object - "KEY": "value" pairs
-                envDisplay := ""
-                envPos := 1
-                while (envPos := RegExMatch(env, '"([^"]+)"\s*:\s*"([^"]*)"', &envMatch, envPos)) {
-                    envDisplay .= "  " . envMatch[1] . " = " . envMatch[2] . "`n"
-                    envPos := envMatch.Pos + envMatch.Len
-                }
-                if (envDisplay != "") {
-                    infoText .= "`n🌍 Environment Variables:`n" . envDisplay
-                } else {
-                    infoText .= "`n🌍 Environment Variables:`n  " . env . "`n"
-                }
-            }
-            
-            ; Always Allow
-            if (alwaysAllow != "") {
-                infoText .= "`n🔓 Always Allow: " . alwaysAllow . "`n"
-            }
-            
-            ; Description
-            if (description != "") {
-                infoText .= "`n📄 Description: " . description . "`n"
-            }
-            
-            ; Parse pyproject.toml if server is local
-            ; Check if cwd is a local directory (not a global command)
-            isLocal := cwd != "" && (DirExist(cwd) || (FileExist(cwd) && !InStr(cwd, ".exe") && !InStr(cwd, ".bat")))
-            if (isLocal) {
-                pyprojectInfo := this.ParsePyProjectToml(cwd)
-                if (pyprojectInfo != "") {
-                    infoText .= "`n" . pyprojectInfo
-                }
-                
-                ; Parse MCP tools from Python server files
-                toolsInfo := this.ParseMCPTools(cwd, command, args)
-                if (toolsInfo != "") {
-                    infoText .= "`n" . toolsInfo
-                }
-            }
-            
-            ; Show in a GUI window for better readability
-            this.ShowServerInfoWindow(selectedServer, infoText, command, args, cwd, env)
-            
-        } catch as e {
-            MsgBox("Error getting server info: " . e.Message, "Error", "Iconx")
-            this.LogDebug("ServerInfo error: " . e.Message)
-        }
-    }
-    
-    static GetServerConfig(serverName) {
-        try {
-            if (this.configData = "") {
-                return ""
-            }
-            
-            ; Find the server configuration in JSON
-            ; Pattern: "server-name": { ... }
-            pattern := '"' . RegExReplace(serverName, "[.*+?^${}()|[\]\\]", "\$0") . '"\s*:\s*\{'
-            if (RegExMatch(this.configData, pattern, &match)) {
-                startPos := match.Pos + match.Len
-                
-                ; Find the matching closing brace
-                depth := 1
-                pos := startPos
-                endPos := 0
-                
-                while (pos <= StrLen(this.configData) && depth > 0) {
-                    char := SubStr(this.configData, pos, 1)
-                    if (char = "{") {
-                        depth++
-                    } else if (char = "}") {
-                        depth--
-                        if (depth = 0) {
-                            endPos := pos
-                            break
+                if (needsMove && needsRename) {
+                    try {
+                        FileMove(filePath, finalPath, 1)
+                        this.AppendResult("[OK] " . operation . ": " . fileName . " -> " . finalFormattedName)
+                        this.AppendLog("  [OK] Moved and renamed: " . finalFormattedName)
+                        this.movedCount++
+                        this.renamedCount++
+                        if (fileDir != "" && !this.IsInArray(this.directoriesToCheck, fileDir)) {
+                            this.directoriesToCheck.Push(fileDir)
                         }
+                    } catch as moveErr {
+                        this.AppendLog("  [ERROR] " . moveErr.Message)
+                        this.AppendResult("[ERROR] " . fileName . " - " . moveErr.Message)
+                        this.errorCount++
                     }
-                    pos++
-                }
-                
-                if (endPos > 0) {
-                    return SubStr(this.configData, startPos, endPos - startPos)
-                }
-            }
-        } catch as e {
-            this.LogDebug("GetServerConfig error: " . e.Message)
-        }
-        return ""
-    }
-    
-    static ExtractJSONValue(jsonBlock, key) {
-        try {
-            ; Look for "key": value pattern
-            pattern := '"' . key . '"\s*:\s*"([^"]*)"'
-            if (RegExMatch(jsonBlock, pattern, &match)) {
-                return match[1]
-            }
-            
-            ; Try array value (args)
-            if (key = "args") {
-                pattern := '"args"\s*:\s*\[([^\]]*)\]'
-                if (RegExMatch(jsonBlock, pattern, &match)) {
-                    ; Extract array elements
-                    argsText := match[1]
-                    argsText := RegExReplace(argsText, '"([^"]+)"', "$1")
-                    return argsText
-                }
-            }
-            
-            ; Try boolean or null
-            pattern := '"' . key . '"\s*:\s*(true|false|null)'
-            if (RegExMatch(jsonBlock, pattern, &match)) {
-                return match[1]
-            }
-            
-            ; Try object value (env)
-            if (key = "env") {
-                pattern := '"env"\s*:\s*\{([^}]*)\}'
-                if (RegExMatch(jsonBlock, pattern, &match)) {
-                    return match[1]
-                }
-            }
-            
-        } catch {
-        }
-        return ""
-    }
-    
-    static ParsePyProjectToml(cwd) {
-        try {
-            ; Determine the directory path
-            dirPath := cwd
-            if (FileExist(cwd) && !DirExist(cwd)) {
-                ; If cwd is a file path, get its directory
-                dirPath := RegExReplace(cwd, "\\[^\\]+$", "")
-            }
-            
-            ; Normalize path (handle relative paths and common MCP locations)
-            if (InStr(dirPath, "./") = 1 || InStr(dirPath, ".\\") = 1) {
-                ; Relative path starting with ./
-                fullPath := RegExReplace(dirPath, "^\.+[\\/]", "")
-                ; Try common MCP server locations
-                if (DirExist("D:\Dev\repos\" . fullPath)) {
-                    fullPath := "D:\Dev\repos\" . fullPath
-                } else if (DirExist("C:\Users\" . A_UserName . "\AppData\Roaming\Claude\" . fullPath)) {
-                    fullPath := "C:\Users\" . A_UserName . "\AppData\Roaming\Claude\" . fullPath
-                } else if (DirExist(fullPath)) {
-                    ; Path is already resolved
-                } else {
-                    return ""  ; Can't resolve path
-                }
-            } else if (!InStr(dirPath, ":") && !InStr(dirPath, "\\") && !InStr(dirPath, "/")) {
-                ; Just a directory name, try common locations
-                if (DirExist("D:\Dev\repos\" . dirPath)) {
-                    fullPath := "D:\Dev\repos\" . dirPath
-                } else if (DirExist("D:\Dev\repos\" . dirPath . "-mcp")) {
-                    fullPath := "D:\Dev\repos\" . dirPath . "-mcp"
-                } else if (DirExist(dirPath)) {
-                    fullPath := dirPath
-                } else {
-                    return ""  ; Can't resolve path
-                }
-            } else if (InStr(dirPath, ":") = 0) {
-                ; No drive letter but has separators - might be UNC or relative
-                if (DirExist("D:\Dev\repos\" . dirPath)) {
-                    fullPath := "D:\Dev\repos\" . dirPath
-                } else if (DirExist(dirPath)) {
-                    fullPath := dirPath
-                } else {
-                    return ""
-                }
-            } else {
-                fullPath := dirPath
-            }
-            
-            ; Ensure it's a directory
-            if (!DirExist(fullPath)) {
-                return ""
-            }
-            
-            ; Look for pyproject.toml
-            tomlPath := fullPath . "\pyproject.toml"
-            if (!FileExist(tomlPath)) {
-                return ""
-            }
-            
-            ; Read the TOML file
-            tomlContent := FileRead(tomlPath)
-            
-            if (tomlContent = "") {
-                return ""
-            }
-            
-            ; Parse TOML file (basic parsing for common fields)
-            tomlInfo := "`n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`n"
-            tomlInfo .= "📦 Project Metadata (pyproject.toml)`n"
-            tomlInfo .= "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`n"
-            
-            ; Extract project name from [project] or [tool.poetry] or [build-system]
-            if (RegExMatch(tomlContent, '\[project\]\s*\n.*?name\s*=\s*"([^"]+)"', &match)) {
-                tomlInfo .= "📛 Name: " . match[1] . "`n"
-            } else if (RegExMatch(tomlContent, '\[tool\.poetry\]\s*\n.*?name\s*=\s*"([^"]+)"', &match)) {
-                tomlInfo .= "📛 Name: " . match[1] . "`n"
-            }
-            
-            ; Extract version
-            if (RegExMatch(tomlContent, 'version\s*=\s*"([^"]+)"', &match)) {
-                tomlInfo .= "🏷️  Version: " . match[1] . "`n"
-            } else if (RegExMatch(tomlContent, "version\s*=\s*'([^']+)'", &match)) {
-                tomlInfo .= "🏷️  Version: " . match[1] . "`n"
-            }
-            
-            ; Extract description
-            if (RegExMatch(tomlContent, 'description\s*=\s*"([^"]+)"', &match)) {
-                tomlInfo .= "📝 Description: " . match[1] . "`n"
-            } else if (RegExMatch(tomlContent, "description\s*=\s*'([^']+)'", &match)) {
-                tomlInfo .= "📝 Description: " . match[1] . "`n"
-            }
-            
-            ; Extract dependencies (basic - just count them)
-            depCount := 0
-            if (RegExMatch(tomlContent, '\[project\]\s*dependencies\s*=\s*\[', &match)) {
-                ; Count dependencies in project.dependencies array
-                depsBlock := SubStr(tomlContent, match.Pos)
-                depsPos := 1
-                while (RegExMatch(depsBlock, '"([^"]+)"', &depMatch, depsPos)) {
-                    depCount++
-                    depsPos := depMatch.Pos + depMatch.Len
-                    if (SubStr(depsBlock, depMatch.Pos + depMatch.Len, 1) = "]") {
-                        break
-                    }
-                }
-            } else if (RegExMatch(tomlContent, '\[tool\.poetry\.dependencies\]', &match)) {
-                ; Count Poetry dependencies
-                depsBlock := SubStr(tomlContent, match.Pos, 500)
-                depsPos := 1
-                while (RegExMatch(depsBlock, '(\w+)\s*=', &depMatch, depsPos)) {
-                    depCount++
-                    depsPos := depMatch.Pos + depMatch.Len
-                }
-            }
-            
-            if (depCount > 0) {
-                tomlInfo .= "📚 Dependencies: " . depCount . " package(s)`n"
-            }
-            
-            ; Extract Python version requirement
-            if (RegExMatch(tomlContent, 'requires-python\s*=\s*"([^"]+)"', &match)) {
-                tomlInfo .= "🐍 Python: " . match[1] . "`n"
-            } else if (RegExMatch(tomlContent, 'python\s*=\s*"([^"]+)"', &match)) {
-                tomlInfo .= "🐍 Python: " . match[1] . "`n"
-            }
-            
-            ; Extract build backend
-            if (RegExMatch(tomlContent, '\[build-system\]\s*\n.*?requires\s*=\s*\["([^"]+)"', &match)) {
-                tomlInfo .= "🔧 Build Backend: " . match[1] . "`n"
-            }
-            
-            ; Add file path
-            tomlInfo .= "📁 Path: " . tomlPath . "`n"
-            
-            return tomlInfo
-            
-        } catch as e {
-            this.LogDebug("ParsePyProjectToml error: " . e.Message)
-            return ""
-        }
-    }
-    
-    static ParseMCPTools(cwd, command, args) {
-        try {
-            ; Resolve the server directory path (reuse logic from ParsePyProjectToml)
-            dirPath := cwd
-            if (FileExist(cwd) && !DirExist(cwd)) {
-                dirPath := RegExReplace(cwd, "\\[^\\]+$", "")
-            }
-            
-            ; Normalize path (simplified version)
-            fullPath := this.ResolveServerPath(dirPath)
-            if (fullPath = "" || !DirExist(fullPath)) {
-                return ""
-            }
-            
-            ; Find the main server file
-            serverFile := ""
-            possibleFiles := ["server.py", "main.py", "__main__.py"]
-            
-            ; Check if args specifies a file
-            if (args != "") {
-                ; Extract first arg (usually the main file)
-                if (RegExMatch(args, "(\S+)", &argMatch)) {
-                    firstArg := argMatch[1]
-                    if (FileExist(fullPath . "\" . firstArg)) {
-                        serverFile := fullPath . "\" . firstArg
-                    }
-                }
-            }
-            
-            ; If not found, try common names
-            if (serverFile = "") {
-                for i, fileName in possibleFiles {
-                    if (FileExist(fullPath . "\" . fileName)) {
-                        serverFile := fullPath . "\" . fileName
-                        break
-                    }
-                }
-            }
-            
-            ; Try src/ subdirectory
-            if (serverFile = "" && DirExist(fullPath . "\src")) {
-                for i, fileName in possibleFiles {
-                    if (FileExist(fullPath . "\src\" . fileName)) {
-                        serverFile := fullPath . "\src\" . fileName
-                        break
-                    }
-                }
-            }
-            
-            if (serverFile = "" || !FileExist(serverFile)) {
-                return ""
-            }
-            
-            ; Read Python file
-            pythonContent := FileRead(serverFile)
-            if (pythonContent = "") {
-                return ""
-            }
-            
-            ; Parse for FastMCP tool definitions
-            tools := []
-            
-            ; Look for @app.tool() or @tool decorator patterns
-            ; Pattern 1: @app.tool() or @tool followed by async def tool_name(...):
-            pos := 1
-            while (pos := RegExMatch(pythonContent, '(@app\.tool\([^)]*\)|@tool\([^)]*\)|@app\.tool\(\)|@tool)\s*\n\s*(async\s+)?def\s+(\w+)', &match, pos)) {
-                toolName := match[3]
-                
-                ; Extract docstring (look for triple-quoted string immediately after function definition)
-                docStart := match.Pos + match.Len
-                docString := ""
-                
-                ; Find docstring - handle multiline docstrings
-                docContent := ""
-                ; Try double quotes first
-                docPattern := '""".*?"""'
-                if (RegExMatch(pythonContent, docPattern, &docMatch, docStart)) {
-                    docContent := docMatch[0]
-                    docContent := RegExReplace(docContent, '^"""', "")
-                    docContent := RegExReplace(docContent, '"""$', "")
-                } else {
-                    ; Try single quotes
-                    docPattern := "'''.*?'''"
-                    if (RegExMatch(pythonContent, docPattern, &docMatch, docStart)) {
-                        docContent := docMatch[0]
-                        docContent := RegExReplace(docContent, "^'''", "")
-                        docContent := RegExReplace(docContent, "'''$", "")
-                    }
-                }
-                if (docContent != "") {
-                    docString := Trim(docContent)
-                    if (InStr(docString, "`n")) {
-                        firstLine := SubStr(docString, 1, InStr(docString, "`n") - 1)
-                        docString := Trim(firstLine)
-                    }
-                    if (StrLen(docString) > 80) {
-                        docString := SubStr(docString, 1, 77) . "..."
-                    }
-                    docString := Trim(docString)
-                }
-                
-                tools.Push({name: toolName, description: docString})
-                pos := match.Pos + match.Len
-            }
-            
-            ; Also try pattern without async: def tool_name with @app.tool() before it
-            ; Look backwards from function definition for decorator
-            pos := 1
-            while (pos := RegExMatch(pythonContent, '(@app\.tool\([^)]*\)|@tool\([^)]*\))\s*\n\s*def\s+(\w+)', &match, pos)) {
-                toolName := match[2]
-                
-                ; Check if we already added this tool
-                alreadyAdded := false
-                for i, tool in tools {
-                    if (tool.name = toolName) {
-                        alreadyAdded := true
-                        break
-                    }
-                }
-                
-                if (!alreadyAdded) {
-                    ; Extract docstring
-                    docStart := match.Pos + match.Len
-                    docString := ""
-                    docContent := ""
-                    ; Try double quotes first
-                    docPattern := '""".*?"""'
-                    if (RegExMatch(pythonContent, docPattern, &docMatch, docStart)) {
-                        docContent := docMatch[0]
-                        docContent := RegExReplace(docContent, '^"""', "")
-                        docContent := RegExReplace(docContent, '"""$', "")
-                    } else {
-                        ; Try single quotes
-                        docPattern := "'''.*?'''"
-                        if (RegExMatch(pythonContent, docPattern, &docMatch, docStart)) {
-                            docContent := docMatch[0]
-                            docContent := RegExReplace(docContent, "^'''", "")
-                            docContent := RegExReplace(docContent, "'''$", "")
+                } else if (needsMove) {
+                    try {
+                        FileMove(filePath, finalPath, 1)
+                        this.AppendResult("[OK] " . operation . ": " . fileName)
+                        this.AppendLog("  [OK] Moved: " . fileName)
+                        this.movedCount++
+                        if (fileDir != "" && !this.IsInArray(this.directoriesToCheck, fileDir)) {
+                            this.directoriesToCheck.Push(fileDir)
                         }
+                    } catch as moveErr {
+                        this.AppendLog("  [ERROR] " . moveErr.Message)
+                        this.AppendResult("[ERROR] " . fileName . " - " . moveErr.Message)
+                        this.errorCount++
                     }
-                    if (docContent != "") {
-                        docString := Trim(docContent)
-                        if (InStr(docString, "`n")) {
-                            docString := SubStr(docString, 1, InStr(docString, "`n") - 1)
-                        }
-                        docString := Trim(docString)
+                } else if (needsRename) {
+                    try {
+                        FileMove(filePath, finalPath, 1)
+                        this.AppendResult("[OK] " . operation . ": " . fileName . " -> " . finalFormattedName)
+                        this.AppendLog("  [OK] Renamed: " . finalFormattedName)
+                        this.renamedCount++
+                    } catch as renameErr {
+                        this.AppendLog("  [ERROR] " . renameErr.Message)
+                        this.AppendResult("[ERROR] " . fileName . " - " . renameErr.Message)
+                        this.errorCount++
                     }
-                    tools.Push({name: toolName, description: docString})
                 }
-                
-                pos := match.Pos + match.Len
             }
             
-            if (tools.Length = 0) {
-                return ""
-            }
-            
-            ; Build tools display
-            toolsInfo := "`n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`n"
-            toolsInfo .= "🛠️  MCP Tools (" . tools.Length . ")`n"
-            toolsInfo .= "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`n"
-            
-            for i, tool in tools {
-                toolsInfo .= (i < 10 ? " " : "") . i . ". " . tool.name
-                if (tool.description != "") {
-                    toolsInfo .= "`n    └─ " . tool.description
-                }
-                toolsInfo .= "`n"
-            }
-            
-            toolsInfo .= "`n📄 Source: " . RegExReplace(serverFile, ".*\\", "") . "`n"
-            
-            return toolsInfo
-            
-        } catch as e {
-            this.LogDebug("ParseMCPTools error: " . e.Message)
-            return ""
+            this.operations.Push({
+                original: fileName,
+                new: finalFormattedName,
+                operation: operation,
+                path: filePath,
+                newPath: finalPath
+            })
+        } catch as err {
+            this.AppendLog("  [ERROR] processing file: " . err.Message)
+            this.AppendResult("[ERROR] " . filePath . " - " . err.Message)
+            this.errorCount++
         }
     }
     
-    static ResolveServerPath(dirPath) {
+    static CleanFilename(fileName) {
+        SplitPath(fileName, , , &ext)
+        baseName := SubStr(fileName, 1, StrLen(fileName) - StrLen(ext))
+        cleaned := RegExReplace(baseName, "\[[^\]]+\]", "")
+        cleaned := StrReplace(cleaned, ".", " ")
+        cleaned := RegExReplace(cleaned, "\s+", " ")
+        cleaned := Trim(cleaned)
+        return cleaned . ext
+    }
+    
+    static FormatFilename(fileName) {
+        SplitPath(fileName, , , &ext)
+        baseName := SubStr(fileName, 1, StrLen(fileName) - StrLen(ext))
+        
+        if (RegExMatch(baseName, "i)(?:s|season)[\s_\.-]*(\d+)[\s_\.-]*(?:e|ep|episode)[\s_\.-]*(\d+)", &match)) {
+            seasonNum := Integer(match[1])
+            episodeNum := Integer(match[2])
+            season := (seasonNum < 10 ? "0" : "") . String(seasonNum)
+            episode := (episodeNum < 10 ? "0" : "") . String(episodeNum)
+            showName := RegExReplace(baseName, "i)(?:s|season)[\s_\.-]*\d+[\s_\.-]*(?:e|ep|episode)[\s_\.-]*\d+.*$", "")
+            showName := Trim(RegExReplace(showName, "[\s_\.-]+", " "))
+            return showName . " - s" . season . "e" . episode . ext
+        }
+        
+        if (RegExMatch(baseName, "(\d+)[\s_\.-]*[xX][\s_\.-]*(\d+)", &match)) {
+            seasonNum := Integer(match[1])
+            episodeNum := Integer(match[2])
+            season := (seasonNum < 10 ? "0" : "") . String(seasonNum)
+            episode := (episodeNum < 10 ? "0" : "") . String(episodeNum)
+            showName := RegExReplace(baseName, "\d+[\s_\.-]*[xX][\s_\.-]*\d+.*$", "")
+            showName := Trim(RegExReplace(showName, "[\s_\.-]+", " "))
+            return showName . " - s" . season . "e" . episode . ext
+        }
+        
+        if (RegExMatch(baseName, "i)(?:^|[\s_\.-])(?:e|ep|episode)[\s_\.-]*(\d+)", &match)) {
+            season := "01"
+            episodeNum := Integer(match[1])
+            episode := (episodeNum < 10 ? "0" : "") . String(episodeNum)
+            showName := RegExReplace(baseName, "i)(?:[\s_\.-]|^)(?:e|ep|episode)[\s_\.-]*\d+.*$", "")
+            showName := Trim(RegExReplace(showName, "[\s_\.-]+", " "))
+            return showName . " - s" . season . "e" . episode . ext
+        }
+        
+        if (RegExMatch(baseName, "\((\d{4})\)", &match)) {
+            year := match[1]
+            movieName := RegExReplace(baseName, "\((\d{4})\)", "")
+            movieName := Trim(RegExReplace(movieName, "[\s_\.-]+", " "))
+            return movieName . " (" . year . ")" . ext
+        }
+        
+        if (RegExMatch(baseName, "\b(19|20)\d{2}\b", &yearMatch)) {
+            year := yearMatch[0]
+            movieName := RegExReplace(baseName, "\b(19|20)\d{2}\b", "")
+            movieName := Trim(RegExReplace(movieName, "[\s_\.-]+", " "))
+            return movieName . " (" . year . ")" . ext
+        }
+        
+        return fileName
+    }
+    
+    static IsVideoFile(fileName) {
+        SplitPath(fileName, , , &ext)
+        ext := StrLower(ext)
+        for videoExt in this.videoExtensions {
+            if (ext = videoExt) {
+                return true
+            }
+        }
+        return false
+    }
+    
+    static AppendLog(message) {
+        timestamp := ""
+        timestamp := FormatTime(, "HH:mm:ss")
+        logMessage := "[" . timestamp . "] " . message . "`n"
         try {
-            ; Normalize path (handle relative paths and common MCP locations)
-            if (InStr(dirPath, "./") = 1 || InStr(dirPath, ".\\") = 1) {
-                fullPath := RegExReplace(dirPath, "^\.+[\\/]", "")
-                if (DirExist("D:\Dev\repos\" . fullPath)) {
-                    return "D:\Dev\repos\" . fullPath
-                } else if (DirExist("C:\Users\" . A_UserName . "\AppData\Roaming\Claude\" . fullPath)) {
-                    return "C:\Users\" . A_UserName . "\AppData\Roaming\Claude\" . fullPath
-                } else if (DirExist(fullPath)) {
-                    return fullPath
-                }
-                return ""
-            } else if (!InStr(dirPath, ":") && !InStr(dirPath, "\\") && !InStr(dirPath, "/")) {
-                if (DirExist("D:\Dev\repos\" . dirPath)) {
-                    return "D:\Dev\repos\" . dirPath
-                } else if (DirExist("D:\Dev\repos\" . dirPath . "-mcp")) {
-                    return "D:\Dev\repos\" . dirPath . "-mcp"
-                } else if (DirExist(dirPath)) {
-                    return dirPath
-                }
-                return ""
-            } else if (InStr(dirPath, ":") = 0) {
-                if (DirExist("D:\Dev\repos\" . dirPath)) {
-                    return "D:\Dev\repos\" . dirPath
-                } else if (DirExist(dirPath)) {
-                    return dirPath
-                }
-                return ""
+            if (this.logArea && this.logArea.Hwnd) {
+                this.logArea.Text .= logMessage
+                this.logArea.Focus()
+                Send("^{End}")
             } else {
-                return dirPath
+                OutputDebug(logMessage)
             }
         } catch {
-            return ""
+            OutputDebug(logMessage)
         }
-    }
-    
-    static ShowServerInfoWindow(serverName, infoText, command, args, cwd, env) {
-        try {
-            infoGui := Gui("+Owner +ToolWindow", "Server Info: " . serverName)
-            infoGui.OnEvent("Close", (*) => infoGui.Destroy())
-            infoGui.OnEvent("Escape", (*) => infoGui.Destroy())
-            
-            infoGui.SetFont("s10", "Segoe UI")
-            
-            ; Title
-            infoGui.Add("Text", "x20 y20 w600 Center Bold", "📊 " . serverName . " - Configuration Details")
-            
-            ; Info display area (larger for tools list)
-            infoDisplay := infoGui.Add("Edit", "x20 y50 w750 h450 ReadOnly Multi VScroll", infoText)
-            infoDisplay.SetFont("s9", "Consolas")
-            
-            ; Buttons
-            btnClose := infoGui.Add("Button", "x335 y510 w120 h30 Default", "Close")
-            btnClose.OnEvent("Click", (*) => infoGui.Destroy())
-            
-            infoGui.Show("w790 h550")
-            
-        } catch as e {
-            ; Fallback to MsgBox if GUI fails
-            MsgBox(infoText, "Server Info: " . serverName, "Iconi")
-        }
-    }
-    
-    static ValidateJSON(*) {
-        try {
-            if (this.configData = "") {
-                MsgBox("No configuration data to validate. Please load a config first.", "No Data", "Icon!")
-                return
-            }
-            
-            if (this.ValidateJSONContent(this.configData)) {
-                MsgBox("✅ Configuration JSON is valid!", "Validation Passed", "Iconi")
-            } else {
-                MsgBox("❌ Configuration JSON is invalid. Please check syntax.", "Validation Failed", "Iconx")
-            }
-            
-        } catch as e {
-            MsgBox("Error validating JSON: " . e.Message, "Error", "Iconx")
-        }
-    }
-    
-    static FormatJSON(*) {
-        try {
-            if (this.configData = "") {
-                MsgBox("No configuration data to format. Please load a config first.", "No Data", "Icon!")
-                return
-            }
-            
-            ; Simple JSON formatting (could be enhanced)
-            formattedJSON := this.SimpleJSONFormat(this.configData)
-            this.configData := formattedJSON
-            
-            MsgBox("JSON formatted successfully!", "Format Complete", "Iconi")
-            
-        } catch as e {
-            MsgBox("Error formatting JSON: " . e.Message, "Error", "Iconx")
-        }
-    }
-    
-    static ResetToDefault(*) {
-        try {
-            result := MsgBox("Are you sure you want to reset to default configuration?`n`nThis will replace your current config with a basic template.", "Confirm Reset", "Icon? YesNo")
-            if (result = "Yes") {
-                this.CreateDefaultConfig()
-                this.LoadConfig()
-                MsgBox("Configuration reset to default!", "Reset Complete", "Iconi")
-            }
-            
-        } catch as e {
-            MsgBox("Error resetting config: " . e.Message, "Error", "Iconx")
-        }
-    }
-    
-    static ParseServers() {
-        try {
-            if (this.configData = "") {
-                return
-            }
-            
-            servers := []
-            
-            ; Parse JSON to extract server names from mcpServers object
-            ; Look for pattern: "mcpServers": { "server-name": { ... }, "another-server": { ... } }
-            
-            ; Find the mcpServers section - look for "mcpServers": { ... }
-            if (RegExMatch(this.configData, '"mcpServers"\s*:\s*\{', &match)) {
-                ; Extract everything after "mcpServers": {
-                startPos := match.Pos + match.Len
-                
-                ; Find the matching closing brace for mcpServers object
-                depth := 1
-                pos := startPos
-                endPos := 0
-                
-                while (pos <= StrLen(this.configData) && depth > 0) {
-                    char := SubStr(this.configData, pos, 1)
-                    if (char = "{") {
-                        depth++
-                    } else if (char = "}") {
-                        depth--
-                        if (depth = 0) {
-                            endPos := pos
-                            break
-                        }
-                    }
-                    pos++
-                }
-                
-                if (endPos > 0) {
-                    ; Extract the mcpServers object content
-                    serversBlock := SubStr(this.configData, startPos, endPos - startPos)
-                    
-                    ; Find all server names - look for "server-name": { pattern
-                    serverPos := 1
-                    while (serverPos := RegExMatch(serversBlock, '"([^"]+)"\s*:\s*\{', &serverMatch, serverPos)) {
-                        serverName := serverMatch[1]
-                        ; Only add if it's not "mcpServers" itself and we haven't added it already
-                        if (serverName != "mcpServers" && !this.ArrayContains(servers, serverName)) {
-                            servers.Push(serverName)
-                        }
-                        serverPos := serverMatch.Pos + serverMatch.Len
-                    }
-                }
-            }
-            
-            ; Update server list in GUI
+        if (this.enableLog) {
             try {
-                if (this.guiInstance != "" && this.guiControls.Has("serverList")) {
-                    ; ListBox uses Delete() and Add() methods
-                    this.guiControls["serverList"].Delete()
-                    if (servers.Length > 0) {
-                        for i, server in servers {
-                            this.guiControls["serverList"].Add([server])
-                        }
-                        this.LogDebug("Server list updated with " . servers.Length . " servers")
-                    } else {
-                        this.LogDebug("No servers found in config")
-                    }
-                }
-            } catch as e {
-                this.LogDebug("Error updating server list: " . e.Message . " - " . e.Stack)
+                FileAppend(logMessage, this.logFile, "UTF-8")
+            } catch {
             }
-            
-        } catch as e {
-            this.LogDebug("ParseServers error: " . e.Message . " - " . e.Stack)
         }
     }
     
-    static ArrayContains(arr, value) {
-        for i, item in arr {
+    static AppendResult(message) {
+        resultMessage := message . "`n"
+        try {
+            if (this.resultArea && this.resultArea.Hwnd) {
+                this.resultArea.Text .= resultMessage
+                this.resultArea.Focus()
+                Send("^{End}")
+            } else {
+                OutputDebug(resultMessage)
+            }
+        } catch {
+            OutputDebug(resultMessage)
+        }
+    }
+    
+    static StrRepeat(str, count) {
+        result := ""
+        Loop count {
+            result .= str
+        }
+        return result
+    }
+    
+    static IsInArray(arr, value) {
+        for item in arr {
             if (item = value) {
                 return true
             }
@@ -1148,174 +473,136 @@ class MCPConfigManager {
         return false
     }
     
-    static GetSelectedServer() {
-        ; Get the selected server from the GUI
-        try {
-            if (this.guiInstance != "" && this.guiControls.Has("serverList")) {
-                ; For ListBox, use Value property which returns the selected item text
-                try {
-                    selectedIndex := this.guiControls["serverList"].Value
-                    if (selectedIndex > 0) {
-                        ; Get the text of the selected item
-                        selectedText := this.guiControls["serverList"].GetText(selectedIndex)
-                        return selectedText
-                    }
-                } catch {
-                    ; Fallback: try to get selected item another way
-                    try {
-                        ; ListBox may use different method
-                        return this.guiControls["serverList"].Text
-                    } catch {
-                        return ""
-                    }
+    static CleanupEmptyDirectories() {
+        sortedDirs := this.SortDirectoriesByDepth(this.directoriesToCheck)
+        for dirPath in sortedDirs {
+            if (this.DeleteEmptyDirectory(dirPath)) {
+                this.AppendLog("  [OK] Deleted empty directory: " . dirPath)
+                this.AppendResult("[OK] Deleted empty directory: " . dirPath)
+            }
+        }
+    }
+    
+    static SortDirectoriesByDepth(dirArray) {
+        dirsWithDepth := []
+        for dirPath in dirArray {
+            depth := StrLen(dirPath) - StrLen(RegExReplace(dirPath, "\\", ""))
+            dirsWithDepth.Push({path: dirPath, depth: depth})
+        }
+        sorted := []
+        maxDepth := 0
+        for item in dirsWithDepth {
+            if (item.depth > maxDepth) {
+                maxDepth := item.depth
+            }
+        }
+        Loop maxDepth {
+            currentDepth := maxDepth - A_Index + 1
+            for item in dirsWithDepth {
+                if (item.depth = currentDepth) {
+                    sorted.Push(item.path)
                 }
             }
-        } catch as e {
-            this.LogDebug("Error getting selected server: " . e.Message)
         }
-        return ""
+        return sorted
     }
     
-    static CreateDefaultConfig() {
-        defaultConfig := "{`n"
-        defaultConfig .= "  `"mcpServers`": {`n"
-        defaultConfig .= "    `"example-server`": {`n"
-        defaultConfig .= "      `"command`": `"python`",`n"
-        defaultConfig .= "      `"args`": [`"main.py`"],`n"
-        defaultConfig .= "      `"cwd`": `"./mcp-servers/example`"`n"
-        defaultConfig .= "    }`n"
-        defaultConfig .= "  }`n"
-        defaultConfig .= "}`n"
-        
-        ; Overwrite if exists
-        if (FileExist(this.claudeConfig)) {
-            FileDelete(this.claudeConfig)
+    static ResolveDuplicateFilename(fileName, targetDir) {
+        testPath := targetDir . "\" . fileName
+        if (!FileExist(testPath)) {
+            return fileName
         }
-        FileAppend(defaultConfig, this.claudeConfig)
-        this.configData := defaultConfig
+        SplitPath(fileName, , , &ext)
+        baseName := SubStr(fileName, 1, StrLen(fileName) - StrLen(ext))
+        version := 2
+        Loop {
+            newName := baseName . " (v" . version . ")" . ext
+            testPath := targetDir . "\" . newName
+            if (!FileExist(testPath)) {
+                this.AppendLog("  [WARN] Duplicate detected, will rename to: " . newName)
+                return newName
+            }
+            version++
+            if (version > 999) {
+                timestamp := ""
+                timestamp := FormatTime(, "yyyyMMdd_HHmmss")
+                return baseName . " (" . timestamp . ")" . ext
+            }
+        }
     }
     
-    static ValidateJSONContent(json) {
-        try {
-            ; Basic JSON validation
-            if (!InStr(json, "{")) {
-                return false
-            }
-            if (!InStr(json, "}")) {
-                return false
-            }
-            
-            ; Check for basic structure
-            if (!InStr(json, "mcpServers")) {
-                return false
-            }
-            
-            return true
-        } catch {
+    static DeleteEmptyDirectory(dirPath) {
+        if (StrLower(dirPath) = StrLower(this.targetDir)) {
             return false
         }
-    }
-    
-    static SimpleJSONFormat(json) {
-        ; Very basic JSON formatting
-        ; In a real implementation, you'd use a proper JSON parser
-        return json
-    }
-    
-    static CreateBackup() {
         try {
-            if (!DirExist(this.backupDir)) {
-                DirCreate(this.backupDir)
+            fileCount := 0
+            dirCount := 0
+            Loop Files, dirPath . "\*" {
+                fileCount++
             }
-            
-            timestamp := ""
-            timestamp := FormatTime(, "yyyy-MM-dd_HH-mm-ss")
-            backupFile := this.backupDir . "\claude_config_backup_" . timestamp . ".json"
-            
-            if (FileExist(this.claudeConfig)) {
-                FileCopy(this.claudeConfig, backupFile)
+            Loop Files, dirPath . "\*", "D" {
+                dirCount++
             }
-        } catch {
-            ; Ignore backup errors
-        }
-    }
-    
-    static AddServerToConfig(serverName, serverConfig) {
-        ; This would add a server to the config data
-        ; Implementation would parse JSON and add the server
-    }
-    
-    static RemoveServerFromConfig(serverName) {
-        ; This would remove a server from the config data
-        ; Implementation would parse JSON and remove the server
-    }
-    
-    static DuplicateServerInConfig(sourceServer, newServer) {
-        ; This would duplicate a server in the config data
-        ; Implementation would parse JSON and duplicate the server
-    }
-    
-    static ShowHelp(*) {
-        helpText := "⚙️ MCP Config Manager Help`n`n"
-        helpText .= "This tool manages Claude Desktop MCP configuration:`n`n"
-        helpText .= "📁 File Operations:`n"
-        helpText .= "• Load Config: Load existing configuration`n"
-        helpText .= "• Save Config: Save current configuration`n"
-        helpText .= "• Backup Config: Create timestamped backup`n"
-        helpText .= "• Restore Config: Restore from backup`n`n"
-        helpText .= "🖥️ Server Management:`n"
-        helpText .= "• Add Server: Create new MCP server entry`n"
-        helpText .= "• Edit Server: Modify existing server settings`n"
-        helpText .= "• Remove Server: Delete server from config`n"
-        helpText .= "• Duplicate Server: Copy server with new name`n"
-        helpText .= "• Test Server: Validate server configuration`n"
-        helpText .= "• Server Info: View detailed server information`n`n"
-        helpText .= "✏️ Configuration Editor:`n"
-        helpText .= "• Validate JSON: Check JSON syntax`n"
-        helpText .= "• Format JSON: Pretty-print JSON`n"
-        helpText .= "• Reset to Default: Restore default config`n`n"
-        helpText .= "Hotkeys:`n"
-        helpText .= "• Ctrl+Alt+C: Load configuration`n"
-        helpText .= "• F12: Validate JSON`n"
-        helpText .= "• Escape: Close tool"
-        
-        MsgBox(helpText, "MCP Config Manager Help", "Iconi")
-    }
-    
-    static CloseGUI(*) {
-        try {
-            if (this.guiInstance != "") {
-                this.guiInstance.Close()
-                this.guiInstance := ""
-                this.guiControls.Clear()
-                this.LogDebug("GUI closed successfully")
-            } else {
-                ; Fallback to WindowClose if instance not available
-                if (WinExist("MCP Config Manager")) {
-                    WinClose("MCP Config Manager")
+            if (fileCount = 0 && dirCount = 0) {
+                if (!this.dryRun) {
+                    try {
+                        DirDelete(dirPath)
+                        this.deletedDirCount++
+                        return true
+                    } catch as err {
+                        this.AppendLog("  [WARN] ERROR deleting directory " . dirPath . ": " . err.Message)
+                        return false
+                    }
+                } else {
+                    return true
                 }
             }
-        } catch as e {
-            this.LogDebug("Error closing GUI: " . e.Message)
+        } catch as err {
+            this.AppendLog("  [WARN] ERROR checking directory " . dirPath . ": " . err.Message)
+            return false
         }
+        return false
     }
     
-    static SetupHotkeys() {
-        Hotkey("^!c", (*) => this.LoadConfig())
-        Hotkey("F12", (*) => this.ValidateJSON())
-        Hotkey("Escape", (*) => this.CloseGUI())
+    static SaveLogToFile() {
+        try {
+            logContent := "Video Filename Scrubber Log`n"
+            logContent .= "========================`n`n"
+            dateTime := ""
+            dateTime := FormatTime(, "yyyy-MM-dd HH:mm:ss")
+            logContent .= "Date: " . dateTime . "`n"
+            logContent .= "Mode: " . (this.dryRun ? "DRY RUN" : "LIVE") . "`n"
+            logContent .= "Target Directory: " . this.targetDir . "`n`n"
+            logContent .= "Operations:`n"
+            logContent .= this.StrRepeat("-", 60) . "`n"
+            for op in this.operations {
+                logContent .= op.operation . ": " . op.original . " -> " . op.new . "`n"
+            }
+            logContent .= "`n" . this.StrRepeat("-", 60) . "`n"
+            logContent .= "Total Processed: " . this.processedCount . "`n"
+            logContent .= "Renamed: " . this.renamedCount . "`n"
+            logContent .= "Moved: " . this.movedCount . "`n"
+            logContent .= "Directories Deleted: " . this.deletedDirCount . "`n"
+            logContent .= "Errors: " . this.errorCount . "`n"
+            timestamp := ""
+            timestamp := FormatTime(, "yyyyMMdd_HHmmss")
+            logFileName := "video_filename_scrubber_report_" . timestamp . ".txt"
+            FileAppend(logContent, logFileName, "UTF-8")
+            this.AppendLog("Report saved to: " . logFileName)
+        } catch as err {
+            this.AppendLog("ERROR saving report: " . err.Message)
+        }
     }
 }
 
 ; Hotkeys
-Hotkey("^!c", (*) => MCPConfigManager.Init())
-Hotkey("F12", (*) => MCPConfigManager.Init())
+Hotkey("^!v", (*) => VideoFilenameScrubber.Init())
 
 ; Initialize
-MCPConfigManager.Init()
+VideoFilenameScrubber.Init()
 
 ; Keep script running
 Loop {
     Sleep(1000)
 }
-

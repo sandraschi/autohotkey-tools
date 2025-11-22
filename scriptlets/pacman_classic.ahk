@@ -19,8 +19,9 @@
 
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
+#Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
-OnError(PacmanApp.HandleError)
+OnError(LogError)
 
 class PacmanApp {
     static gui := ""
@@ -40,12 +41,6 @@ class PacmanApp {
         PacmanApp.ResetGame()
     }
 
-    static HandleError(Thrown, Mode) {
-        message := "Pacman error: " . Thrown.Message . " at line " . Thrown.Line
-        try FileAppend(message . "`n", "pacman_classic_errors.log", "UTF-8")
-        OutputDebug(message)
-        return 1
-    }
 
     static LoadLayout() {
         return [

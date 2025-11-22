@@ -1,7 +1,8 @@
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
+#Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
-OnError(SudokuApp.HandleError)
+OnError(LogError)
 
 class SudokuApp {
     static gui := ""
@@ -38,12 +39,6 @@ class SudokuApp {
         SudokuApp.UpdateStatus("Loaded starter puzzle.")
     }
 
-    static HandleError(Thrown, Mode) {
-        message := "Sudoku error: " . Thrown.Message . " at line " . Thrown.Line
-        try FileAppend(message . "`n", "sudoku_errors.log", "UTF-8")
-        OutputDebug(message)
-        return 1
-    }
 
     static ResetState() {
         SudokuApp.puzzleState := []

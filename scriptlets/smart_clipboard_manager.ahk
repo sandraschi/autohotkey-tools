@@ -135,6 +135,10 @@ class SmartClipboard {
         ; Status bar
         this.statusBar := this.gui.Add("Text", "w800 h20 BackgroundE0E0E0", "Ready - Monitoring clipboard changes")
         
+        
+        ; Add exit handlers
+        this.gui.OnEvent("Close", (*) => ExitApp())
+        this.gui.OnEvent("Escape", (*) => ExitApp())
         this.gui.Show("w820 h700")
         this.UpdateHistoryList()
     }

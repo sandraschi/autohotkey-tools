@@ -101,7 +101,11 @@ class AICodeAssistant {
             status := this.gui.AddText("x20 y660 w760 Center", "Press Ctrl+Alt+A to open • Ctrl+Alt+I for instant suggestions")
             status.SetFont("s10 cFFFFFF", "Segoe UI")
 
-            this.gui.Show("w800 h700")
+            
+        ; Add exit handlers
+        this.gui.OnEvent("Close", (*) => ExitApp())
+        this.gui.OnEvent("Escape", (*) => ExitApp())
+        this.gui.Show("w800 h700")
             this.LogDebug("GUI created successfully")
         } catch as e {
             errorMsg := "Error creating GUI: " . e.Message . "`n" . e.Stack

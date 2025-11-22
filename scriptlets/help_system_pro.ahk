@@ -22,7 +22,7 @@
 #SingleInstance Force
 #Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
-OnError(HelpSystemLogError)
+OnError(LogError)
 
 HelpSystemLogError(Thrown, Mode) {
     return ScriptletErrorHandler.Handle(Thrown, Mode)
@@ -208,5 +208,7 @@ class HelpSystem {
     }
 }
 
+; Register exit handler
+OnExit((*) => HelpSystem.HideGui())
+
 HelpSystem.Init()
-return

@@ -12,15 +12,15 @@ responses := []
 InitializeEliza()
 
 ; Create the GUI
-Gui( +AlwaysOnTop +Resize
-Gui( Font, s10, Arial
-Gui( Add, Edit, x10 y10 w400 h200 vChatLog ReadOnly, Welcome to ELIZA. Type your thoughts and press Enter.`n----------------------------------------`n
-Gui( Add, Edit, x10 w400 h60 vUserInput gSubmit
-Gui( Show, w420 h320, ELIZA Therapist
+Gui, +AlwaysOnTop +Resize
+Gui, Font, s10, Arial
+Gui, Add, Edit, x10 y10 w400 h200 vChatLog ReadOnly, Welcome to ELIZA. Type your thoughts and press Enter.`n----------------------------------------`n
+Gui, Add, Edit, x10 w400 h60 vUserInput gSubmit
+Gui, Show, w420 h320, ELIZA Therapist
 return
 
 Submit:
-    Gui( Submit, NoHide
+    Gui, Submit, NoHide
     GuiControlGet, userInput,, UserInput
     GuiControl,, UserInput  ; Clear the input field
     
@@ -58,7 +58,7 @@ GetElizaResponse(input) {
     
     ; Default response if no pattern matches
     defaultResponses := ["Please go on.", "Tell me more about that.", "How does that make you feel?", "Can you elaborate on that?", "I see. And what does that suggest to you?"]
-    Random( rand, 1, % defaultResponses.MaxIndex()
+    Random, rand, 1, % defaultResponses.MaxIndex()
     return defaultResponses[rand]
 }
 

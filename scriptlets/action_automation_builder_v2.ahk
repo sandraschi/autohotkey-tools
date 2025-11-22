@@ -30,7 +30,7 @@
 ; @dependencies:
 ; ==============================================================================
 
-OnError(HandleScriptError)
+OnError(LogError)
 
 HandleScriptError(Thrown, Mode) {
     return AutomationBuilder.HandleScriptError(Thrown, Mode)
@@ -560,7 +560,7 @@ class AutomationBuilder {
 }
 
 ; Initialize the application
-AutomationBuilder.Init()
+; Register exit handler
+OnExit((*) => AutomationBuilder.HideGui())
 
-; Add this return statement at the end
-return
+AutomationBuilder.Init()

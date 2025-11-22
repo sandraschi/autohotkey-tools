@@ -243,8 +243,13 @@ LoadSnippets() {
         }
         
         ; Parse JSON string to object
-        obj := JSON.parse(json)
-        if (!IsObject(obj)) {
+        try {
+            obj := JSON.parse(json)
+            if (!IsObject(obj)) {
+                return snippets
+            }
+        } catch as e {
+            ; If JSON parsing fails, return empty snippets
             return snippets
         }
         

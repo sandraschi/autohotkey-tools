@@ -107,6 +107,10 @@ class GitHubRepoManager {
         ; Event handlers
         repoList.OnEvent("Click", this.ShowRepositoryDetails.Bind(this))
         
+        
+        ; Add exit handlers
+        this.gui.OnEvent("Close", (*) => ExitApp())
+        this.gui.OnEvent("Escape", (*) => ExitApp())
         this.gui.Show("w800 h700")
     }
     

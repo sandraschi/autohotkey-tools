@@ -11,27 +11,27 @@ chatHistory := []
 maxHistory := 10  ; Number of messages to keep in history
 
 ; Create the GUI
-Gui( +Resize +MinSize640x480
-Gui( Font, s10, Segoe UI
+Gui, +Resize +MinSize640x480
+Gui, Font, s10, Segoe UI
 
 ; Chat display
-Gui( Add, Edit, x10 y10 w620 h300 vChatDisplay ReadOnly +HScroll
+Gui, Add, Edit, x10 y10 w620 h300 vChatDisplay ReadOnly +HScroll
 
 ; User input
-Gui( Add, Edit, x10 y320 w520 h80 vUserInput gSendMessage
-Gui( Add, Button, x540 y320 w90 h35 gSendMessage, &Send
-Gui( Add, Button, x540 y365 w90 h35 gClearChat, C&lear
+Gui, Add, Edit, x10 y320 w520 h80 vUserInput gSendMessage
+Gui, Add, Button, x540 y320 w90 h35 gSendMessage, &Send
+Gui, Add, Button, x540 y365 w90 h35 gClearChat, C&lear
 
 ; Model selection
-Gui( Add, Text, x10 y410 w80 h20, Model:
-Gui( Add, DropDownList, x60 y405 w200 vModelSelect gUpdateModel, llama3||mistral|gemma|phi3
+Gui, Add, Text, x10 y410 w80 h20, Model:
+Gui, Add, DropDownList, x60 y405 w200 vModelSelect gUpdateModel, llama3||mistral|gemma|phi3
 
 ; Options
-Gui( Add, CheckBox, x270 y405 vUseTTS gToggleTTS, Text-to-Speech
-Gui( Add, CheckBox, x270 y430 vDarkMode gToggleDarkMode, Dark Mode
+Gui, Add, CheckBox, x270 y405 vUseTTS gToggleTTS, Text-to-Speech
+Gui, Add, CheckBox, x270 y430 vDarkMode gToggleDarkMode, Dark Mode
 
 ; Status bar
-Gui( Add, StatusBar,, Ready. Connected to Ollama at %ollamaUrl%
+Gui, Add, StatusBar,, Ready. Connected to Ollama at %ollamaUrl%
 
 ; Set up TTS
 try {
@@ -48,7 +48,7 @@ try {
 LoadSettings()
 
 ; Show the GUI
-Gui( Show, w640 h480, Ollama Chatbot
+Gui, Show, w640 h480, Ollama Chatbot
 
 ; Get available models
 GetAvailableModels()
@@ -66,7 +66,7 @@ GetAvailableModels()
 return
 
 SendMessage:
-    Gui( Submit, NoHide
+    Gui, Submit, NoHide
     
     ; Get user input
     userMessage := UserInput
@@ -157,7 +157,7 @@ ClearChat:
 return
 
 UpdateModel:
-    Gui( Submit, NoHide
+    Gui, Submit, NoHide
     currentModel := ModelSelect
     SB_SetText("Model changed to: " . currentModel)
     
@@ -166,7 +166,7 @@ UpdateModel:
 return
 
 ToggleTTS:
-    Gui( Submit, NoHide
+    Gui, Submit, NoHide
     TTSEnabled := UseTTS
     status := TTSEnabled ? "enabled" : "disabled"
     SB_SetText("Text-to-speech " . status)
@@ -176,23 +176,23 @@ ToggleTTS:
 return
 
 ToggleDarkMode:
-    Gui( Submit, NoHide
+    Gui, Submit, NoHide
     
     if (DarkMode) {
         ; Dark theme
-        Gui( Color, 0x1E1E1E
-        Gui( Font, cSilver
+        Gui, Color, 0x1E1E1E
+        Gui, Font, cSilver
         GuiControl, Font, ChatDisplay
-        Gui( Font, cWhite
+        Gui, Font, cWhite
         GuiControl, +Background0x2D2D2D, ChatDisplay
         GuiControl, +cWhite, UserInput
         GuiControl, +Background0x2D2D2D, UserInput
     } else {
         ; Light theme
-        Gui( Color, Default
-        Gui( Font, cBlack
+        Gui, Color, Default
+        Gui, Font, cBlack
         GuiControl, Font, ChatDisplay
-        Gui( Font, cDefault
+        Gui, Font, cDefault
         GuiControl, +BackgroundDefault, ChatDisplay
         GuiControl, +cDefault, UserInput
         GuiControl, +BackgroundDefault, UserInput
@@ -251,10 +251,10 @@ LoadSettings() {
     
     ; Apply dark mode if needed
     if (DarkMode) {
-        Gui( Color, 0x1E1E1E
-        Gui( Font, cSilver
+        Gui, Color, 0x1E1E1E
+        Gui, Font, cSilver
         GuiControl, Font, ChatDisplay
-        Gui( Font, cWhite
+        Gui, Font, cWhite
         GuiControl, +Background0x2D2D2D, ChatDisplay
         GuiControl, +cWhite, UserInput
         GuiControl, +Background0x2D2D2D, UserInput
@@ -559,7 +559,7 @@ GuiSize:
     GuiControl, Move, Clear, % "x" . (A_GuiWidth - 110) . " y" . (A_GuiHeight - 80)
     
     ; Reposition status bar
-    Gui( StatusBar
+    Gui, StatusBar
     SB_SetParts(A_GuiWidth - 150, A_GuiWidth - 75)
 return
 

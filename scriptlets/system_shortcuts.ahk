@@ -85,7 +85,7 @@ ShowHelp() {
             
             . "Help:                Ctrl+Shift+H`n"
             
-    MsgBox(helpText, "System Shortcuts Help", "T1024")
+    MsgBox(helpText, "System Shortcuts Help")
 }
 
 ; Helper function to convert hotkey strings to readable format

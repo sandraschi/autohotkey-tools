@@ -23,7 +23,7 @@
 #SingleInstance Force
 #Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
-OnError(HandleScriptError)
+OnError(LogError)
 
 HandleScriptError(Thrown, Mode) {
     return AHDebugHelper.HandleScriptError(Thrown, Mode)

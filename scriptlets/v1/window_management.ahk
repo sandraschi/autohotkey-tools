@@ -11,7 +11,7 @@ SetWorkingDir %A_ScriptDir%
         ToolTip, Window is now always on top
     else
         ToolTip, Window is no longer always on top
-    SetTimer, RemoveToolTip, 2000
+    SetTimer(RemoveToolTip,  2000
 return
 
 ; Center Active Window
@@ -22,6 +22,6 @@ return
 
 ; Remove ToolTip
 RemoveToolTip:
-    SetTimer, RemoveToolTip, Off
+    SetTimer(RemoveToolTip,  Off
     ToolTip
 return

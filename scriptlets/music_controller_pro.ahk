@@ -15,7 +15,7 @@
 #SingleInstance Force
 #Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
-OnError(MusicControllerPro.HandleScriptError)
+OnError(LogError)
 
 class MusicControllerPro {
     static gui := ""
@@ -421,5 +421,7 @@ class MusicControllerPro {
     }
 }
 
-MusicControllerPro.Init()
+; Register exit handler
+OnExit((*) => MusicControllerPro.HideGui())
 
+MusicControllerPro.Init()

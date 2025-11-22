@@ -13,37 +13,37 @@ units := "metric"  ; or "imperial" for Fahrenheit
 updateInterval := 900000  ; 15 minutes in milliseconds
 
 ; Create the GUI
-Gui( +AlwaysOnTop -Caption +ToolWindow +LastFound
-Gui( Color, F0F0F0
-Gui( Font, s10, Segoe UI
+Gui, +AlwaysOnTop -Caption +ToolWindow +LastFound
+Gui, Color, F0F0F0
+Gui, Font, s10, Segoe UI
 
 ; Weather icon
-Gui( Add, Picture, x10 y10 w64 h64 vWeatherIcon, 
+Gui, Add, Picture, x10 y10 w64 h64 vWeatherIcon, 
 
 ; Temperature and description
-Gui( Add, Text, x80 y10 w200 h30 vTemperature, Loading...
-Gui( Add, Text, x80 y35 w200 h20 vDescription, 
+Gui, Add, Text, x80 y10 w200 h30 vTemperature, Loading...
+Gui, Add, Text, x80 y35 w200 h20 vDescription, 
 
 ; Additional info
-Gui( Add, Text, x10 y80 w260 h20 vLocation, %city%, %countryCode%
-Gui( Add, Text, x10 y105 w130 h20 vHumidity, 
-Gui( Add, Text, x150 y105 w130 h20 vWind, 
-Gui( Add, Text, x10 y130 w130 h20 vFeelsLike, 
-Gui( Add, Text, x150 y130 w130 h20 vPressure, 
+Gui, Add, Text, x10 y80 w260 h20 vLocation, %city%, %countryCode%
+Gui, Add, Text, x10 y105 w130 h20 vHumidity, 
+Gui, Add, Text, x150 y105 w130 h20 vWind, 
+Gui, Add, Text, x10 y130 w130 h20 vFeelsLike, 
+Gui, Add, Text, x150 y130 w130 h20 vPressure, 
 
 ; Update button
-Gui( Add, Button, x10 y160 w80 h25 vUpdateBtn gUpdateWeather, &Update
+Gui, Add, Button, x10 y160 w80 h25 vUpdateBtn gUpdateWeather, &Update
 
 ; Close button (X)
-Gui( Add, Text, x260 y5 w20 h20 gGuiClose X, X
+Gui, Add, Text, x260 y5 w20 h20 gGuiClose X, X
 
 ; Make window draggable
-Gui( Show, w280 h190, Weather Widget
+Gui, Show, w280 h190, Weather Widget
 OnMessage(0x201, "WM_LBUTTONDOWN")
 
 ; Initial update
 GoSub, UpdateWeather
-SetTimer, UpdateWeather, %updateInterval%
+SetTimer(UpdateWeather,  %updateInterval%
 return
 
 UpdateWeather:
@@ -72,12 +72,12 @@ UpdateWeather:
             windDir := GetWindDirection(windDeg)
             
             ; Update GUI
-            GuiControl,, Temperature, %temp%Â°C
+            GuiControl,, Temperature, %temp%°C
             GuiControl,, Description, %desc%
-            GuiControl,, Humidity, ðŸ’§ %humidity%`%
-            GuiControl,, Wind, ðŸŒ¬ï¸ %windSpeed% m/s %windDir%
-            GuiControl,, FeelsLike, ðŸŒ¡ï¸ Feels like: %feelsLike%Â°C
-            GuiControl,, Pressure, â¬‡ï¸ %pressure% hPa
+            GuiControl,, Humidity, 💧 %humidity%`%
+            GuiControl,, Wind, 🌬️ %windSpeed% m/s %windDir%
+            GuiControl,, FeelsLike, 🌡️ Feels like: %feelsLike%°C
+            GuiControl,, Pressure, ⬇️ %pressure% hPa
             
             ; Download and set weather icon
             iconUrl := "http://openweathermap.org/img/wn/" . iconCode . "@2x.png"
@@ -88,7 +88,7 @@ UpdateWeather:
             }
             
             ; Update window title with temperature
-            Gui( Show,, %city%: %temp%Â°C
+            Gui, Show,, %city%: %temp%°C
         } else {
             GuiControl,, Temperature, Error: %whr.Status%
         }

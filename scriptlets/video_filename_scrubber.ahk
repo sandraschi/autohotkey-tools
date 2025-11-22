@@ -17,7 +17,7 @@
 TrayTip("Video Filename Scrubber", "Script starting...", 3)
 
 ; Log errors but allow GUI errors to show
-OnError(VideoFilenameScrubberLogError)
+OnError(LogError)
 
 VideoFilenameScrubberLogError(Thrown, Mode) {
     ScriptletErrorHandler.Handle(Thrown, Mode)

@@ -99,6 +99,10 @@ class CodeFormatter {
         swapBtn.OnEvent("Click", this.SwapInputOutput.Bind(this))
         settingsBtn.OnEvent("Click", this.ShowSettings.Bind(this))
         
+        
+        ; Add exit handlers
+        this.gui.OnEvent("Close", (*) => ExitApp())
+        this.gui.OnEvent("Escape", (*) => ExitApp())
         this.gui.Show("w820 h650")
     }
     

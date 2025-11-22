@@ -23,7 +23,7 @@
 #SingleInstance Force
 #Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
-OnError(ChessApp.HandleError)
+OnError(LogError)
 
 class ChessApp {
     static gui := ""
@@ -47,12 +47,6 @@ class ChessApp {
         ChessApp.UpdateBoard()
     }
 
-    static HandleError(Thrown, Mode) {
-        message := "ChessApp error: " . Thrown.Message . " at line " . Thrown.Line
-        try FileAppend(message . "`n", "chess_stockfish_errors.log", "UTF-8")
-        OutputDebug(message)
-        return 1
-    }
 
     static BuildInitialBoard() {
         ChessApp.boardState := []
@@ -232,6 +226,17 @@ class ChessApp {
         if (ChessApp.statusCtrl) {
             ChessApp.statusCtrl.Move(baseX, baseY + squareSize * 8 + 10, squareSize * 8, 24)
         }
+    }
+
+    static AppendLog(message) {
+        timestamp := FormatTime(A_Now, "HH:mm:ss")
+        logMsg := "[" . timestamp . "] " . message . "`n"
+        try {
+            FileAppend(logMsg, "chess_stockfish.log", "UTF-8")
+        } catch {
+            ; Ignore file logging errors
+        }
+        OutputDebug(logMsg)
     }
 }
 

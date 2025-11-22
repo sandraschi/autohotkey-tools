@@ -7,19 +7,19 @@ SetWorkingDir %A_ScriptDir%
 ; Self Destruct Sequence
 ^!d::  ; Ctrl+Alt+D for self-destruct
     ; Create GUI for countdown
-    Gui( Destroy
-    Gui( Color, 000000
-    Gui( Font, s24 cRed, Consolas
-    Gui( Add, Text, vCountdown w400 h100 Center, 
-    Gui( +AlwaysOnTop +ToolWindow -Caption
-    Gui( Show, w400 h100, SELF DESTRUCT SEQUENCE
+    Gui, Destroy
+    Gui, Color, 000000
+    Gui, Font, s24 cRed, Consolas
+    Gui, Add, Text, vCountdown w400 h100 Center, 
+    Gui, +AlwaysOnTop +ToolWindow -Caption
+    Gui, Show, w400 h100, SELF DESTRUCT SEQUENCE
     
     ; Speak the warning
     Speak("Warning! PC will self-destruct in 10 seconds")
     
     ; Start countdown
     count := 10
-    SetTimer, UpdateCountdown, 1000
+    SetTimer(UpdateCountdown,  1000
     return
 
 UpdateCountdown:
@@ -30,23 +30,23 @@ UpdateCountdown:
         }
         count--
     } else {
-        SetTimer, UpdateCountdown, Off
+        SetTimer(UpdateCountdown,  Off
         GuiControl,, Countdown, BOOM!
         Speak("Boom!")
         ; Create explosion effect
-        Gui( Color, FFFF00
+        Gui, Color, FFFF00
         Sleep, 500
-        Gui( Color, FF0000
+        Gui, Color, FF0000
         Sleep, 500
-        Gui( Destroy
+        Gui, Destroy
     }
     return
 
 ; ASCII Cows
 ^!c::  ; Ctrl+Alt+C for ASCII cows
-    Gui( CowGui:New, +AlwaysOnTop -Caption +ToolWindow
-    Gui( Color, 000000
-    Gui( Font, s12 cLime, Consolas
+    Gui, CowGui:New, +AlwaysOnTop -Caption +ToolWindow
+    Gui, Color, 000000
+    Gui, Font, s12 cLime, Consolas
     
     ; Cow ascii art
     cow1 := " (__)    "
@@ -57,16 +57,16 @@ UpdateCountdown:
     
     ; Create herd of cows
     herd := []
-    Loop  3 {  ; 3 cows
+    Loop, 3 {  ; 3 cows
         cow := {x: -100 * A_Index, y: A_Index * 5, speed: 2 + A_Index}
         herd.Push(cow)
     }
     
     ; Animation loop
-    SetTimer, MoveCows, 50
+    SetTimer(MoveCows,  50
     
     ; Show the window
-    Gui( Show, w800 h300, ASCII Cows
+    Gui, Show, w800 h300, ASCII Cows
     return
 
 MoveCows:
@@ -84,9 +84,9 @@ MoveCows:
         }
         
         ; Add cow at current position
-        Loop  5 {
+        Loop, 5 {
             line := cow%A_Index%
-            Loop  % cow.x
+            Loop, % cow.x
                 line := " " line
             displayText .= line "`n"
         }
@@ -98,8 +98,8 @@ MoveCows:
     return
 
 CowGuiClose:
-    SetTimer, MoveCows, Off
-    Gui( Destroy
+    SetTimer(MoveCows,  Off
+    Gui, Destroy
     return
 
 ; Text-to-Speech function

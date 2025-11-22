@@ -142,8 +142,19 @@ class GitAssistant {
         refreshBtn.OnEvent("Click", this.RefreshInfo.Bind(this))
         settingsBtn.OnEvent("Click", this.ShowSettings.Bind(this))
         
+        ; Add exit handlers
+        this.gui.OnEvent("Close", (*) => this.Stop())
+        this.gui.OnEvent("Escape", (*) => this.Stop())
+        
         this.gui.Show("w620 h500")
         this.RefreshInfo()
+    }
+    
+    static Stop(*) {
+        if (this.gui) {
+            this.gui.Destroy()
+            this.gui := ""
+        }
     }
     
     static GitStatus(*) {
@@ -167,7 +178,7 @@ class GitAssistant {
             message .= "`n`n" . desc
         }
         
-        this.RunGitCommand("commit -m """ . message . """")
+        this.RunGitCommand("commit -m `"" . message . "`"")
     }
     
     static GitPush(*) {
@@ -234,7 +245,8 @@ class GitAssistant {
     }
     
     static RefreshInfo(*) {
-        if (!this.currentRepo) return
+        if (!this.currentRepo)
+            return
         
         try {
             ; Get current branch
@@ -274,6 +286,26 @@ class GitAssistant {
         SetTimer(() => ToolTip(), -2000)
     }
     
+    static AddTemplate(newType, newTemplate, templateList, *) {
+        type := newType.Text
+        template := newTemplate.Text
+        if (type && template) {
+            GitAssistant.commitTemplates[type] := template
+            templateList.Add("", type, template)
+            newType.Text := ""
+            newTemplate.Text := ""
+        }
+    }
+    
+    static RemoveTemplate(templateList, *) {
+        selectedRow := templateList.GetNext()
+        if (selectedRow) {
+            type := templateList.GetText(selectedRow, 1)
+            GitAssistant.commitTemplates.Delete(type)
+            templateList.Delete(selectedRow)
+        }
+    }
+    
     static ShowSettings(*) {
         settingsGui := Gui("+Resize", "Git Assistant Settings")
         
@@ -297,31 +329,25 @@ class GitAssistant {
         removeBtn := settingsGui.Add("Button", "x100 y250 w80 h25", "Remove")
         saveBtn := settingsGui.Add("Button", "x190 y250 w80 h25", "Save")
         
-        addBtn.OnEvent("Click", (*) => {
-            type := newType.Text
-            template := newTemplate.Text
-            if (type && template) {
-                this.commitTemplates[type] := template
-                templateList.Add("", type, template)
-                newType.Text := ""
-                newTemplate.Text := ""
-            }
-        })
+        addBtn.OnEvent("Click", this.AddTemplate.Bind(this, newType, newTemplate, templateList))
+        removeBtn.OnEvent("Click", this.RemoveTemplate.Bind(this, templateList))
+        saveBtn.OnEvent("Click", (*) => settingsGui.Close)
         
-        saveBtn.OnEvent("Click", (*) => {
-            settingsGui.Close()
-        })
+        ; Add exit handlers for settings GUI
+        settingsGui.OnEvent("Close", (*) => settingsGui.Destroy())
+        settingsGui.OnEvent("Escape", (*) => settingsGui.Destroy())
         
         settingsGui.Show("w420 h300")
     }
 }
 
 ; Hotkeys
-Hotkey("^!g", (*) => GitAssistant.Init()
-Hotkey("^!commit", (*) => GitAssistant.GitCommit()
-Hotkey("^!branch", (*) => GitAssistant.CreateBranch()
+Hotkey("^!g", (*) => GitAssistant.Init())
+Hotkey("^!commit", (*) => GitAssistant.GitCommit())
+Hotkey("^!branch", (*) => GitAssistant.CreateBranch())
 
 ; Initialize
+; Register exit handler
+OnExit((*) => GitAssistant.Stop())
+
 GitAssistant.Init()
-
-

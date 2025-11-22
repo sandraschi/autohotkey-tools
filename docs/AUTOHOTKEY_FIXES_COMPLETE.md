@@ -1,6 +1,7 @@
 # AutoHotkey Repository Fixes - COMPLETE
 
 **Date:** October 29, 2025  
+**Last Updated:** November 12, 2025  
 **Status:** ✅ ALL CRITICAL ISSUES RESOLVED
 
 ## Summary
@@ -47,6 +48,103 @@ LogError(Exception, Mode) {
 - PowerShell test scripts use correct flags
 
 **No changes needed** - already compliant
+
+### 4. ✅ MsgBox Timeout Syntax Fixed (November 12, 2025)
+
+**Issue:** AutoHotkey v2 `MsgBox` does NOT support timeout options. Attempts to use `T` followed by a number (like `T10`, `T1024`) in the options string are invalid.
+
+**Fixed Files:**
+- `scriptlets/system_shortcuts.ahk` - Removed invalid `T1024` timeout option from MsgBox call
+
+**Before:**
+```autohotkey
+MsgBox(helpText, "System Shortcuts Help", "T1024")  ; WRONG! Timeout not supported
+```
+
+**After:**
+```autohotkey
+MsgBox(helpText, "System Shortcuts Help")  ; CORRECT - no timeout option
+```
+
+**Note:** For timed messages, use `TrayTip` or `ToolTip` instead:
+```autohotkey
+TrayTip("Title", "Message", 10)  ; 10 second timeout
+ToolTip("Message", , , 10)  ; Tooltip with timeout
+```
+
+### 5. ✅ Try-Finally Block Syntax Fixed (November 12, 2025)
+
+**Issue:** Missing `try {` block before `finally {` block in `Invoke-Scriptlet` function.
+
+**Fixed Files:**
+- `utils/scriptlet_bugbash.ps1` - Added missing `try {` block and proper indentation
+
+**Before:**
+```powershell
+function Invoke-Scriptlet {
+    param(...)
+    
+    $psi = [System.Diagnostics.ProcessStartInfo]::new()
+    # ... code ...
+    return $result
+} finally {  ; WRONG! No matching try block
+    if ($process) {
+        $process.Dispose()
+    }
+}
+```
+
+**After:**
+```powershell
+function Invoke-Scriptlet {
+    param(...)
+    
+    $process = $null
+    try {
+        $psi = [System.Diagnostics.ProcessStartInfo]::new()
+        # ... code ...
+        return $result
+    } finally {
+        if ($process) {
+            $process.Dispose()
+        }
+    }
+}
+```
+
+### 6. ✅ Arrow Function to Named Function Conversion (November 12, 2025)
+
+**Issue:** AutoHotkey v2 parser has issues with multi-line arrow functions in hotkey callbacks when they contain try/catch blocks or complex control flow.
+
+**Fixed Files:**
+- `junk/old_scripts/claude-mcp-scripts-extended.ahk` - Converted all hotkey arrow functions to named functions
+
+**Before:**
+```autohotkey
+Hotkey("^+l", (*) => {
+    LogOperation("Log Analysis")
+    try {
+        # ... complex code ...
+    } catch {
+        # ... error handling ...
+    }
+})
+```
+
+**After:**
+```autohotkey
+AdvancedLogAnalyzer(*) {
+    LogOperation("Log Analysis")
+    try {
+        # ... complex code ...
+    } catch {
+        # ... error handling ...
+    }
+}
+Hotkey("^+l", AdvancedLogAnalyzer)
+```
+
+**Files Updated:** 10+ hotkey callbacks converted to named functions
 
 ## Code Quality Improvements
 
@@ -185,6 +283,10 @@ Get-ChildItem -Path "scriptlets\*.ahk" | Select-String -Pattern "OutputDebug\(er
 - Ready for AI-assisted development
 
 **AutoHotkey is BACK!** 🎉
+
+
+
+
 
 
 

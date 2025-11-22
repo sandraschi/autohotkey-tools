@@ -3,10 +3,10 @@
 #Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
 ; ==============================================================================
-; Classic Pranks Collection - AutoHotkey v2 Version
+; Classic Pranks Collection
 ; @name: Classic Pranks Collection
 ; @version: 2.0.0
-; @description: Collection of classic computer pranks (updated for v2). Harmless classic prank effects including fake bugs, BSOD, screen flipping, and key swapping.
+; @description: Collection of classic computer pranks with improved error handling and v2 syntax compliance.
 ; @description: Features classic computer prank effects like flying bugs, fake blue screen, screen rotation, keyboard swapping, and fake error messages. All pranks are reversible and designed for harmless fun.
 ; @description: Entertainment tool for harmless classic computer pranks. Use responsibly and only with consenting participants.
 ; @category: fun
@@ -50,20 +50,11 @@ class ClassicPranks {
     }
     
     static SetupHotkeys() {
-        ; Bug prank
-        Hotkey("^!b", this.CreateBug.Bind(this))
-        
-        ; Fake BSOD
-        Hotkey("^!f", this.FakeBSOD.Bind(this))
-        
-        ; ELIZA therapist
-        Hotkey("^!e", this.StartEliza.Bind(this))
-        
-        ; Sudoku game
-        Hotkey("^!s", this.StartSudoku.Bind(this))
-        
-        ; Clean up bugs
-        Hotkey("^!x", this.CleanupBugs.Bind(this))
+        Hotkey("^!b", (*) => this.CreateBug())
+        Hotkey("^!f", (*) => this.FakeBSOD())
+        Hotkey("^!e", (*) => this.StartEliza())
+        Hotkey("^!s", (*) => this.StartSudoku())
+        Hotkey("^!x", (*) => this.CleanupBugs())
     }
     
     static CreateBug(*) {
@@ -78,7 +69,12 @@ class ClassicPranks {
         speedY := Random(-5, 5)
         
         ; Create bug (simple circle for now)
-        bugGui.Add("Text", "x0 y0 w50 h50 cLime", "ðŸž")
+        bugGui.Add("Text", "x0 y0 w50 h50 cLime", "🐛")
+        
+        ; Add exit handlers
+        bugGui.OnEvent("Close", (*) => bugGui.Destroy())
+        bugGui.OnEvent("Escape", (*) => bugGui.Destroy())
+        
         bugGui.Show("x" . x . " y" . y . " w50 h50")
         
         ; Make window semi-transparent
@@ -223,8 +219,10 @@ class ClassicPranks {
         sudokuGui.SetFont("s16", "Consolas")
         
         ; Create 9x9 grid
-        for row in Range(1, 9) {
-            for col in Range(1, 9) {
+        Loop 9 {
+            row := A_Index
+            Loop 9 {
+                col := A_Index
                 x := 10 + (col - 1) * 40
                 y := 10 + (row - 1) * 40
                 
@@ -252,16 +250,11 @@ class ClassicPranks {
         checkBtn.OnEvent("Click", (*) => ClassicPranks.CheckSudokuSolution(sudokuGui))
         solveBtn.OnEvent("Click", (*) => ClassicPranks.SolveSudoku(sudokuGui))
         
-        ; Generate a new puzzle
-        this.NewSudokuGame(sudokuGui)
-        
-        sudokuGui.Show("w400 h420")
-        
         this.ShowTrayTip("Sudoku Started!", "A new Sudoku puzzle is ready!")
+        sudokuGui.Show("w400 h420")
     }
     
     static NewSudokuGame(gui) {
-        ; Simple puzzle generation (simplified)
         this.ShowTrayTip("New Game", "Generating new Sudoku puzzle...")
     }
     
@@ -274,7 +267,7 @@ class ClassicPranks {
     }
     
     static CleanupBugs(*) {
-        for bug in this.bugs {
+        for index, bug in this.bugs {
             try {
                 bug.gui.Close()
             } catch {

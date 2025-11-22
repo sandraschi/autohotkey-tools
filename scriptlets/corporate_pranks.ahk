@@ -65,6 +65,7 @@ class CorporatePranks {
         stopBtn.OnEvent("Click", ObjBindMethod(CorporatePranks, "StopAllPranks"))
 
         gui.OnEvent("Close", ObjBindMethod(CorporatePranks, "HideMainGui"))
+        gui.OnEvent("Escape", ObjBindMethod(CorporatePranks, "HideMainGui"))
 
         CorporatePranks.mainGui := gui
         CorporatePranks.logEdit := logEdit

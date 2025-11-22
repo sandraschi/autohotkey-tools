@@ -15,7 +15,7 @@
 #SingleInstance Force
 #Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
-OnError(WindowManagerPro.HandleScriptError)
+OnError(LogError)
 
 class WindowManagerPro {
     static gui := ""
@@ -23,9 +23,6 @@ class WindowManagerPro {
     static statusBar := ""
     static searchBox := ""
     static history := []
-    static HandleScriptError(Thrown, Mode) {
-        return ScriptletErrorHandler.Handle(Thrown, Mode)
-    }
 
     static hotkeysRegistered := false
     static logDir := ""
@@ -386,5 +383,7 @@ class WindowManagerPro {
         SetTimer(() => ToolTip(), -1500)
     }
 }
-WindowManagerPro.Init()
+; Register exit handler
+OnExit((*) => WindowManagerPro.HideGui())
 
+WindowManagerPro.Init()

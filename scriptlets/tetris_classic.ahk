@@ -19,8 +19,9 @@
 
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
+#Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
-OnError(TetrisApp.HandleError)
+OnError(LogError)
 
 class TetrisApp {
     static gui := ""
@@ -54,12 +55,6 @@ class TetrisApp {
         TetrisApp.UpdateStatus("Press Start to begin.")
     }
 
-    static HandleError(Thrown, Mode) {
-        message := "Tetris error: " . Thrown.Message . " at line " . Thrown.Line
-        try FileAppend(message . "`n", "tetris_classic_errors.log", "UTF-8")
-        OutputDebug(message)
-        return 1
-    }
 
     static ResetBoard() {
         TetrisApp.board := []

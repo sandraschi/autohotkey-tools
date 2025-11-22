@@ -17,7 +17,7 @@ The web interface will be available at `http://localhost:8765/`
 
 ### Available Scriptlets
 
-Navigate through 84+ professional scriptlets including:
+Navigate through 74+ scriptlets (⚠️ **Note**: Repository health improved to **FAIR** - Latest bugbash results: 29 succeeded, 0 crashed, 45 timed out):
 - **Games**: Snake, Tetris, Sudoku, Chess (with Stockfish), Pong, Pac-Man, Q*bert, Frogger
 - **Development**: Git Assistant, Code Formatter, AI Code Assistant
 - **Productivity**: Clipboard Manager, Window Snapping, Volume Control
@@ -30,7 +30,7 @@ Navigate through 84+ professional scriptlets including:
 - `launcher_enhanced.html` - Modern web-based scriptlet launcher  
 - `scriptlet_launcher_v2.ahk` - Native GUI launcher
 - `RunScriptlet.bat` - Execute individual scriptlets
-- `scriptlets/` - All 84 scriptlets organized by category
+- `scriptlets/` - 75+ scriptlets organized by category
 
 ### Development Tools
 
@@ -78,6 +78,7 @@ See `scriptlets/security_guide_pro.ahk` for complete safety guide.
 - `docs/AutoHotkey_v2_Syntax_Reference.md` - Complete v2 syntax guide
 - `docs/AutoHotkey_Debugging_Guide.md` - Debugging techniques
 - `docs/AutoHotkey_v2_Modulo_Migration_Guide.md` - Migration from v1 to v2
+- `docs/REPOSITORY_HEALTH_IMPROVEMENT_PLAN.md` ⭐ - Action plan to fix failing scriptlets and improve health
 
 ## 🎮 Games
 
@@ -108,11 +109,13 @@ autohotkey-test/
 
 ## 🔧 Scriptlet Categories
 
-- **Games** (10): Mini games collection, classic arcade games
-- **Productivity** (15): Clipboard, window management, automation
-- **Development** (20): Git, code formatting, MCP tools
-- **System** (10): Monitoring, security, helpers
-- **Utilities** (29): Various utility scripts
+- **Games**: Mini games collection, classic arcade games (Snake, Tetris, Sudoku, Chess, Pong, Pac-Man, Q*bert, Frogger)
+- **Productivity**: Clipboard, window management, automation tools
+- **Development**: Git, code formatting, MCP tools
+- **System**: Monitoring, security, helpers
+- **Utilities**: Various utility scripts
+
+**Note**: See [docs/BUGBASH_RESULTS.md](docs/BUGBASH_RESULTS.md) for latest bugbash comparison and [docs/Repository_Status_Report.md](docs/Repository_Status_Report.md) for detailed analysis.
 
 ## 📜 License
 
@@ -124,5 +127,6 @@ Sandra - AutoHotkey v2 enthusiast and developer
 
 ---
 
-**Status**: 84 scriptlets | AutoHotkey v2 compatible | Web dashboard available
+**Status**: 75+ scriptlets | AutoHotkey v2 compatible | Web dashboard available  
+**Repository Health**: ⚠️ **POOR** - See [Repository Status Report](docs/Repository_Status_Report.md) for details
 

@@ -1,7 +1,8 @@
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
+#Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
-OnError(QBertApp.HandleError)
+OnError(LogError)
 
 class QBertApp {
     static gui := ""
@@ -20,12 +21,6 @@ class QBertApp {
         QBertApp.UpdateStatus("Use Ctrl+Alt+Arrow keys to hop.")
     }
 
-    static HandleError(Thrown, Mode) {
-        message := "QBert error: " . Thrown.Message . " at line " . Thrown.Line
-        try FileAppend(message . "`n", "qbert_game_errors.log", "UTF-8")
-        OutputDebug(message)
-        return 1
-    }
 
     static ResetBoard() {
         QBertApp.pyramid := []
@@ -132,7 +127,7 @@ class QBertApp {
         }
         QBertApp.player := {row: newRow, col: newCol}
         current := QBertApp.pyramid[newRow][newCol]
-        QBertApp.pyramid[newRow][newCol] := (current + 1) Mod (QBertApp.targetColor + 1)
+        QBertApp.pyramid[newRow][newCol] := Mod(current + 1, QBertApp.targetColor + 1)
         if (QBertApp.pyramid[newRow][newCol] = 0) {
             QBertApp.pyramid[newRow][newCol] := 1
         }
@@ -158,7 +153,7 @@ class QBertApp {
     static UpdateBoard() {
         lines := []
         for rowIndex, row in QBertApp.pyramid {
-            indent := StrRepeat(" ", QBertApp.pyramid.Length - rowIndex)
+            indent := Format("{:" . (QBertApp.pyramid.Length - rowIndex) . "}", "")
             line := indent
             for colIndex, tile in row {
                 if (QBertApp.player.row = rowIndex && QBertApp.player.col = colIndex) {

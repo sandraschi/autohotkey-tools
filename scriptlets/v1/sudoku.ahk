@@ -11,30 +11,30 @@ selectedCell := {row: 0, col: 0}
 difficulty := "medium" ; easy, medium, hard
 
 ; Create the GUI
-Gui( +AlwaysOnTop +Resize
-Gui( Font, s12, Arial
+Gui, +AlwaysOnTop +Resize
+Gui, Font, s12, Arial
 
 ; Create the Sudoku grid
 CreateGrid()
 
 ; Add controls
-Gui( Add, Button, x10 y400 w100 h30 gNewGame, &New Game
-Gui( Add, Button, x120 y400 w100 h30 gCheckSolution, &Check
-Gui( Add, Button, x230 y400 w100 h30 gSolve, &Solve
-Gui( Add, Button, x340 y400 w100 h30 gExitApp, E&xit
+Gui, Add, Button, x10 y400 w100 h30 gNewGame, &New Game
+Gui, Add, Button, x120 y400 w100 h30 gCheckSolution, &Check
+Gui, Add, Button, x230 y400 w100 h30 gSolve, &Solve
+Gui, Add, Button, x340 y400 w100 h30 gExitApp, E&xit
 
 ; Difficulty selector
-Gui( Add, Text, x10 y440 w80 h30, Difficulty:
-Gui( Add, DropDownList, x90 y440 w100 vDifficulty Choose2, Easy|Medium|Hard
+Gui, Add, Text, x10 y440 w80 h30, Difficulty:
+Gui, Add, DropDownList, x90 y440 w100 vDifficulty Choose2, Easy|Medium|Hard
 
 ; Status text
-Gui( Add, Text, x200 y440 w240 h30 vStatus, Game Started
+Gui, Add, Text, x200 y440 w240 h30 vStatus, Game Started
 
 ; Set up keyboard shortcuts
 OnMessage(0x100, "WM_KEYDOWN")
 
 ; Show the GUI
-Gui( Show, w460 w500, Sudoku
+Gui, Show, w460 w500, Sudoku
 GeneratePuzzle()
 return
 
@@ -45,7 +45,7 @@ CreateGrid() {
     thinPen := 1
     
     ; Create the grid
-    Gui( Add, Text, x10 y10 w%cellSize% h%cellSize% 0x201 vCell_0_0 gSelectCell, 
+    Gui, Add, Text, x10 y10 w%cellSize% h%cellSize% 0x201 vCell_0_0 gSelectCell, 
     
     Loop 8 {
         i := A_Index
@@ -53,17 +53,17 @@ CreateGrid() {
             j := A_Index
             xPos := 10 + (j * cellSize)
             yPos := 10 + (i * cellSize)
-            Gui( Add, Text, x%xPos% y%yPos% w%cellSize% h%cellSize% 0x201 vCell_%i%_%j% gSelectCell, 
+            Gui, Add, Text, x%xPos% y%yPos% w%cellSize% h%cellSize% 0x201 vCell_%i%_%j% gSelectCell, 
         }
     }
     
     ; Draw the grid lines
-    Gui( Add, Progress, x10 y10 w%cellSize% h%cellSize% BackgroundWhite -Smooth, 100
+    Gui, Add, Progress, x10 y10 w%cellSize% h%cellSize% BackgroundWhite -Smooth, 100
     Loop 8 {
         i := A_Index
         xPos := 10 + (i * cellSize)
-        Gui( Add, Progress, x%xPos% y10 w%thickPen% h%cellSize% BackgroundBlack, 100
-        Gui( Add, Progress, x10 y%xPos% w%cellSize% h%thickPen% BackgroundBlack, 100
+        Gui, Add, Progress, x%xPos% y10 w%thickPen% h%cellSize% BackgroundBlack, 100
+        Gui, Add, Progress, x10 y%xPos% w%cellSize% h%thickPen% BackgroundBlack, 100
     }
 }
 
@@ -90,11 +90,11 @@ UpdateUI() {
             
             ; Style the cell based on whether it's an original number or user input
             if (original[i][j] != 0) {
-                Gui( Font, s12 Bold
+                Gui, Font, s12 Bold
                 GuiControl, Font, Cell_%i%_%j%
                 GuiControl, +cBlue, Cell_%i%_%j%
             } else {
-                Gui( Font, s12 Normal
+                Gui, Font, s12 Normal
                 GuiControl, Font, Cell_%i%_%j%
                 GuiControl, +cBlack, Cell_%i%_%j%
             }
@@ -253,7 +253,7 @@ IsValidMove(row, col, num) {
 }
 
 NewGame:
-    Gui( Submit, NoHide
+    Gui, Submit, NoHide
     difficulty := Difficulty
     GeneratePuzzle()
 return
@@ -356,7 +356,7 @@ WM_KEYDOWN(wParam, lParam) {
 
 ; Helper function to generate random numbers
 Random(min, max) {
-    Random( r, %min%, %max%
+    Random, r, %min%, %max%
     return r
 }
 

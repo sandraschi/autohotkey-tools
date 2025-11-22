@@ -1,7 +1,8 @@
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
+#Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
-OnError(MCPDevelopmentCycle.HandleError)
+OnError(LogError)
 
 class MCPDevelopmentCycle {
     static phases := []
@@ -28,13 +29,6 @@ class MCPDevelopmentCycle {
         MCPDevelopmentCycle.statusBar.SetText("Ready. Press Ctrl+Alt+D to start the development cycle.")
     }
 
-    static HandleError(Thrown, Mode) {
-        scriptName := HasProp(Thrown, "File") ? Thrown.File : A_ScriptFullPath
-        lineInfo := HasProp(Thrown, "Line") ? " line " . Thrown.Line : ""
-        message := "Error in " . scriptName . lineInfo . ": " . Thrown.Message
-        MCPDevelopmentCycle.AppendLog(message)
-        return 1
-    }
 
     static AppendLog(message) {
         timestamp := ""

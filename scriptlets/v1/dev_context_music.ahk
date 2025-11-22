@@ -46,7 +46,7 @@ TriumphantTracks := ["pomp_and_circumstance.mp3", "ride_of_the_valkyries.mp3"]
 
 ; Play a random track from a list
 PlayTrack(trackList) {
-    Random( rand, 1, % trackList.MaxIndex()
+    Random, rand, 1, % trackList.MaxIndex()
     track := trackList[rand]
     
     ; First try Plex
@@ -86,7 +86,7 @@ PlayPlexTrack(trackName) {
 CheckBuildStatus() {
     ; This would check your build system
     ; For now, we'll just return a random status
-    Random( status, 1, 10
+    Random, status, 1, 10
     if (status > 7) {
         PlayTrack(BuildFailureTracks)
         TrayTip, Build Status, Build failed! Playing sad music..., , 1
@@ -94,14 +94,14 @@ CheckBuildStatus() {
         PlayTrack(BuildSuccessTracks)
         TrayTip, Build Status, Build succeeded! Celebrating..., , 1
     }
-    SetTimer, RemoveTrayTip, -3000
+    SetTimer(RemoveTrayTip,  -3000
 }
 
 ; Check repository health (example implementation)
 CheckRepoHealth() {
     ; This would check git status, number of changes, etc.
     ; For now, we'll just return a random status
-    Random( status, 1, 10
+    Random, status, 1, 10
     if (status > 8) {
         PlayTrack(RepoBadTracks)
         TrayTip, Repository Health, Critical issues found! Playing dramatic music..., , 1
@@ -109,7 +109,7 @@ CheckRepoHealth() {
         PlayTrack(RepoDirtyTracks)
         TrayTip, Repository Health, Many uncommitted changes. Time to commit!, , 1
     }
-    SetTimer, RemoveTrayTip, -3000
+    SetTimer(RemoveTrayTip,  -3000
 }
 
 ; ========================================
@@ -120,21 +120,21 @@ CheckRepoHealth() {
 ^!s::  ; Ctrl+Alt+S for sad march
     PlayTrack(SadMarches)
     TrayTip, Mood Music, Playing a sad march..., , 1
-    SetTimer, RemoveTrayTip, -3000
+    SetTimer(RemoveTrayTip,  -3000
     return
 
 ; Play a triumphant piece
 ^!t::  ; Ctrl+Alt+T for triumphant music
     PlayTrack(TriumphantTracks)
     TrayTip, Mood Music, Playing something triumphant!, , 1
-    SetTimer, RemoveTrayTip, -3000
+    SetTimer(RemoveTrayTip,  -3000
     return
 
 ; Play a random Betty Boop cartoon (Plex)
 ^!b::  ; Ctrl+Alt+B for Betty Boop
     PlayPlexTrack("Betty Boop")
     TrayTip, Plex, Playing Betty Boop..., , 1
-    SetTimer, RemoveTrayTip, -3000
+    SetTimer(RemoveTrayTip,  -3000
     return
 
 ; Play a random classical piece
@@ -142,7 +142,7 @@ CheckRepoHealth() {
     allClassical := [].Append(BuildSuccessTracks, BuildFailureTracks, SadMarches, TriumphantTracks)
     PlayTrack(allClassical)
     TrayTip, Classical Music, Playing a classical piece..., , 1
-    SetTimer, RemoveTrayTip, -3000
+    SetTimer(RemoveTrayTip,  -3000
     return
 
 ; ========================================
@@ -158,14 +158,14 @@ CheckTime() {
         if (Random(1, 3) = 1) {  ; 1 in 3 chance
             PlayTrack(LateNightTracks)
             TrayTip, Late Night, Playing some late night coding music..., , 1
-            SetTimer, RemoveTrayTip, -3000
+            SetTimer(RemoveTrayTip,  -3000
         }
     } else if (hour >= 5 && hour < 9) {
         ; Early morning
         if (Random(1, 4) = 1) {  ; 1 in 4 chance
             PlayTrack(EarlyMorningTracks)
             TrayTip, Good Morning, Rise and shine!, , 1
-            SetTimer, RemoveTrayTip, -3000
+            SetTimer(RemoveTrayTip,  -3000
         }
     }
 }
@@ -176,7 +176,7 @@ CheckTime() {
 
 ; Generate random number between min and max
 Random(min, max) {
-    Random( r, min, max
+    Random, r, min, max
     return r
 }
 
@@ -189,10 +189,10 @@ RemoveTrayTip:
 ; ========================================
 
 ; Check time every 30 minutes
-SetTimer, CheckTime, 1800000
+SetTimer(CheckTime,  1800000
 
 ; Check repository health every hour
-SetTimer, CheckRepoHealth, 3600000
+SetTimer(CheckRepoHealth,  3600000
 
 ; ========================================
 ; TRAY MENU
@@ -240,7 +240,7 @@ ExitScript:
 
 ShowLauncher:
     ; You could add a GUI launcher here
-    MsgBox(, Dev Context Music, Use the tray menu or hotkeys to control music.`n`nHotkeys:`n- Ctrl+Alt+S: Sad March`n- Ctrl+Alt+T: Triumphant Music`n- Ctrl+Alt+B: Betty Boop`n- Ctrl+Alt+C: Classical Music
+    MsgBox, 64, Dev Context Music, Use the tray menu or hotkeys to control music.`n`nHotkeys:`n- Ctrl+Alt+S: Sad March`n- Ctrl+Alt+T: Triumphant Music`n- Ctrl+Alt+B: Betty Boop`n- Ctrl+Alt+C: Classical Music
     return
 
 ; ========================================
@@ -249,7 +249,7 @@ ShowLauncher:
 
 ; Show welcome message
 TrayTip, Dev Context Music, Music system ready!, , 1
-SetTimer, RemoveTrayTip, -3000
+SetTimer(RemoveTrayTip,  -3000
 
 ; Initial time check
 Gosub, CheckTime

@@ -98,6 +98,10 @@ class SystemMonitorPro {
         ; Status bar
         this.gui.Add("Text", "x20 y610 w960 Center ", "Press Ctrl+Alt+M to open • F10 for alerts • Escape to close")
         
+        
+        ; Add exit handlers
+        this.gui.OnEvent("Close", (*) => ExitApp())
+        this.gui.OnEvent("Escape", (*) => ExitApp())
         this.gui.Show("w1000 h650")
     }
     

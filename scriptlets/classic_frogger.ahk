@@ -22,7 +22,7 @@
 #SingleInstance Force
 #Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
-OnError(FroggerApp.HandleError)
+OnError(LogError)
 
 class FroggerApp {
     static gui := ""
@@ -45,12 +45,6 @@ class FroggerApp {
         FroggerApp.ResetGame()
     }
 
-    static HandleError(Thrown, Mode) {
-        message := "Frogger error: " . Thrown.Message . " at line " . Thrown.Line
-        try FileAppend(message . "`n", "classic_frogger_errors.log", "UTF-8")
-        OutputDebug(message)
-        return 1
-    }
 
     static SetupLanes() {
         FroggerApp.lanes := [

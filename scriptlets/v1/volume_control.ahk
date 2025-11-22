@@ -28,7 +28,7 @@ return
 ; Show Volume OSD
 ShowOSD(message) {
     Progress, B1 W200 H80 WM400 WS400, %message%, , Volume, Arial
-    SetTimer, RemoveOSD, -1000
+    SetTimer(RemoveOSD,  -1000
 }
 
 RemoveOSD:

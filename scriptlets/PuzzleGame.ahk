@@ -1,7 +1,8 @@
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
+#Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
-OnError(PuzzleApp.HandleError)
+OnError(LogError)
 
 class PuzzleApp {
     static gui := ""
@@ -21,12 +22,6 @@ class PuzzleApp {
         PuzzleApp.UpdateStatus("Press Shuffle to mix tiles.")
     }
 
-    static HandleError(Thrown, Mode) {
-        message := "Puzzle error: " . Thrown.Message . " at line " . Thrown.Line
-        try FileAppend(message . "`n", "puzzle_game_errors.log", "UTF-8")
-        OutputDebug(message)
-        return 1
-    }
 
     static BuildBoard() {
         PuzzleApp.board := []

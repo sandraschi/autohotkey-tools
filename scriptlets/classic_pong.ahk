@@ -22,7 +22,7 @@
 #SingleInstance Force
 #Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
-OnError(PongApp.HandleError)
+OnError(LogError)
 
 class PongApp {
     static gui := ""

@@ -87,6 +87,10 @@ class TextTransformer {
         clearBtn.OnEvent("Click", this.ClearAll.Bind(this))
         swapBtn.OnEvent("Click", this.SwapInputOutput.Bind(this))
         
+        ; Add exit handlers
+        this.gui.OnEvent("Close", (*) => this.Stop())
+        this.gui.OnEvent("Escape", (*) => this.Stop())
+        
         this.gui.Show("w620 h450")
     }
     
@@ -209,8 +213,8 @@ class TextTransformer {
             obj := JSON.parse(text)
             formatted := JSON.stringify(obj, 4)
             this.outputArea.Text := formatted
-        } catch {
-            this.outputArea.Text := "Error: Invalid JSON"
+        } catch as e {
+            this.outputArea.Text := "Error: Invalid JSON - " . e.Message
         }
     }
     
@@ -230,6 +234,13 @@ class TextTransformer {
         output := this.outputArea.Text
         this.inputArea.Text := output
         this.outputArea.Text := input
+    }
+    
+    static Stop(*) {
+        if (this.gui) {
+            this.gui.Destroy()
+            this.gui := ""
+        }
     }
 }
 
@@ -404,6 +415,9 @@ Hotkey("^!t", (*) => TextTransformer.Init())
 Hotkey("^!u", (*) => TextTransformer.ToUpperCase())
 Hotkey("^!l", (*) => TextTransformer.ToLowerCase())
 Hotkey("^!s", (*) => TextTransformer.ToSnakeCase())
+
+; Register exit handler
+OnExit((*) => TextTransformer.Stop())
 
 ; Initialize
 TextTransformer.Init()

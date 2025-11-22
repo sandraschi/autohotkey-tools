@@ -20,8 +20,9 @@
 
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
+#Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
-OnError(MCPLogAnalyzer.HandleError)
+OnError(LogError)
 
 class MCPLogAnalyzer {
     static gui := ""

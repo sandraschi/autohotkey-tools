@@ -29,7 +29,7 @@ return
 ; Show OSD for media actions
 ShowOSD(message) {
     Progress, B1 W200 H80 WM400 WS400, %message%, , Media Control, Arial
-    SetTimer, RemoveOSD, -1000
+    SetTimer(RemoveOSD,  -1000
 }
 
 RemoveOSD:

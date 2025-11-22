@@ -22,7 +22,7 @@
 ; @dependencies:
 ; ==============================================================================
 
-OnError(HandleScriptError)
+OnError(LogError)
 
 HandleScriptError(Thrown, Mode) {
     return AutomationBuilder.HandleScriptError(Thrown, Mode)
@@ -547,5 +547,8 @@ class AutomationBuilder {
         return 1
     }
 }
+
+; Register exit handler
+OnExit((*) => AutomationBuilder.HideGui())
 
 AutomationBuilder.Init()

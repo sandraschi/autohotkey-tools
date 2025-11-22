@@ -190,4 +190,7 @@ Hotkey("^!s", (*) => SecurityGuide.Init())
 Hotkey("F2", (*) => SecurityGuide.Init())
 
 ; Initialize
+; Register exit handler
+OnExit((*) => SecurityGuide.HideGui())
+
 SecurityGuide.Init()

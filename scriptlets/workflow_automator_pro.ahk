@@ -146,6 +146,10 @@ class WorkflowAutomator {
         ; Status bar
         this.statusBar := this.gui.Add("Text", "w700 h20 BackgroundE0E0E0", "Ready - Monitoring " . this.activeWorkflows.Length . " workflows")
         
+        
+        ; Add exit handlers
+        this.gui.OnEvent("Close", (*) => ExitApp())
+        this.gui.OnEvent("Escape", (*) => ExitApp())
         this.gui.Show("w720 h600")
         this.UpdateWorkflowList()
         this.StartMonitoring()

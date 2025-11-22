@@ -21,12 +21,9 @@
 ; @dependencies: 
 ; ==============================================================================
 
-; Error handling - structured logging
-OnError(HandleScriptError)
+#Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
-HandleScriptError(Thrown, Mode) {
-    return MacroEditor.HandleScriptError(Thrown, Mode)
-}
+OnError(LogError)
 
 class MacroEditor {
     static gui := ""
@@ -107,6 +104,10 @@ class MacroEditor {
         Hotkey("F9", MacroEditor.TestMacro)
         Hotkey("Escape", (*) => MacroEditor.HideGUI(), this.gui)
         
+        
+        ; Add exit handlers
+        this.gui.OnEvent("Close", this.HideGui())
+        this.gui.OnEvent("Escape", this.HideGui())
         this.gui.Show("w500 h600")
         this.isVisible := true
     }
@@ -408,24 +409,6 @@ class MacroEditor {
         }
     }
 
-    static HandleScriptError(Thrown, Mode) {
-        message := "Unhandled exception (" . Mode . "): " . Thrown.Message
-        location := "File: " . (Thrown.File ?? A_ScriptFullPath) . " | Line: " . (Thrown.Line ?? "unknown")
-        this.AppendLog(message, "ERROR")
-        this.AppendLog(location, "ERROR")
-        if (Thrown.Stack) {
-            this.AppendLog("Stack trace:`n" . Thrown.Stack, "TRACE")
-        }
-        if (this.gui) {
-            try {
-                this.gui.Hide()
-                this.isVisible := false
-            } catch {
-                ; ignore GUI hide errors
-            }
-        }
-        return 1
-    }
 
     static ToggleGUI(*) {
         if (!this.gui) {

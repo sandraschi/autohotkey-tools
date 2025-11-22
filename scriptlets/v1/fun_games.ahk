@@ -114,13 +114,13 @@ Right::direction := (direction != "left") ? "right" : direction
     static jigglerOn := false
     jigglerOn := !jigglerOn
     if (jigglerOn) {
-        SetTimer, JiggleMouse, 60000  ; Jiggle every minute
+        SetTimer(JiggleMouse,  60000  ; Jiggle every minute
         TrayTip, Mouse Jiggler, Mouse Jiggler: ON, , 1
     } else {
-        SetTimer, JiggleMouse, Off
+        SetTimer(JiggleMouse,  Off
         TrayTip, Mouse Jiggler, Mouse Jiggler: OFF, , 1
     }
-    SetTimer, RemoveTrayTip, -3000
+    SetTimer(RemoveTrayTip,  -3000
     return
 
 JiggleMouse:
@@ -131,7 +131,7 @@ JiggleMouse:
 
 ; Prank: Fake Error Message
 ^!e::  ; Ctrl+Alt+E for fake error
-    MsgBox( Critical Error, Windows has encountered a critical error!`nError Code: 0x80070002`n`nYour computer will now explode in 10 seconds..., 10
+    MsgBox, 16, Critical Error, Windows has encountered a critical error!`nError Code: 0x80070002`n`nYour computer will now explode in 10 seconds..., 10
     return
 
 ; Prank: Flip Screen

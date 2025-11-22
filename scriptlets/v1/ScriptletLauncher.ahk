@@ -1,4 +1,4 @@
-#NoEnv
+﻿#NoEnv
 #SingleInstance Force
 #Warn
 #MaxHotkeysPerInterval 200
@@ -93,7 +93,7 @@ LaunchScript:
     if (script != "") {
         if (!FileExist(script)) {
             SB_SetText("Error: " script " not found!")
-            MsgBox( Error, Script not found:`n%script%
+            MsgBox, 16, Error, Script not found:`n%script%
         } else {
             Run, %A_AhkPath% "%A_ScriptDir%\%script%"
             SB_SetText("Launched: " script)
