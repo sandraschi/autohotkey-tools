@@ -7,7 +7,7 @@
 #Warn
 
 ; Set working directory to the script's location
-SetWorkingDir A_ScriptDir
+SetWorkingDir(A_ScriptDir)
 
 ; Create the main GUI with tabs
 MyGui := Gui(, "Ultimate Scriptlet Launcher")
@@ -903,7 +903,7 @@ ShowSystemInfo(*) {
         info .= "Total RAM: " totalMem " GB`n"
         info .= "Available RAM: " availMem " GB`n"
         
-        MsgBox info, "System Information", "OK Iconinformation"
+        MsgBox(info, "System Information", "OK Iconinformation")
         statusBar.Text := "System information displayed"
     } catch as e {
         statusBar.Text := "Error getting system info: " e.Message
@@ -2948,8 +2948,8 @@ OnExit(ExitReason, ExitCode) {
 }
 
 ; Show help when F1 is pressed
-F1:: {
-    MsgBox "Ultimate Scriptlet Launcher Help`n`n"
+ShowHelpF1(*) {
+    MsgBox("Ultimate Scriptlet Launcher Help`n`n"
         . "Use number keys (01-45) to run scriptlets or click the buttons.`n"
         . "Navigate between categories using the tabs at the top.`n"
         . "`nCategories:`n"
@@ -2957,8 +2957,9 @@ F1:: {
         . "2. Development (16-25): Coding and web development tools`n"
         . "3. Fun (26-35): Entertainment and fun utilities`n"
         . "4. Games (36-45): Simple ASCII-based games`n"
-        . "`nPress ESC in games to exit.", "Scriptlet Launcher Help"
+        . "`nPress ESC in games to exit.", "Scriptlet Launcher Help")
 }
+Hotkey("F1", ShowHelpF1)
 
 ; Show a tooltip with the script's status when hovering over the tray icon
 TraySetToolTip "Ultimate Scriptlet Launcher`nPress F1 for help"

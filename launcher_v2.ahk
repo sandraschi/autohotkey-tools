@@ -30,8 +30,8 @@ TraySetToolTip("Scriptlet Launcher v2`nPress F1 for help")
 
 ; Register hotkeys
 #HotIf WinActive("ahk_id " launcherGui.Hwnd)
-F1:: ShowHelp()
-#l:: ReloadLauncher()
+Hotkey("F1", ShowHelp)
+Hotkey("#l", ReloadLauncher)
 #HotIf
 
 ; ==============================================================================

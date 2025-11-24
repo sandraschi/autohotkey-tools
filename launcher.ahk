@@ -3,7 +3,7 @@
 #Warn
 
 ; Set working directory to the script's location
-SetWorkingDir A_ScriptDir
+SetWorkingDir(A_ScriptDir)
 
 ; Global variables
 global launcherGui
@@ -109,7 +109,7 @@ LoadScriptlets() {
     
     ; Get all .ahk files in scriptlets directory and subdirectories
     scriptletFiles := []
-    Loop Files, "scriptlets\**\*.ahk" {
+    Loop Files "scriptlets\**\*.ahk" {
         if (A_LoopFileName != "_base.ahk") {
             scriptletFiles.Push(A_LoopFileFullPath)
         }
@@ -224,7 +224,7 @@ ShowHelp() {
     Each scriptlet should be in its own .ahk file.
     """
     
-    MsgBox helpText, "Scriptlet Launcher Help"
+    MsgBox(helpText, "Scriptlet Launcher Help")
 }
 
 ReloadLauncher() {

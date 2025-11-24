@@ -7,7 +7,7 @@
 #Warn
 
 ; Set working directory to the script's location
-SetWorkingDir A_ScriptDir
+SetWorkingDir(A_ScriptDir)
 
 ; Create the main GUI
 MyGui := Gui(, "Scriptlet Launcher")
@@ -163,8 +163,8 @@ OnExit(ExitReason, ExitCode) {
 }
 
 ; Show help when F1 is pressed
-F1:: {
-    MsgBox "Scriptlet Launcher Help`n`n"
+ShowHelpF1(*) {
+    MsgBox("Scriptlet Launcher Help`n`n"
         . "Press the number keys (1-0) to run scriptlets.`n"
         . "1. Quick Note - Create and save quick notes`n"
         . "2. Screenshot - Take a screenshot to clipboard`n"
@@ -175,8 +175,9 @@ F1:: {
         . "7. Empty Recycle Bin - Clear the Recycle Bin`n"
         . "8. Toggle Dark Mode - Switch between light/dark theme`n"
         . "9. Window Opacity - Toggle active window transparency`n"
-        . "0. Exit - Close the script", "Scriptlet Launcher Help"
+        . "0. Exit - Close the script", "Scriptlet Launcher Help")
 }
+Hotkey("F1", ShowHelpF1)
 
 ; Show a tooltip with the script's status when hovering over the tray icon
 TraySetToolTip "Scriptlet Launcher`nPress F1 for help"
