@@ -109,7 +109,7 @@ class CorporatePranks {
 
     static AppendLog(message) {
         timestamp := ""
-        timestamp := FormatTime(, "HH:mm:ss")
+        FormatTime(timestamp, A_Now, "HH:mm:ss")
         entry := "[" . timestamp . "] " . message
         try {
             FileAppend(entry . "`n", CorporatePranks.logFile, "UTF-8")

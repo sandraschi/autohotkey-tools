@@ -321,7 +321,7 @@ class AutomationBuilder {
         }
 
         timestamp := ""
-        timestamp := FormatTime(, "yyyyMMdd_HHmmss")
+        FormatTime(timestamp, A_Now, "yyyyMMdd_HHmmss")
         fileName := "workflow_" . timestamp . ".json"
         filePath := A_ScriptDir . "\" . fileName
 
@@ -367,7 +367,7 @@ class AutomationBuilder {
         }
 
         generated := ""
-        generated := FormatTime(, "yyyy-MM-dd HH:mm:ss")
+        FormatTime(generated, A_Now, "yyyy-MM-dd HH:mm:ss")
         quote := Chr(34)
         return "{" . quote . "nodes" . quote . ":[" . AutomationBuilder.JoinArray(nodes, ",") . "]," . quote . "generated" . quote . ":" . quote . generated . quote . "}"
     }
@@ -441,7 +441,7 @@ class AutomationBuilder {
     static AppendLog(message, severity := "INFO") {
         AutomationBuilder.EnsureLogInfrastructure()
         timestamp := ""
-        timestamp := FormatTime(, "yyyy-MM-dd HH:mm:ss")
+        FormatTime(timestamp, A_Now, "yyyy-MM-dd HH:mm:ss")
         entry := "[" . timestamp . "] [" . severity . "] " . message
 
         if (AutomationBuilder.logOutput) {
@@ -547,6 +547,7 @@ class AutomationBuilder {
         return 1
     }
 }
+
 
 ; Register exit handler
 OnExit((*) => AutomationBuilder.HideGui())
