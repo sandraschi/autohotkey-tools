@@ -299,7 +299,7 @@ class AHDebugHelper {
             }
             writer.WriteLine("AutoHotkey Debug Log")
             timestamp := ""
-            timestamp := FormatTime(, "yyyy-MM-dd HH:mm:ss")
+            FormatTime(timestamp, A_Now, "yyyy-MM-dd HH:mm:ss")
             writer.WriteLine("Generated: " . timestamp)
             writer.WriteLine("")
             for message in AHDebugHelper.debugLog {
@@ -371,7 +371,7 @@ class AHDebugHelper {
     static AppendLog(message, severity := "INFO") {
         AHDebugHelper.EnsureLogInfrastructure()
         timestamp := ""
-        timestamp := FormatTime(, "yyyy-MM-dd HH:mm:ss")
+        FormatTime(timestamp, A_Now, "yyyy-MM-dd HH:mm:ss")
         entry := "[" . timestamp . "] [" . severity . "] " . message
         AHDebugHelper.debugLog.Push(entry)
         if (AHDebugHelper.debugOutput) {
@@ -428,8 +428,8 @@ class AHDebugHelper {
         x := 0
         y := 0
         MouseGetPos(&x, &y)
-        jitterX := Random(-5, 5)
-        jitterY := Random(-5, 5)
+        Random(&jitterX, -5, 5)
+        Random(&jitterY, -5, 5)
         MouseMove(x + jitterX, y + jitterY, 0)
     }
 
@@ -444,8 +444,8 @@ class AHDebugHelper {
     }
 
     static RandomClicksStep(*) {
-        x := Random(0, A_ScreenWidth)
-        y := Random(0, A_ScreenHeight)
+        Random(&x, 0, A_ScreenWidth)
+        Random(&y, 0, A_ScreenHeight)
         Click(x, y)
     }
 

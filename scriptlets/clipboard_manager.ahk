@@ -34,7 +34,7 @@ LastActiveWindow := 0
 ; MAIN SCRIPT
 ; =============================================================================
 ; Set working directory
-SetWorkingDir A_ScriptDir
+SetWorkingDir(A_ScriptDir)
 
 ; Initialize clipboard history from file
 LoadClipboardHistory()
@@ -63,9 +63,11 @@ ClipChanged(Type) {
         }
         
         ; Create a new history item
+        timestamp := ""
+        FormatTime(timestamp, A_Now, "yyyy-MM-dd HH:mm:ss")
         item := {
             text: Clipboard,
-            timestamp: FormatTime(, "yyyy-MM-dd HH:mm:ss"),
+            timestamp: timestamp,
             source: WinGetProcessName("A"),
             preview: GetPreviewText(Clipboard)
         }
@@ -311,10 +313,10 @@ MoveWindow(*) {
 ; HOTKEYS
 ; =============================================================================
 ; Win+V: Show clipboard history
-#Hotkey("v", (*) =>  ShowClipboardMe)nu()
+Hotkey("#v", (*) => ShowClipboardMenu())
 
 ; Ctrl+Alt+V: Paste previous clipboard item
-^!Hotkey("v", (*) =>  PastePreviousItem()
+Hotkey("^!v", (*) => PastePreviousItem())
 
 ; Ctrl+Alt+Shift+C: Clear clipboard history
 ^!+c:: ClearClipboardHistory()

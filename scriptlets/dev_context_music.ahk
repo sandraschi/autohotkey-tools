@@ -156,7 +156,7 @@ PlayContextSound(context) {
 CheckBuildStatus() {
     ; This would check your build system
     ; For now, we'll just return a random status
-    status := Random(1, 10)
+    Random(&status, 1, 10)
     if (status > 7) {
         PlayContextSound("build_failure")
         TrayTip("Build failed! Playing sad music...", "Build Status", 1)
@@ -171,7 +171,7 @@ CheckBuildStatus() {
 CheckRepoHealth() {
     ; This would check git status, number of changes, etc.
     ; For now, we'll just return a random status
-    status := Random(1, 10)
+    Random(&status, 1, 10)
     if (status > 8) {
         PlayContextSound("repo_bad")
         TrayTip("Critical issues found! Playing dramatic music...", "Repository Health", 1)
@@ -205,12 +205,12 @@ Hotkey("^!c", (*) => PlayClassical())  ; Ctrl+Alt+C for classical
 ; Check time and play appropriate music
 CheckTime() {
     hourStr := ""
-    hourStr := FormatTime(, "H")
+    FormatTime(hourStr, A_Now, "H")
     hour := Integer(hourStr)  ; 24-hour format
     
     if (hour >= 22 || hour < 6) {
         ; Late night coding
-        chance := Random(1, 3)
+        Random(&chance, 1, 3)
         if (chance = 1) {  ; 1 in 3 chance
             PlayContextSound("late_night")
             TrayTip("Playing some late night coding music... 🌙", "Late Night", 1)
@@ -218,7 +218,7 @@ CheckTime() {
         }
     } else if (hour >= 5 && hour < 9) {
         ; Early morning
-        chance := Random(1, 4)
+        Random(&chance, 1, 4)
         if (chance = 1) {  ; 1 in 4 chance
             PlayContextSound("early_morning")
             TrayTip("Rise and shine! ☀️", "Good Morning", 1)

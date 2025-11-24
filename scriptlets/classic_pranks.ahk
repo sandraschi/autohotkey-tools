@@ -63,10 +63,10 @@ class ClassicPranks {
         bugGui.BackColor := "000000"
         
         ; Random position and speed
-        x := Random(0, A_ScreenWidth - 50)
-        y := Random(0, A_ScreenHeight - 50)
-        speedX := Random(-5, 5)
-        speedY := Random(-5, 5)
+        Random(&x, 0, A_ScreenWidth - 50)
+        Random(&y, 0, A_ScreenHeight - 50)
+        Random(&speedX, -5, 5)
+        Random(&speedY, -5, 5)
         
         ; Create bug (simple circle for now)
         bugGui.Add("Text", "x0 y0 w50 h50 cLime", "🐛")
@@ -136,7 +136,7 @@ class ClassicPranks {
             "FATAL_ERROR: Someone unplugged the internet"
         ]
         
-        rand := Random(1, funnyMessages.Length)
+        Random(&rand, 1, funnyMessages.Length)
         errorMsg := funnyMessages[rand]
         
         bsodText := "A problem has been detected and Windows has been shut down to prevent damage`n"
