@@ -102,7 +102,7 @@ GetHotkeyString(hotkey) {
 ; MAIN SCRIPT
 ; =============================================================================
 ; Set working directory
-SetWorkingDir A_ScriptDir
+SetWorkingDir(A_ScriptDir)
 
 ; Show notification on startup
 TrayTip "System Shortcuts", "System shortcuts are active"

@@ -158,7 +158,8 @@ class SystemMonitorPro {
             RunWait('powershell -Command "Get-WmiObject -Class Win32_Processor | Select-Object -ExpandProperty LoadPercentage"', &output)
             return Integer(output)
         } catch {
-            return Random(10, 90)  ; Fallback
+            Random(&fallback, 10, 90)
+            return fallback  ; Fallback
         }
     }
     
@@ -169,7 +170,8 @@ class SystemMonitorPro {
             RunWait(cmd, &output)
             return Integer(output)
         } catch {
-            return Random(30, 80)  ; Fallback
+            Random(&fallback, 30, 80)
+            return fallback  ; Fallback
         }
     }
     
@@ -240,9 +242,12 @@ class SystemMonitorPro {
         
         ; Create network display
         chart := "Network Activity`n"
-        chart .= "Bytes Received: " . Random(1000, 9999) . " MB`n"
-        chart .= "Bytes Sent: " . Random(100, 999) . " MB`n"
-        chart .= "Packets/sec: " . Random(10, 100)
+        Random(&bytesRecv, 1000, 9999)
+        Random(&bytesSent, 100, 999)
+        Random(&packets, 10, 100)
+        chart .= "Bytes Received: " . bytesRecv . " MB`n"
+        chart .= "Bytes Sent: " . bytesSent . " MB`n"
+        chart .= "Packets/sec: " . packets
         
         this.networkChart.Text := chart
     }

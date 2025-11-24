@@ -58,7 +58,7 @@ class SmartClipboard {
     
     static AddToHistory(text) {
         timestamp := ""
-        timestamp := FormatTime(, "yyyy-MM-dd HH:mm:ss")
+        FormatTime(timestamp, A_Now, "yyyy-MM-dd HH:mm:ss")
         this.history.Push({
             text: text,
             timestamp: timestamp,
@@ -280,7 +280,7 @@ class SmartClipboard {
         if (!this.logArea return
         
         timestamp := ""
-        timestamp := FormatTime(, "HH:mm:ss")
+        FormatTime(timestamp, A_Now, "HH:mm:ss")
         this.logArea.Text .= "[" . timestamp . "] " . message . "`n"
         
         ; Auto-scroll to bottom

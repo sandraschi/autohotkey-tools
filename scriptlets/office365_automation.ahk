@@ -346,8 +346,8 @@ class Office365Automation {
             }
             
             ; Get current date and time
-            currentDate := FormatTime(, "yyyy-MM-dd")
-            currentTime := FormatTime(, "HH:mm")
+            FormatTime(currentDate, A_Now, "yyyy-MM-dd")
+            FormatTime(currentTime, A_Now, "HH:mm")
             
             ; Create quick note
             noteContent := "Quick Note - " . currentDate . " " . currentTime . "`n`n" . 
@@ -380,7 +380,7 @@ class Office365Automation {
             
             meetingGui.Add("Text", "w400 y+20", "Date:")
             dateStr := ""
-            dateStr := FormatTime(, "yyyy-MM-dd")
+            FormatTime(dateStr, A_Now, "yyyy-MM-dd")
             dateEdit := meetingGui.Add("Edit", "w380 h20", dateStr)
             
             meetingGui.Add("Text", "w400 y+20", "Attendees:")
@@ -556,10 +556,12 @@ class Office365Automation {
             ; Add template content based on type
             switch templateName {
                 case "Meeting Minutes":
+                    FormatTime(dateStr, A_Now, "yyyy-MM-dd")
+                    FormatTime(timeStr, A_Now, "HH:mm")
                     doc.Content.Text := "Meeting Minutes`n" . 
                                       "===============`n`n" . 
-                                      "Date: " . FormatTime(, "yyyy-MM-dd") . "`n" . 
-                                      "Time: " . FormatTime(, "HH:mm") . "`n" . 
+                                      "Date: " . dateStr . "`n" . 
+                                      "Time: " . timeStr . "`n" . 
                                       "Attendees: `n`n" . 
                                       "Agenda:`n" . 
                                       "1. `n" . 
@@ -575,7 +577,7 @@ class Office365Automation {
                     doc.Content.Text := "Project Proposal`n" . 
                                       "=================`n`n" . 
                                       "Project Name: `n" . 
-                                      "Date: " . FormatTime(, "yyyy-MM-dd") . "`n" . 
+                                      "Date: " . dateStr . "`n" . 
                                       "Proposed By: `n`n" . 
                                       "Executive Summary:`n" . 
                                       "`n`n" . 
@@ -945,7 +947,7 @@ class Office365Automation {
 
     static HandleClipboardSync(syncGui, currentClipboard) {
         timestamp := ""
-        timestamp := FormatTime(, "yyyy-MM-dd HH:mm:ss")
+        FormatTime(timestamp, A_Now, "yyyy-MM-dd HH:mm:ss")
         A_Clipboard := "Clipboard Sync - " . timestamp . "`n`n" . currentClipboard
         syncGui.Destroy()
         TrayTip("Clipboard Synced!", "Content copied to OneNote", 2)

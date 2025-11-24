@@ -232,7 +232,7 @@ class VideoFilenameScrubber {
         
         try {
             files := []
-            Loop Files, dirPath . "\*" {
+            Loop Files dirPath . "\*" {
                 if (this.IsVideoFile(A_LoopFileName)) {
                     files.Push(A_LoopFileFullPath)
                 }
@@ -242,7 +242,7 @@ class VideoFilenameScrubber {
                 this.ProcessFile(filePath)
             }
             
-            Loop Files, dirPath . "\*", "D" {
+            Loop Files dirPath . "\*", "D" {
                 this.ProcessDirectoryRecursive(A_LoopFileFullPath)
             }
         } catch as err {
@@ -420,7 +420,7 @@ class VideoFilenameScrubber {
     
     static AppendLog(message) {
         timestamp := ""
-        timestamp := FormatTime(, "HH:mm:ss")
+        FormatTime(timestamp, A_Now, "HH:mm:ss")
         logMessage := "[" . timestamp . "] " . message . "`n"
         try {
             if (this.logArea && this.logArea.Hwnd) {
@@ -525,7 +525,7 @@ class VideoFilenameScrubber {
             version++
             if (version > 999) {
                 timestamp := ""
-                timestamp := FormatTime(, "yyyyMMdd_HHmmss")
+                FormatTime(timestamp, A_Now, "yyyyMMdd_HHmmss")
                 return baseName . " (" . timestamp . ")" . ext
             }
         }
@@ -538,10 +538,10 @@ class VideoFilenameScrubber {
         try {
             fileCount := 0
             dirCount := 0
-            Loop Files, dirPath . "\*" {
+            Loop Files dirPath . "\*" {
                 fileCount++
             }
-            Loop Files, dirPath . "\*", "D" {
+            Loop Files dirPath . "\*", "D" {
                 dirCount++
             }
             if (fileCount = 0 && dirCount = 0) {
@@ -570,7 +570,7 @@ class VideoFilenameScrubber {
             logContent := "Video Filename Scrubber Log`n"
             logContent .= "========================`n`n"
             dateTime := ""
-            dateTime := FormatTime(, "yyyy-MM-dd HH:mm:ss")
+            FormatTime(dateTime, A_Now, "yyyy-MM-dd HH:mm:ss")
             logContent .= "Date: " . dateTime . "`n"
             logContent .= "Mode: " . (this.dryRun ? "DRY RUN" : "LIVE") . "`n"
             logContent .= "Target Directory: " . this.targetDir . "`n`n"
@@ -586,7 +586,7 @@ class VideoFilenameScrubber {
             logContent .= "Directories Deleted: " . this.deletedDirCount . "`n"
             logContent .= "Errors: " . this.errorCount . "`n"
             timestamp := ""
-            timestamp := FormatTime(, "yyyyMMdd_HHmmss")
+            FormatTime(timestamp, A_Now, "yyyyMMdd_HHmmss")
             logFileName := "video_filename_scrubber_report_" . timestamp . ".txt"
             FileAppend(logContent, logFileName, "UTF-8")
             this.AppendLog("Report saved to: " . logFileName)

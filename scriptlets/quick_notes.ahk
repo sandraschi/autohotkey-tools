@@ -38,7 +38,7 @@ global currentFile := ""
 ; MAIN SCRIPT
 ; =============================================================================
 ; Set working directory
-SetWorkingDir A_ScriptDir
+SetWorkingDir(A_ScriptDir)
 
 ; Create backup directory if it doesn't exist
 if !DirExist(backupDir) {

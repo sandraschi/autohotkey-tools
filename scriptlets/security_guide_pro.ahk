@@ -78,7 +78,7 @@ class SecurityGuide {
     
     static AppendLog(message, level := "INFO") {
         timestamp := ""
-        timestamp := FormatTime(, "yyyy-MM-dd HH:mm:ss")
+        FormatTime(timestamp, A_Now, "yyyy-MM-dd HH:mm:ss")
         OutputDebug(Format("[{}] [{}] {}", timestamp, level, message))
     }
     
@@ -190,6 +190,7 @@ Hotkey("^!s", (*) => SecurityGuide.Init())
 Hotkey("F2", (*) => SecurityGuide.Init())
 
 ; Initialize
+
 ; Register exit handler
 OnExit((*) => SecurityGuide.HideGui())
 

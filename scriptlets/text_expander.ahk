@@ -74,7 +74,7 @@ if (!FileExist(snippetsFile)) {
 }
 
 ; Main script
-SetWorkingDir A_ScriptDir
+SetWorkingDir(A_ScriptDir)
 Hotkey HOTKEY_SHOW_MENU, ShowSnippetsMenu
 TrayTip "Text Expander", "Press " HOTKEY_SHOW_MENU " to show snippets"
 SetTimer () => TrayTip(), 3000
@@ -125,8 +125,8 @@ InsertSnippet(snippetKey) {
         snippet := Snippets[snippetKey]
         
         ; Process placeholders
-        dateStr := FormatTime(, "yyyy-MM-dd")
-        timeStr := FormatTime(, "HH:mm:ss")
+        FormatTime(dateStr, A_Now, "yyyy-MM-dd")
+        FormatTime(timeStr, A_Now, "HH:mm:ss")
         snippet := StrReplace(snippet, "{date}", dateStr)
         snippet := StrReplace(snippet, "{time}", timeStr)
         snippet := StrReplace(snippet, "{user}", A_UserName)

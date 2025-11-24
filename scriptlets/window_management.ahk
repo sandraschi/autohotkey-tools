@@ -59,7 +59,7 @@ DEFAULT_TRANSPARENCY := 200
 ; MAIN SCRIPT
 ; =============================================================================
 ; Set working directory
-SetWorkingDir A_ScriptDir
+SetWorkingDir(A_ScriptDir)
 
 ; Register hotkeys
 Hotkey TOGGLE_ALWAYS_ON_TOP, ToggleAlwaysOnTop
