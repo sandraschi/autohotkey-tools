@@ -65,7 +65,7 @@ OSD_OPACITY := 230                         ; 0-255 (0=transparent, 255=opaque)
 ; MAIN SCRIPT
 ; =============================================================================
 ; Set working directory
-SetWorkingDir A_ScriptDir
+SetWorkingDir(A_ScriptDir)
 
 ; Register media control hotkeys
 Hotkey MEDIA_PLAY_PAUSE, (*) => Send("{Media_Play_Pause}")

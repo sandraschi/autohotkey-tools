@@ -545,7 +545,7 @@ ConvertMarkdownToHtml(markdown) {
 
             ; No selection, insert current date/time
 
-            FormatTime currentDateTime, , "yyyy-MM-dd HH:mm:ss"
+            FormatTime(currentDateTime, A_Now, "yyyy-MM-dd HH:mm:ss")
 
             ControlSend(editNotes, "{Text}" currentDateTime)
 

@@ -155,7 +155,7 @@ class HelpSystem {
 
     static AppendLog(message, level := "INFO") {
         timestamp := ""
-        timestamp := FormatTime(, "yyyy-MM-dd HH:mm:ss")
+        FormatTime(timestamp, A_Now, "yyyy-MM-dd HH:mm:ss")
         OutputDebug(Format("[{}] [{}] {}", timestamp, level, message))
     }
 
@@ -207,6 +207,7 @@ class HelpSystem {
         HelpSystem.ShowTopic(id)
     }
 }
+
 
 ; Register exit handler
 OnExit((*) => HelpSystem.HideGui())

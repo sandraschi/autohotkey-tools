@@ -145,7 +145,8 @@ class MiniArcade {
         slider := dlg.AddSlider("x20 y48 w260 Range1-20 TickInterval1", 10)
         valueText := dlg.AddText("x20 y80 w260 h24 Center cFFFFFF", "Current guess: 10")
         slider.OnEvent("Change", MiniArcade.UpdateGuessDisplay.Bind(MiniArcade, slider, valueText))
-        MiniArcade.guessTarget := Random(1, 20)
+        Random(&target, 1, 20)
+        MiniArcade.guessTarget := target
         checkBtn := dlg.AddButton("x60 y120 w80 h30", "Check")
         resetBtn := dlg.AddButton("x160 y120 w80 h30", "New #")
         resultCtrl := dlg.AddText("x20 y170 w260 h24 Center cFFFFFF", "")
@@ -174,7 +175,8 @@ class MiniArcade {
     }
 
     static ResetGuess(resultCtrl, *) {
-        MiniArcade.guessTarget := Random(1, 20)
+        Random(&target, 1, 20)
+        MiniArcade.guessTarget := target
         resultCtrl.Text := "New number chosen."
         MiniArcade.UpdateStatus("Guess number reset.")
     }

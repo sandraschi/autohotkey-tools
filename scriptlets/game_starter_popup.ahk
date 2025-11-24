@@ -211,7 +211,7 @@ class GameStarter {
             }
             
             ; Pick random game
-            randomIndex := Random(1, this.gameList.Length)
+            Random(&randomIndex, 1, this.gameList.Length)
             randomGame := this.gameList[randomIndex]
             
             ; Show selection
@@ -253,7 +253,7 @@ class GameStarter {
         try {
             logFile := A_Temp . "\game_launcher.log"
             timestamp := ""
-            timestamp := FormatTime(, "yyyy-MM-dd HH:mm:ss")
+            FormatTime(timestamp, A_Now, "yyyy-MM-dd HH:mm:ss")
             logEntry := "[" . timestamp . "] Launched: " . game.name . " (" . game.script . ")" . "`n"
             FileAppend(logEntry, logFile)
         } catch {

@@ -221,7 +221,7 @@ class PacmanApp {
             }
         }
         if (choices.Length) {
-            idx := Random(1, choices.Length)
+            Random(&idx, 1, choices.Length)
             PacmanApp.ghost := choices[idx]
         }
     }

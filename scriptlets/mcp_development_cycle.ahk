@@ -32,7 +32,7 @@ class MCPDevelopmentCycle {
 
     static AppendLog(message) {
         timestamp := ""
-        timestamp := FormatTime(, "yyyy-MM-dd HH:mm:ss")
+        FormatTime(timestamp, A_Now, "yyyy-MM-dd HH:mm:ss")
         entry := "[" . timestamp . "] " . message
         try {
             FileAppend(entry . "`n", MCPDevelopmentCycle.logFile, "UTF-8")
@@ -233,7 +233,8 @@ class MCPDevelopmentCycle {
         }
         phase := MCPDevelopmentCycle.phases[row]
         phase["status"] := "in_progress"
-        phase["started"] := FormatTime(, "yyyy-MM-dd HH:mm")
+        FormatTime(started, A_Now, "yyyy-MM-dd HH:mm")
+        phase["started"] := started
         MCPDevelopmentCycle.AppendLog("Phase started: " . phase["name"])
         MCPDevelopmentCycle.RefreshPhaseList()
         MCPDevelopmentCycle.UpdateDetails()
@@ -247,7 +248,8 @@ class MCPDevelopmentCycle {
         }
         phase := MCPDevelopmentCycle.phases[row]
         phase["status"] := "completed"
-        phase["completed"] := FormatTime(, "yyyy-MM-dd HH:mm")
+        FormatTime(completed, A_Now, "yyyy-MM-dd HH:mm")
+        phase["completed"] := completed
         MCPDevelopmentCycle.AppendLog("Phase completed: " . phase["name"])
         MCPDevelopmentCycle.RefreshPhaseList()
         MCPDevelopmentCycle.UpdateDetails()
@@ -265,7 +267,8 @@ class MCPDevelopmentCycle {
         }
         phase := MCPDevelopmentCycle.phases[row]
         phase["status"] := "completed"
-        phase["completed"] := FormatTime(, "yyyy-MM-dd HH:mm")
+        FormatTime(completed, A_Now, "yyyy-MM-dd HH:mm")
+        phase["completed"] := completed
         MCPDevelopmentCycle.AppendLog("Phase skipped and marked complete: " . phase["name"])
         MCPDevelopmentCycle.RefreshPhaseList()
         MCPDevelopmentCycle.UpdateDetails()
@@ -331,8 +334,9 @@ class MCPDevelopmentCycle {
             MsgBox("Failed to prepare project directory: " . e.Message, "MCP Development Cycle", "Iconx")
             return
         }
+        FormatTime(started, A_Now, "yyyy-MM-dd HH:mm")
         MCPDevelopmentCycle.phases[1]["status"] := "in_progress"
-        MCPDevelopmentCycle.phases[1]["started"] := FormatTime(, "yyyy-MM-dd HH:mm")
+        MCPDevelopmentCycle.phases[1]["started"] := started
         MCPDevelopmentCycle.RefreshPhaseList()
         MCPDevelopmentCycle.phaseList.Modify(1, "Select")
         MCPDevelopmentCycle.UpdateDetails()

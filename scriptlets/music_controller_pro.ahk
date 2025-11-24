@@ -68,7 +68,7 @@ class MusicControllerPro {
 
     static AppendLog(message, level := "INFO") {
         timestamp := ""
-        timestamp := FormatTime(, "yyyy-MM-dd HH:mm:ss")
+        FormatTime(timestamp, A_Now, "yyyy-MM-dd HH:mm:ss")
         line := "[" . timestamp . "] [" . level . "] " . message . "`n"
         try {
             FileAppend(line, MusicControllerPro.logFile, "UTF-8")
@@ -334,7 +334,8 @@ class MusicControllerPro {
         if (!tracks || tracks.Length = 0) {
             return
         }
-        MusicControllerPro.currentTrackIndex := Random(0, tracks.Length - 1)
+        Random(&index, 0, tracks.Length - 1)
+        MusicControllerPro.currentTrackIndex := index
         MusicControllerPro.StartPlayback(MusicControllerPro.currentTrackIndex)
     }
 
@@ -420,6 +421,7 @@ class MusicControllerPro {
         MusicControllerPro.AppendLog("Created playlist " . name)
     }
 }
+
 
 ; Register exit handler
 OnExit((*) => MusicControllerPro.HideGui())

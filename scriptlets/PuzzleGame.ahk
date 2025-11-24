@@ -150,7 +150,7 @@ class PuzzleApp {
             if (valid.Length = 0) {
                 continue
             }
-            idx := Random(1, valid.Length)
+            Random(&idx, 1, valid.Length)
             dir := valid[idx]
             PuzzleApp.SwapWithEmpty(PuzzleApp.empty.row + dir[1], PuzzleApp.empty.col + dir[2])
         }

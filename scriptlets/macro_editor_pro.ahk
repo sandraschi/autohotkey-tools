@@ -116,7 +116,7 @@ class MacroEditor {
         ; Scan for .macro files
         macroFiles := []
         
-        Loop Files, "*.macro", "F" {
+        Loop Files "*.macro", "F" {
             macroFiles.Push(A_LoopFileName)
         }
         
@@ -389,7 +389,7 @@ class MacroEditor {
     static AppendLog(message, severity := "INFO") {
         this.EnsureLogInfrastructure()
         timestamp := ""
-        timestamp := FormatTime(, "yyyy-MM-dd HH:mm:ss")
+        FormatTime(timestamp, A_Now, "yyyy-MM-dd HH:mm:ss")
         entry := "[" . timestamp . "] [" . severity . "] " . message
         this.logMessages.Push(entry)
         if (this.logOutput) {

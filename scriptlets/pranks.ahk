@@ -41,7 +41,7 @@ ToggleFakeTyping(*) {
 }
 
 FakeTyping() {
-    rand := Random(1, 10)
+    Random(&rand, 1, 10)
     if (rand = 1) {
         SendInput("{Backspace 5}")
         Sleep(100)
@@ -72,8 +72,8 @@ ToggleRandomClicks(*) {
 }
 
 RandomClick() {
-    x := Random(0, A_ScreenWidth)
-    y := Random(0, A_ScreenHeight)
+    Random(&x, 0, A_ScreenWidth)
+    Random(&y, 0, A_ScreenHeight)
     Click(x . " " . y)
 }
 
@@ -148,7 +148,7 @@ ShowFakeUpdate(*) {
             return
         }
         
-        increment := Random(1, 5)
+        Random(&increment, 1, 5)
         progressValue += increment
         if (progressValue > 100) progressValue := 100
         

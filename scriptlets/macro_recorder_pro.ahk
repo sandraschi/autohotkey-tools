@@ -321,7 +321,7 @@ class MacroRecorder {
             filePaths := []
             
             ; Scan for .macro files in current directory
-            Loop Files, "*.macro", "F" {
+            Loop Files "*.macro", "F" {
                 filePaths.Push(A_LoopFileFullPath)
             }
             
@@ -424,7 +424,7 @@ class MacroRecorder {
     
     static AppendLog(message) {
         timestamp := ""
-        timestamp := FormatTime(, "HH:mm:ss")
+        FormatTime(timestamp, A_Now, "HH:mm:ss")
         logMessage := "[" . timestamp . "] " . message . "`n"
         
         try {
@@ -438,6 +438,7 @@ class MacroRecorder {
 }
 
 ; Initialize the recorder
+
 ; Register exit handler
 OnExit((*) => MacroRecorder.Stop())
 

@@ -186,7 +186,7 @@ ShowCurrentShortcuts() {
 ; AUTO-EXECUTE SECTION
 ; =============================================================================
 ; Set working directory to script's location
-SetWorkingDir A_ScriptDir
+SetWorkingDir(A_ScriptDir)
 
 ; Show a notification when the script loads
 TrayTip "IDE Shortcuts", "IDE Shortcuts script loaded", "Iconi"

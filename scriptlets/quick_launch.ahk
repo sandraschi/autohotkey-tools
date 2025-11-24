@@ -63,7 +63,7 @@ TOOLS := Map(
 ; MAIN SCRIPT - NO NEED TO EDIT BELOW THIS LINE
 ; =============================================================================
 ; Set working directory
-SetWorkingDir A_ScriptDir
+SetWorkingDir(A_ScriptDir)
 
 ; Register hotkeys
 for hotkey, target in APPS {
