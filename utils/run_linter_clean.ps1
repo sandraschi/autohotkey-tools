@@ -32,7 +32,7 @@ if (!(Test-Path $ScriptletPath)) {
 # Run the linter
 Write-Host "Running linter on: $ScriptletPath" -ForegroundColor Green
 try {
-    & 'C:\Program Files\AutoHotkey\v2\AutoHotkey.exe' '/ErrorStdOut' '.\utils\linter.ahk' $ScriptletPath
+    & 'C:\Program Files\AutoHotkey\v2\AutoHotkey.exe' '/ErrorStdOut' '.\utils\linter_headless.ahk' $ScriptletPath
     Write-Host "Linter completed successfully!" -ForegroundColor Green
 } catch {
     Write-Host "ERROR: Linter failed with exception: $($_.Exception.Message)" -ForegroundColor Red

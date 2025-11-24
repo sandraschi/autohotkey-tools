@@ -61,18 +61,22 @@ foreach ($result in $allResults) {
     
     # Count errors and warnings
     if ($result.Report -match "ERRORS \((\d+)\):") {
-        $fileErrors = [int]$matches[1]
-        $errorCount += $fileErrors
-        if ($fileErrors -gt 0) {
-            $filesWithErrors += $result.File
+        if ($matches -and $matches.Count -gt 1) {
+            $fileErrors = [int]$matches[1]
+            $errorCount += $fileErrors
+            if ($fileErrors -gt 0) {
+                $filesWithErrors += $result.File
+            }
         }
     }
     
     if ($result.Report -match "WARNINGS \((\d+)\):") {
-        $fileWarnings = [int]$matches[1]
-        $warningCount += $fileWarnings
-        if ($fileWarnings -gt 0) {
-            $filesWithWarnings += $result.File
+        if ($matches -and $matches.Count -gt 1) {
+            $fileWarnings = [int]$matches[1]
+            $warningCount += $fileWarnings
+            if ($fileWarnings -gt 0) {
+                $filesWithWarnings += $result.File
+            }
         }
     }
 }

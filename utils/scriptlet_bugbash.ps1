@@ -129,120 +129,123 @@ function Invoke-Scriptlet {
         [string]$WarnOptions
     )
 
-    $psi = [System.Diagnostics.ProcessStartInfo]::new()
-    $psi.FileName = $AutoHotkeyPath
-    $psi.ArgumentList.Add($ScriptPath)
-    $psi.ArgumentList.Add('/ErrorStdOut')
-    if ($WarnOptions -and $WarnOptions.Trim()) {
-        $warnOptionValue = $WarnOptions.Trim()
-        if (-not $warnOptionValue.StartsWith('"')) {
-            $warnOptionValue = '"' + $warnOptionValue.Trim('"') + '"'
+    $process = $null
+    try {
+        $psi = [System.Diagnostics.ProcessStartInfo]::new()
+        $psi.FileName = $AutoHotkeyPath
+        $psi.ArgumentList.Add($ScriptPath)
+        $psi.ArgumentList.Add('/ErrorStdOut')
+        if ($WarnOptions -and $WarnOptions.Trim()) {
+            $warnOptionValue = $WarnOptions.Trim()
+            if (-not $warnOptionValue.StartsWith('"')) {
+                $warnOptionValue = '"' + $warnOptionValue.Trim('"') + '"'
+            }
+            $psi.ArgumentList.Add('/Warn')
+            $psi.ArgumentList.Add($warnOptionValue)
         }
-        $psi.ArgumentList.Add('/Warn')
-        $psi.ArgumentList.Add($warnOptionValue)
-    }
-    $psi.RedirectStandardOutput = $true
-    $psi.RedirectStandardError = $true
-    $psi.UseShellExecute = $false
-    $psi.CreateNoWindow = $true
+        $psi.RedirectStandardOutput = $true
+        $psi.RedirectStandardError = $true
+        $psi.UseShellExecute = $false
+        $psi.CreateNoWindow = $true
 
-    $process = [System.Diagnostics.Process]::Start($psi)
-    if (-not $process) {
-        throw "Failed to start AutoHotkey for $ScriptPath"
-    }
-
-    $stdoutTask = $process.StandardOutput.ReadToEndAsync()
-    $stderrTask = $process.StandardError.ReadToEndAsync()
-
-    $result = [ordered]@{
-        script        = $ScriptPath
-        pid           = $process.Id
-        startTimeUtc  = (Get-Date).ToUniversalTime().ToString('o')
-        exitCode      = $null
-        status        = 'Running'
-        durationMs    = 0
-        termination   = 'Unknown'
-        logPath       = $LogPath
-        stdoutLength  = 0
-        stderrLength  = 0
-    }
-
-    $timeoutMs = [Math]::Max(1, $TimeoutSeconds * 1000)
-    $exited = $process.WaitForExit($timeoutMs)
-
-    if (-not $exited) {
-        $result.status = 'Timeout'
-        $result.termination = 'TimeoutForceKill'
-        try {
-            $process.CloseMainWindow() | Out-Null
-        } catch {
-            # Ignore close errors
+        $process = [System.Diagnostics.Process]::Start($psi)
+        if (-not $process) {
+            throw "Failed to start AutoHotkey for $ScriptPath"
         }
 
-        Start-Sleep -Milliseconds 500
+        $stdoutTask = $process.StandardOutput.ReadToEndAsync()
+        $stderrTask = $process.StandardError.ReadToEndAsync()
 
-        if (-not $process.HasExited) {
+        $result = [ordered]@{
+            script        = $ScriptPath
+            pid           = $process.Id
+            startTimeUtc  = (Get-Date).ToUniversalTime().ToString('o')
+            exitCode      = $null
+            status        = 'Running'
+            durationMs    = 0
+            termination   = 'Unknown'
+            logPath       = $LogPath
+            stdoutLength  = 0
+            stderrLength  = 0
+        }
+
+        $timeoutMs = [Math]::Max(1, $TimeoutSeconds * 1000)
+        $exited = $process.WaitForExit($timeoutMs)
+
+        if (-not $exited) {
+            $result.status = 'Timeout'
+            $result.termination = 'TimeoutForceKill'
             try {
-                $process.Kill($true)
-                $process.WaitForExit()
+                $process.CloseMainWindow() | Out-Null
             } catch {
+                # Ignore close errors
+            }
+
+            Start-Sleep -Milliseconds 500
+
+            if (-not $process.HasExited) {
                 try {
-                    Stop-Process -Id $process.Id -Force -ErrorAction Stop
+                    $process.Kill($true)
                     $process.WaitForExit()
                 } catch {
-                    # Ignore kill errors
+                    try {
+                        Stop-Process -Id $process.Id -Force -ErrorAction Stop
+                        $process.WaitForExit()
+                    } catch {
+                        # Ignore kill errors
+                    }
                 }
             }
-        }
 
-        if (-not $process.HasExited) {
-            try {
-                Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
-            } catch {
-                # Ignore stop-process errors
+            if (-not $process.HasExited) {
+                try {
+                    Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
+                } catch {
+                    # Ignore stop-process errors
+                }
             }
+        } else {
+            $result.status = 'Completed'
+            $result.termination = 'NaturalExit'
         }
-    } else {
-        $result.status = 'Completed'
-        $result.termination = 'NaturalExit'
-    }
 
-    $stdout = $stdoutTask.Result
-    $stderr = $stderrTask.Result
+        $stdout = $stdoutTask.Result
+        $stderr = $stderrTask.Result
 
-    $result.exitCode = if ($process.HasExited) { $process.ExitCode } else { $null }
-    $result.endTimeUtc = (Get-Date).ToUniversalTime().ToString('o')
-    $result.durationMs = [Math]::Round(($process.ExitTime - $process.StartTime).TotalMilliseconds)
-    $result.stdoutLength = $stdout.Length
-    $result.stderrLength = $stderr.Length
+        $result.exitCode = if ($process.HasExited) { $process.ExitCode } else { $null }
+        $result.endTimeUtc = (Get-Date).ToUniversalTime().ToString('o')
+        $result.durationMs = [Math]::Round(($process.ExitTime - $process.StartTime).TotalMilliseconds)
+        $result.stdoutLength = $stdout.Length
+        $result.stderrLength = $stderr.Length
 
-    $logBuilder = New-Object System.Text.StringBuilder
-    [void]$logBuilder.AppendLine("# Scriptlet Bugbash Log")
-    [void]$logBuilder.AppendLine("Script: $($ScriptPath)")
-    [void]$logBuilder.AppendLine("PID: $($result.pid)")
-    [void]$logBuilder.AppendLine("Start (UTC): $($result.startTimeUtc)")
-    [void]$logBuilder.AppendLine("End (UTC): $($result.endTimeUtc)")
-    [void]$logBuilder.AppendLine("Status: $($result.status)")
-    [void]$logBuilder.AppendLine("Termination: $($result.termination)")
-    [void]$logBuilder.AppendLine("Exit Code: $($result.exitCode)")
-    [void]$logBuilder.AppendLine("Duration (ms): $($result.durationMs)")
-    [void]$logBuilder.AppendLine("StdOut Length: $($result.stdoutLength)")
-    [void]$logBuilder.AppendLine("StdErr Length: $($result.stderrLength)")
-    [void]$logBuilder.AppendLine("--- StdOut ---")
-    [void]$logBuilder.AppendLine($stdout)
-    [void]$logBuilder.AppendLine("--- StdErr ---")
-    [void]$logBuilder.AppendLine($stderr)
+        $logBuilder = New-Object System.Text.StringBuilder
+        [void]$logBuilder.AppendLine("# Scriptlet Bugbash Log")
+        [void]$logBuilder.AppendLine("Script: $($ScriptPath)")
+        [void]$logBuilder.AppendLine("PID: $($result.pid)")
+        [void]$logBuilder.AppendLine("Start (UTC): $($result.startTimeUtc)")
+        [void]$logBuilder.AppendLine("End (UTC): $($result.endTimeUtc)")
+        [void]$logBuilder.AppendLine("Status: $($result.status)")
+        [void]$logBuilder.AppendLine("Termination: $($result.termination)")
+        [void]$logBuilder.AppendLine("Exit Code: $($result.exitCode)")
+        [void]$logBuilder.AppendLine("Duration (ms): $($result.durationMs)")
+        [void]$logBuilder.AppendLine("StdOut Length: $($result.stdoutLength)")
+        [void]$logBuilder.AppendLine("StdErr Length: $($result.stderrLength)")
+        [void]$logBuilder.AppendLine("--- StdOut ---")
+        [void]$logBuilder.AppendLine($stdout)
+        [void]$logBuilder.AppendLine("--- StdErr ---")
+        [void]$logBuilder.AppendLine($stderr)
 
-    Set-Content -Path $LogPath -Value $logBuilder.ToString() -Encoding UTF8
+        Set-Content -Path $LogPath -Value $logBuilder.ToString() -Encoding UTF8
 
-    if ($result.stderrLength -gt 0) {
-        $result.status = 'CompletedWithErrors'
-    }
+        if ($result.stderrLength -gt 0) {
+            $result.status = 'CompletedWithErrors'
+        }
 
-    return $result
-} finally {
-    if ($process) {
-        $process.Dispose()
+        return $result
+    } finally {
+        if ($process) {
+            $process.Dispose()
+        }
     }
 }
 
