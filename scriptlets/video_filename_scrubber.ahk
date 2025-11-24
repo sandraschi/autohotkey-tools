@@ -541,7 +541,7 @@ class VideoFilenameScrubber {
             Loop Files dirPath . "\*" {
                 fileCount++
             }
-            Loop Files, dirPath . "\*", "D" {
+            Loop Files dirPath . "\*", "D" {
                 dirCount++
             }
             if (fileCount = 0 && dirCount = 0) {

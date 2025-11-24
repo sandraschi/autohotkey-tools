@@ -16,7 +16,7 @@ PlayElevatorMusic(*) {
     SoundBeep(notes[note], 200)
 }
 
-Hotkey("^!m", (*) => {
+ToggleElevatorMusic(*) {
     if (!musicPlaying) {
         ; Start playing elevator music (using system sounds as fallback)
         SoundPlay("*16")  ; Play the default beep sound
@@ -36,7 +36,9 @@ Hotkey("^!m", (*) => {
         TrayTip("Music stopped", "Elevator Music", 1)
     }
     SetTimer(() => TrayTip(), -3000)
-})
+}
+
+Hotkey("^!m", ToggleElevatorMusic)
 
 ; ========================================
 ; 2. RANDOM SOUND EFFECTS
@@ -68,7 +70,7 @@ RandomSound(*) {
     }
 }
 
-Hotkey("^!s", (*) => {
+ToggleRandomSounds(*) {
     soundsOn := !soundsOn
     
     if (soundsOn) {
@@ -79,7 +81,9 @@ Hotkey("^!s", (*) => {
         TrayTip("Random sounds disabled", "Sound Effects", 1)
     }
     SetTimer(() => TrayTip(), -3000)
-})
+}
+
+Hotkey("^!s", ToggleRandomSounds)
 
 ; ========================================
 ; 3. ANNOYING BEEP GENERATOR
@@ -92,7 +96,7 @@ AnnoyingBeep(*) {
     SoundBeep(freq, dur)
 }
 
-Hotkey("^!b", (*) => {
+ToggleAnnoyingBeeps(*) {
     beepOn := !beepOn
     
     if (beepOn) {
@@ -103,12 +107,14 @@ Hotkey("^!b", (*) => {
         TrayTip("Beeps disabled", "Beep Generator", 1)
     }
     SetTimer(() => TrayTip(), -3000)
-})
+}
+
+Hotkey("^!b", ToggleAnnoyingBeeps)
 
 ; ========================================
 ; 4. RICKROLL (OF COURSE!)
 ; ========================================
-Hotkey("^!r", (*) => {
+Rickroll(*) {
     ; This would open the YouTube video in the default browser
     Run("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
     
@@ -129,7 +135,9 @@ Hotkey("^!r", (*) => {
     
     TrayTip("Give you up!", "Never Gonna...", 1)
     SetTimer(() => TrayTip(), -3000)
-})
+}
+
+Hotkey("^!r", Rickroll)
 
 ; ========================================
 ; 5. FAKE VIRUS SCAN
@@ -177,7 +185,7 @@ static virusScanGui := ""
 static scanProgressBar := ""
 static scanLog := ""
 
-Hotkey("^!v", (*) => {
+ShowFakeVirusScan(*) {
     virusScanGui := Gui("+AlwaysOnTop -Caption +ToolWindow", "Windows Defender")
     virusScanGui.BackColor := "000000"
     virusScanGui.SetFont("s12 cLime", "Consolas")
@@ -194,7 +202,9 @@ Hotkey("^!v", (*) => {
     SetTimer(UpdateVirusScan, 500)
     
     virusScanGui.OnEvent("Close", (*) => virusScanGui.Destroy())
-})
+}
+
+Hotkey("^!v", ShowFakeVirusScan)
 
 ; ========================================
 ; 6. KEYBOARD SOUNDS
@@ -207,7 +217,7 @@ KeySound(*) {
     SoundBeep(pitch, duration)
 }
 
-Hotkey("^!k", (*) => {
+ToggleKeyboardSounds(*) {
     kbSoundsOn := !kbSoundsOn
     
     if (kbSoundsOn) {
@@ -224,10 +234,11 @@ Hotkey("^!k", (*) => {
         TrayTip("Typewriter mode disabled", "Keyboard Sounds", 1)
     }
     SetTimer(() => TrayTip(), -3000)
-})
+}
 
-; Clean up
-OnExit((*) => {
+Hotkey("^!k", ToggleKeyboardSounds)
+
+CleanupOnExit(*) {
     ; Stop all sounds and timers
     SoundPlay("*-1")
     SetTimer(PlayElevatorMusic, 0)
@@ -242,4 +253,6 @@ OnExit((*) => {
     Hotkey("*~$a", "Off")
     Hotkey("*~$b", "Off")
     Hotkey("*~$c", "Off")
-})
+}
+
+OnExit(CleanupOnExit)

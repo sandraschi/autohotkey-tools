@@ -86,7 +86,7 @@ class AutomationBuilder {
     
     static LogDebug(message) {
         timestamp := ""
-        timestamp := FormatTime(, "HH:mm:ss")
+        FormatTime(timestamp, A_Now, "HH:mm:ss")
         logMsg := "[" . timestamp . "] " . message . "`n"
         try {
             FileAppend(logMsg, "action_automation_debug.log", "UTF-8")
@@ -300,7 +300,7 @@ class AutomationBuilder {
     
     static AppendLog(message) {
         timestamp := ""
-        timestamp := FormatTime(, "HH:mm:ss")
+        FormatTime(timestamp, A_Now, "HH:mm:ss")
         logMsg := "[" . timestamp . "] " . message . "`n"
         
         ; Show tooltip

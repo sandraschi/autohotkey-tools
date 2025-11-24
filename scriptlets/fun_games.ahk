@@ -1,91 +1,126 @@
 #Requires AutoHotkey v2.0
-#NoEnv
 #SingleInstance Force
 #MaxHotkeysPerInterval 200
-SendMode Input
-SetWorkingDir %A_ScriptDir%
+SetWorkingDir(A_ScriptDir)
 
-; Snake Game
-^!Hotkey("s", (*) =>   ; Ctrl+Alt+S to start S)nake
-    Gui( Snake:New, +AlwaysOnTop -Caption +ToolWindow
-    Gui( Color, 000000
-    Gui( Font, s12 cLime, Consolas
+; ========================================
+; SNAKE GAME
+; ========================================
+static snakeGui := ""
+static snake := []
+static snakeLength := 5
+static direction := "right"
+static foodX := 0
+static foodY := 0
+static gridWidth := 30
+static gridHeight := 20
+static gameCanvas := ""
+
+StartSnakeGame(*) {
+    snakeGui := Gui("+AlwaysOnTop -Caption +ToolWindow", "Snake Game")
+    snakeGui.BackColor := "000000"
+    snakeGui.SetFont("s12 cLime", "Consolas")
     
     ; Game variables
-    gridSize := 20
-    gridWidth := 30
-    gridHeight := 20
     snake := []
     snakeLength := 5
     direction := "right"
     
     ; Initialize snake
-    Loop  %snakeLength% {
-        snake.Insert({x: A_Index, y: 1})
+    Loop snakeLength {
+        snake.Push([A_Index, 1])
     }
     
     ; Place first food
-    Random( foodX, 1, %gridWidth%
-    Random( foodY, 1, %gridHeight%
+    Random(&foodX, 1, gridWidth)
+    Random(&foodY, 1, gridHeight)
+    
+    ; Create game canvas
+    gameCanvas := snakeGui.Add("Text", "x10 y10 w580 h380", DrawSnakeGame())
     
     ; Game loop
-    SetTimer, SnakeGameLoop  150
+    SetTimer(UpdateSnakeGame, 150)
+    
+    ; Control snake with arrow keys
+    Hotkey("Up", ChangeSnakeDirection, "On")
+    Hotkey("Down", ChangeSnakeDirection, "On")
+    Hotkey("Left", ChangeSnakeDirection, "On")
+    Hotkey("Right", ChangeSnakeDirection, "On")
     
     ; Show game window
-    Gui( Show, w600 h400, Snake Game
-    return
-
-SnakeGameLoop:
-    ; Move snake
-    headX := snake[1].x
-    headY := snake[1].y
+    snakeGui.Show("w600 h400")
     
+    snakeGui.OnEvent("Close", (*) => {
+        SetTimer(UpdateSnakeGame, 0)
+        Hotkey("Up", "Off")
+        Hotkey("Down", "Off")
+        Hotkey("Left", "Off")
+        Hotkey("Right", "Off")
+        snakeGui.Destroy()
+    })
+}
+
+ChangeSnakeDirection(key) {
+    if (key = "Up" && direction != "down")
+        direction := "up"
+    else if (key = "Down" && direction != "up")
+        direction := "down"
+    else if (key = "Left" && direction != "right")
+        direction := "left"
+    else if (key = "Right" && direction != "left")
+        direction := "right"
+}
+
+UpdateSnakeGame(*) {
+    ; Move snake
+    head := snake[1].Clone()
     if (direction = "right")
-        headX++
+        head[1] += 1
     else if (direction = "left")
-        headX--
+        head[1] -= 1
     else if (direction = "up")
-        headY--
+        head[2] -= 1
     else if (direction = "down")
-        headY++
+        head[2] += 1
     
     ; Check collisions
-    if (headX < 1 || headX > gridWidth || headY < 1 || headY > gridHeight) {
-        MsgBox, Game Over! Your score: %snakeLength%
-        Reload
+    if (head[1] < 1 || head[1] > gridWidth || head[2] < 1 || head[2] > gridHeight) {
+        SetTimer(UpdateSnakeGame, 0)
+        MsgBox("Game Over! Your score: " . snakeLength, "Snake Game")
+        snakeGui.Destroy()
+        return
     }
     
     ; Check if food eaten
-    if (headX = foodX && headY = foodY) {
+    if (head[1] = foodX && head[2] = foodY) {
         snakeLength++
-        Random( foodX, 1, %gridWidth%
-        Random( foodY, 1, %gridHeight%
+        Random(&foodX, 1, gridWidth)
+        Random(&foodY, 1, gridHeight)
     } else {
         snake.Pop()
     }
     
     ; Add new head
-    snake.InsertAt(1, {x: headX, y: headY})
+    snake.InsertAt(1, head)
     
     ; Draw game
-    GuiControl,, GameCanvas, % DrawSnakeGame()
-    return
+    if (gameCanvas)
+        gameCanvas.Text := DrawSnakeGame()
+}
 
 DrawSnakeGame() {
-    global snake, foodX, foodY, gridWidth, gridHeight, snakeLength
-    
     ; Create game grid
     grid := ""
-    Loop  %gridHeight% {
+    Loop gridHeight {
         y := A_Index
         row := ""
-        Loop  %gridWidth% {
+        Loop gridWidth {
             x := A_Index
             cell := " "
             
             ; Check if cell contains snake or food
             for i, segment in snake {
-                if (segment.x = x && segment.y = y) {
+                if (segment[1] = x && segment[2] = y) {
                     cell := (i = 1) ? "O" : "o"
                     break
                 }
@@ -94,60 +129,63 @@ DrawSnakeGame() {
             if (x = foodX && y = foodY)
                 cell := "@"
                 
-            row .= cell " "
+            row .= cell . " "
         }
-        grid .= row "`n"
+        grid .= row . "`n"
     }
     
-    return "Score: " snakeLength "`n`n" grid
+    return "Score: " . snakeLength . "`n`n" . grid
 }
 
-; Control snake with arrow keys
-#IfWinActive Snake Game
-Hotkey("Up", (*) => directio)n := (direction != "down") ? "up" : direction
-Hotkey("Down", (*) => directio)n := (direction != "up") ? "down" : direction
-Hotkey("Left", (*) => directio)n := (direction != "right") ? "left" : direction
-Hotkey("Right", (*) => directio)n := (direction != "left") ? "right" : direction
-#IfWinActive
+Hotkey("^!s", StartSnakeGame)
 
-; Prank: Mouse Jiggler
-^!Hotkey("j", (*) =>   ; Ctrl+Alt+J to toggle mouse jiggler
-    static jigglerO)n := false
+; ========================================
+; MOUSE JIGGLER
+; ========================================
+static jigglerOn := false
+
+JiggleMouse(*) {
+    MouseMove(10, 0, 1, "R")
+    Sleep(50)
+    MouseMove(-10, 0, 1, "R")
+}
+
+ToggleMouseJiggler(*) {
     jigglerOn := !jigglerOn
     if (jigglerOn) {
-        SetTimer(JiggleMouse,  60000  ; Jiggle every minute
-        TrayTip, Mouse Jiggler, Mouse Jiggler: ON, , 1
+        SetTimer(JiggleMouse, 60000)  ; Jiggle every minute
+        TrayTip("Mouse Jiggler: ON", "Mouse Jiggler", 1)
     } else {
-        SetTimer(JiggleMouse,  Off
-        TrayTip, Mouse Jiggler, Mouse Jiggler: OFF, , 1
+        SetTimer(JiggleMouse, 0)
+        TrayTip("Mouse Jiggler: OFF", "Mouse Jiggler", 1)
     }
-    SetTimer(RemoveTrayTip,  -3000
-    return
+    SetTimer(() => TrayTip(), -3000)
+}
 
-JiggleMouse:
-    MouseMove, 10, 0, 1, R
-    Sleep, 50
-    MouseMove, -10, 0, 1, R
-    return
+Hotkey("^!j", ToggleMouseJiggler)
 
-; Prank: Fake Error Message
-^!Hotkey("e", (*) =>   ; Ctrl+Alt+E for fake error
-    MsgBox, 16, Critical Error, Wi)ndows has encountered a critical error!`nError Code: 0x80070002`n`nYour computer will now explode in 10 seconds..., 10
-    return
+; ========================================
+; FAKE ERROR MESSAGE
+; ========================================
+ShowFakeError(*) {
+    MsgBox("Windows has encountered a critical error!`nError Code: 0x80070002`n`nYour computer will now explode in 10 seconds...", "Critical Error", "Iconx T10")
+}
 
-; Prank: Flip Screen
-^!Hotkey("f", (*) =>   ; Ctrl+Alt+F to flip scree)n
-    static flipped := false
+Hotkey("^!e", ShowFakeError)
+
+; ========================================
+; FLIP SCREEN
+; ========================================
+static flipped := false
+
+FlipScreen(*) {
     if (!flipped) {
-        DllCall("user32.dll\SetDisplayConfig", "UInt",0, "UInt",0, "UInt",0, "UInt",0, "UInt",0x00000003)
+        DllCall("user32.dll\SetDisplayConfig", "UInt", 0, "UInt", 0, "UInt", 0, "UInt", 0, "UInt", 0x00000003)
         flipped := true
     } else {
-        DllCall("user32.dll\SetDisplayConfig", "UInt",0, "UInt",0, "UInt",0, "UInt",0, "UInt",0x00000000)
+        DllCall("user32.dll\SetDisplayConfig", "UInt", 0, "UInt", 0, "UInt", 0, "UInt", 0, "UInt", 0x00000000)
         flipped := false
     }
-    return
+}
 
-RemoveTrayTip:
-    TrayTip
-    return
-
+Hotkey("^!f", FlipScreen)
