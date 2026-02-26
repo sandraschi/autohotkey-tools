@@ -419,8 +419,7 @@ class VideoFilenameScrubber {
     }
     
     static AppendLog(message) {
-        timestamp := ""
-        FormatTime(timestamp, A_Now, "HH:mm:ss")
+        timestamp := FormatTime(A_Now, "HH:mm:ss")
         logMessage := "[" . timestamp . "] " . message . "`n"
         try {
             if (this.logArea && this.logArea.Hwnd) {
@@ -524,8 +523,7 @@ class VideoFilenameScrubber {
             }
             version++
             if (version > 999) {
-                timestamp := ""
-                FormatTime(timestamp, A_Now, "yyyyMMdd_HHmmss")
+                timestamp := FormatTime(A_Now, "yyyyMMdd_HHmmss")
                 return baseName . " (" . timestamp . ")" . ext
             }
         }
@@ -569,8 +567,7 @@ class VideoFilenameScrubber {
         try {
             logContent := "Video Filename Scrubber Log`n"
             logContent .= "========================`n`n"
-            dateTime := ""
-            FormatTime(dateTime, A_Now, "yyyy-MM-dd HH:mm:ss")
+            dateTime := FormatTime(A_Now, "yyyy-MM-dd HH:mm:ss")
             logContent .= "Date: " . dateTime . "`n"
             logContent .= "Mode: " . (this.dryRun ? "DRY RUN" : "LIVE") . "`n"
             logContent .= "Target Directory: " . this.targetDir . "`n`n"
@@ -585,8 +582,7 @@ class VideoFilenameScrubber {
             logContent .= "Moved: " . this.movedCount . "`n"
             logContent .= "Directories Deleted: " . this.deletedDirCount . "`n"
             logContent .= "Errors: " . this.errorCount . "`n"
-            timestamp := ""
-            FormatTime(timestamp, A_Now, "yyyyMMdd_HHmmss")
+            timestamp := FormatTime(A_Now, "yyyyMMdd_HHmmss")
             logFileName := "video_filename_scrubber_report_" . timestamp . ".txt"
             FileAppend(logContent, logFileName, "UTF-8")
             this.AppendLog("Report saved to: " . logFileName)

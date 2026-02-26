@@ -78,15 +78,18 @@ class AutomationBuilder {
             this.LogDebug("GUI created successfully")
         } catch as e {
             errorMsg := "Error creating GUI: " . e.Message . "`n" . e.Stack
-            FileAppend(errorMsg, "action_automation_errors.log", "UTF-8")
+            try {
+                FileAppend(errorMsg, "action_automation_errors.log", "UTF-8")
+            } catch {
+                ; Ignore file logging errors
+            }
             OutputDebug(errorMsg)
             MsgBox("Error creating GUI: " . e.Message . "`n`nCheck action_automation_errors.log for details", "Error", "Iconx")
         }
     }
     
     static LogDebug(message) {
-        timestamp := ""
-        FormatTime(timestamp, A_Now, "HH:mm:ss")
+        timestamp := FormatTime(A_Now, "HH:mm:ss")
         logMsg := "[" . timestamp . "] " . message . "`n"
         try {
             FileAppend(logMsg, "action_automation_debug.log", "UTF-8")
@@ -258,10 +261,14 @@ class AutomationBuilder {
         ; Save workflow as JSON
         filename := "workflow_" . A_Now . ".json"
         json := this.SerializeWorkflow()
-        FileAppend(json, filename, "UTF-8")
-        
-        MsgBox("Workflow saved to: " . filename, "Save", "Icon!")
-        this.AppendLog("Saved workflow to: " . filename)
+        try {
+            FileAppend(json, filename, "UTF-8")
+            MsgBox("Workflow saved to: " . filename, "Save", "Icon!")
+            this.AppendLog("Saved workflow to: " . filename)
+        } catch as e {
+            MsgBox("Error saving workflow: " . e.Message, "Error", "Iconx")
+            this.AppendLog("Failed to save workflow: " . e.Message)
+        }
     }
     
     static SerializeWorkflow() {
@@ -299,8 +306,7 @@ class AutomationBuilder {
     }
     
     static AppendLog(message) {
-        timestamp := ""
-        FormatTime(timestamp, A_Now, "HH:mm:ss")
+        timestamp := FormatTime(A_Now, "HH:mm:ss")
         logMsg := "[" . timestamp . "] " . message . "`n"
         
         ; Show tooltip

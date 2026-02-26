@@ -77,8 +77,7 @@ class SecurityGuide {
     }
     
     static AppendLog(message, level := "INFO") {
-        timestamp := ""
-        FormatTime(timestamp, A_Now, "yyyy-MM-dd HH:mm:ss")
+        timestamp := FormatTime(A_Now, "yyyy-MM-dd HH:mm:ss")
         OutputDebug(Format("[{}] [{}] {}", timestamp, level, message))
     }
     

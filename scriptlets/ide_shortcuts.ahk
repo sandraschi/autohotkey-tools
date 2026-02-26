@@ -73,12 +73,12 @@ IDE_SHORTCUTS := Map(
     ; Format Document
     Hotkey("^!l", (*) => Send("^k^f"))
     
-    ; Comment/Uncomment Line
+    ; Comment/Uncomment Line (using ^k^c which is VS Code's multi-key sequence)
     Hotkey("^/", (*) => Send("^k^c"))
     Hotkey("^+/", (*) => Send("^k^u"))
     
-    ; Duplicate Line
-    Hotkey("^d", (*) => Send("^d"))
+    ; Duplicate Line (changed to ^+d to avoid overriding system hotkey)
+    Hotkey("^+d", (*) => Send("^d"))
     
     ; Move Line Up/Down
     Hotkey("!Up", (*) => Send("!{Up}"))
@@ -105,8 +105,8 @@ IDE_SHORTCUTS := Map(
     ; Comment Line
     Hotkey("^/", (*) => Send("^/"))
     
-    ; Duplicate Line
-    Hotkey("^d", (*) => Send("^d"))
+    ; Duplicate Line (changed to ^+d to avoid overriding system hotkey)
+    Hotkey("^+d", (*) => Send("^d"))
     
     ; Move Line Up/Down
     Hotkey("^+Up", (*) => Send("^+{Up}"))
@@ -127,12 +127,12 @@ IDE_SHORTCUTS := Map(
     ; Format Document
     Hotkey("^k^d", (*) => Send("^k^d"))
     
-    ; Comment/Uncomment Selection
+    ; Comment/Uncomment Selection (Visual Studio multi-key sequence - safe)
     Hotkey("^k^c", (*) => Send("^k^c"))
     Hotkey("^k^u", (*) => Send("^k^u"))
     
-    ; Duplicate Line
-    Hotkey("^d", (*) => Send("^d"))
+    ; Duplicate Line (changed to ^+d to avoid overriding system hotkey)
+    Hotkey("^+d", (*) => Send("^d"))
     
     ; Move Line Up/Down
     Hotkey("!Up", (*) => Send("!{Up}"))

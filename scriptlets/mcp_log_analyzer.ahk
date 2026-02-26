@@ -55,8 +55,7 @@ class MCPLogAnalyzer {
     }
 
     static AppendLog(message) {
-        timestamp := ""
-        FormatTime(timestamp, A_Now, "yyyy-MM-dd HH:mm:ss")
+        timestamp := FormatTime(A_Now, "yyyy-MM-dd HH:mm:ss")
         entry := "[" . timestamp . "] " . message
         try {
             FileAppend(entry . "`n", MCPLogAnalyzer.logFile, "UTF-8")

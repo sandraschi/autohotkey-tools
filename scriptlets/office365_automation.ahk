@@ -346,8 +346,8 @@ class Office365Automation {
             }
             
             ; Get current date and time
-            FormatTime(currentDate, A_Now, "yyyy-MM-dd")
-            FormatTime(currentTime, A_Now, "HH:mm")
+            currentDate := FormatTime(A_Now, "yyyy-MM-dd")
+            currentTime := FormatTime(A_Now, "HH:mm")
             
             ; Create quick note
             noteContent := "Quick Note - " . currentDate . " " . currentTime . "`n`n" . 
@@ -379,8 +379,7 @@ class Office365Automation {
             titleEdit := meetingGui.Add("Edit", "w380 h20")
             
             meetingGui.Add("Text", "w400 y+20", "Date:")
-            dateStr := ""
-            FormatTime(dateStr, A_Now, "yyyy-MM-dd")
+            dateStr := FormatTime(A_Now, "yyyy-MM-dd")
             dateEdit := meetingGui.Add("Edit", "w380 h20", dateStr)
             
             meetingGui.Add("Text", "w400 y+20", "Attendees:")
@@ -556,8 +555,8 @@ class Office365Automation {
             ; Add template content based on type
             switch templateName {
                 case "Meeting Minutes":
-                    FormatTime(dateStr, A_Now, "yyyy-MM-dd")
-                    FormatTime(timeStr, A_Now, "HH:mm")
+                    dateStr := FormatTime(A_Now, "yyyy-MM-dd")
+                    timeStr := FormatTime(A_Now, "HH:mm")
                     doc.Content.Text := "Meeting Minutes`n" . 
                                       "===============`n`n" . 
                                       "Date: " . dateStr . "`n" . 
@@ -946,8 +945,7 @@ class Office365Automation {
     }
 
     static HandleClipboardSync(syncGui, currentClipboard) {
-        timestamp := ""
-        FormatTime(timestamp, A_Now, "yyyy-MM-dd HH:mm:ss")
+        timestamp := FormatTime(A_Now, "yyyy-MM-dd HH:mm:ss")
         A_Clipboard := "Clipboard Sync - " . timestamp . "`n`n" . currentClipboard
         syncGui.Destroy()
         TrayTip("Clipboard Synced!", "Content copied to OneNote", 2)

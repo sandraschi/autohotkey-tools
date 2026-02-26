@@ -25,11 +25,11 @@ LoadScriptlets()
 launcherGui.Show("w900 h700")
 
 ; Set tray icon and tooltip
-TraySetIcon "shell32.dll", 4
-TraySetToolTip "Scriptlet Launcher`nPress F1 for help"
+TraySetIcon("shell32.dll", 4)
+; TraySetToolTip is a built-in AutoHotkey v2 function
+TraySetToolTip("Scriptlet Launcher`nPress F1 for help")
 
 ; Register hotkeys
-#h:: ShowHelp()
 #l:: ReloadLauncher()
 
 ; Main functions
@@ -49,6 +49,7 @@ InitLauncher() {
 }
 
 CreateGui() {
+    global launcherGui
     ; Create the main window
     launcherGui := Gui("+Resize", "Scriptlet Launcher")
     
@@ -104,6 +105,7 @@ CreateGui() {
 }
 
 LoadScriptlets() {
+    global scriptlets
     ; Clear existing scriptlets
     scriptlets := Map()
     
@@ -125,8 +127,10 @@ LoadScriptlets() {
             ; The scriptlet should register itself via Init()
             ; We'll add it to our list in the OnMessage handler
         } catch as e {
-            statusBar.Text := "Error loading " file ": " e.Message
-            OutputDebug("Error loading " file ": " e.Message "`n" e.What "`n" e.Extra "`n" e.File ":" e.Line)
+            if (IsObject(launcherGui) && launcherGui.HasOwnProp("statusBar")) {
+                launcherGui.statusBar.Text := "Error loading " . file . ": " . e.Message
+            }
+            OutputDebug("Error loading " . file . ": " . e.Message . "`n" . e.What . "`n" . e.Extra . "`n" . e.File . ":" . e.Line)
         }
     }
     
@@ -136,6 +140,7 @@ LoadScriptlets() {
 
 ; Called by scriptlets to register themselves
 RegisterScriptlet(scriptletClass) {
+    global scriptlets
     scriptlets[scriptletClass.name] := scriptletClass
     UpdateScriptletLists()
 }
@@ -189,6 +194,7 @@ GetCategoryList(category) {
 }
 
 RunSelectedScriptlet(ctrl, info) {
+    global scriptlets
     row := ctrl.GetNext(0)
     if (!row) {
         return
@@ -199,7 +205,7 @@ RunSelectedScriptlet(ctrl, info) {
         try {
             scriptlets[name].Run()
         } catch as e {
-            MsgBox "Error running " name ":" e.Message, "Error", "Icon!"
+            MsgBox("Error running " . name . ": " . e.Message, "Error", "Icon!")
         }
     }
 }
@@ -209,20 +215,15 @@ FilterScriptlets(ctrl, info) {
 }
 
 ShowHelp() {
-    helpText := """
-    Scriptlet Launcher Help
-    ====================
-    
-    [F1] - Show this help
-    [Win+H] - Show/hide launcher
-    [Win+L] - Reload all scriptlets
-    
-    Double-click a scriptlet to run it.
-    Use the search box to filter scriptlets.
-    
-    Scriptlets are loaded from the 'scriptlets' directory.
-    Each scriptlet should be in its own .ahk file.
-    """
+    helpText := "Scriptlet Launcher Help`n" .
+                "====================`n`n" .
+                "[F1] - Show this help`n" .
+                "[Win+H] - Show/hide launcher`n" .
+                "[Win+L] - Reload all scriptlets`n`n" .
+                "Double-click a scriptlet to run it.`n" .
+                "Use the search box to filter scriptlets.`n`n" .
+                "Scriptlets are loaded from the 'scriptlets' directory.`n" .
+                "Each scriptlet should be in its own .ahk file."
     
     MsgBox(helpText, "Scriptlet Launcher Help")
 }
@@ -259,13 +260,4 @@ OnMessage(0x4A, RegisterScriptlet)  ; WM_COPYDATA
         launcherGui.Show()
         launcherGui.Restore()
     }
-}
-
-; Run when the script starts
-#Include <_base>
-
-; Export the RegisterScriptlet function for scriptlets to use
-RegisterScriptlet(scriptletClass) {
-    scriptlets[scriptletClass.name] := scriptletClass
-    UpdateScriptletLists()
 }

@@ -109,15 +109,18 @@ class AICodeAssistant {
             this.LogDebug("GUI created successfully")
         } catch as e {
             errorMsg := "Error creating GUI: " . e.Message . "`n" . e.Stack
-            FileAppend(errorMsg, "ai_code_assistant_errors.log", "UTF-8")
+            try {
+                FileAppend(errorMsg, "ai_code_assistant_errors.log", "UTF-8")
+            } catch {
+                ; Ignore file logging errors
+            }
             OutputDebug(errorMsg)
             MsgBox("Error creating GUI: " . e.Message . "`n`nCheck ai_code_assistant_errors.log for details", "Error", "Iconx")
         }
     }
     
     static LogDebug(message) {
-        timestamp := ""
-        FormatTime(timestamp, A_Now, "HH:mm:ss")
+        timestamp := FormatTime(A_Now, "HH:mm:ss")
         logMsg := "[" . timestamp . "] " . message . "`n"
         try {
             FileAppend(logMsg, "ai_code_assistant_debug.log", "UTF-8")
@@ -128,8 +131,7 @@ class AICodeAssistant {
     }
     
     static AppendLog(message) {
-        timestamp := ""
-        FormatTime(timestamp, A_Now, "HH:mm:ss")
+        timestamp := FormatTime(A_Now, "HH:mm:ss")
         logMsg := "[" . timestamp . "] " . message . "`n"
         try {
             FileAppend(logMsg, "ai_code_assistant.log", "UTF-8")

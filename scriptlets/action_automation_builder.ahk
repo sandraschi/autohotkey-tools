@@ -440,8 +440,7 @@ class AutomationBuilder {
 
     static AppendLog(message, severity := "INFO") {
         AutomationBuilder.EnsureLogInfrastructure()
-        timestamp := ""
-        FormatTime(timestamp, A_Now, "yyyy-MM-dd HH:mm:ss")
+        timestamp := FormatTime(A_Now, "yyyy-MM-dd HH:mm:ss")
         entry := "[" . timestamp . "] [" . severity . "] " . message
 
         if (AutomationBuilder.logOutput) {

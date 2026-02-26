@@ -1,0 +1,2953 @@
+Lint Report for: D:\Dev\repos\autohotkey-test\launcher_v2.ahk
+Generated: 2025-11-28 10:05:05
+Total Lines: 325
+
+Issues found:
+
+WARNINGS (3):
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+  [Warning] Line 9    - Found global variable declaration - consider using static or local variables
+  [Warning] Line 10   - Found global variable declaration - consider using static or local variables
+Lint Report for: D:\Dev\repos\autohotkey-test\launcher.ahk
+Generated: 2025-11-28 10:05:06
+Total Lines: 264
+
+Issues found:
+
+WARNINGS (7):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+  [Warning] Line 9    - Found global variable declaration - consider using static or local variables
+  [Warning] Line 52   - Found global variable declaration - consider using static or local variables
+  [Warning] Line 108  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 143  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 197  - Found global variable declaration - consider using static or local variables
+
+SUGGESTIONS (1):
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+Lint Report for: D:\Dev\repos\autohotkey-test\msgtest.ahk
+Generated: 2025-11-28 10:05:07
+Total Lines: 4
+
+Issues found:
+
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (1):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlet_launcher_v2.ahk
+Generated: 2025-11-28 10:05:11
+Total Lines: 2966
+
+Issues found:
+
+ERRORS (32):
+  [Error] Line 44   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 64   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 84   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 104  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 1273 - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+  [Error] Line 1287 - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+  [Error] Line 1317 - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+  [Error] Line 1318 - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+  [Error] Line 1382 - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+  [Error] Line 1383 - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+  [Error] Line 1443 - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+  [Error] Line 1458 - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+  [Error] Line 1569 - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+  [Error] Line 1949 - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+  [Error] Line 2010 - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+  [Error] Line 2038 - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+  [Error] Line 2039 - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+  [Error] Line 2108 - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+  [Error] Line 2109 - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+  [Error] Line 2138 - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+  [Error] Line 2192 - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+  [Error] Line 2218 - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+  [Error] Line 2290 - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+  [Error] Line 2333 - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+  [Error] Line 2334 - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+  [Error] Line 2478 - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+  [Error] Line 2479 - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+  [Error] Line 2536 - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+  [Error] Line 2537 - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+  [Error] Line 2573 - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+  [Error] Line 2885 - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+  [Error] Line 2887 - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+
+WARNINGS (46):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+  [Warning] Line 168  - Clipboard assignment - use ClipboardAll or Clipboard := text
+  [Warning] Line 206  - Clipboard assignment - use ClipboardAll or Clipboard := text
+  [Warning] Line 244  - Clipboard assignment - use ClipboardAll or Clipboard := text
+  [Warning] Line 252  - Clipboard assignment - use ClipboardAll or Clipboard := text
+  [Warning] Line 288  - Clipboard assignment - use ClipboardAll or Clipboard := text
+  [Warning] Line 307  - Clipboard assignment - use ClipboardAll or Clipboard := text
+  [Warning] Line 353  - Clipboard assignment - use ClipboardAll or Clipboard := text
+  [Warning] Line 384  - Clipboard assignment - use ClipboardAll or Clipboard := text
+  [Warning] Line 576  - Clipboard assignment - use ClipboardAll or Clipboard := text
+  [Warning] Line 597  - Clipboard assignment - use ClipboardAll or Clipboard := text
+  [Warning] Line 693  - Clipboard assignment - use ClipboardAll or Clipboard := text
+  [Warning] Line 776  - Clipboard assignment - use ClipboardAll or Clipboard := text
+  [Warning] Line 988  - Clipboard assignment - use ClipboardAll or Clipboard := text
+  [Warning] Line 1084 - Clipboard assignment - use ClipboardAll or Clipboard := text
+  [Warning] Line 1150 - Clipboard assignment - use ClipboardAll or Clipboard := text
+  [Warning] Line 1229 - Clipboard assignment - use ClipboardAll or Clipboard := text
+  [Warning] Line 1295 - Clipboard assignment - use ClipboardAll or Clipboard := text
+  [Warning] Line 1466 - Clipboard assignment - use ClipboardAll or Clipboard := text
+  [Warning] Line 1514 - Clipboard assignment - use ClipboardAll or Clipboard := text
+  [Warning] Line 1574 - Clipboard assignment - use ClipboardAll or Clipboard := text
+  [Warning] Line 1584 - Clipboard assignment - use ClipboardAll or Clipboard := text
+  [Warning] Line 1809 - Clipboard assignment - use ClipboardAll or Clipboard := text
+  [Warning] Line 1839 - Clipboard assignment - use ClipboardAll or Clipboard := text
+  [Warning] Line 823  - Deep chaining detected - consider adding null checks
+  [Warning] Line 160  - OnEvent callback should use class name or proper binding
+  [Warning] Line 202  - OnEvent callback should use class name or proper binding
+  [Warning] Line 224  - OnEvent callback should use class name or proper binding
+  [Warning] Line 592  - OnEvent callback should use class name or proper binding
+  [Warning] Line 621  - OnEvent callback should use class name or proper binding
+  [Warning] Line 686  - OnEvent callback should use class name or proper binding
+  [Warning] Line 725  - OnEvent callback should use class name or proper binding
+  [Warning] Line 765  - OnEvent callback should use class name or proper binding
+  [Warning] Line 863  - OnEvent callback should use class name or proper binding
+  [Warning] Line 1001 - OnEvent callback should use class name or proper binding
+  [Warning] Line 1002 - OnEvent callback should use class name or proper binding
+  [Warning] Line 1282 - OnEvent callback should use class name or proper binding
+  [Warning] Line 1454 - OnEvent callback should use class name or proper binding
+  [Warning] Line 1541 - OnEvent callback should use class name or proper binding
+  [Warning] Line 1875 - OnEvent callback should use class name or proper binding
+  [Warning] Line 1967 - OnEvent callback should use class name or proper binding
+  [Warning] Line 2067 - OnEvent callback should use class name or proper binding
+  [Warning] Line 2155 - OnEvent callback should use class name or proper binding
+  [Warning] Line 2359 - OnEvent callback should use class name or proper binding
+  [Warning] Line 2531 - OnEvent callback should use class name or proper binding
+
+SUGGESTIONS (4):
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+  [Suggestion] Line 666  - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 675  - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 979  - File operation without try-catch - consider adding error handling
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlet_launcher.ahk
+Generated: 2025-11-28 10:05:12
+Total Lines: 184
+
+Issues found:
+
+WARNINGS (3):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+  [Warning] Line 76   - Clipboard assignment - use ClipboardAll or Clipboard := text
+
+SUGGESTIONS (2):
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+  [Suggestion] Line 67   - File operation without try-catch - consider adding error handling
+Lint Report for: D:\Dev\repos\autohotkey-test\ScriptletCOMBridge.ahk
+Generated: 2025-11-28 10:05:13
+Total Lines: 522
+
+Issues found:
+
+ERRORS (1):
+  [Error] Line 178  - Found .ToLower() method - use StrLower() instead of .ToLower()
+
+WARNINGS (1):
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+Lint Report for: D:\Dev\repos\autohotkey-test\test_generator.ahk
+Generated: 2025-11-28 10:05:14
+Total Lines: 32
+
+Issues found:
+
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+Lint Report for: D:\Dev\repos\autohotkey-test\test_no_popup.ahk
+Generated: 2025-11-28 10:05:15
+Total Lines: 15
+
+Issues found:
+
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (2):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+  [Suggestion] Line 7    - File operation without try-catch - consider adding error handling
+Lint Report for: D:\Dev\repos\autohotkey-test\test_output.ahk
+Generated: 2025-11-28 10:05:16
+Total Lines: 6
+
+Issues found:
+
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (1):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+Lint Report for: D:\Dev\repos\autohotkey-test\AutoHotkeyDocs\compile_chm.ahk
+Generated: 2025-11-28 10:05:17
+Total Lines: 129
+
+Issues found:
+
+ERRORS (4):
+  [Error] Line 1    - Missing #Requires AutoHotkey v2.0 directive
+  [Error] Line 28   - Incorrect FileRead syntax - use FileRead(content, file)
+  [Error] Line 33   - Incorrect FileRead syntax - use FileRead(content, file)
+  [Error] Line 9    - Incorrect MsgBox syntax - use MsgBox(text, title, options)
+
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (1):
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+Lint Report for: D:\Dev\repos\autohotkey-test\AutoHotkeyDocs\docs\scripts\ContextSensitiveHelp.ahk
+Generated: 2025-11-28 10:05:18
+Total Lines: 74
+
+Issues found:
+
+ERRORS (3):
+  [Error] Line 1    - Missing #Requires AutoHotkey v2.0 directive
+  [Error] Line 61   - Incorrect MsgBox syntax - use MsgBox(text, title, options)
+  [Error] Line 42   - Found Loop, syntax - use Loop or For loop instead
+
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (2):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+Lint Report for: D:\Dev\repos\autohotkey-test\AutoHotkeyDocs\docs\scripts\ControllerMouse.ahk
+Generated: 2025-11-28 10:05:19
+Total Lines: 161
+
+Issues found:
+
+ERRORS (1):
+  [Error] Line 1    - Missing #Requires AutoHotkey v2.0 directive
+
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (2):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+Lint Report for: D:\Dev\repos\autohotkey-test\AutoHotkeyDocs\docs\scripts\ControllerTest.ahk
+Generated: 2025-11-28 10:05:21
+Total Lines: 99
+
+Issues found:
+
+ERRORS (9):
+  [Error] Line 1    - Missing #Requires AutoHotkey v2.0 directive
+  [Error] Line 10   - Incorrect MsgBox syntax - use MsgBox(text, title, options)
+  [Error] Line 25   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 26   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 27   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 28   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 44   - Found GuiControl, command - use gui control methods instead
+  [Error] Line 92   - Found GuiControl, command - use gui control methods instead
+  [Error] Line 57   - Found Loop, syntax - use Loop or For loop instead
+
+WARNINGS (3):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+  [Warning] Line 54   - Loop without break condition detected - check for infinite loop
+
+SUGGESTIONS (2):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+Lint Report for: D:\Dev\repos\autohotkey-test\AutoHotkeyDocs\docs\scripts\EasyWindowDrag_(KDE).ahk
+Generated: 2025-11-28 10:05:22
+Total Lines: 150
+
+Issues found:
+
+ERRORS (1):
+  [Error] Line 1    - Missing #Requires AutoHotkey v2.0 directive
+
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (2):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+Lint Report for: D:\Dev\repos\autohotkey-test\AutoHotkeyDocs\docs\scripts\EasyWindowDrag.ahk
+Generated: 2025-11-28 10:05:22
+Total Lines: 46
+
+Issues found:
+
+ERRORS (1):
+  [Error] Line 1    - Missing #Requires AutoHotkey v2.0 directive
+
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (1):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+Lint Report for: D:\Dev\repos\autohotkey-test\AutoHotkeyDocs\docs\scripts\EncodeHTML.ahk
+Generated: 2025-11-28 10:05:24
+Total Lines: 75
+
+Issues found:
+
+ERRORS (1):
+  [Error] Line 1    - Missing #Requires AutoHotkey v2.0 directive
+
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (2):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+Lint Report for: D:\Dev\repos\autohotkey-test\AutoHotkeyDocs\docs\scripts\FavoriteFolders.ahk
+Generated: 2025-11-28 10:05:25
+Total Lines: 187
+
+Issues found:
+
+ERRORS (2):
+  [Error] Line 1    - Missing #Requires AutoHotkey v2.0 directive
+  [Error] Line 73   - Found Loop, syntax - use Loop or For loop instead
+
+WARNINGS (1):
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (1):
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+Lint Report for: D:\Dev\repos\autohotkey-test\AutoHotkeyDocs\docs\scripts\IntelliSense.ahk
+Generated: 2025-11-28 10:05:26
+Total Lines: 189
+
+Issues found:
+
+ERRORS (3):
+  [Error] Line 1    - Missing #Requires AutoHotkey v2.0 directive
+  [Error] Line 55   - Incorrect MsgBox syntax - use MsgBox(text, title, options)
+  [Error] Line 63   - Found Loop, syntax - use Loop or For loop instead
+
+WARNINGS (3):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+  [Warning] Line 92   - Loop without break condition detected - check for infinite loop
+
+SUGGESTIONS (2):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+Lint Report for: D:\Dev\repos\autohotkey-test\AutoHotkeyDocs\docs\scripts\KeyboardOnScreen.ahk
+Generated: 2025-11-28 10:05:32
+Total Lines: 614
+
+Issues found:
+
+ERRORS (216):
+  [Error] Line 1    - Missing #Requires AutoHotkey v2.0 directive
+  [Error] Line 212  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 213  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 221  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 222  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 223  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 224  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 225  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 226  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 227  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 228  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 229  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 230  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 231  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 232  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 233  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 234  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 235  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 236  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 237  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 238  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 239  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 240  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 241  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 242  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 243  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 246  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 247  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 248  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 249  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 250  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 251  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 252  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 253  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 254  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 255  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 256  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 257  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 258  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 259  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 260  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 261  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 262  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 263  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 264  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 265  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 266  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 267  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 268  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 271  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 272  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 273  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 274  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 275  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 276  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 277  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 278  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 279  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 280  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 281  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 282  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 283  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 284  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 285  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 286  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 287  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 288  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 289  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 290  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 291  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 294  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 295  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 296  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 297  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 298  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 299  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 300  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 301  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 302  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 303  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 304  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 305  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 306  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 307  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 308  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 309  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 310  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 311  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 312  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 313  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 314  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 317  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 318  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 319  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 320  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 321  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 322  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 323  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 324  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 325  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 326  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 327  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 328  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 329  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 330  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 331  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 337  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 338  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 339  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 340  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 341  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 342  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 343  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 344  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 345  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 346  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 347  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 348  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 349  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 350  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 351  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 352  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 353  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 354  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 355  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 356  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 357  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 358  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 359  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 362  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 363  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 364  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 365  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 366  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 367  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 368  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 369  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 370  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 371  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 372  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 373  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 374  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 375  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 376  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 377  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 378  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 379  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 380  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 381  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 382  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 383  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 384  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 387  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 388  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 389  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 390  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 391  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 392  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 393  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 394  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 395  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 396  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 397  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 398  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 399  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 400  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 401  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 402  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 403  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 404  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 405  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 406  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 407  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 410  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 411  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 412  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 413  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 414  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 415  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 416  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 417  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 418  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 419  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 420  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 421  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 422  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 423  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 424  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 425  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 426  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 427  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 428  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 429  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 430  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 433  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 434  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 435  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 436  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 437  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 438  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 439  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 440  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 441  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 442  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 443  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 444  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 445  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 446  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 447  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 450  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 561  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 568  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 589  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 595  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 601  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 605  - Found GuiControl, command - use gui control methods instead
+
+WARNINGS (4):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+  [Warning] Line 584  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 598  - Found global variable declaration - consider using static or local variables
+
+SUGGESTIONS (2):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+Lint Report for: D:\Dev\repos\autohotkey-test\AutoHotkeyDocs\docs\scripts\MinimizeToTrayMenu.ahk
+Generated: 2025-11-28 10:05:33
+Total Lines: 250
+
+Issues found:
+
+ERRORS (8):
+  [Error] Line 1    - Missing #Requires AutoHotkey v2.0 directive
+  [Error] Line 83   - Incorrect MsgBox syntax - use MsgBox(text, title, options)
+  [Error] Line 100  - Incorrect MsgBox syntax - use MsgBox(text, title, options)
+  [Error] Line 126  - Found Loop, syntax - use Loop or For loop instead
+  [Error] Line 156  - Found Loop, syntax - use Loop or For loop instead
+  [Error] Line 170  - Found Loop, syntax - use Loop or For loop instead
+  [Error] Line 187  - Found Loop, syntax - use Loop or For loop instead
+  [Error] Line 231  - Found Loop, syntax - use Loop or For loop instead
+
+WARNINGS (1):
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (1):
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+Lint Report for: D:\Dev\repos\autohotkey-test\AutoHotkeyDocs\docs\scripts\MsgBoxButtonNames.ahk
+Generated: 2025-11-28 10:05:34
+Total Lines: 25
+
+Issues found:
+
+ERRORS (2):
+  [Error] Line 1    - Missing #Requires AutoHotkey v2.0 directive
+  [Error] Line 5    - Incorrect MsgBox syntax - use MsgBox(text, title, options)
+
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (1):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+Lint Report for: D:\Dev\repos\autohotkey-test\AutoHotkeyDocs\docs\scripts\Numpad000.ahk
+Generated: 2025-11-28 10:05:35
+Total Lines: 62
+
+Issues found:
+
+ERRORS (1):
+  [Error] Line 1    - Missing #Requires AutoHotkey v2.0 directive
+
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (2):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+Lint Report for: D:\Dev\repos\autohotkey-test\AutoHotkeyDocs\docs\scripts\NumpadMouse.ahk
+Generated: 2025-11-28 10:05:36
+Total Lines: 751
+
+Issues found:
+
+ERRORS (1):
+  [Error] Line 1    - Missing #Requires AutoHotkey v2.0 directive
+
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (2):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+Lint Report for: D:\Dev\repos\autohotkey-test\AutoHotkeyDocs\docs\scripts\Seek_(SearchTheStartMenu).ahk
+Generated: 2025-11-28 10:05:38
+Total Lines: 822
+
+Issues found:
+
+ERRORS (66):
+  [Error] Line 1    - Missing #Requires AutoHotkey v2.0 directive
+  [Error] Line 305  - Incorrect MsgBox syntax - use MsgBox(text, title, options)
+  [Error] Line 323  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 326  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 329  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 332  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 335  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 336  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 337  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 340  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 343  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 357  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 366  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 372  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 377  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 378  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 379  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 400  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 401  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 404  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 405  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 406  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 407  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 408  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 417  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 418  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 419  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 420  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 483  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 485  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 498  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 508  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 509  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 515  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 516  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 517  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 518  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 519  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 520  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 522  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 526  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 537  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 546  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 581  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 587  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 588  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 594  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 595  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 599  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 609  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 610  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 611  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 619  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 644  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 652  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 653  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 654  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 655  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 697  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 759  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 798  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 449  - Found Loop, syntax - use Loop or For loop instead
+  [Error] Line 464  - Found Loop, syntax - use Loop or For loop instead
+  [Error] Line 466  - Found Loop, syntax - use Loop or For loop instead
+  [Error] Line 544  - Found Loop, syntax - use Loop or For loop instead
+  [Error] Line 559  - Found Loop, syntax - use Loop or For loop instead
+
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (1):
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+Lint Report for: D:\Dev\repos\autohotkey-test\AutoHotkeyDocs\docs\scripts\TooltipMouseMenu.ahk
+Generated: 2025-11-28 10:05:39
+Total Lines: 165
+
+Issues found:
+
+ERRORS (2):
+  [Error] Line 1    - Missing #Requires AutoHotkey v2.0 directive
+  [Error] Line 124  - Found Loop, syntax - use Loop or For loop instead
+
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (1):
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+Lint Report for: D:\Dev\repos\autohotkey-test\AutoHotkeyDocs\docs\scripts\UpDownCustomIncrements.ahk
+Generated: 2025-11-28 10:05:40
+Total Lines: 97
+
+Issues found:
+
+ERRORS (8):
+  [Error] Line 1    - Missing #Requires AutoHotkey v2.0 directive
+  [Error] Line 27   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 28   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 29   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 30   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 32   - Found GuiControl, command - use gui control methods instead
+  [Error] Line 33   - Found GuiControl, command - use gui control methods instead
+  [Error] Line 34   - Found Gui, command - use Gui() constructor instead
+
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (2):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+Lint Report for: D:\Dev\repos\autohotkey-test\AutoHotkeyDocs\docs\scripts\VolumeOSD.ahk
+Generated: 2025-11-28 10:05:41
+Total Lines: 128
+
+Issues found:
+
+ERRORS (1):
+  [Error] Line 1    - Missing #Requires AutoHotkey v2.0 directive
+
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (1):
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+Lint Report for: D:\Dev\repos\autohotkey-test\AutoHotkeyDocs\docs\scripts\WindowShading.ahk
+Generated: 2025-11-28 10:05:42
+Total Lines: 54
+
+Issues found:
+
+ERRORS (3):
+  [Error] Line 1    - Missing #Requires AutoHotkey v2.0 directive
+  [Error] Line 28   - Found Loop, syntax - use Loop or For loop instead
+  [Error] Line 46   - Found Loop, syntax - use Loop or For loop instead
+
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (2):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+Lint Report for: D:\Dev\repos\autohotkey-test\AutoHotkeyDocs\docs\scripts\WinLIRC.ahk
+Generated: 2025-11-28 10:05:43
+Total Lines: 281
+
+Issues found:
+
+ERRORS (5):
+  [Error] Line 1    - Missing #Requires AutoHotkey v2.0 directive
+  [Error] Line 117  - Incorrect MsgBox syntax - use MsgBox(text, title, options)
+  [Error] Line 163  - Incorrect MsgBox syntax - use MsgBox(text, title, options)
+  [Error] Line 227  - Found Loop, syntax - use Loop or For loop instead
+  [Error] Line 232  - Found Loop, syntax - use Loop or For loop instead
+
+WARNINGS (2):
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+  [Warning] Line 235  - Found global variable declaration - consider using static or local variables
+
+SUGGESTIONS (2):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+Lint Report for: D:\Dev\repos\autohotkey-test\AutoHotkeyDocs\docs\static\source\build_search.ahk
+Generated: 2025-11-28 10:05:44
+Total Lines: 367
+
+Issues found:
+
+ERRORS (2):
+  [Error] Line 83   - Incorrect Loop Files syntax - remove comma after 'Files' - use 'Loop Files Pattern' not 'Loop Files, Pattern'
+  [Error] Line 3    - Incorrect SetWorkingDir syntax - use SetWorkingDir(path)
+
+WARNINGS (9):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+  [Warning] Line 52   - Found global variable declaration - consider using static or local variables
+  [Warning] Line 76   - Found global variable declaration - consider using static or local variables
+  [Warning] Line 77   - Found global variable declaration - consider using static or local variables
+  [Warning] Line 78   - Found global variable declaration - consider using static or local variables
+  [Warning] Line 79   - Found global variable declaration - consider using static or local variables
+  [Warning] Line 80   - Found global variable declaration - consider using static or local variables
+  [Warning] Line 81   - Found global variable declaration - consider using static or local variables
+
+SUGGESTIONS (3):
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+  [Suggestion] Line 179  - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 309  - File operation without try-catch - consider adding error handling
+Lint Report for: D:\Dev\repos\autohotkey-test\AutoHotkeyDocs\docs\static\source\check_data.ahk
+Generated: 2025-11-28 10:05:45
+Total Lines: 54
+
+Issues found:
+
+ERRORS (3):
+  [Error] Line 1    - Missing #Requires AutoHotkey v2.0 directive
+  [Error] Line 6    - Incorrect MsgBox syntax - use MsgBox(text, title, options)
+  [Error] Line 33   - Incorrect Loop Files syntax - remove comma after 'Files' - use 'Loop Files Pattern' not 'Loop Files, Pattern'
+
+WARNINGS (3):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+  [Warning] Line 42   - Found global variable declaration - consider using static or local variables
+
+SUGGESTIONS (2):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+Lint Report for: D:\Dev\repos\autohotkey-test\junk\claude-mcp-scripts-improved.ahk
+Generated: 2025-11-28 10:05:46
+Total Lines: 63
+
+Issues found:
+
+WARNINGS (6):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+  [Warning] Line 19   - Found global variable declaration - consider using static or local variables
+  [Warning] Line 20   - Found global variable declaration - consider using static or local variables
+  [Warning] Line 28   - Found global variable declaration - consider using static or local variables
+  [Warning] Line 56   - Found global variable declaration - consider using static or local variables
+
+SUGGESTIONS (1):
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+Lint Report for: D:\Dev\repos\autohotkey-test\junk\claude-mcp-scripts-part1.ahk
+Generated: 2025-11-28 10:05:47
+Total Lines: 176
+
+Issues found:
+
+ERRORS (4):
+  [Error] Line 74   - Incorrect InputBox syntax - use InputBox(Prompt, Title) returning object with .Result and .Value
+  [Error] Line 78   - Incorrect InputBox syntax - use InputBox(Prompt, Title) returning object with .Result and .Value
+  [Error] Line 114  - Incorrect InputBox syntax - use InputBox(Prompt, Title) returning object with .Result and .Value
+  [Error] Line 149  - Incorrect InputBox syntax - use InputBox(Prompt, Title) returning object with .Result and .Value
+
+WARNINGS (6):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+  [Warning] Line 19   - Found global variable declaration - consider using static or local variables
+  [Warning] Line 20   - Found global variable declaration - consider using static or local variables
+  [Warning] Line 28   - Found global variable declaration - consider using static or local variables
+  [Warning] Line 56   - Found global variable declaration - consider using static or local variables
+
+SUGGESTIONS (1):
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+Lint Report for: D:\Dev\repos\autohotkey-test\junk\claude-mcp-scripts-part2.ahk
+Generated: 2025-11-28 10:05:48
+Total Lines: 198
+
+Issues found:
+
+WARNINGS (5):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+  [Warning] Line 19   - Found global variable declaration - consider using static or local variables
+  [Warning] Line 20   - Found global variable declaration - consider using static or local variables
+  [Warning] Line 28   - Found global variable declaration - consider using static or local variables
+
+SUGGESTIONS (1):
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+Lint Report for: D:\Dev\repos\autohotkey-test\junk\claude-mcp-scripts-part3.ahk
+Generated: 2025-11-28 10:05:49
+Total Lines: 208
+
+Issues found:
+
+WARNINGS (5):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+  [Warning] Line 19   - Found global variable declaration - consider using static or local variables
+  [Warning] Line 20   - Found global variable declaration - consider using static or local variables
+  [Warning] Line 28   - Found global variable declaration - consider using static or local variables
+
+SUGGESTIONS (1):
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+Lint Report for: D:\Dev\repos\autohotkey-test\junk\claude-mcp-scripts-part4.ahk
+Generated: 2025-11-28 10:05:50
+Total Lines: 276
+
+Issues found:
+
+ERRORS (1):
+  [Error] Line 172  - Incorrect InputBox syntax - use InputBox(Prompt, Title) returning object with .Result and .Value
+
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (1):
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+Lint Report for: D:\Dev\repos\autohotkey-test\junk\old_scripts\claude-mcp-scripts-extended.ahk
+Generated: 2025-11-28 10:05:52
+Total Lines: 909
+
+Issues found:
+
+ERRORS (1):
+  [Error] Line 147  - Found Gui, command - use Gui() constructor instead
+
+WARNINGS (18):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+  [Warning] Line 54   - Found global variable declaration - consider using static or local variables
+  [Warning] Line 55   - Found global variable declaration - consider using static or local variables
+  [Warning] Line 56   - Found global variable declaration - consider using static or local variables
+  [Warning] Line 57   - Found global variable declaration - consider using static or local variables
+  [Warning] Line 60   - Found global variable declaration - consider using static or local variables
+  [Warning] Line 61   - Found global variable declaration - consider using static or local variables
+  [Warning] Line 62   - Found global variable declaration - consider using static or local variables
+  [Warning] Line 65   - Found global variable declaration - consider using static or local variables
+  [Warning] Line 66   - Found global variable declaration - consider using static or local variables
+  [Warning] Line 67   - Found global variable declaration - consider using static or local variables
+  [Warning] Line 70   - Found global variable declaration - consider using static or local variables
+  [Warning] Line 71   - Found global variable declaration - consider using static or local variables
+  [Warning] Line 78   - Found global variable declaration - consider using static or local variables
+  [Warning] Line 121  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 147  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 272  - Found global variable declaration - consider using static or local variables
+
+SUGGESTIONS (1):
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+Lint Report for: D:\Dev\repos\autohotkey-test\junk\old_scripts\claude-mcp-scripts.ahk
+Generated: 2025-11-28 10:05:52
+Total Lines: 284
+
+Issues found:
+
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (1):
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+Lint Report for: D:\Dev\repos\autohotkey-test\junk\old_scripts\hello_world.ahk
+Generated: 2025-11-28 10:05:53
+Total Lines: 156
+
+Issues found:
+
+ERRORS (1):
+  [Error] Line 11   - Incorrect SetWorkingDir syntax - use SetWorkingDir(path)
+
+WARNINGS (3):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+  [Warning] Line 86   - Clipboard assignment - use ClipboardAll or Clipboard := text
+
+SUGGESTIONS (1):
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+Lint Report for: D:\Dev\repos\autohotkey-test\junk\old_scripts\json_utility.ahk
+Generated: 2025-11-28 10:05:54
+Total Lines: 59
+
+Issues found:
+
+ERRORS (1):
+  [Error] Line 1    - Missing #Requires AutoHotkey v2.0 directive
+
+WARNINGS (1):
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+Lint Report for: D:\Dev\repos\autohotkey-test\junk\old_scripts\main_init.ahk
+Generated: 2025-11-28 10:05:55
+Total Lines: 97
+
+Issues found:
+
+ERRORS (1):
+  [Error] Line 1    - Missing #Requires AutoHotkey v2.0 directive
+
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (6):
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+  [Suggestion] Line 22   - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 25   - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 33   - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 39   - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 45   - File operation without try-catch - consider adding error handling
+Lint Report for: D:\Dev\repos\autohotkey-test\junk\old_scripts\plugin_loader.ahk
+Generated: 2025-11-28 10:05:57
+Total Lines: 432
+
+Issues found:
+
+ERRORS (5):
+  [Error] Line 189  - Multi-line lambda block detected (lines 189-192) - extract to separate function or use single-line lambda
+  [Error] Line 194  - Multi-line lambda block detected (lines 194-199) - extract to separate function or use single-line lambda
+  [Error] Line 201  - Multi-line lambda block detected (lines 201-203) - extract to separate function or use single-line lambda
+  [Error] Line 208  - Multi-line lambda block detected (lines 208-216) - extract to separate function or use single-line lambda
+  [Error] Line 12   - Incorrect SetWorkingDir syntax - use SetWorkingDir(path)
+
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (4):
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+  [Suggestion] Line 248  - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 252  - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 256  - File operation without try-catch - consider adding error handling
+Lint Report for: D:\Dev\repos\autohotkey-test\junk\old_scripts\test_runner.ahk
+Generated: 2025-11-28 10:05:58
+Total Lines: 360
+
+Issues found:
+
+ERRORS (1):
+  [Error] Line 12   - Incorrect SetWorkingDir syntax - use SetWorkingDir(path)
+
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (5):
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+  [Suggestion] Line 144  - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 152  - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 167  - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 304  - File operation without try-catch - consider adding error handling
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\_base.ahk
+Generated: 2025-11-28 10:05:58
+Total Lines: 50
+
+Issues found:
+  No issues found! 
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\action_automation_builder_temp.ahk
+Generated: 2025-11-28 10:05:59
+Total Lines: 356
+
+Issues found:
+  No issues found! 
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\action_automation_builder_v2.ahk
+Generated: 2025-11-28 10:06:01
+Total Lines: 566
+
+Issues found:
+
+WARNINGS (6):
+  [Warning] Line 132  - OnEvent callback should use class name or proper binding
+  [Warning] Line 133  - OnEvent callback should use class name or proper binding
+  [Warning] Line 168  - OnEvent callback should use class name or proper binding
+  [Warning] Line 169  - OnEvent callback should use class name or proper binding
+  [Warning] Line 201  - OnEvent callback should use class name or proper binding
+  [Warning] Line 202  - OnEvent callback should use class name or proper binding
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\action_automation_builder.ahk
+Generated: 2025-11-28 10:06:02
+Total Lines: 554
+
+Issues found:
+
+WARNINGS (6):
+  [Warning] Line 124  - OnEvent callback should use class name or proper binding
+  [Warning] Line 125  - OnEvent callback should use class name or proper binding
+  [Warning] Line 160  - OnEvent callback should use class name or proper binding
+  [Warning] Line 161  - OnEvent callback should use class name or proper binding
+  [Warning] Line 193  - OnEvent callback should use class name or proper binding
+  [Warning] Line 194  - OnEvent callback should use class name or proper binding
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\ai_code_assistant.ahk
+Generated: 2025-11-28 10:06:03
+Total Lines: 421
+
+Issues found:
+
+ERRORS (2):
+  [Error] Line 273  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 404  - Hotkey for 'Escape' lacks context restrictions - arrow/navigation keys should only work when specific window is active (add WinActive check)
+
+SUGGESTIONS (2):
+  [Suggestion] Line 342  - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 369  - File operation without try-catch - consider adding error handling
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\annoying_sounds.ahk
+Generated: 2025-11-28 10:06:04
+Total Lines: 258
+
+Issues found:
+
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (2):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\autohotkey_debug_helper.ahk
+Generated: 2025-11-28 10:06:05
+Total Lines: 484
+
+Issues found:
+
+ERRORS (5):
+  [Error] Line 441  - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+  [Error] Line 442  - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+  [Error] Line 457  - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+  [Error] Line 458  - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+  [Error] Line 124  - Hotkey for 'Escape' lacks context restrictions - arrow/navigation keys should only work when specific window is active (add WinActive check)
+
+WARNINGS (14):
+  [Warning] Line 330  - Clipboard assignment - use ClipboardAll or Clipboard := text
+  [Warning] Line 64   - OnEvent callback should use class name or proper binding
+  [Warning] Line 65   - OnEvent callback should use class name or proper binding
+  [Warning] Line 66   - OnEvent callback should use class name or proper binding
+  [Warning] Line 67   - OnEvent callback should use class name or proper binding
+  [Warning] Line 70   - OnEvent callback should use class name or proper binding
+  [Warning] Line 71   - OnEvent callback should use class name or proper binding
+  [Warning] Line 72   - OnEvent callback should use class name or proper binding
+  [Warning] Line 73   - OnEvent callback should use class name or proper binding
+  [Warning] Line 78   - OnEvent callback should use class name or proper binding
+  [Warning] Line 92   - OnEvent callback should use class name or proper binding
+  [Warning] Line 93   - OnEvent callback should use class name or proper binding
+  [Warning] Line 94   - OnEvent callback should use class name or proper binding
+  [Warning] Line 95   - OnEvent callback should use class name or proper binding
+
+SUGGESTIONS (6):
+  [Suggestion] Line 431  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 432  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 438  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 439  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 447  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 448  - Very short variable name - consider using more descriptive names
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\autohotkey_warning.ahk
+Generated: 2025-11-28 10:06:06
+Total Lines: 114
+
+Issues found:
+
+WARNINGS (1):
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\chess_stockfish.ahk
+Generated: 2025-11-28 10:06:08
+Total Lines: 247
+
+Issues found:
+
+SUGGESTIONS (2):
+  [Suggestion] Line 221  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 222  - Very short variable name - consider using more descriptive names
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\classic_frogger.ahk
+Generated: 2025-11-28 10:06:09
+Total Lines: 315
+
+Issues found:
+  No issues found! 
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\classic_pong.ahk
+Generated: 2025-11-28 10:06:10
+Total Lines: 296
+
+Issues found:
+
+SUGGESTIONS (1):
+  [Suggestion] Line 49   - File operation without try-catch - consider adding error handling
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\classic_pranks.ahk
+Generated: 2025-11-28 10:06:11
+Total Lines: 290
+
+Issues found:
+
+ERRORS (6):
+  [Error] Line 85   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 66   - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+  [Error] Line 67   - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+  [Error] Line 68   - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+  [Error] Line 69   - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+  [Error] Line 139  - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+
+SUGGESTIONS (2):
+  [Suggestion] Line 226  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 227  - Very short variable name - consider using more descriptive names
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\claude_desktop_restart.ahk
+Generated: 2025-11-28 10:06:12
+Total Lines: 315
+
+Issues found:
+  No issues found! 
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\clipboard_manager.ahk
+Generated: 2025-11-28 10:06:13
+Total Lines: 332
+
+Issues found:
+
+ERRORS (5):
+  [Error] Line 124  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 128  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 131  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 167  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 194  - Found Gui, command - use Gui() constructor instead
+
+WARNINGS (4):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+  [Warning] Line 177  - Clipboard assignment - use ClipboardAll or Clipboard := text
+  [Warning] Line 223  - Clipboard assignment - use ClipboardAll or Clipboard := text
+
+SUGGESTIONS (1):
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\code_formatter_pro.ahk
+Generated: 2025-11-28 10:06:14
+Total Lines: 557
+
+Issues found:
+
+WARNINGS (1):
+  [Warning] Line 533  - Clipboard assignment - use ClipboardAll or Clipboard := text
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\corporate_pranks.ahk
+Generated: 2025-11-28 10:06:15
+Total Lines: 329
+
+Issues found:
+
+ERRORS (1):
+  [Error] Line 80   - Hotkey for 'Escape' lacks context restrictions - arrow/navigation keys should only work when specific window is active (add WinActive check)
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\dev_context_music.ahk
+Generated: 2025-11-28 10:06:16
+Total Lines: 299
+
+Issues found:
+
+ERRORS (4):
+  [Error] Line 159  - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+  [Error] Line 174  - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+  [Error] Line 212  - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+  [Error] Line 220  - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (2):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\eliza.ahk
+Generated: 2025-11-28 10:06:17
+Total Lines: 563
+
+Issues found:
+
+ERRORS (1):
+  [Error] Line 472  - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+
+WARNINGS (12):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+  [Warning] Line 60   - Found global variable declaration - consider using static or local variables
+  [Warning] Line 169  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 212  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 235  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 247  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 257  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 281  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 427  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 477  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 510  - Found global variable declaration - consider using static or local variables
+
+SUGGESTIONS (1):
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\fun_animations.ahk
+Generated: 2025-11-28 10:06:18
+Total Lines: 202
+
+Issues found:
+  No issues found! 
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\fun_games.ahk
+Generated: 2025-11-28 10:06:19
+Total Lines: 233
+
+Issues found:
+
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (4):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+  [Suggestion] Line 156  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 159  - Very short variable name - consider using more descriptive names
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\game_starter_popup.ahk
+Generated: 2025-11-28 10:06:20
+Total Lines: 298
+
+Issues found:
+
+ERRORS (3):
+  [Error] Line 214  - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+  [Error] Line 281  - Hotkey for 'Escape' lacks context restrictions - arrow/navigation keys should only work when specific window is active (add WinActive check)
+  [Error] Line 284  - Hotkey for 'Enter' lacks context restrictions - arrow/navigation keys should only work when specific window is active (add WinActive check)
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\git_assistant_pro.ahk
+Generated: 2025-11-28 10:06:21
+Total Lines: 352
+
+Issues found:
+
+WARNINGS (1):
+  [Warning] Line 283  - Clipboard assignment - use ClipboardAll or Clipboard := text
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\github_repo_manager.ahk
+Generated: 2025-11-28 10:06:22
+Total Lines: 243
+
+Issues found:
+  No issues found! 
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\gui_test.ahk
+Generated: 2025-11-28 10:06:23
+Total Lines: 82
+
+Issues found:
+
+SUGGESTIONS (1):
+  [Suggestion] Line 64   - File operation without try-catch - consider adding error handling
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\help_system_pro.ahk
+Generated: 2025-11-28 10:06:24
+Total Lines: 214
+
+Issues found:
+
+SUGGESTIONS (2):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+  [Suggestion] Line 61   - File operation without try-catch - consider adding error handling
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\ide_shortcuts.ahk
+Generated: 2025-11-28 10:06:25
+Total Lines: 196
+
+Issues found:
+
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (2):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\macro_editor_pro.ahk
+Generated: 2025-11-28 10:06:26
+Total Lines: 480
+
+Issues found:
+
+ERRORS (1):
+  [Error] Line 105  - Hotkey for 'Escape' lacks context restrictions - arrow/navigation keys should only work when specific window is active (add WinActive check)
+
+SUGGESTIONS (2):
+  [Suggestion] Line 367  - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 255  - Very short variable name - consider using more descriptive names
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\macro_recorder_pro.ahk
+Generated: 2025-11-28 10:06:27
+Total Lines: 444
+
+Issues found:
+
+ERRORS (5):
+  [Error] Line 106  - Hotkey for 'Escape' lacks context restrictions - arrow/navigation keys should only work when specific window is active (add WinActive check)
+  [Error] Line 138  - Hotkey for 'Up' lacks context restrictions - arrow/navigation keys should only work when specific window is active (add WinActive check)
+  [Error] Line 139  - Hotkey for 'Down' lacks context restrictions - arrow/navigation keys should only work when specific window is active (add WinActive check)
+  [Error] Line 140  - Hotkey for 'Left' lacks context restrictions - arrow/navigation keys should only work when specific window is active (add WinActive check)
+  [Error] Line 141  - Hotkey for 'Right' lacks context restrictions - arrow/navigation keys should only work when specific window is active (add WinActive check)
+
+SUGGESTIONS (1):
+  [Suggestion] Line 343  - File operation without try-catch - consider adding error handling
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\mcp_config_manager.ahk
+Generated: 2025-11-28 10:06:28
+Total Lines: 530
+
+Issues found:
+
+ERRORS (1):
+  [Error] Line 120  - Hotkey for 'Escape' lacks context restrictions - arrow/navigation keys should only work when specific window is active (add WinActive check)
+
+SUGGESTIONS (5):
+  [Suggestion] Line 152  - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 205  - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 206  - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 513  - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 514  - File operation without try-catch - consider adding error handling
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\mcp_development_cycle.ahk
+Generated: 2025-11-28 10:06:29
+Total Lines: 408
+
+Issues found:
+
+ERRORS (1):
+  [Error] Line 172  - Hotkey for 'Escape' lacks context restrictions - arrow/navigation keys should only work when specific window is active (add WinActive check)
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\mcp_log_analyzer.ahk
+Generated: 2025-11-28 10:06:30
+Total Lines: 347
+
+Issues found:
+
+ERRORS (1):
+  [Error] Line 146  - Hotkey for 'Escape' lacks context restrictions - arrow/navigation keys should only work when specific window is active (add WinActive check)
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\mcp_server_scaffolding.ahk
+Generated: 2025-11-28 10:06:31
+Total Lines: 511
+
+Issues found:
+
+ERRORS (1):
+  [Error] Line 184  - Hotkey for 'Escape' lacks context restrictions - arrow/navigation keys should only work when specific window is active (add WinActive check)
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\mcp_troubleshooter.ahk
+Generated: 2025-11-28 10:06:32
+Total Lines: 284
+
+Issues found:
+
+ERRORS (1):
+  [Error] Line 133  - Hotkey for 'Escape' lacks context restrictions - arrow/navigation keys should only work when specific window is active (add WinActive check)
+
+SUGGESTIONS (1):
+  [Suggestion] Line 259  - File operation without try-catch - consider adding error handling
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\media_controls.ahk
+Generated: 2025-11-28 10:06:33
+Total Lines: 226
+
+Issues found:
+
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (1):
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\mini_games_collection.ahk
+Generated: 2025-11-28 10:06:34
+Total Lines: 204
+
+Issues found:
+
+ERRORS (2):
+  [Error] Line 148  - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+  [Error] Line 178  - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+
+SUGGESTIONS (1):
+  [Suggestion] Line 39   - File operation without try-catch - consider adding error handling
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\music_controller_pro.ahk
+Generated: 2025-11-28 10:06:35
+Total Lines: 428
+
+Issues found:
+
+ERRORS (1):
+  [Error] Line 336  - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\my_test_script.ahk
+Generated: 2025-11-28 10:06:36
+Total Lines: 35
+
+Issues found:
+
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (1):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\office365_automation.ahk
+Generated: 2025-11-28 10:06:38
+Total Lines: 968
+
+Issues found:
+
+ERRORS (24):
+  [Error] Line 216  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 266  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 289  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 392  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 407  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 450  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 465  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 536  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 664  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 812  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 818  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 830  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 836  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 841  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 863  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 869  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 874  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 891  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 917  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 926  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 935  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 942  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 947  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 809  - Hotkey for 'Escape' lacks context restrictions - arrow/navigation keys should only work when specific window is active (add WinActive check)
+
+WARNINGS (6):
+  [Warning] Line 366  - Clipboard assignment - use ClipboardAll or Clipboard := text
+  [Warning] Line 655  - Clipboard assignment - use ClipboardAll or Clipboard := text
+  [Warning] Line 831  - Clipboard assignment - use ClipboardAll or Clipboard := text
+  [Warning] Line 912  - Clipboard assignment - use ClipboardAll or Clipboard := text
+  [Warning] Line 937  - Clipboard assignment - use ClipboardAll or Clipboard := text
+  [Warning] Line 949  - Clipboard assignment - use ClipboardAll or Clipboard := text
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\ollama_chatbot.ahk
+Generated: 2025-11-28 10:06:40
+Total Lines: 160
+
+Issues found:
+
+SUGGESTIONS (1):
+  [Suggestion] Line 23   - File operation without try-catch - consider adding error handling
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\pacman_classic.ahk
+Generated: 2025-11-28 10:06:41
+Total Lines: 322
+
+Issues found:
+
+ERRORS (1):
+  [Error] Line 224  - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\pacman_game.ahk
+Generated: 2025-11-28 10:06:42
+Total Lines: 84
+
+Issues found:
+
+SUGGESTIONS (1):
+  [Suggestion] Line 17   - File operation without try-catch - consider adding error handling
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\pranks.ahk
+Generated: 2025-11-28 10:06:43
+Total Lines: 224
+
+Issues found:
+
+ERRORS (4):
+  [Error] Line 44   - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+  [Error] Line 75   - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+  [Error] Line 76   - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+  [Error] Line 151  - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (2):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\PuzzleGame.ahk
+Generated: 2025-11-28 10:06:44
+Total Lines: 246
+
+Issues found:
+
+ERRORS (1):
+  [Error] Line 153  - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+
+SUGGESTIONS (3):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+  [Suggestion] Line 67   - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 68   - Very short variable name - consider using more descriptive names
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\qbert_game.ahk
+Generated: 2025-11-28 10:06:45
+Total Lines: 199
+
+Issues found:
+
+SUGGESTIONS (1):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\quick_launch.ahk
+Generated: 2025-11-28 10:06:46
+Total Lines: 119
+
+Issues found:
+
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (1):
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\quick_notes.ahk
+Generated: 2025-11-28 10:06:48
+Total Lines: 589
+
+Issues found:
+
+ERRORS (1):
+  [Error] Line 246  - Found Gui, command - use Gui() constructor instead
+
+WARNINGS (27):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+  [Warning] Line 9    - Found global variable declaration - consider using static or local variables
+  [Warning] Line 10   - Found global variable declaration - consider using static or local variables
+  [Warning] Line 13   - Found global variable declaration - consider using static or local variables
+  [Warning] Line 14   - Found global variable declaration - consider using static or local variables
+  [Warning] Line 15   - Found global variable declaration - consider using static or local variables
+  [Warning] Line 16   - Found global variable declaration - consider using static or local variables
+  [Warning] Line 19   - Found global variable declaration - consider using static or local variables
+  [Warning] Line 47   - Found global variable declaration - consider using static or local variables
+  [Warning] Line 114  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 173  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 211  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 226  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 247  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 272  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 289  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 311  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 335  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 407  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 434  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 479  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 510  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 528  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 556  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 567  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 579  - Found global variable declaration - consider using static or local variables
+
+SUGGESTIONS (4):
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+  [Suggestion] Line 457  - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 494  - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 518  - File operation without try-catch - consider adding error handling
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\scriptlet_tester.ahk
+Generated: 2025-11-28 10:06:49
+Total Lines: 116
+
+Issues found:
+
+ERRORS (1):
+  [Error] Line 90   - Incorrect FileRead syntax - use FileRead(content, file)
+
+WARNINGS (2):
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+  [Warning] Line 93   - Found global variable declaration - consider using static or local variables
+
+SUGGESTIONS (1):
+  [Suggestion] Line 91   - File operation without try-catch - consider adding error handling
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\ScriptletLauncher.ahk
+Generated: 2025-11-28 10:06:50
+Total Lines: 151
+
+Issues found:
+
+SUGGESTIONS (1):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\security_guide_pro.ahk
+Generated: 2025-11-28 10:06:52
+Total Lines: 196
+
+Issues found:
+
+SUGGESTIONS (2):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+  [Suggestion] Line 53   - File operation without try-catch - consider adding error handling
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\simple_test.ahk
+Generated: 2025-11-28 10:06:52
+Total Lines: 8
+
+Issues found:
+
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (1):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\smart_assistant_pro.ahk
+Generated: 2025-11-28 10:06:54
+Total Lines: 284
+
+Issues found:
+  No issues found! 
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\smart_clipboard_manager.ahk
+Generated: 2025-11-28 10:06:55
+Total Lines: 295
+
+Issues found:
+
+WARNINGS (4):
+  [Warning] Line 167  - Clipboard assignment - use ClipboardAll or Clipboard := text
+  [Warning] Line 177  - Clipboard assignment - use ClipboardAll or Clipboard := text
+  [Warning] Line 193  - Clipboard assignment - use ClipboardAll or Clipboard := text
+  [Warning] Line 202  - Clipboard assignment - use ClipboardAll or Clipboard := text
+
+SUGGESTIONS (2):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+  [Suggestion] Line 153  - Very short variable name - consider using more descriptive names
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\sudoku.ahk
+Generated: 2025-11-28 10:06:56
+Total Lines: 280
+
+Issues found:
+
+SUGGESTIONS (5):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+  [Suggestion] Line 74   - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 75   - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 259  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 260  - Very short variable name - consider using more descriptive names
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\system_monitor_pro.ahk
+Generated: 2025-11-28 10:06:57
+Total Lines: 436
+
+Issues found:
+
+ERRORS (6):
+  [Error] Line 161  - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+  [Error] Line 173  - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+  [Error] Line 245  - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+  [Error] Line 246  - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+  [Error] Line 247  - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+  [Error] Line 416  - Hotkey for 'Escape' lacks context restrictions - arrow/navigation keys should only work when specific window is active (add WinActive check)
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\system_monitor.ahk
+Generated: 2025-11-28 10:06:58
+Total Lines: 390
+
+Issues found:
+
+WARNINGS (8):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+  [Warning] Line 257  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 369  - Clipboard assignment - use ClipboardAll or Clipboard := text
+  [Warning] Line 104  - OnEvent callback should use class name or proper binding
+  [Warning] Line 105  - OnEvent callback should use class name or proper binding
+  [Warning] Line 106  - OnEvent callback should use class name or proper binding
+  [Warning] Line 107  - OnEvent callback should use class name or proper binding
+
+SUGGESTIONS (4):
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+  [Suggestion] Line 296  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 298  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 309  - Very short variable name - consider using more descriptive names
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\system_shortcuts.ahk
+Generated: 2025-11-28 10:06:59
+Total Lines: 416
+
+Issues found:
+
+WARNINGS (1):
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (1):
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\test_video_minimal2.ahk
+Generated: 2025-11-28 10:07:00
+Total Lines: 28
+
+Issues found:
+
+SUGGESTIONS (1):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\test_video_scrubber_minimal.ahk
+Generated: 2025-11-28 10:07:01
+Total Lines: 19
+
+Issues found:
+
+WARNINGS (1):
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\test_video_simple.ahk
+Generated: 2025-11-28 10:07:02
+Total Lines: 29
+
+Issues found:
+
+SUGGESTIONS (1):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\tetris_classic.ahk
+Generated: 2025-11-28 10:07:03
+Total Lines: 464
+
+Issues found:
+
+SUGGESTIONS (2):
+  [Suggestion] Line 330  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 332  - Very short variable name - consider using more descriptive names
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\text_expander.ahk
+Generated: 2025-11-28 10:07:04
+Total Lines: 344
+
+Issues found:
+
+WARNINGS (3):
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+  [Warning] Line 143  - Clipboard assignment - use ClipboardAll or Clipboard := text
+  [Warning] Line 151  - Clipboard assignment - use ClipboardAll or Clipboard := text
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\text_transformer_pro.ahk
+Generated: 2025-11-28 10:07:05
+Total Lines: 426
+
+Issues found:
+
+WARNINGS (1):
+  [Warning] Line 222  - Clipboard assignment - use ClipboardAll or Clipboard := text
+
+SUGGESTIONS (1):
+  [Suggestion] Line 161  - Very short variable name - consider using more descriptive names
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\video_filename_scrubber_fixed.ahk
+Generated: 2025-11-28 10:07:06
+Total Lines: 605
+
+Issues found:
+
+SUGGESTIONS (2):
+  [Suggestion] Line 161  - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 587  - File operation without try-catch - consider adding error handling
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\video_filename_scrubber_test.ahk
+Generated: 2025-11-28 10:07:07
+Total Lines: 61
+
+Issues found:
+
+SUGGESTIONS (1):
+  [Suggestion] Line 42   - File operation without try-catch - consider adding error handling
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\video_filename_scrubber.ahk
+Generated: 2025-11-28 10:07:08
+Total Lines: 605
+
+Issues found:
+
+SUGGESTIONS (2):
+  [Suggestion] Line 161  - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 587  - File operation without try-catch - consider adding error handling
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\video_test_basic.ahk
+Generated: 2025-11-28 10:07:09
+Total Lines: 27
+
+Issues found:
+
+SUGGESTIONS (1):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\video_test_minimal.ahk
+Generated: 2025-11-28 10:07:10
+Total Lines: 32
+
+Issues found:
+  No issues found! 
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\volume_control.ahk
+Generated: 2025-11-28 10:07:11
+Total Lines: 67
+
+Issues found:
+
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (2):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\window_management.ahk
+Generated: 2025-11-28 10:07:13
+Total Lines: 497
+
+Issues found:
+
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (38):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+  [Suggestion] Line 331  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 332  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 333  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 334  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 336  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 337  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 338  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 339  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 341  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 342  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 343  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 344  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 346  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 347  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 348  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 349  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 351  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 352  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 353  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 354  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 356  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 357  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 358  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 359  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 361  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 362  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 363  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 364  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 366  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 367  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 368  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 369  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 372  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 373  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 374  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 375  - Very short variable name - consider using more descriptive names
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\window_manager_pro.ahk
+Generated: 2025-11-28 10:07:14
+Total Lines: 388
+
+Issues found:
+
+WARNINGS (1):
+  [Warning] Line 379  - Clipboard assignment - use ClipboardAll or Clipboard := text
+
+SUGGESTIONS (4):
+  [Suggestion] Line 287  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 288  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 308  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 309  - Very short variable name - consider using more descriptive names
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\window_snapping.ahk
+Generated: 2025-11-28 10:07:15
+Total Lines: 66
+
+Issues found:
+
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (2):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\workflow_automator_pro.ahk
+Generated: 2025-11-28 10:07:16
+Total Lines: 587
+
+Issues found:
+
+ERRORS (1):
+  [Error] Line 508  - Found Gui, command - use Gui() constructor instead
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\lib\ScriptletErrorHandler.ahk
+Generated: 2025-11-28 10:07:17
+Total Lines: 70
+
+Issues found:
+
+ERRORS (1):
+  [Error] Line 11   - FormatTime missing first parameter - use FormatTime(OutputVar, A_Now, format) or var := FormatTime(A_Now, format)
+
+WARNINGS (1):
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\system\system_info.ahk
+Generated: 2025-11-28 10:07:18
+Total Lines: 51
+
+Issues found:
+
+WARNINGS (1):
+  [Warning] Line 34   - OnEvent callback should use class name or proper binding
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\v1\_base.ahk
+Generated: 2025-11-28 10:07:19
+Total Lines: 42
+
+Issues found:
+
+ERRORS (1):
+  [Error] Line 1    - Missing #Requires AutoHotkey v2.0 directive
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\v1\classic_pranks.ahk
+Generated: 2025-11-28 10:07:22
+Total Lines: 328
+
+Issues found:
+
+ERRORS (51):
+  [Error] Line 1    - Missing #Requires AutoHotkey v2.0 directive
+  [Error] Line 15   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 16   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 25   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 26   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 84   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 85   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 86   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 97   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 119  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 129  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 130  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 131  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 134  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 136  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 137  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 139  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 162  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 163  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 165  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 170  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 192  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 203  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 214  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 215  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 230  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 235  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 236  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 237  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 242  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 250  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 251  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 257  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 258  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 259  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 260  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 261  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 262  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 263  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 264  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 265  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 270  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 271  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 288  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 289  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 305  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 309  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 313  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 317  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 323  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 11   - Top-level static declaration - static can only be used inside functions or classes in v2
+
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (2):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\v1\clipboard_manager.ahk
+Generated: 2025-11-28 10:07:22
+Total Lines: 70
+
+Issues found:
+
+ERRORS (1):
+  [Error] Line 1    - Missing #Requires AutoHotkey v2.0 directive
+
+WARNINGS (6):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+  [Warning] Line 18   - Found global variable declaration - consider using static or local variables
+  [Warning] Line 33   - Found global variable declaration - consider using static or local variables
+  [Warning] Line 57   - Found global variable declaration - consider using static or local variables
+  [Warning] Line 66   - Clipboard assignment - use ClipboardAll or Clipboard := text
+
+SUGGESTIONS (2):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\v1\dev_context_music.ahk
+Generated: 2025-11-28 10:07:23
+Total Lines: 256
+
+Issues found:
+
+ERRORS (1):
+  [Error] Line 1    - Missing #Requires AutoHotkey v2.0 directive
+
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (1):
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\v1\eliza.ahk
+Generated: 2025-11-28 10:07:24
+Total Lines: 164
+
+Issues found:
+
+ERRORS (9):
+  [Error] Line 1    - Missing #Requires AutoHotkey v2.0 directive
+  [Error] Line 15   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 16   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 17   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 18   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 19   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 23   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 25   - Found GuiControl, command - use gui control methods instead
+  [Error] Line 37   - Found GuiControl, command - use gui control methods instead
+
+WARNINGS (4):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+  [Warning] Line 42   - Found global variable declaration - consider using static or local variables
+  [Warning] Line 66   - Found global variable declaration - consider using static or local variables
+
+SUGGESTIONS (2):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\v1\fun_animations.ahk
+Generated: 2025-11-28 10:07:26
+Total Lines: 115
+
+Issues found:
+
+ERRORS (23):
+  [Error] Line 1    - Missing #Requires AutoHotkey v2.0 directive
+  [Error] Line 10   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 11   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 12   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 13   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 14   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 15   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 27   - Found GuiControl, command - use gui control methods instead
+  [Error] Line 34   - Found GuiControl, command - use gui control methods instead
+  [Error] Line 37   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 39   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 41   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 47   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 48   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 49   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 69   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 76   - Found GuiControl, command - use gui control methods instead
+  [Error] Line 97   - Found GuiControl, command - use gui control methods instead
+  [Error] Line 102  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 73   - Top-level static declaration - static can only be used inside functions or classes in v2
+  [Error] Line 60   - Found Loop, syntax - use Loop or For loop instead
+  [Error] Line 87   - Found Loop, syntax - use Loop or For loop instead
+  [Error] Line 89   - Found Loop, syntax - use Loop or For loop instead
+
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (2):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\v1\fun_games.ahk
+Generated: 2025-11-28 10:07:27
+Total Lines: 152
+
+Issues found:
+
+ERRORS (9):
+  [Error] Line 1    - Missing #Requires AutoHotkey v2.0 directive
+  [Error] Line 106  - Incorrect hotkey syntax - use Hotkey(key, callback)
+  [Error] Line 107  - Incorrect hotkey syntax - use Hotkey(key, callback)
+  [Error] Line 108  - Incorrect hotkey syntax - use Hotkey(key, callback)
+  [Error] Line 109  - Incorrect hotkey syntax - use Hotkey(key, callback)
+  [Error] Line 70   - Found GuiControl, command - use gui control methods instead
+  [Error] Line 114  - Top-level static declaration - static can only be used inside functions or classes in v2
+  [Error] Line 139  - Top-level static declaration - static can only be used inside functions or classes in v2
+  [Error] Line 127  - Old MouseMove syntax - use MouseMove(x, y, speed, relative)
+
+WARNINGS (3):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+  [Warning] Line 74   - Found global variable declaration - consider using static or local variables
+
+SUGGESTIONS (4):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+  [Suggestion] Line 79   - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 82   - Very short variable name - consider using more descriptive names
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\v1\ide_shortcuts.ahk
+Generated: 2025-11-28 10:07:27
+Total Lines: 31
+
+Issues found:
+
+ERRORS (1):
+  [Error] Line 1    - Missing #Requires AutoHotkey v2.0 directive
+
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (1):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\v1\media_controls.ahk
+Generated: 2025-11-28 10:07:28
+Total Lines: 38
+
+Issues found:
+
+ERRORS (1):
+  [Error] Line 1    - Missing #Requires AutoHotkey v2.0 directive
+
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (1):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\v1\ollama_chatbot.ahk
+Generated: 2025-11-28 10:07:31
+Total Lines: 574
+
+Issues found:
+
+ERRORS (50):
+  [Error] Line 1    - Missing #Requires AutoHotkey v2.0 directive
+  [Error] Line 14   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 15   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 18   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 21   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 22   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 23   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 26   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 27   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 30   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 31   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 34   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 51   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 69   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 81   - Found GuiControl, command - use gui control methods instead
+  [Error] Line 147  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 154  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 160  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 169  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 179  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 183  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 184  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 185  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 186  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 187  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 188  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 189  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 192  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 193  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 194  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 195  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 196  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 197  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 198  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 227  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 241  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 246  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 250  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 254  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 255  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 256  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 257  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 258  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 259  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 260  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 556  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 557  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 558  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 559  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 562  - Found Gui, command - use Gui() constructor instead
+
+WARNINGS (4):
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+  [Warning] Line 137  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 206  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 236  - Found global variable declaration - consider using static or local variables
+
+SUGGESTIONS (1):
+  [Suggestion] Line 506  - Very short variable name - consider using more descriptive names
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\v1\pranks.ahk
+Generated: 2025-11-28 10:07:32
+Total Lines: 138
+
+Issues found:
+
+ERRORS (23):
+  [Error] Line 1    - Missing #Requires AutoHotkey v2.0 directive
+  [Error] Line 72   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 73   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 74   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 75   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 98   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 103  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 104  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 105  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 106  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 107  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 108  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 109  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 110  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 120  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 121  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 123  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 126  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 127  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 132  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 9    - Top-level static declaration - static can only be used inside functions or classes in v2
+  [Error] Line 38   - Top-level static declaration - static can only be used inside functions or classes in v2
+  [Error] Line 58   - Top-level static declaration - static can only be used inside functions or classes in v2
+
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (2):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\v1\quick_launch.ahk
+Generated: 2025-11-28 10:07:32
+Total Lines: 26
+
+Issues found:
+
+ERRORS (1):
+  [Error] Line 1    - Missing #Requires AutoHotkey v2.0 directive
+
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (1):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\v1\quick_notes.ahk
+Generated: 2025-11-28 10:07:34
+Total Lines: 145
+
+Issues found:
+
+ERRORS (11):
+  [Error] Line 1    - Missing #Requires AutoHotkey v2.0 directive
+  [Error] Line 89   - Incorrect MsgBox syntax - use MsgBox(text, title, options)
+  [Error] Line 138  - Incorrect MsgBox syntax - use MsgBox(text, title, options)
+  [Error] Line 58   - Found GuiControl, command - use gui control methods instead
+  [Error] Line 61   - Found GuiControl, command - use gui control methods instead
+  [Error] Line 91   - Found GuiControl, command - use gui control methods instead
+  [Error] Line 123  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 127  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 128  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 129  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 130  - Found GuiControl, command - use gui control methods instead
+
+WARNINGS (3):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+  [Warning] Line 54   - Found global variable declaration - consider using static or local variables
+
+SUGGESTIONS (2):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\v1\ScriptletLauncher.ahk
+Generated: 2025-11-28 10:07:35
+Total Lines: 139
+
+Issues found:
+
+ERRORS (1):
+  [Error] Line 1    - Missing #Requires AutoHotkey v2.0 directive
+
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (2):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\v1\sudoku.ahk
+Generated: 2025-11-28 10:07:37
+Total Lines: 366
+
+Issues found:
+
+ERRORS (33):
+  [Error] Line 1    - Missing #Requires AutoHotkey v2.0 directive
+  [Error] Line 14   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 15   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 21   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 22   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 23   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 24   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 27   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 28   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 31   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 37   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 48   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 56   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 61   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 65   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 66   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 74   - Found GuiControl, command - use gui control methods instead
+  [Error] Line 89   - Found GuiControl, command - use gui control methods instead
+  [Error] Line 93   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 94   - Found GuiControl, command - use gui control methods instead
+  [Error] Line 95   - Found GuiControl, command - use gui control methods instead
+  [Error] Line 97   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 98   - Found GuiControl, command - use gui control methods instead
+  [Error] Line 99   - Found GuiControl, command - use gui control methods instead
+  [Error] Line 104  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 106  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 169  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 256  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 264  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 266  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 302  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 322  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 327  - Found GuiControl, command - use gui control methods instead
+
+WARNINGS (11):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+  [Warning] Line 71   - Found global variable declaration - consider using static or local variables
+  [Warning] Line 83   - Found global variable declaration - consider using static or local variables
+  [Warning] Line 113  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 173  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 208  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 222  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 271  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 285  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 306  - Found global variable declaration - consider using static or local variables
+
+SUGGESTIONS (7):
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+  [Suggestion] Line 51   - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 53   - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 63   - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 121  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 243  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 245  - Very short variable name - consider using more descriptive names
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\v1\system_monitor.ahk
+Generated: 2025-11-28 10:07:39
+Total Lines: 227
+
+Issues found:
+
+ERRORS (31):
+  [Error] Line 1    - Missing #Requires AutoHotkey v2.0 directive
+  [Error] Line 12   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 13   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 16   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 17   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 18   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 21   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 22   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 23   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 26   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 27   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 28   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 31   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 32   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 35   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 36   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 42   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 45   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 46   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 53   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 67   - Found GuiControl, command - use gui control methods instead
+  [Error] Line 68   - Found GuiControl, command - use gui control methods instead
+  [Error] Line 76   - Found GuiControl, command - use gui control methods instead
+  [Error] Line 77   - Found GuiControl, command - use gui control methods instead
+  [Error] Line 84   - Found GuiControl, command - use gui control methods instead
+  [Error] Line 85   - Found GuiControl, command - use gui control methods instead
+  [Error] Line 102  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 114  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 58   - Top-level static declaration - static can only be used inside functions or classes in v2
+  [Error] Line 59   - Top-level static declaration - static can only be used inside functions or classes in v2
+  [Error] Line 88   - Top-level static declaration - static can only be used inside functions or classes in v2
+
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (2):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\v1\system_shortcuts.ahk
+Generated: 2025-11-28 10:07:40
+Total Lines: 31
+
+Issues found:
+
+ERRORS (1):
+  [Error] Line 1    - Missing #Requires AutoHotkey v2.0 directive
+
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (1):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\v1\text_expander.ahk
+Generated: 2025-11-28 10:07:41
+Total Lines: 40
+
+Issues found:
+
+ERRORS (1):
+  [Error] Line 1    - Missing #Requires AutoHotkey v2.0 directive
+
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (1):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\v1\volume_control.ahk
+Generated: 2025-11-28 10:07:42
+Total Lines: 43
+
+Issues found:
+
+ERRORS (1):
+  [Error] Line 1    - Missing #Requires AutoHotkey v2.0 directive
+
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (1):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\v1\weather_widget.ahk
+Generated: 2025-11-28 10:07:43
+Total Lines: 358
+
+Issues found:
+
+ERRORS (25):
+  [Error] Line 1    - Missing #Requires AutoHotkey v2.0 directive
+  [Error] Line 16   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 17   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 18   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 21   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 24   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 25   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 28   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 29   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 30   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 31   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 32   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 35   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 38   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 41   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 75   - Found GuiControl, command - use gui control methods instead
+  [Error] Line 76   - Found GuiControl, command - use gui control methods instead
+  [Error] Line 77   - Found GuiControl, command - use gui control methods instead
+  [Error] Line 78   - Found GuiControl, command - use gui control methods instead
+  [Error] Line 79   - Found GuiControl, command - use gui control methods instead
+  [Error] Line 80   - Found GuiControl, command - use gui control methods instead
+  [Error] Line 87   - Found GuiControl, command - use gui control methods instead
+  [Error] Line 91   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 93   - Found GuiControl, command - use gui control methods instead
+  [Error] Line 96   - Found GuiControl, command - use gui control methods instead
+
+WARNINGS (1):
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (1):
+  [Suggestion] Line 301  - Very short variable name - consider using more descriptive names
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\v1\window_management.ahk
+Generated: 2025-11-28 10:07:44
+Total Lines: 28
+
+Issues found:
+
+ERRORS (1):
+  [Error] Line 1    - Missing #Requires AutoHotkey v2.0 directive
+
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (1):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\v1\window_snapping.ahk
+Generated: 2025-11-28 10:07:45
+Total Lines: 37
+
+Issues found:
+
+ERRORS (1):
+  [Error] Line 1    - Missing #Requires AutoHotkey v2.0 directive
+
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (1):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+Lint Report for: D:\Dev\repos\autohotkey-test\tests\test_config.ahk
+Generated: 2025-11-28 10:07:46
+Total Lines: 40
+
+Issues found:
+
+ERRORS (1):
+  [Error] Line 1    - Missing #Requires AutoHotkey v2.0 directive
+
+WARNINGS (1):
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+Lint Report for: D:\Dev\repos\autohotkey-test\tests\test_logging.ahk
+Generated: 2025-11-28 10:07:47
+Total Lines: 72
+
+Issues found:
+
+ERRORS (1):
+  [Error] Line 1    - Missing #Requires AutoHotkey v2.0 directive
+
+WARNINGS (1):
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (5):
+  [Suggestion] Line 12   - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 25   - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 40   - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 43   - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 62   - File operation without try-catch - consider adding error handling
+Lint Report for: D:\Dev\repos\autohotkey-test\tests\test_runner.ahk
+Generated: 2025-11-28 10:07:48
+Total Lines: 53
+
+Issues found:
+
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (2):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+Lint Report for: D:\Dev\repos\autohotkey-test\tests\test_utils.ahk
+Generated: 2025-11-28 10:07:49
+Total Lines: 65
+
+Issues found:
+
+ERRORS (1):
+  [Error] Line 1    - Missing #Requires AutoHotkey v2.0 directive
+
+WARNINGS (1):
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+Lint Report for: D:\Dev\repos\autohotkey-test\tests\unit_tests.ahk
+Generated: 2025-11-28 10:07:50
+Total Lines: 416
+
+Issues found:
+
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (12):
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+  [Suggestion] Line 33   - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 118  - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 149  - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 210  - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 214  - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 232  - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 246  - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 250  - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 254  - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 255  - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 276  - File operation without try-catch - consider adding error handling
+Lint Report for: D:\Dev\repos\autohotkey-test\utils\autofix_engine.ahk
+Generated: 2025-11-28 10:07:51
+Total Lines: 312
+
+Issues found:
+
+SUGGESTIONS (4):
+  [Suggestion] Line 46   - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 51   - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 135  - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 158  - File operation without try-catch - consider adding error handling
+Lint Report for: D:\Dev\repos\autohotkey-test\utils\batch_linter.ahk
+Generated: 2025-11-28 10:07:52
+Total Lines: 414
+
+Issues found:
+
+ERRORS (8):
+  [Error] Line 204  - FormatTime missing second parameter - use FormatTime(OutputVar, A_Now, format) or var := FormatTime(A_Now, format)
+  [Error] Line 212  - Incorrect MsgBox syntax - use MsgBox(text, title, options)
+  [Error] Line 86   - Incorrect Loop Files syntax - remove comma after 'Files' - use 'Loop Files Pattern' not 'Loop Files, Pattern'
+  [Error] Line 229  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 230  - Found GuiAdd, command - use gui.Add() method instead
+  [Error] Line 231  - Found GuiShow, command - use gui.Show() method instead
+  [Error] Line 232  - Found GuiClose, command - use gui.Close() method instead
+  [Error] Line 233  - Found GuiControl, command - use gui control methods instead
+
+SUGGESTIONS (3):
+  [Suggestion] Line 120  - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 208  - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 372  - File operation without try-catch - consider adding error handling
+Lint Report for: D:\Dev\repos\autohotkey-test\utils\compatibility_scanner_new.ahk
+Generated: 2025-11-28 10:07:53
+Total Lines: 148
+
+Issues found:
+
+ERRORS (1):
+  [Error] Line 41   - Incorrect Loop Files syntax - remove comma after 'Files' - use 'Loop Files Pattern' not 'Loop Files, Pattern'
+
+SUGGESTIONS (1):
+  [Suggestion] Line 88   - File operation without try-catch - consider adding error handling
+Lint Report for: D:\Dev\repos\autohotkey-test\utils\compatibility_scanner.ahk
+Generated: 2025-11-28 10:07:54
+Total Lines: 217
+
+Issues found:
+
+ERRORS (6):
+  [Error] Line 138  - Incorrect MsgBox syntax - use MsgBox(text, title, options)
+  [Error] Line 55   - Incorrect Loop Files syntax - remove comma after 'Files' - use 'Loop Files Pattern' not 'Loop Files, Pattern'
+  [Error] Line 13   - Found Gui, command - use Gui() constructor instead
+  [Error] Line 148  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 14   - Found Loop, syntax - use Loop or For loop instead
+  [Error] Line 149  - Found Loop, syntax - use Loop or For loop instead
+
+SUGGESTIONS (3):
+  [Suggestion] Line 107  - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 153  - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 154  - File operation without try-catch - consider adding error handling
+Lint Report for: D:\Dev\repos\autohotkey-test\utils\ConfigManager.ahk
+Generated: 2025-11-28 10:07:55
+Total Lines: 583
+
+Issues found:
+
+SUGGESTIONS (1):
+  [Suggestion] Line 289  - File operation without try-catch - consider adding error handling
+Lint Report for: D:\Dev\repos\autohotkey-test\utils\linter_headless.ahk
+Generated: 2025-11-28 10:07:57
+Total Lines: 856
+
+Issues found:
+
+ERRORS (27):
+  [Error] Line 127  - Incorrect FormatTime syntax (v1 command) - use FormatTime(OutputVar, A_Now, format) or var := FormatTime(A_Now, format)
+  [Error] Line 132  - FormatTime missing second parameter - use FormatTime(OutputVar, A_Now, format) or var := FormatTime(A_Now, format)
+  [Error] Line 148  - Incorrect MsgBox syntax - use MsgBox(text, title, options)
+  [Error] Line 151  - Incorrect MsgBox syntax - use MsgBox(text, title, options)
+  [Error] Line 382  - Incorrect hotkey prefix - use Hotkey with key string in quotes instead of prefixing Hotkey()
+  [Error] Line 241  - Incorrect Loop Files syntax - remove comma after 'Files' - use 'Loop Files Pattern' not 'Loop Files, Pattern'
+  [Error] Line 243  - Incorrect Loop Files syntax - remove comma after 'Files' - use 'Loop Files Pattern' not 'Loop Files, Pattern'
+  [Error] Line 267  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 268  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 271  - Found GuiAdd, command - use gui.Add() method instead
+  [Error] Line 272  - Found GuiAdd, command - use gui.Add() method instead
+  [Error] Line 275  - Found GuiShow, command - use gui.Show() method instead
+  [Error] Line 276  - Found GuiShow, command - use gui.Show() method instead
+  [Error] Line 279  - Found GuiClose, command - use gui.Close() method instead
+  [Error] Line 280  - Found GuiClose, command - use gui.Close() method instead
+  [Error] Line 283  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 284  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 346  - Found Loop, syntax - use Loop or For loop instead
+  [Error] Line 353  - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+  [Error] Line 355  - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+  [Error] Line 370  - FormatTime missing first parameter - use FormatTime(OutputVar, A_Now, format) or var := FormatTime(A_Now, format)
+  [Error] Line 381  - Malformed hotkey syntax - use Hotkey('^!w', (*) => Function()) instead of ^!Hotkey()
+  [Error] Line 382  - Malformed hotkey syntax - use Hotkey('^!w', (*) => Function()) instead of ^!Hotkey()
+  [Error] Line 387  - Incorrect SetWorkingDir syntax - use SetWorkingDir(path)
+  [Error] Line 390  - Incorrect SetWorkingDir syntax - use SetWorkingDir(path)
+  [Error] Line 714  - Found .ToUpper() method - use StrUpper() instead of .ToUpper()
+  [Error] Line 718  - Found .ToLower() method - use StrLower() instead of .ToLower()
+
+WARNINGS (6):
+  [Warning] Line 233  - Check InputBox parameter order - v2 order is InputBox(Prompt, Title)
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+  [Warning] Line 309  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 836  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 853  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 415  - Clipboard assignment - use ClipboardAll or Clipboard := text
+
+SUGGESTIONS (7):
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+  [Suggestion] Line 9    - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 19   - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 24   - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 143  - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 823  - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 848  - File operation without try-catch - consider adding error handling
+Lint Report for: D:\Dev\repos\autohotkey-test\utils\linter.ahk
+Generated: 2025-11-28 10:07:59
+Total Lines: 875
+
+Issues found:
+
+ERRORS (27):
+  [Error] Line 127  - Incorrect FormatTime syntax (v1 command) - use FormatTime(OutputVar, A_Now, format) or var := FormatTime(A_Now, format)
+  [Error] Line 132  - FormatTime missing second parameter - use FormatTime(OutputVar, A_Now, format) or var := FormatTime(A_Now, format)
+  [Error] Line 148  - Incorrect MsgBox syntax - use MsgBox(text, title, options)
+  [Error] Line 151  - Incorrect MsgBox syntax - use MsgBox(text, title, options)
+  [Error] Line 377  - Incorrect hotkey prefix - use Hotkey with key string in quotes instead of prefixing Hotkey()
+  [Error] Line 239  - Incorrect Loop Files syntax - remove comma after 'Files' - use 'Loop Files Pattern' not 'Loop Files, Pattern'
+  [Error] Line 240  - Incorrect Loop Files syntax - remove comma after 'Files' - use 'Loop Files Pattern' not 'Loop Files, Pattern'
+  [Error] Line 263  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 264  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 267  - Found GuiAdd, command - use gui.Add() method instead
+  [Error] Line 268  - Found GuiAdd, command - use gui.Add() method instead
+  [Error] Line 271  - Found GuiShow, command - use gui.Show() method instead
+  [Error] Line 272  - Found GuiShow, command - use gui.Show() method instead
+  [Error] Line 275  - Found GuiClose, command - use gui.Close() method instead
+  [Error] Line 276  - Found GuiClose, command - use gui.Close() method instead
+  [Error] Line 279  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 280  - Found GuiControl, command - use gui control methods instead
+  [Error] Line 342  - Found Loop, syntax - use Loop or For loop instead
+  [Error] Line 349  - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+  [Error] Line 351  - Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)
+  [Error] Line 366  - FormatTime missing first parameter - use FormatTime(OutputVar, A_Now, format) or var := FormatTime(A_Now, format)
+  [Error] Line 376  - Malformed hotkey syntax - use Hotkey('^!w', (*) => Function()) instead of ^!Hotkey()
+  [Error] Line 377  - Malformed hotkey syntax - use Hotkey('^!w', (*) => Function()) instead of ^!Hotkey()
+  [Error] Line 382  - Incorrect SetWorkingDir syntax - use SetWorkingDir(path)
+  [Error] Line 385  - Incorrect SetWorkingDir syntax - use SetWorkingDir(path)
+  [Error] Line 694  - Found .ToUpper() method - use StrUpper() instead of .ToUpper()
+  [Error] Line 698  - Found .ToLower() method - use StrLower() instead of .ToLower()
+
+WARNINGS (4):
+  [Warning] Line 231  - Check InputBox parameter order - v2 order is InputBox(Prompt, Title)
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+  [Warning] Line 305  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 409  - Clipboard assignment - use ClipboardAll or Clipboard := text
+
+SUGGESTIONS (8):
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+  [Suggestion] Line 9    - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 24   - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 143  - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 803  - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 869  - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 468  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 489  - Very short variable name - consider using more descriptive names
+Lint Report for: D:\Dev\repos\autohotkey-test\utils\PluginManager.ahk
+Generated: 2025-11-28 10:08:00
+Total Lines: 806
+
+Issues found:
+
+ERRORS (1):
+  [Error] Line 84   - Incorrect Loop Files syntax - remove comma after 'Files' - use 'Loop Files Pattern' not 'Loop Files, Pattern'
+Lint Report for: D:\Dev\repos\autohotkey-test\utils\script_generator.ahk
+Generated: 2025-11-28 10:08:01
+Total Lines: 325
+
+Issues found:
+
+ERRORS (5):
+  [Error] Line 141  - Multi-line lambda block detected (lines 141-144) - extract to separate function or use single-line lambda
+  [Error] Line 61   - Incorrect SetWorkingDir syntax - use SetWorkingDir(path)
+  [Error] Line 114  - Incorrect SetWorkingDir syntax - use SetWorkingDir(path)
+  [Error] Line 179  - Incorrect SetWorkingDir syntax - use SetWorkingDir(path)
+  [Error] Line 220  - Incorrect SetWorkingDir syntax - use SetWorkingDir(path)
+
+WARNINGS (2):
+  [Warning] Line 109  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 122  - Found global variable declaration - consider using static or local variables
+
+SUGGESTIONS (5):
+  [Suggestion] Line 53   - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 101  - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 171  - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 212  - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 251  - File operation without try-catch - consider adding error handling
+Lint Report for: D:\Dev\repos\autohotkey-test\utils\scriptlet_validator.ahk
+Generated: 2025-11-28 10:08:03
+Total Lines: 395
+
+Issues found:
+
+ERRORS (13):
+  [Error] Line 161  - FormatTime missing second parameter - use FormatTime(OutputVar, A_Now, format) or var := FormatTime(A_Now, format)
+  [Error] Line 172  - Incorrect MsgBox syntax - use MsgBox(text, title, options)
+  [Error] Line 175  - Incorrect MsgBox syntax - use MsgBox(text, title, options)
+  [Error] Line 78   - Incorrect Loop Files syntax - remove comma after 'Files' - use 'Loop Files Pattern' not 'Loop Files, Pattern'
+  [Error] Line 323  - Incorrect Loop Files syntax - remove comma after 'Files' - use 'Loop Files Pattern' not 'Loop Files, Pattern'
+  [Error] Line 201  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 202  - Found Gui, command - use Gui() constructor instead
+  [Error] Line 204  - Found GuiAdd, command - use gui.Add() method instead
+  [Error] Line 205  - Found GuiAdd, command - use gui.Add() method instead
+  [Error] Line 207  - Found GuiShow, command - use gui.Show() method instead
+  [Error] Line 208  - Found GuiShow, command - use gui.Show() method instead
+  [Error] Line 210  - Found GuiClose, command - use gui.Close() method instead
+  [Error] Line 211  - Found GuiClose, command - use gui.Close() method instead
+
+SUGGESTIONS (3):
+  [Suggestion] Line 104  - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 168  - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 374  - File operation without try-catch - consider adding error handling
+Lint Report for: D:\Dev\repos\autohotkey-test\utils\test_linter.ahk
+Generated: 2025-11-28 10:08:04
+Total Lines: 69
+
+Issues found:
+
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (18):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+  [Suggestion] Line 6    - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 9    - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 12   - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 18   - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 21   - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 26   - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 27   - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 30   - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 35   - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 40   - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 46   - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 50   - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 62   - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 63   - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 65   - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 68   - File operation without try-catch - consider adding error handling
+Lint Report for: D:\Dev\repos\autohotkey-test\utils\TestFramework.ahk
+Generated: 2025-11-28 10:08:04
+Total Lines: 428
+
+Issues found:
+
+WARNINGS (1):
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets

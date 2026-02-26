@@ -57,8 +57,7 @@ class SmartClipboard {
     }
     
     static AddToHistory(text) {
-        timestamp := ""
-        FormatTime(timestamp, A_Now, "yyyy-MM-dd HH:mm:ss")
+        timestamp := FormatTime(A_Now, "yyyy-MM-dd HH:mm:ss")
         this.history.Push({
             text: text,
             timestamp: timestamp,
@@ -123,10 +122,10 @@ class SmartClipboard {
         titleBtn := this.gui.Add("Button", "x190 y10 w80 h25", "Title")
         trimBtn := this.gui.Add("Button", "x280 y10 w80 h25", "Trim")
         
-        upperBtn.OnEvent("Click", (*) => ClipboardManager.ApplyFormat("upper"))
-        lowerBtn.OnEvent("Click", (*) => ClipboardManager.ApplyFormat("lower"))
-        titleBtn.OnEvent("Click", (*) => ClipboardManager.ApplyFormat("title"))
-        trimBtn.OnEvent("Click", (*) => ClipboardManager.ApplyFormat("trim"))
+        upperBtn.OnEvent("Click", (*) => SmartClipboard.ApplyFormat("upper"))
+        lowerBtn.OnEvent("Click", (*) => SmartClipboard.ApplyFormat("lower"))
+        titleBtn.OnEvent("Click", (*) => SmartClipboard.ApplyFormat("title"))
+        trimBtn.OnEvent("Click", (*) => SmartClipboard.ApplyFormat("trim"))
         
         ; Log area
         this.gui.Add("Text", "w800 h20", "Activity Log:")
@@ -144,12 +143,14 @@ class SmartClipboard {
     }
     
     static UpdateHistoryList() {
-        if (!this.historyList) return
+        if (!this.historyList)
+            return
         
         this.historyList.Delete()
         
         ; Add items in reverse order (newest first)
-        for i := this.history.Length .. 1 {
+        loop this.history.Length {
+            i := this.history.Length - A_Index + 1
             item := this.history[i]
             preview := SubStr(item.text, 1, 50)
             if (StrLen(item.text) > 50) {
@@ -277,10 +278,10 @@ class SmartClipboard {
     }
     
     static AppendLog(message) {
-        if (!this.logArea return
+        if (!this.logArea)
+            return
         
-        timestamp := ""
-        FormatTime(timestamp, A_Now, "HH:mm:ss")
+        timestamp := FormatTime(A_Now, "HH:mm:ss")
         this.logArea.Text .= "[" . timestamp . "] " . message . "`n"
         
         ; Auto-scroll to bottom

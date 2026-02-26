@@ -255,7 +255,7 @@ class TetrisApp {
     }
 
     static RandomPiece() {
-        Random(&idx, 1, TetrisApp.pieceSet.Length)
+        idx := Random(1, TetrisApp.pieceSet.Length)
         base := TetrisApp.pieceSet[idx]
         return {name: base.name, color: base.color, shape: base.shape, x: 0, y: 0}
     }

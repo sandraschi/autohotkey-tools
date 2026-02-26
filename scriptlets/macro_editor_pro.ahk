@@ -388,8 +388,7 @@ class MacroEditor {
 
     static AppendLog(message, severity := "INFO") {
         this.EnsureLogInfrastructure()
-        timestamp := ""
-        FormatTime(timestamp, A_Now, "yyyy-MM-dd HH:mm:ss")
+        timestamp := FormatTime(A_Now, "yyyy-MM-dd HH:mm:ss")
         entry := "[" . timestamp . "] [" . severity . "] " . message
         this.logMessages.Push(entry)
         if (this.logOutput) {

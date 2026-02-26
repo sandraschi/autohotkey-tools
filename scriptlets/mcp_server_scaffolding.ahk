@@ -85,8 +85,7 @@ class MCPServerScaffolding {
 
     static AppendLog(message, severity := "INFO") {
         MCPServerScaffolding.EnsureLogging()
-        timestamp := ""
-        FormatTime(timestamp, A_Now, "yyyy-MM-dd HH:mm:ss")
+        timestamp := FormatTime(A_Now, "yyyy-MM-dd HH:mm:ss")
         entry := "[" . timestamp . "] [" . severity . "] " . message
         try {
             FileAppend(entry . "`n", MCPServerScaffolding.logFile, "UTF-8")

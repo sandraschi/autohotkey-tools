@@ -54,8 +54,7 @@ class MCPTroubleshooter {
     }
 
     static AppendLog(message) {
-        timestamp := ""
-        FormatTime(timestamp, A_Now, "yyyy-MM-dd HH:mm:ss")
+        timestamp := FormatTime(A_Now, "yyyy-MM-dd HH:mm:ss")
         entry := "[" . timestamp . "] " . message
         try {
             FileAppend(entry . "`n", MCPTroubleshooter.logFile, "UTF-8")
@@ -264,8 +263,7 @@ class MCPTroubleshooter {
     static Report(text) {
         MCPTroubleshooter.resultView.Value := text
         MCPTroubleshooter.AppendLog(Trim(StrReplace(text, "`n", " | ")))
-        timestamp := ""
-        FormatTime(timestamp, A_Now, "HH:mm:ss")
+        timestamp := FormatTime(A_Now, "HH:mm:ss")
         MCPTroubleshooter.statusBar.SetText("Diagnostics updated at " . timestamp)
     }
 

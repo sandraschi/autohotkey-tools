@@ -252,8 +252,7 @@ class GameStarter {
     static LogGameLaunch(game) {
         try {
             logFile := A_Temp . "\game_launcher.log"
-            timestamp := ""
-            FormatTime(timestamp, A_Now, "yyyy-MM-dd HH:mm:ss")
+            timestamp := FormatTime(A_Now, "yyyy-MM-dd HH:mm:ss")
             logEntry := "[" . timestamp . "] Launched: " . game.name . " (" . game.script . ")" . "`n"
             FileAppend(logEntry, logFile)
         } catch {

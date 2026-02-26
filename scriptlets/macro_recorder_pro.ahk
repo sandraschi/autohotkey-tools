@@ -423,8 +423,7 @@ class MacroRecorder {
     }
     
     static AppendLog(message) {
-        timestamp := ""
-        FormatTime(timestamp, A_Now, "HH:mm:ss")
+        timestamp := FormatTime(A_Now, "HH:mm:ss")
         logMessage := "[" . timestamp . "] " . message . "`n"
         
         try {

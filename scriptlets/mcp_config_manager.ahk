@@ -129,8 +129,7 @@ class MCPConfigManager {
     }
 
     static AppendLog(message) {
-        timestamp := ""
-        FormatTime(timestamp, A_Now, "yyyy-MM-dd HH:mm:ss")
+        timestamp := FormatTime(A_Now, "yyyy-MM-dd HH:mm:ss")
         entry := "[" . timestamp . "] " . message
         try {
             FileAppend(entry . "`n", MCPConfigManager.logFile, "UTF-8")
@@ -233,8 +232,7 @@ class MCPConfigManager {
             if (!FileExist(MCPConfigManager.configPath)) {
                 return
             }
-            stamp := ""
-            FormatTime(stamp, A_Now, "yyyyMMdd_HHmmss")
+            stamp := FormatTime(A_Now, "yyyyMMdd_HHmmss")
             target := MCPConfigManager.backupDir . "\claude_config_" . stamp . ".json"
             FileCopy(MCPConfigManager.configPath, target, true)
             MCPConfigManager.AppendLog("Backup saved: " . target)

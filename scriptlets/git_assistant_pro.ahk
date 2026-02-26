@@ -267,8 +267,7 @@ class GitAssistant {
     }
     
     static AppendOutput(text) {
-        timestamp := ""
-        FormatTime(timestamp, A_Now, "HH:mm:ss")
+        timestamp := FormatTime(A_Now, "HH:mm:ss")
         this.outputArea.Text .= "[" . timestamp . "] " . text . "`n"
         
         ; Auto-scroll to bottom

@@ -11,7 +11,7 @@ Key log artifacts:
 
 ## High-Priority Issues
 1. **Object literal syntax failures**
-   - Examples: `action_automation_builder.ahk`, `ai_code_assistant.ahk`, `action_automationführer_builder_temp.ahk`
+   - Examples: `action_automation_builder.ahk`, `ai_code_assistant.ahk`, `action_automation_builder_temp.ahk`
    - Error: `Missing "propertyname:" in object literal` (v1-style associative literals still present).
 2. **Legacy command syntax inside structures**
    - Logs showing `Specifically: Random`, `Specifically: SysGet`, `Specifically: TrayTip` indicate residual v1 commands in object literals/expressions.

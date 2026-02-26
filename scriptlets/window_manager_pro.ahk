@@ -54,8 +54,7 @@ class WindowManagerPro {
     }
 
     static AppendLog(message, level := "INFO") {
-        timestamp := ""
-        FormatTime(timestamp, A_Now, "yyyy-MM-dd HH:mm:ss")
+        timestamp := FormatTime(A_Now, "yyyy-MM-dd HH:mm:ss")
         line := "[" . timestamp . "] [" . level . "] " . message . "`n"
         try {
             FileAppend(line, WindowManagerPro.logFile, "UTF-8")

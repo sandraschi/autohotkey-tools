@@ -63,8 +63,7 @@ ClipChanged(Type) {
         }
         
         ; Create a new history item
-        timestamp := ""
-        FormatTime(timestamp, A_Now, "yyyy-MM-dd HH:mm:ss")
+        timestamp := FormatTime(A_Now, "yyyy-MM-dd HH:mm:ss")
         item := {
             text: Clipboard,
             timestamp: timestamp,

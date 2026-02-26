@@ -1,0 +1,13 @@
+# AutoHotkey Test - Cursor Ignore
+
+node_modules/
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+.idea/
+.vscode/
+.git/
+*.log
+*.exe
+

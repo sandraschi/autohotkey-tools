@@ -1,20 +1,20 @@
 #Requires AutoHotkey v2.0
 #SingleInstance Force
-#MaxHotkeysPerInterval 200
 SetWorkingDir(A_ScriptDir)
 
 ; ========================================
 ; SNAKE GAME
 ; ========================================
-static snakeGui := ""
-static snake := []
-static snakeLength := 5
-static direction := "right"
-static foodX := 0
-static foodY := 0
-static gridWidth := 30
-static gridHeight := 20
-static gameCanvas := ""
+snakeGui := ""
+snake := []
+snakeLength := 5
+direction := "right"
+foodX := 0
+foodY := 0
+gridWidth := 30
+gridHeight := 20
+gameCanvas := ""
+snakeControlsEnabled := false
 
 StartSnakeGame(*) {
     snakeGui := Gui("+AlwaysOnTop -Caption +ToolWindow", "Snake Game")
@@ -32,8 +32,8 @@ StartSnakeGame(*) {
     }
     
     ; Place first food
-    Random(&foodX, 1, gridWidth)
-    Random(&foodY, 1, gridHeight)
+    foodX := Random(1, gridWidth)
+    foodY := Random(1, gridHeight)
     
     ; Create game canvas
     gameCanvas := snakeGui.Add("Text", "x10 y10 w580 h380", DrawSnakeGame())
@@ -41,26 +41,67 @@ StartSnakeGame(*) {
     ; Game loop
     SetTimer(UpdateSnakeGame, 150)
     
-    ; Control snake with arrow keys
-    Hotkey("Up", ChangeSnakeDirection, "On")
-    Hotkey("Down", ChangeSnakeDirection, "On")
-    Hotkey("Left", ChangeSnakeDirection, "On")
-    Hotkey("Right", ChangeSnakeDirection, "On")
-    
-    ; Show game window
+    ; Show game window first to get HWND
     snakeGui.Show("w600 h400")
     
-    snakeGui.OnEvent("Close", (*) => {
-        SetTimer(UpdateSnakeGame, 0)
+    ; Control snake with arrow keys - only when window is active
+    ; Use a timer to check window focus and enable/disable hotkeys
+    SetTimer(CheckWindowFocus, 100)
+    CheckWindowFocus()  ; Initial check
+    
+    snakeGui.OnEvent("Close", CloseSnakeGame)
+}
+
+CheckWindowFocus(*) {
+    ; Check if game window exists and is active
+    if (!snakeGui || !snakeGui.Hwnd) {
+        DisableSnakeControls()
+        return
+    }
+    
+    if (WinActive("ahk_id " . snakeGui.Hwnd)) {
+        EnableSnakeControls()
+    } else {
+        DisableSnakeControls()
+    }
+}
+
+snakeControlsEnabled := false
+
+EnableSnakeControls() {
+    ; Enable hotkeys only if not already enabled
+    if (!snakeControlsEnabled) {
+        Hotkey("Up", ChangeSnakeDirection, "On")
+        Hotkey("Down", ChangeSnakeDirection, "On")
+        Hotkey("Left", ChangeSnakeDirection, "On")
+        Hotkey("Right", ChangeSnakeDirection, "On")
+        snakeControlsEnabled := true
+    }
+}
+
+DisableSnakeControls() {
+    ; Disable hotkeys when window loses focus
+    if (snakeControlsEnabled) {
         Hotkey("Up", "Off")
         Hotkey("Down", "Off")
         Hotkey("Left", "Off")
         Hotkey("Right", "Off")
-        snakeGui.Destroy()
-    })
+        snakeControlsEnabled := false
+    }
+}
+
+CloseSnakeGame(*) {
+    SetTimer(UpdateSnakeGame, 0)
+    SetTimer(CheckWindowFocus, 0)
+    DisableSnakeControls()
+    snakeGui.Destroy()
 }
 
 ChangeSnakeDirection(key) {
+    ; Double-check window is active before processing
+    if (!snakeGui || !WinActive("ahk_id " . snakeGui.Hwnd))
+        return
+    
     if (key = "Up" && direction != "down")
         direction := "up"
     else if (key = "Down" && direction != "up")
@@ -94,8 +135,8 @@ UpdateSnakeGame(*) {
     ; Check if food eaten
     if (head[1] = foodX && head[2] = foodY) {
         snakeLength++
-        Random(&foodX, 1, gridWidth)
-        Random(&foodY, 1, gridHeight)
+        foodX := Random(1, gridWidth)
+        foodY := Random(1, gridHeight)
     } else {
         snake.Pop()
     }
@@ -142,7 +183,7 @@ Hotkey("^!s", StartSnakeGame)
 ; ========================================
 ; MOUSE JIGGLER
 ; ========================================
-static jigglerOn := false
+jigglerOn := false
 
 JiggleMouse(*) {
     MouseMove(10, 0, 1, "R")
@@ -176,7 +217,7 @@ Hotkey("^!e", ShowFakeError)
 ; ========================================
 ; FLIP SCREEN
 ; ========================================
-static flipped := false
+flipped := false
 
 FlipScreen(*) {
     if (!flipped) {

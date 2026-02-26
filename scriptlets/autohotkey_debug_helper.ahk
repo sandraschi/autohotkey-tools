@@ -106,7 +106,11 @@ class AHDebugHelper {
             AHDebugHelper.forceReloadCheck := forceReloadCheck
         } catch as e {
             errorMsg := "Error creating GUI: " . e.Message . "`n" . e.Stack
-            FileAppend(errorMsg, "autohotkey_debug_helper_errors.log", "UTF-8")
+            try {
+                FileAppend(errorMsg, "autohotkey_debug_helper_errors.log", "UTF-8")
+            } catch {
+                ; Ignore file logging errors
+            }
             OutputDebug(errorMsg)
             MsgBox("Error creating GUI: " . e.Message, "AutoHotkey Debug Helper", "Iconx")
         }
@@ -177,29 +181,33 @@ class AHDebugHelper {
         }
         AHDebugHelper.AddDebugOutput("=== SCRIPT ANALYSIS ===")
         AHDebugHelper.AddDebugOutput("Analyzing: " . scriptPath)
-        scriptContent := FileRead(scriptPath, "UTF-8")
-        lines := StrSplit(scriptContent, "`n")
-        AHDebugHelper.AddDebugOutput("Total lines: " . lines.Length)
-        functions := 0
-        classes := 0
-        hotkeys := 0
-        assignments := 0
-        for , line in lines {
-            trimmed := Trim(line)
-            if (RegExMatch(trimmed, "^\w+\s*\(.*\)\s*\{")) {
-                functions += 1
-            } else if (RegExMatch(trimmed, "^class\s+\w+")) {
-                classes += 1
-            } else if (RegExMatch(trimmed, "^[^;]*::")) {
-                hotkeys += 1
-            } else if (RegExMatch(trimmed, "^\w+\s*:=")) {
-                assignments += 1
+        try {
+            scriptContent := FileRead(scriptPath, "UTF-8")
+            lines := StrSplit(scriptContent, "`n")
+            AHDebugHelper.AddDebugOutput("Total lines: " . lines.Length)
+            functions := 0
+            classes := 0
+            hotkeys := 0
+            assignments := 0
+            for , line in lines {
+                trimmed := Trim(line)
+                if (RegExMatch(trimmed, "^\w+\s*\(.*\)\s*\{")) {
+                    functions += 1
+                } else if (RegExMatch(trimmed, "^class\s+\w+")) {
+                    classes += 1
+                } else if (RegExMatch(trimmed, "^[^;]*::")) {
+                    hotkeys += 1
+                } else if (RegExMatch(trimmed, "^\w+\s*:=")) {
+                    assignments += 1
+                }
             }
+            AHDebugHelper.AddDebugOutput("Functions: " . functions)
+            AHDebugHelper.AddDebugOutput("Classes: " . classes)
+            AHDebugHelper.AddDebugOutput("Hotkeys: " . hotkeys)
+            AHDebugHelper.AddDebugOutput("Assignments: " . assignments)
+        } catch as e {
+            AHDebugHelper.AddDebugOutput("Error reading script: " . e.Message)
         }
-        AHDebugHelper.AddDebugOutput("Functions: " . functions)
-        AHDebugHelper.AddDebugOutput("Classes: " . classes)
-        AHDebugHelper.AddDebugOutput("Hotkeys: " . hotkeys)
-        AHDebugHelper.AddDebugOutput("Assignments: " . assignments)
     }
 
     static CheckSyntax(*) {
@@ -225,14 +233,18 @@ class AHDebugHelper {
         }
         AHDebugHelper.AddDebugOutput("=== DEPENDENCIES ANALYSIS ===")
         includes := []
-        for , line in StrSplit(FileRead(scriptPath, "UTF-8"), "`n") {
-            if (RegExMatch(line, "i)#Include\s+(.+)", &match)) {
-                includes.Push(Trim(match[1]))
+        try {
+            for , line in StrSplit(FileRead(scriptPath, "UTF-8"), "`n") {
+                if (RegExMatch(line, "i)#Include\s+(.+)", &match)) {
+                    includes.Push(Trim(match[1]))
+                }
             }
-        }
-        AHDebugHelper.AddDebugOutput("Found " . includes.Length . " include statements:")
-        for , includePath in includes {
-            AHDebugHelper.AddDebugOutput("  - " . includePath)
+            AHDebugHelper.AddDebugOutput("Found " . includes.Length . " include statements:")
+            for , includePath in includes {
+                AHDebugHelper.AddDebugOutput("  - " . includePath)
+            }
+        } catch as e {
+            AHDebugHelper.AddDebugOutput("Error reading script: " . e.Message)
         }
     }
 
@@ -298,8 +310,7 @@ class AHDebugHelper {
                 return
             }
             writer.WriteLine("AutoHotkey Debug Log")
-            timestamp := ""
-            FormatTime(timestamp, A_Now, "yyyy-MM-dd HH:mm:ss")
+            timestamp := FormatTime(A_Now, "yyyy-MM-dd HH:mm:ss")
             writer.WriteLine("Generated: " . timestamp)
             writer.WriteLine("")
             for message in AHDebugHelper.debugLog {
@@ -370,8 +381,7 @@ class AHDebugHelper {
 
     static AppendLog(message, severity := "INFO") {
         AHDebugHelper.EnsureLogInfrastructure()
-        timestamp := ""
-        FormatTime(timestamp, A_Now, "yyyy-MM-dd HH:mm:ss")
+        timestamp := FormatTime(A_Now, "yyyy-MM-dd HH:mm:ss")
         entry := "[" . timestamp . "] [" . severity . "] " . message
         AHDebugHelper.debugLog.Push(entry)
         if (AHDebugHelper.debugOutput) {

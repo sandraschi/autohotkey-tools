@@ -19,7 +19,7 @@
 - ✅ `macro_recorder_pro.ahk`, `ollama_chatbot_no_com.ahk`, `test_video_minimal2.ahk` exited cleanly (0 exit code, no stderr).
 - ⚠️ Object literal syntax failures (missing property labels) across multiple scripts:
   - `action_automation_builder.ahk (line 133)`
-  - `action_automationführer_builder_temp.ahk (line 127)`
+  - `action_automation_builder_temp.ahk (line 127)`
   - `ai_code_assistant.ahk (line 270)`
 - ⏱️ Long-running GUI helpers exceeded the 20s limit and were force-terminated, e.g. `autohotkey_debug_helper.ahk`.
 

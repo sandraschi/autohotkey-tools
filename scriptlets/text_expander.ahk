@@ -125,8 +125,8 @@ InsertSnippet(snippetKey) {
         snippet := Snippets[snippetKey]
         
         ; Process placeholders
-        FormatTime(dateStr, A_Now, "yyyy-MM-dd")
-        FormatTime(timeStr, A_Now, "HH:mm:ss")
+        dateStr := FormatTime(A_Now, "yyyy-MM-dd")
+        timeStr := FormatTime(A_Now, "HH:mm:ss")
         snippet := StrReplace(snippet, "{date}", dateStr)
         snippet := StrReplace(snippet, "{time}", timeStr)
         snippet := StrReplace(snippet, "{user}", A_UserName)

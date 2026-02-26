@@ -79,6 +79,8 @@ MsgBox, %text%, Option
 ```autohotkey
 MsgBox("Message", "Title", "Iconi Timeout10")  ; WRONG! Invalid option string
 MsgBox("Message", "Title", "Iconi", 10)  ; WRONG! No 4th parameter in v2
+MsgBox("Message", "Title", "T1024")  ; WRONG! Timeout option "T" not supported in v2
+MsgBox("Message", "Title", "Iconi T10")  ; WRONG! Timeout not supported
 ```
 
 #### ✅ v2: Function with 3 Parameters (NO TIMEOUT!)
@@ -90,6 +92,8 @@ MsgBox(text, , "IconX")  ; CORRECT - empty title uses comma
 TrayTip("Title", "Message", 10)  ; 10 second timeout
 ToolTip("Message", , , 10)  ; Tooltip with timeout
 ```
+
+**Important:** AutoHotkey v2 `MsgBox` does NOT support timeout options. Any `T` followed by a number (like `T10`, `T1024`) in the options string is invalid and will be ignored or cause errors. Always use `TrayTip` or `ToolTip` for messages that should auto-dismiss.
 
 ### 4. FORMATTIME
 

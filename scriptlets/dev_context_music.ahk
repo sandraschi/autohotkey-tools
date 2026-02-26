@@ -204,8 +204,7 @@ Hotkey("^!c", (*) => PlayClassical())  ; Ctrl+Alt+C for classical
 
 ; Check time and play appropriate music
 CheckTime() {
-    hourStr := ""
-    FormatTime(hourStr, A_Now, "H")
+    hourStr := FormatTime(A_Now, "H")
     hour := Integer(hourStr)  ; 24-hour format
     
     if (hour >= 22 || hour < 6) {

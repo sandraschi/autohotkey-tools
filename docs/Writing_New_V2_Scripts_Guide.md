@@ -81,7 +81,7 @@ MyScript.Init()
 ; Single statement - arrow function OK
 Hotkey("^!c", (*) => MyScript.DoSomething())
 
-; Multiple statements - use named function
+; Multiple statements - use named function (RECOMMENDED)
 Hotkey("^!v", MyScript.HandleHotkey)
 
 MyScript.HandleHotkey(*) {
@@ -89,6 +89,28 @@ MyScript.HandleHotkey(*) {
     MyScript.DoSomethingElse()
     TrayTip("Done", "Action completed", 2)
 }
+```
+
+**Important:** For hotkeys with try/catch blocks or complex control flow, ALWAYS use named functions. Arrow functions can cause parser errors:
+```autohotkey
+; ❌ WRONG - May cause parser errors with try/catch
+Hotkey("^+l", (*) => {
+    try {
+        DoSomething()
+    } catch {
+        HandleError()
+    }
+})
+
+; ✅ CORRECT - Use named function
+MyHotkeyHandler(*) {
+    try {
+        DoSomething()
+    } catch {
+        HandleError()
+    }
+}
+Hotkey("^+l", MyHotkeyHandler)
 ```
 
 ### 5. Common Functions (v2 Syntax)
@@ -102,6 +124,8 @@ FormatTime(timestamp, A_Now, "yyyy-MM-dd HH:mm:ss")
 
 ; MsgBox (3 parameters only, NO timeout!)
 MsgBox("Message", "Title", "Icon!")  ; Use TrayTip/ToolTip for timed messages
+; ❌ NEVER use: MsgBox("Message", "Title", "T10") or MsgBox("Message", "Title", "T1024")
+; Timeout options are NOT supported in v2 MsgBox!
 
 ; File operations
 content := FileRead("file.txt")

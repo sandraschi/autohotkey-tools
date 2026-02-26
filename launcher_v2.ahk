@@ -9,9 +9,6 @@ SetWorkingDir(A_ScriptDir)
 global launcherGui := {}
 global scriptlets := Map()
 
-; Include the base scriptlet class
-#Include scriptlets\_base.ahk
-
 ; Initialize the launcher
 InitLauncher()
 

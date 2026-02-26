@@ -35,6 +35,86 @@ hasWarnings := false
 ; Enhanced checks for AutoHotkey v2 compliance
 Log("Starting lint analysis for: " . fileToCheck)
 
+; List of known AutoHotkey v2 built-in functions (to suppress false warnings)
+v2BuiltInFunctions := [
+    "TraySetToolTip", "TraySetIcon", "TrayTip", "TrayIcon", "TrayMenu",
+    "MsgBox", "InputBox", "FileSelect", "DirSelect", "ToolTip",
+    "FormatTime", "FileRead", "FileAppend", "FileDelete", "FileExist",
+    "DirCreate", "DirDelete", "DirExist", "SetWorkingDir", "Run",
+    "RunWait", "RunAs", "ProcessWait", "ProcessWaitClose", "WinWait",
+    "WinWaitActive", "WinWaitClose", "WinActivate", "WinClose", "WinMinimize",
+    "WinMaximize", "WinRestore", "WinHide", "WinShow", "WinMove",
+    "WinGetPos", "WinGetTitle", "WinGetText", "WinGetClass", "WinGetID",
+    "WinGetIDLast", "WinGetCount", "WinGetList", "WinGetMinMax", "WinGetStyle",
+    "WinGetExStyle", "WinGetTransparent", "WinGetTransColor", "WinSetTitle",
+    "WinSetStyle", "WinSetExStyle", "WinSetTransparent", "WinSetTransColor",
+    "WinSetRegion", "WinSetAlwaysOnTop", "WinSetTop", "WinSetBottom",
+    "WinSetEnabled", "WinSetRedraw", "ControlGetPos", "ControlGetText",
+    "ControlGetFocus", "ControlGetEnabled", "ControlGetVisible", "ControlGetHwnd",
+    "ControlGetClassNN", "ControlGetItems", "ControlGetChecked", "ControlGetChoice",
+    "ControlGetCurrentCol", "ControlGetCurrentLine", "ControlGetLine",
+    "ControlGetLineCount", "ControlGetSelected", "ControlGetTab", "ControlSetText",
+    "ControlSetEnabled", "ControlSetStyle", "ControlSetExStyle", "ControlSetChecked",
+    "ControlSetChoice", "ControlChooseString", "ControlChooseIndex", "ControlFocus",
+    "ControlClick", "ControlSend", "ControlSendText", "ControlMove", "ControlGet",
+    "ControlSet", "Send", "SendText", "SendInput", "SendPlay", "SendRaw",
+    "SendEvent", "SendMode", "SetKeyDelay", "SetMouseDelay", "SetDefaultMouseSpeed",
+    "SetWinDelay", "SetControlDelay", "SetBatchLines", "SetTitleMatchMode",
+    "SetTitleMatchMode", "SetDetectHiddenWindows", "SetDetectHiddenText",
+    "SetStoreCapslockMode", "SetNumScrollCapsLockState", "SetCapsLockState",
+    "SetNumLockState", "SetScrollLockState", "GetKeyState", "GetKeyName",
+    "GetKeyVK", "GetKeySC", "KeyWait", "KeyHistory", "KeyHistory", "ListHotkeys",
+    "ListLines", "ListVars", "ListFunctions", "ListThreads", "PixelGetColor",
+    "PixelSearch", "ImageSearch", "MouseGetPos", "MouseMove", "MouseClick",
+    "MouseClickDrag", "MouseWheel", "Click", "Sleep", "SetTimer", "SetTimer",
+    "IsSet", "HasMethod", "HasBase", "HasProp", "Type", "IsObject", "IsNumber",
+    "IsInteger", "IsFloat", "IsString", "IsTime", "IsDate", "IsLabel", "IsFunc",
+    "Func", "BoundFunc", "VarRef", "ObjAddRef", "ObjRelease", "ComObjActive",
+    "ComObjArray", "ComObjConnect", "ComObjCreate", "ComObjEnwrap", "ComObjError",
+    "ComObjFlags", "ComObjGet", "ComObjMissing", "ComObjParameter", "ComObjQuery",
+    "ComObjType", "ComObjUnwrap", "ComObjValue", "ComValue", "DllCall", "NumGet",
+    "NumPut", "StrGet", "StrPut", "StrLen", "StrUpper", "StrLower", "StrTitle",
+    "SubStr", "InStr", "StrReplace", "StrSplit", "RegExMatch", "RegExReplace",
+    "Format", "Round", "Floor", "Ceil", "Abs", "Mod", "Min", "Max", "Sin", "Cos",
+    "Tan", "ASin", "ACos", "ATan", "Exp", "Log", "Ln", "Sqrt", "Random", "Random",
+    "FileOpen", "FileReadLine", "FileWriteLine", "FileGetSize", "FileGetTime",
+    "FileGetAttrib", "FileGetVersion", "FileSetTime", "FileSetAttrib", "FileRecycle",
+    "FileRecycleEmpty", "FileCopy", "FileMove", "FileCreateShortcut", "FileGetShortcut",
+    "IniRead", "IniWrite", "IniDelete", "IniReadSection", "IniReadSectionNames",
+    "RegRead", "RegWrite", "RegDelete", "RegCreateKey", "RegDeleteKey",
+    "SoundBeep", "SoundGet", "SoundGetWaveVolume", "SoundPlay", "SoundSet",
+    "SoundSetWaveVolume", "SplashTextOn", "SplashTextOff", "SplashImage", "Progress",
+    "SplashImage", "OnMessage", "OnClipboardChange", "OnExit", "OnError",
+    "RegisterCallback", "CallbackCreate", "PostMessage", "SendMessage",
+    "ClipWait", "ClipboardAll", "Clipboard", "A_Clipboard", "A_TimeIdle",
+    "A_TimeIdlePhysical", "A_TimeIdleKeyboard", "A_TimeIdleMouse", "A_TickCount",
+    "A_Now", "A_NowUTC", "A_YYYY", "A_MM", "A_DD", "A_MMMM", "A_MMM", "A_DDDD",
+    "A_DDD", "A_WDay", "A_YDay", "A_YWeek", "A_Hour", "A_Min", "A_Sec", "A_MSec",
+    "A_IsAdmin", "A_IsCompiled", "A_IsCritical", "A_IsPaused", "A_IsSuspended",
+    "A_IsUnicode", "A_OSVersion", "A_OSType", "A_PtrSize", "A_Language",
+    "A_ComputerName", "A_UserName", "A_WinDir", "A_ProgramFiles", "A_AppData",
+    "A_AppDataCommon", "A_Desktop", "A_DesktopCommon", "A_StartMenu", "A_StartMenuCommon",
+    "A_Programs", "A_ProgramsCommon", "A_Startup", "A_StartupCommon", "A_MyDocuments",
+    "A_Is64bitOS", "A_PtrSize", "A_ScreenWidth", "A_ScreenHeight", "A_ScreenDPI",
+    "A_IPAddress1", "A_IPAddress2", "A_IPAddress3", "A_IPAddress4", "A_Temp",
+    "A_WorkingDir", "A_ScriptDir", "A_ScriptName", "A_ScriptFullPath", "A_ScriptHwnd",
+    "A_LineNumber", "A_LineFile", "A_ThisFunc", "A_ThisLabel", "A_ThisHotkey",
+    "A_ThisMenuItem", "A_ThisMenu", "A_ThisMenuItemPos", "A_ThisHotkeyMod",
+    "A_EndChar", "A_IsUnicode", "A_IsCompiled", "A_AhkVersion", "A_AhkPath",
+    "Gui", "GuiCtrl", "GuiFromHwnd", "Menu", "MenuBar", "StatusBar", "ListView",
+    "TreeView", "ComboBox", "ListBox", "Edit", "Text", "Button", "Checkbox",
+    "Radio", "GroupBox", "Picture", "ActiveX", "Custom", "Hotkey", "Hotkey",
+    "Hotstring", "Hotstring", "InputHook", "Buffer", "File", "Map", "Array",
+    "Object", "Error", "Any", "Type", "Class", "Super", "Base", "Prototype",
+    "GetMethod", "SetMethod", "GetProp", "SetProp", "DefineProp", "DeleteProp",
+    "HasProp", "OwnProps", "OwnMethods", "HasBase", "HasMethod", "Call",
+    "Bind", "IsVariadic", "MinParams", "MaxParams", "Name", "IsBuiltIn",
+    "IsOptional", "IsByRef", "Default", "Length", "Capacity", "Push", "Pop",
+    "InsertAt", "RemoveAt", "Delete", "Clear", "Clone", "Has", "Get", "Set",
+    "CaseSense", "Default", "Clone", "Count", "SetCapacity", "GetCapacity",
+    "Delete", "Clear", "Clone", "Has", "Get", "Set", "OwnProps", "OwnMethods"
+]
+
 ; Check 1: AutoHotkey v2 requirement
 if (!InStr(fileContent, "#Requires AutoHotkey v2")) {
     AddIssue("Missing #Requires AutoHotkey v2.0 directive", "Error", 1)
@@ -44,8 +124,15 @@ if (!InStr(fileContent, "#Requires AutoHotkey v2")) {
 ; Check 2: FormatTime syntax (common v1/v2 issue)
 lines := StrSplit(fileContent, "`n")
 for i, line in lines {
+    ; Flag v1 command syntax (no parentheses): FormatTime var,, format
     if (RegExMatch(line, "FormatTime\s+\w+,\s*,")) {
-        AddIssue("Incorrect FormatTime syntax - use FormatTime(var, , format)", "Error", i)
+        AddIssue("Incorrect FormatTime syntax (v1 command) - use FormatTime(OutputVar, A_Now, format) or var := FormatTime(A_Now, format)", "Error", i)
+        hasErrors := true
+    }
+    ; Flag v1 command syntax with parentheses but wrong pattern: FormatTime(var, , format) - missing second param
+    ; But allow valid v2 patterns: FormatTime(OutputVar, A_Now, format) and FormatTime(A_Now, format)
+    if (RegExMatch(line, "FormatTime\s*\(\s*\w+\s*,\s*,\s*")) {
+        AddIssue("FormatTime missing second parameter - use FormatTime(OutputVar, A_Now, format) or var := FormatTime(A_Now, format)", "Error", i)
         hasErrors := true
     }
 }
@@ -94,12 +181,41 @@ for i, line in lines {
     }
 }
 
-; Check 5c: Multi-line lambda blocks (detect => followed by { on same line)
+; Check 5c: Multi-line lambda blocks (detect => followed by { that spans multiple lines)
+inLambdaBlock := false
+lambdaStartLine := 0
 for i, line in lines {
-    if (RegExMatch(line, "=\>\s*\{") && !RegExMatch(line, "\)\s*\)\s*$")) {
-        AddIssue("Multi-line lambda block detected - extract to separate function or use single-line lambda", "Error",
-            i)
-        hasErrors := true
+    ; Skip comments
+    if (RegExMatch(line, "^\s*;"))
+        continue
+    
+    ; Detect lambda block start: => { on same line
+    ; Pattern: (*) => { or (params) => { 
+    if (RegExMatch(line, "=\>\s*\{") && !RegExMatch(line, "\}\s*\)\s*\)?\s*$")) {
+        ; Lambda with brace starts but doesn't close on same line - this is a multi-line lambda
+        inLambdaBlock := true
+        lambdaStartLine := i
+    }
+    
+    ; If we're in a lambda block, look for closing pattern on subsequent lines
+    if (inLambdaBlock) {
+        ; Check if this line closes the lambda (pattern: } followed by ) or ))
+        if (RegExMatch(line, "\}\s*\)\s*\)?\s*$")) {
+            ; Lambda block spans multiple lines - this is an error in v2
+            AddIssue("Multi-line lambda block detected (lines " . lambdaStartLine . "-" . i . ") - extract to separate function or use single-line lambda", "Error", lambdaStartLine)
+            hasErrors := true
+            inLambdaBlock := false
+        }
+        ; Also check if we see a closing brace without the closing paren
+        else if (RegExMatch(line, "^\s*\}$")) {
+            ; Just a closing brace - likely part of multi-line lambda
+            ; Check next line for closing paren
+            if (i < lines.Length && RegExMatch(lines[i+1], "^\s*\)")) {
+                AddIssue("Multi-line lambda block detected (lines " . lambdaStartLine . "-" . (i+1) . ") - extract to separate function or use single-line lambda", "Error", lambdaStartLine)
+                hasErrors := true
+                inLambdaBlock := false
+            }
+        }
     }
 }
 
@@ -195,6 +311,35 @@ for i, line in lines {
     }
 }
 
+; Check 11a: Top-level static declarations (invalid in v2)
+braceLevel := 0
+for i, line in lines {
+    ; Skip comments
+    if (RegExMatch(line, "^\s*;"))
+        continue
+    
+    ; Count braces to track nesting level
+    openCount := 0
+    closeCount := 0
+    loop Parse, line {
+        if (A_LoopField = "{")
+            openCount++
+        else if (A_LoopField = "}")
+            closeCount++
+    }
+    braceLevel += (openCount - closeCount)
+    
+    ; Check for static declarations at top level (braceLevel = 0 means top level)
+    if (braceLevel = 0) {
+        ; Match static declarations like "static var := value" or "static var" 
+        ; But exclude function definitions like "static FunctionName(...)"
+        if (RegExMatch(line, "^\s*static\s+\w+\s*[^\(]") || RegExMatch(line, "^\s*static\s+\w+\s*:=\s*")) {
+            AddIssue("Top-level static declaration - static can only be used inside functions or classes in v2", "Error", i)
+            hasErrors := true
+        }
+    }
+}
+
 ; Check 12: Loop syntax
 for i, line in lines {
     if (RegExMatch(line, "Loop\s*,\s*")) {
@@ -205,13 +350,9 @@ for i, line in lines {
 
 ; Check 13: Random function syntax (v1 to v2 migration)
 for i, line in lines {
-    if (RegExMatch(line, "\w+\s*:=\s*Random\s*\(")) {
-        AddIssue("Incorrect Random() syntax - use Random(var, min, max) instead of var := Random(min, max)", "Error", i
-        )
-        hasErrors := true
-    }
-    if (RegExMatch(line, "Random\s*\(\s*\d+\s*,\s*\d+\s*\)")) {
-        AddIssue("Found Random(min, max) - use Random(var, min, max) to assign to variable", "Error", i)
+    ; Flag v1 syntax: Random(&variable, min, max) - output variable with &
+    if (RegExMatch(line, "Random\s*\(\s*&\w+")) {
+        AddIssue("Incorrect Random() syntax (v1) - use var := Random(min, max) instead of Random(&var, min, max)", "Error", i)
         hasErrors := true
     }
 }
@@ -226,8 +367,10 @@ for i, line in lines {
 
 ; Check 15: FormatTime missing first parameter (v1 to v2 migration)
 for i, line in lines {
-    if (RegExMatch(line, "FormatTime\s*\(\s*,\s*")) {
-        AddIssue("FormatTime missing first parameter - use FormatTime(var, , format) or FormatTime(var, A_Now, format)",
+    ; Flag FormatTime(, format) - completely missing first parameter
+    ; But allow valid v2 patterns: FormatTime(OutputVar, A_Now, format) and FormatTime(A_Now, format)
+    if (RegExMatch(line, "FormatTime\s*\(\s*,\s*[^\)]")) {
+        AddIssue("FormatTime missing first parameter - use FormatTime(OutputVar, A_Now, format) or var := FormatTime(A_Now, format)",
             "Error", i)
         hasErrors := true
     }
@@ -395,13 +538,172 @@ for i, line in lines {
     }
 
     ; Check for common system hotkeys that should not be overridden
+    ; Only check in Hotkey() calls, not in Send() commands or strings
     commonHotkeys := ["^c", "^v", "^x", "^z", "^a", "^f", "^s", "^p", "!f4", "^!del", "^esc"]
     for idx, hkey in commonHotkeys {
-        ; Simple check for the hotkey string in the line
-        if (InStr(line, hkey) && !InStr(line, "Off")) {
-            AddIssue("Warning: Possibly overriding common system hotkey: " . hkey .
-                " - may interfere with normal operation", "Warning", i)
-            hasWarnings := true
+        ; Only flag if it's in a Hotkey() call and not already decorated with extra modifiers
+        ; Check for Hotkey("^x" or Hotkey "^x" pattern (not in Send, not in comments, not already decorated)
+        ; Build regex pattern to match Hotkey("^x") or Hotkey("^x", ...)
+        ; Use character class ["'] to match either single or double quotes"
+        ; Build regex pattern - escape quotes properly
+        hotkeyPattern := "Hotkey\s*\(\s*[" . Chr(34) . Chr(39) . "]" . hkey . "[" . Chr(34) . Chr(39) . "]"
+        if (RegExMatch(line, hotkeyPattern) && !InStr(line, "Off") && !InStr(line, "Send") && !InStr(line, ";")) {
+            ; Check if it already has extra decorators (like ^+c for Ctrl+Shift+C)
+            ; Check if it already has extra decorators (like ^+c for Ctrl+Shift+C)
+            hkeyChar := SubStr(hkey, 2)  ; Get character after ^ or !
+            extraDecoratorPattern := "Hotkey\s*\(\s*[" . Chr(34) . Chr(39) . "][\^!+#]+\+" . hkeyChar
+            if (!RegExMatch(line, extraDecoratorPattern)) {
+                AddIssue("Warning: Possibly overriding common system hotkey: " . hkey .
+                    " - may interfere with normal operation. Add extra decorator like Shift (^+c instead of ^c)", "Warning", i)
+                hasWarnings := true
+            }
+        }
+    }
+}
+
+; Check 31a: Check for arrow keys, navigation keys, and alphanumeric keys without context restrictions
+arrowKeys := ["Up", "Down", "Left", "Right", "Home", "End", "PgUp", "PgDn"]
+navigationKeys := ["Enter", "Space", "Tab", "Escape", "Backspace", "Delete"]
+problematicKeys := arrowKeys
+problematicKeys.Push(navigationKeys*)
+
+for i, line in lines {
+    ; Skip comments
+    if (RegExMatch(line, "^\s*;"))
+        continue
+    
+    ; Check for Hotkey() calls with single alphanumeric characters (a-z, A-Z, 0-9)
+    ; Pattern: Hotkey("a", ...) or Hotkey('w', ...) - single character keys
+    alphanumPattern := "Hotkey\s*\(\s*[" . Chr(34) . Chr(39) . "]([a-zA-Z0-9])[" . Chr(34) . Chr(39) . "]"
+    if (RegExMatch(line, alphanumPattern, &alphanumMatch)) {
+        keyChar := alphanumMatch[1]
+        
+        ; Check if this is being disabled (Hotkey("a", "Off"))
+        disablePattern := "Hotkey\s*\(\s*[" . Chr(34) . Chr(39) . "]" . keyChar . "[" . Chr(34) . Chr(39) . "]\s*,\s*[" . Chr(34) . Chr(39) . "]Off[" . Chr(34) . Chr(39) . "]"
+        if (RegExMatch(line, disablePattern))
+            continue
+        
+        ; Check for context restrictions (same logic as below)
+        hasContextCheck := false
+        startCheck := Max(1, i - 10)
+        endCheck := Min(lines.Length, i + 10)
+        
+        ; Look for window focus checks
+        Loop (endCheck - startCheck + 1) {
+            checkLineNum := startCheck + A_Index - 1
+            checkLine := lines[checkLineNum]
+            
+            if (RegExMatch(checkLine, "WinActive|WinExist|CheckWindowFocus|snakeGui\.Hwnd|gui\.Hwnd") || 
+                RegExMatch(checkLine, "if\s*\(.*Hwnd.*\)") ||
+                RegExMatch(checkLine, "#HotIf.*WinActive") ||
+                InStr(checkLine, "window is active") ||
+                InStr(checkLine, "window has focus")) {
+                hasContextCheck := true
+                break
+            }
+        }
+        
+        ; Check callback function
+        callbackPattern := "Hotkey\s*\(\s*[" . Chr(34) . Chr(39) . "]" . keyChar . "[" . Chr(34) . Chr(39) . "]\s*,\s*(\w+)"
+        if (RegExMatch(line, callbackPattern, &callbackMatch)) {
+            callbackFunc := callbackMatch[1]
+            Loop lines.Length {
+                funcStart := A_Index
+                funcLine := lines[funcStart]
+                if (RegExMatch(funcLine, callbackFunc . "\s*\(")) {
+                    funcEnd := Min(lines.Length, funcStart + 20)
+                    Loop (funcEnd - funcStart) {
+                        checkLineNum := funcStart + A_Index
+                        if (checkLineNum > lines.Length)
+                            break
+                        checkLine := lines[checkLineNum]
+                        if (RegExMatch(checkLine, "WinActive|WinExist|CheckWindowFocus|snakeGui\.Hwnd|gui\.Hwnd") ||
+                            RegExMatch(checkLine, "if\s*\(.*Hwnd.*\)") ||
+                            RegExMatch(checkLine, "if\s*\(!.*WinActive")) {
+                            hasContextCheck := true
+                            break
+                        }
+                        if (RegExMatch(checkLine, "^\w+\s*\(") && !RegExMatch(checkLine, callbackFunc))
+                            break
+                    }
+                    break
+                }
+            }
+        }
+        
+        if (!hasContextCheck) {
+            AddIssue("Hotkey for '" . keyChar . "' lacks context restrictions - single alphanumeric keys (a-z, A-Z, 0-9) should only work when specific window is active (add WinActive check)", "Error", i)
+            hasErrors := true
+        }
+        continue
+    }
+    
+    ; Check for Hotkey() calls with problematic keys
+    for idx, keyName in problematicKeys {
+        ; Pattern: Hotkey("Up", ...) or Hotkey('Up', ...)
+        pattern := "Hotkey\s*\(\s*[" . Chr(34) . Chr(39) . "]" . keyName . "[" . Chr(34) . Chr(39) . "]"
+        if (RegExMatch(line, pattern)) {
+            ; Check if this is being disabled (Hotkey("Up", "Off"))
+            disablePattern := "Hotkey\s*\(\s*[" . Chr(34) . Chr(39) . "]" . keyName . "[" . Chr(34) . Chr(39) . "]\s*,\s*[" . Chr(34) . Chr(39) . "]Off[" . Chr(34) . Chr(39) . "]"
+            if (RegExMatch(line, disablePattern))
+                continue
+            
+            ; Check if there's context restriction nearby (check surrounding lines for window focus checks)
+            hasContextCheck := false
+            startCheck := Max(1, i - 10)
+            endCheck := Min(lines.Length, i + 10)
+            
+            ; Look for window focus checks, WinActive, context restrictions
+            Loop (endCheck - startCheck + 1) {
+                checkLineNum := startCheck + A_Index - 1
+                checkLine := lines[checkLineNum]
+                
+                ; Check for window focus validation patterns
+                if (RegExMatch(checkLine, "WinActive|WinExist|CheckWindowFocus|snakeGui\.Hwnd|gui\.Hwnd") || 
+                    RegExMatch(checkLine, "if\s*\(.*Hwnd.*\)") ||
+                    RegExMatch(checkLine, "#HotIf.*WinActive") ||
+                    InStr(checkLine, "window is active") ||
+                    InStr(checkLine, "window has focus")) {
+                    hasContextCheck := true
+                    break
+                }
+            }
+            
+            ; Also check if the callback function validates window state
+            callbackPattern := "Hotkey\s*\(\s*[" . Chr(34) . Chr(39) . "]" . keyName . "[" . Chr(34) . Chr(39) . "]\s*,\s*(\w+)"
+            if (RegExMatch(line, callbackPattern, &match)) {
+                callbackFunc := match[1]
+                ; Search for the callback function definition
+                Loop lines.Length {
+                    funcStart := A_Index
+                    funcLine := lines[funcStart]
+                    if (RegExMatch(funcLine, callbackFunc . "\s*\(")) {
+                        ; Check next 20 lines of the function for window validation
+                        funcEnd := Min(lines.Length, funcStart + 20)
+                        Loop (funcEnd - funcStart) {
+                            checkLineNum := funcStart + A_Index
+                            if (checkLineNum > lines.Length)
+                                break
+                            checkLine := lines[checkLineNum]
+                            if (RegExMatch(checkLine, "WinActive|WinExist|CheckWindowFocus|snakeGui\.Hwnd|gui\.Hwnd") ||
+                                RegExMatch(checkLine, "if\s*\(.*Hwnd.*\)") ||
+                                RegExMatch(checkLine, "if\s*\(!.*WinActive")) {
+                                hasContextCheck := true
+                                break
+                            }
+                            ; If we hit another function definition, stop
+                            if (RegExMatch(checkLine, "^\w+\s*\(") && !RegExMatch(checkLine, callbackFunc))
+                                break
+                        }
+                        break
+                    }
+                }
+            }
+            
+            if (!hasContextCheck) {
+                AddIssue("Hotkey for '" . keyName . "' lacks context restrictions - arrow/navigation keys should only work when specific window is active (add WinActive check)", "Error", i)
+                hasErrors := true
+            }
         }
     }
 }
@@ -417,6 +719,48 @@ for i, line in lines {
         hasErrors := true
     }
 }
+
+; Check 33: Recognize v2 built-in functions (suppress false warnings)
+; This check identifies known v2 functions to prevent false "undefined variable" warnings
+; Note: This is informational and doesn't add issues, but helps the linter understand v2 functions
+for i, line in lines {
+    ; Skip comments and strings
+    if (RegExMatch(line, "^\s*;") || RegExMatch(line, "^\s*/\*") || RegExMatch(line, "^\s*\*"))
+        continue
+    
+    ; Check if line contains a known v2 built-in function call
+    for idx, funcName in v2BuiltInFunctions {
+        ; Match function calls like FuncName( or FuncName (with optional whitespace)
+        pattern := "\b" . funcName . "\s*\("
+        if (RegExMatch(line, pattern)) {
+            ; Function is recognized - this prevents false warnings
+            ; No issue added, just recognized for internal processing
+            break
+        }
+    }
+}
+
+; Filter out false warnings for known v2 built-in functions
+; AutoHotkey's #Warn may flag these, but they are valid v2 functions
+filteredIssues := []
+for issue in issues {
+    ; Check if this is a warning about a known v2 function
+    isKnownFunction := false
+    for idx, funcName in v2BuiltInFunctions {
+        ; Check if the issue message mentions this function as undefined
+        if (InStr(issue.message, funcName) && InStr(issue.message, "never be assigned")) {
+            isKnownFunction := true
+            Log("Filtered out false warning for known v2 function: " . funcName)
+            break
+        }
+    }
+    if (!isKnownFunction) {
+        filteredIssues.Push(issue)
+    }
+}
+
+; Use filtered issues for reporting
+issues := filteredIssues
 
 ; Generate comprehensive report
 report := "Lint Report for: " . fileToCheck . "`n"

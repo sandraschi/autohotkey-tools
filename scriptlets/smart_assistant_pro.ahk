@@ -203,14 +203,12 @@ class SmartAssistantPro {
     }
 
     static ShowTime() {
-        timeStr := ""
-        FormatTime(timeStr, A_Now, "HH:mm:ss")
+        timeStr := FormatTime(A_Now, "HH:mm:ss")
         SmartAssistantPro.AppendLog("Current time: " . timeStr)
     }
 
     static ShowDate() {
-        dateStr := ""
-        FormatTime(dateStr, A_Now, "dddd, MMMM dd, yyyy")
+        dateStr := FormatTime(A_Now, "dddd, MMMM dd, yyyy")
         SmartAssistantPro.AppendLog("Today's date: " . dateStr)
     }
 
@@ -236,8 +234,7 @@ class SmartAssistantPro {
                 return
             }
         }
-        timestamp := ""
-        FormatTime(timestamp, A_Now, "yyyy-MM-dd HH:mm:ss")
+        timestamp := FormatTime(A_Now, "yyyy-MM-dd HH:mm:ss")
         line := "[" . timestamp . "] " . content . "`n"
         try {
             FileAppend(line, A_ScriptDir . "\smart_assistant_notes.txt", "UTF-8")
@@ -263,8 +260,7 @@ class SmartAssistantPro {
         if (!SmartAssistantPro.outputEdit) {
             return
         }
-        timestamp := ""
-        FormatTime(timestamp, A_Now, "HH:mm:ss")
+        timestamp := FormatTime(A_Now, "HH:mm:ss")
         SmartAssistantPro.outputEdit.Value .= "[" . timestamp . "] " . text . "`n"
         SmartAssistantPro.outputEdit.SendMessage(0x00B7, 0, 0)  ; scroll to bottom
     }
