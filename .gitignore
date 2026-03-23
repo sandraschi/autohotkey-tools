@@ -91,3 +91,5 @@ out/
 # Personal test files
 test_*.ahk
 debug_*.ahk
+# Rust / Zed IDE — rust-analyzer may create target/ at repo root
+target/
