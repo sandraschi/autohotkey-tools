@@ -1,6 +1,10 @@
 # AutoHotkey v2 Scriptlets Collection
 
-A comprehensive collection of AutoHotkey v2 scriptlets with modern web dashboard and development tools.
+**AutoHotkey (AHK)** is a free, open-source **Windows automation language**: you write small scripts (`.ahk`) that can define **hotkeys** and **hotstrings**, send **mouse and keyboard** input, **find and control windows**, read and write **files**, call **COM** objects, run **HTTP** requests, show **GUIs**, and glue together everyday workflows without shipping a full app. **v2** is the current branch: clearer syntax, classes, and stricter behavior than legacy v1, while keeping the same “script everything on the desktop” idea.
+
+**What you can build with it:** keyboard layers and remaps, text expanders, window managers, clipboard tools, installers for repetitive clicks, game helpers, dev utilities, and one-off **MCP** or **HTTP** bridges—anything that fits “when I press this / when this happens, do that on Windows.”
+
+This repository is a **scriptlet collection** plus a **local web dashboard** to browse and launch scripts. It is **not** the AutoHotkey runtime: install **AutoHotkey v2** from [autohotkey.com](https://www.autohotkey.com/) if you do not already have it.
 
 ## 🚀 Quick Start
 
@@ -9,11 +13,14 @@ A comprehensive collection of AutoHotkey v2 scriptlets with modern web dashboard
 # Start the bridge server
 .\ScriptletCOMBridge.ahk
 
-# Or run the launcher scriptlet
+# Or run the launcher (starts bridge + opens dashboard)
+.\start_dashboard.bat
+
+# Or run the native GUI launcher
 .\scriptlet_launcher_v2.ahk
 ```
 
-The web interface will be available at `http://localhost:8765/`
+The web interface is at **`http://127.0.0.1:10744/`** (fleet port 10744). Use `/dashboard` for the dashboard. The launcher may not report "Bridge is live" before opening; the webapp works regardless.
 
 ### Available Scriptlets
 

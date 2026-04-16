@@ -53,8 +53,8 @@ StartHTTPServer() {
             ; Kill any existing PowerShell processes running the server
             Run('taskkill /f /im powershell.exe /fi "WINDOWTITLE eq scriptlet_server*"', , 'Hide')
             
-            ; Try to kill processes using port 8765 (with error handling for privilege issues)
-            Run('powershell -Command "try { Get-NetTCPConnection -LocalPort 8765 | ForEach-Object { if ($_.OwningProcess -ne 4) { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue } } } catch { Write-Host \"Port cleanup completed with some errors\" }"', , 'Hide')
+            ; Try to kill processes using port 10744 (with error handling for privilege issues)
+            Run('powershell -Command "try { Get-NetTCPConnection -LocalPort 10744 | ForEach-Object { if ($_.OwningProcess -ne 4) { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue } } } catch { Write-Host \"Port cleanup completed with some errors\" }"', , 'Hide')
             
             Sleep(2000)
         } catch {
@@ -79,12 +79,12 @@ StartHTTPServer() {
         ; Check if server started successfully
         try {
             ; Test if server is responding
-            Run('powershell.exe -Command "try { Invoke-WebRequest -Uri http://localhost:8765/scriptlets -TimeoutSec 5 | Out-Null; Write-Host SUCCESS } catch { Write-Host FAILED }"', , 'Hide')
+            Run('powershell.exe -Command "try { Invoke-WebRequest -Uri http://127.0.0.1:10744/scriptlets -TimeoutSec 5 | Out-Null; Write-Host SUCCESS } catch { Write-Host FAILED }"', , 'Hide')
         } catch {
             ; Server test failed, but continue
         }
         
-        TrayTip('HTTP server started on port 8765', 'Scriptlet Bridge', '1')
+        TrayTip('HTTP server started on port 10744', 'Scriptlet Bridge', '1')
         
     } catch as e {
         MsgBox('Failed to start HTTP server: ' . e.Message, 'Error', '0x10')
@@ -103,25 +103,10 @@ CreatePowerShellServer() {
     
     ; Define the PowerShell script content using a continuation section
     psScript := ''
-    psScript .= "`$port = 8765`n"
-    psScript .= "`$listener = `$null`n"
-    psScript .= "for (`$i = 0; `$i -lt 10; `$i++) {`n"
-    psScript .= "    try {`n"
-    psScript .= "        `$listener = New-Object System.Net.HttpListener`n"
-    psScript .= "        `$listener.Prefixes.Add('http://localhost:' + `$port + '/')`n"
-    psScript .= "        `$listener.Start()`n"
-    psScript .= "        Write-Host 'HTTP server started successfully on port ' + `$port`n"
-    psScript .= "        break`n"
-    psScript .= "    } catch {`n"
-    psScript .= "        Write-Host 'Port ' + `$port + ' in use, trying next port...'`n"
-    psScript .= "        `$port++`n"
-    psScript .= "        if (`$listener) { `$listener.Close(); `$listener = `$null }`n"
-    psScript .= "    }`n"
-    psScript .= "}`n"
-    psScript .= "if (-not `$listener) {`n"
-    psScript .= "    Write-Host 'Failed to start HTTP server on any port'`n"
-    psScript .= "    exit 1`n"
-    psScript .= "}`n`n"
+    psScript .= "`$port = 10744`n"
+    psScript .= "`$listener = New-Object System.Net.HttpListener`n"
+    psScript .= "`$listener.Prefixes.Add('http://127.0.0.1:' + `$port + '/')`n"
+    psScript .= "try { `$listener.Start(); Write-Host 'HTTP server started on port ' + `$port } catch { Write-Host 'Failed to bind port ' + `$port + ': ' + `$_.Exception.Message; exit 1 }`n"
     psScript .= "while (`$listener.IsListening) {`n"
     psScript .= "    try {`n"
     psScript .= "        `$context = `$listener.GetContext()`n"
@@ -146,11 +131,35 @@ CreatePowerShellServer() {
     psScript .= "            `$result = & '" . A_ScriptDir . "\StopScriptlet.bat' `$scriptName`n"
         psScript .= "        } elseif (`$url -eq '/') {`n"
         psScript .= "            `$result = 'Scriptlet Bridge Server v2.0 - Use /status, /scriptlets, /exit endpoints'`n"
+        psScript .= "        } elseif (`$url -eq '/dashboard') {`n"
+        psScript .= "            `$htmlPath = '" . A_ScriptDir . "\dashboard.html'`n"
+        psScript .= "            try {`n"
+        psScript .= "                `$html = Get-Content -Path `$htmlPath -Raw -Encoding UTF8`n"
+        psScript .= "                `$htmlBytes = [System.Text.Encoding]::UTF8.GetBytes(`$html)`n"
+        psScript .= "                `$response.ContentType = 'text/html; charset=utf-8'`n"
+        psScript .= "                `$response.ContentLength64 = `$htmlBytes.Length`n"
+        psScript .= "                `$response.OutputStream.Write(`$htmlBytes, 0, `$htmlBytes.Length)`n"
+        psScript .= "                `$response.Close()`n"
+        psScript .= "            } catch {`n"
+        psScript .= "                `$result = 'ERROR: Could not read dashboard.html'`n"
+        psScript .= "            }`n"
+        psScript .= "            continue`n"
     psScript .= "        } elseif (`$url -eq '/status') {`n"
     psScript .= "            `$result = 'Server running'`n"
         psScript .= "        } elseif (`$url -eq '/exit') {`n"
         psScript .= "            `$result = 'Server shutting down...'`n"
         psScript .= "            Write-Host 'Received exit command - shutting down server'`n"
+        psScript .= "            `$listener.Stop()`n"
+        psScript .= "            break`n"
+        psScript .= "        } elseif (`$url -eq '/restart') {`n"
+        psScript .= "            `$result = 'Restarting bridge...'`n"
+        psScript .= "            try {`n"
+        psScript .= "                `$rb = [System.Text.Encoding]::UTF8.GetBytes(`$result)`n"
+        psScript .= "                `$response.ContentLength64 = `$rb.Length`n"
+        psScript .= "                `$response.OutputStream.Write(`$rb, 0, `$rb.Length)`n"
+        psScript .= "                `$response.Close()`n"
+        psScript .= "            } catch {}`n"
+        psScript .= "            Set-Content -Path ([System.IO.Path]::Combine(`$env:TEMP, 'ahk_bridge_restart.flag')) -Value '1' -Encoding UTF8`n"
         psScript .= "            `$listener.Stop()`n"
         psScript .= "            break`n"
         psScript .= "        } elseif (`$url -eq '/scriptlets') {`n"
@@ -501,6 +510,32 @@ class ScriptletManager {
 LogActivity("Scriptlet COM Bridge v1.0 started")
 TrayTip("Bridge started successfully!`nClick tray icon to open launcher.", "Scriptlet Bridge", '1')
 
+; Watchdog: detect restart flag written by the /restart endpoint
+SetTimer(WatchdogBridge, 8000)
+
+WatchdogBridge() {
+    flagPath := EnvGet("TEMP") "\ahk_bridge_restart.flag"
+    if (!FileExist(flagPath))
+        return
+    try {
+        FileDelete(flagPath)
+    } catch {
+    }
+    LogActivity("Restart flag detected — relaunching PS server")
+    TrayTip("Restarting bridge server…", "Scriptlet Bridge", '1')
+    ; Brief pause so the old listener has time to close
+    Sleep(1500)
+    ; Recreate the PS script and relaunch
+    if (CreatePowerShellServer()) {
+        tempPath := EnvGet("TEMP") "\scriptlet_server.ps1"
+        Run('powershell.exe -WindowStyle Hidden -ExecutionPolicy Bypass -File "' tempPath '"', , 'Hide')
+        LogActivity("PS server relaunched by watchdog")
+        TrayTip("Bridge restarted successfully", "Scriptlet Bridge", '1')
+    } else {
+        LogActivity("Watchdog: failed to recreate PS server script")
+    }
+}
+
 ; ==============================================================================
 ; HOTKEYS
 ; ==============================================================================
@@ -511,7 +546,7 @@ Hotkey("^!e", (*) => ExitServer())
 ExitServer() {
     try {
         ; Call the exit endpoint
-        Run('powershell -Command "try { Invoke-WebRequest -Uri http://localhost:8765/exit -TimeoutSec 5 | Out-Null } catch { Write-Host \"Server exit command sent\" }"', , 'Hide')
+        Run('powershell -Command "try { Invoke-WebRequest -Uri http://127.0.0.1:10744/exit -TimeoutSec 5 | Out-Null } catch { Write-Host \"Server exit command sent\" }"', , 'Hide')
         LogActivity("Exit command sent to server")
         TrayTip("Server exit command sent", "Scriptlet Bridge", '1')
     } catch as e {

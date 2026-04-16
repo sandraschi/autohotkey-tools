@@ -34,8 +34,8 @@ The modern launcher lives in `launcher_enhanced.html`. It discovers metadata in 
 
 ## Troubleshooting
 
-1. If nothing loads, ensure the PowerShell bridge is running (`plugin_loader` tray icon).  
-2. Use browser dev tools to inspect fetch calls (should point to `http://localhost:8765`).  
+1. If nothing loads, ensure the bridge is running (`ScriptletCOMBridge.ahk` or tray).  
+2. Use browser dev tools to inspect fetch calls (should point to `http://127.0.0.1:10744`).  
 3. Verify the scriptlet metadata contains valid JSON; malformed fields are ignored.  
 4. Run the harness manually when stats look stale.
 

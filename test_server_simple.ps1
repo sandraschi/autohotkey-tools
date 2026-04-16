@@ -1,8 +1,8 @@
 $listener = New-Object System.Net.HttpListener
-$listener.Prefixes.Add('http://localhost:8765/')
+$listener.Prefixes.Add('http://localhost:10744/')
 $listener.Start()
 
-Write-Host "Server started on port 8765"
+Write-Host "Server started on port 10744"
 
 while ($listener.IsListening) {
     try {

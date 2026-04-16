@@ -16,7 +16,7 @@ AutoHotkey Scriptlet (logs + GUI + hotkeys)
 
 ## Bridge Responsibilities
 
-- Serve `/run`, `/stop`, and `/status` endpoints on `http://localhost:8765`.  
+- Serve `/run`, `/stop`, `/status`, and `/dashboard` on **`http://127.0.0.1:10744`** (fleet port 10744). Single port only; zombie kill before bind.  
 - Launch AutoHotkey with `/ErrorStdOut` and `/Warn All,Off`.  
 - Enforce a strict timeout (default 10 s) and throttle (default 5 concurrent).  
 - Terminate stray processes via `CloseMainWindow()` then `Kill()` if needed.  

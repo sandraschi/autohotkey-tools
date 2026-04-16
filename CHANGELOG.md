@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **Scriptlet bridge port**: 8765 → **10744** (fleet port scheme, see robofang `docs/standards/WEBAPP_PORTS.md`). Bridge binds to `127.0.0.1:10744` only; zombie kill before bind, no port crawling.
+- **Launcher**: `start_dashboard.bat` / `start_dashboard.ps1` start the bridge and open the dashboard. **Known issue:** bridge detection in the launcher may not report "Bridge is live" before opening the browser; the webapp works nonetheless—open `http://127.0.0.1:10744/dashboard` or use the script to open it.
+
 ### Added
 - AutoHotkey++ Cursor Extension support documentation
 - Enhanced IDE support section in development guides

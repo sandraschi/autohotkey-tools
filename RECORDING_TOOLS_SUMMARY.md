@@ -103,7 +103,7 @@ To use these tools:
    ```powershell
    Start-Process powershell -ArgumentList "-NoProfile -File test_server_simple.ps1" -WindowStyle Minimized
    ```
-   Then open `http://localhost:8765`
+   Then open `http://127.0.0.1:10744/dashboard`
 
 2. **Test Macro Recorder:**
    - Press `Ctrl+Alt+R` to start recording

@@ -34,7 +34,7 @@ The harness launches every scriptlet with `/ErrorStdOut` and `/Warn All,Off`, re
 ## Troubleshooting
 
 - **AutoHotkey not found:** rerun the installer; ensure `.ahk` files are associated.  
-- **Bridge offline:** confirm the plugin loader PowerShell window reports “listening on 8765.”  
+- **Bridge offline:** ensure the bridge is running (tray or `ScriptletCOMBridge.ahk`). Dashboard at `http://127.0.0.1:10744/dashboard`. Launcher may not report "live" but the webapp works. “”  
 - **Popups hanging:** ensure every new scriptlet uses timed `MsgBox` or non-blocking alerts.  
 - **Permissions:** if a script needs admin rights, document it in the header and use `Run("*RunAs", ...)` carefully.
 

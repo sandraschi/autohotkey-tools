@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AHK Control Tower</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d0d12;
+  --bg2: #13131a;
+  --bg3: #1a1a24;
+  --surface: rgba(255,255,255,0.05);
+  --border: rgba(255,255,255,0.08);
+  --accent: #7c3aed;
+  --accent2: #a855f7;
+  --accent-glow: rgba(124,58,237,0.25);
+  --green: #10b981;
+  --red: #ef4444;
+  --yellow: #f59e0b;
+  --text: #e2e8f0;
+  --muted: #64748b;
+  --radius: 12px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overflow:hidden}
+a{color:inherit;text-decoration:none}
+
+/* Layout */
+.app{display:flex;height:100vh}
+.sidebar{width:220px;min-width:220px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:20px 0;overflow-y:auto}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{height:64px;min-height:64px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;padding:0 24px}
+.content{flex:1;overflow-y:auto;padding:24px}
+
+/* Sidebar */
+.logo{display:flex;align-items:center;gap:10px;padding:0 20px 20px;border-bottom:1px solid var(--border);margin-bottom:12px}
+.logo-icon{font-size:22px}
+.logo-text{font-size:14px;font-weight:700;background:linear-gradient(135deg,var(--accent2),#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.logo-sub{font-size:10px;color:var(--muted);font-weight:400;-webkit-text-fill-color:var(--muted)}
+.cat-btn{display:flex;align-items:center;gap:10px;padding:9px 20px;cursor:pointer;border-radius:0;transition:.15s;font-size:13px;font-weight:500;color:var(--muted);border-left:3px solid transparent;user-select:none}
+.cat-btn:hover{color:var(--text);background:var(--surface)}
+.cat-btn.active{color:var(--accent2);background:linear-gradient(90deg,rgba(124,58,237,.15),transparent);border-left-color:var(--accent2)}
+.cat-emoji{font-size:16px;width:20px;text-align:center}
+.cat-badge{margin-left:auto;background:var(--accent);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:20px;min-width:18px;text-align:center}
+.cat-badge.green{background:var(--green)}
+.sidebar-footer{margin-top:auto;padding:16px 20px;border-top:1px solid var(--border)}
+.bridge-status{display:flex;align-items:center;gap:8px;font-size:12px}
+.pulse{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);animation:pulseAnim 2s infinite}
+.pulse.offline{background:var(--red);box-shadow:0 0 6px var(--red);animation:none}
+@keyframes pulseAnim{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(.85)}}
+
+/* Topbar */
+.search-wrap{position:relative;flex:1;max-width:420px}
+.search-wrap input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 12px 8px 36px;color:var(--text);font-size:13px;outline:none;transition:.2s}
+.search-wrap input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
+.search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px;pointer-events:none}
+.kbd-hint{background:var(--bg3);border:1px solid var(--border);color:var(--muted);font-size:11px;padding:3px 7px;border-radius:6px;cursor:pointer;transition:.15s;white-space:nowrap}
+.kbd-hint:hover{border-color:var(--accent);color:var(--accent2)}
+.tb-spacer{flex:1}
+.refresh-info{font-size:11px;color:var(--muted)}
+.icon-btn{background:var(--surface);border:1px solid var(--border);color:var(--muted);width:34px;height:34px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;transition:.15s}
+.icon-btn:hover{color:var(--text);border-color:var(--accent)}
+
+/* Stats */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.stat{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;position:relative;overflow:hidden}
+.stat::before{content:'';position:absolute;top:-30px;right:-20px;width:80px;height:80px;border-radius:50%;background:var(--accent-glow);pointer-events:none}
+.stat-val{font-size:28px;font-weight:700;line-height:1;color:var(--accent2)}
+.stat-val.green{color:var(--green)}
+.stat-label{font-size:12px;color:var(--muted);margin-top:4px}
+
+/* Grid */
+.section-head{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.section-head h2{font-size:16px;font-weight:600}
+.section-count{background:var(--surface);border:1px solid var(--border);color:var(--muted);font-size:11px;padding:2px 8px;border-radius:20px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;cursor:default;transition:.2s;position:relative;overflow:hidden}
+.card:hover{border-color:rgba(124,58,237,.5);box-shadow:0 4px 24px rgba(0,0,0,.4);transform:translateY(-1px)}
+.card.running{border-color:rgba(16,185,129,.4);background:rgba(16,185,129,.04)}
+.card-accent{position:absolute;top:0;left:0;right:0;height:3px}
+.card-head{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px}
+.cat-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.card-title{font-size:14px;font-weight:600;line-height:1.3;flex:1}
+.live-badge{background:var(--green);color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.5px;animation:pulseAnim 2s infinite}
+.card-desc{font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px}
+.tag{font-size:10px;background:var(--surface);border:1px solid var(--border);padding:2px 7px;border-radius:4px;color:var(--muted)}
+.hotkeys{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px}
+kbd{font-size:10px;font-family:'Inter',monospace;background:var(--bg3);border:1px solid var(--border);color:var(--muted);padding:2px 6px;border-radius:4px}
+.card-actions{display:flex;gap:8px}
+.btn{border:none;border-radius:7px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;transition:.15s;display:flex;align-items:center;gap:5px}
+.btn-run{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
+.btn-run:hover{opacity:.85;transform:scale(1.02)}
+.btn-stop{background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);color:var(--red)}
+.btn-stop:hover{background:rgba(239,68,68,.25)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+
+/* Category colors */
+.cat-games{background:rgba(251,146,60,.15);} .card-games{background:linear-gradient(135deg,#f97316,#ef4444)}
+.cat-dev{background:rgba(96,165,250,.15);} .card-dev{background:linear-gradient(135deg,#3b82f6,#7c3aed)}
+.cat-prod{background:rgba(52,211,153,.15);} .card-prod{background:linear-gradient(135deg,#10b981,#0ea5e9)}
+.cat-sys{background:rgba(148,163,184,.15);} .card-sys{background:linear-gradient(135deg,#64748b,#475569)}
+.cat-ai{background:rgba(167,139,250,.15);} .card-ai{background:linear-gradient(135deg,#a855f7,#ec4899)}
+.cat-media{background:rgba(251,191,36,.15);} .card-media{background:linear-gradient(135deg,#f59e0b,#f97316)}
+.cat-fun{background:rgba(244,114,182,.15);} .card-fun{background:linear-gradient(135deg,#ec4899,#f97316)}
+.cat-util{background:rgba(94,234,212,.15);} .card-util{background:linear-gradient(135deg,#14b8a6,#3b82f6)}
+.cat-widget{background:rgba(129,140,248,.15);} .card-widget{background:linear-gradient(135deg,#6366f1,#7c3aed)}
+.cat-other{background:rgba(100,116,139,.15);} .card-other{background:linear-gradient(135deg,#475569,#334155)}
+
+/* Command palette */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;display:none;align-items:flex-start;justify-content:center;padding-top:15vh;backdrop-filter:blur(4px)}
+.overlay.show{display:flex}
+.palette{background:var(--bg2);border:1px solid var(--border);border-radius:14px;width:560px;max-width:95vw;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.6)}
+.palette-input-wrap{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--border)}
+.palette-input-wrap span{font-size:18px;color:var(--muted)}
+.palette input{flex:1;background:transparent;border:none;outline:none;font-size:15px;color:var(--text);font-family:'Inter',sans-serif}
+.palette-list{max-height:340px;overflow-y:auto}
+.p-item{display:flex;align-items:center;gap:12px;padding:10px 16px;cursor:pointer;transition:.1s}
+.p-item:hover,.p-item.selected{background:var(--surface)}
+.p-item-icon{font-size:18px;width:24px;text-align:center}
+.p-item-info{flex:1;min-width:0}
+.p-item-name{font-size:13px;font-weight:500}
+.p-item-cat{font-size:11px;color:var(--muted)}
+.p-run-hint{font-size:11px;color:var(--muted);opacity:0}
+.p-item:hover .p-run-hint,.p-item.selected .p-run-hint{opacity:1}
+.palette-empty{text-align:center;padding:32px;color:var(--muted);font-size:13px}
+
+/* Toasts */
+.toasts{position:fixed;top:20px;right:20px;z-index:200;display:flex;flex-direction:column;gap:8px}
+.toast{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px 16px;font-size:13px;min-width:280px;max-width:340px;box-shadow:0 8px 24px rgba(0,0,0,.4);animation:slideInRight .3s ease;display:flex;align-items:center;gap:10px}
+.toast.success{border-left:3px solid var(--green)}
+.toast.error{border-left:3px solid var(--red)}
+.toast.info{border-left:3px solid var(--accent2)}
+.toast-icon{font-size:16px}
+@keyframes slideInRight{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+@keyframes fadeOut{from{opacity:1}to{opacity:0;transform:translateX(40px)}}
+
+/* Offline state */
+.offline-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:20px;text-align:center}
+.offline-icon{font-size:64px;animation:float 3s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.offline-title{font-size:24px;font-weight:700}
+.offline-sub{color:var(--muted);max-width:420px;line-height:1.6;font-size:14px}
+.offline-code{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px 16px;font-family:monospace;font-size:13px;color:var(--accent2);text-align:left;white-space:pre-line}
+.btn-retry{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;border-radius:8px;padding:10px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:.2s}
+.btn-retry:hover{opacity:.85;transform:scale(1.03)}
+.btn-restart{background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.35);color:#f59e0b;border-radius:8px;padding:10px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:.2s}
+.btn-restart:hover{background:rgba(245,158,11,.25)}
+.btn-restart:disabled{opacity:.4;cursor:not-allowed}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.2)}
+
+/* Responsive */
+@media(max-width:768px){
+  .sidebar{display:none}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">
+      <span class="logo-icon">⌨️</span>
+      <div>
+        <div class="logo-text">AHK Control Tower</div>
+        <div class="logo-sub">v2 Scriptlet Hub</div>
+      </div>
+    </div>
+    <div id="catList"></div>
+    <div class="sidebar-footer">
+      <div class="bridge-status">
+        <div class="pulse" id="statusDot"></div>
+        <span id="statusText">Connecting…</span>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-top:6px">Port 10744</div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="Search scriptlets…" autocomplete="off">
+      </div>
+      <button class="kbd-hint" id="paletteBtn" title="Open command palette (Ctrl+K)">⌘ Ctrl+K</button>
+      <span class="tb-spacer"></span>
+      <span class="refresh-info" id="refreshInfo">–</span>
+      <button class="icon-btn" id="refreshBtn" title="Refresh now">🔄</button>
+      <button class="icon-btn" id="restartBtn" title="Restart bridge (use if bridge crashed)" style="color:#f59e0b">⚡</button>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content" id="mainContent">
+      <!-- Populated by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- COMMAND PALETTE -->
+<div class="overlay" id="overlay">
+  <div class="palette">
+    <div class="palette-input-wrap">
+      <span>🔍</span>
+      <input type="text" id="paletteInput" placeholder="Type to search and launch…">
+      <span style="font-size:11px;color:var(--muted)">↑↓ Enter Esc</span>
+    </div>
+    <div class="palette-list" id="paletteList"></div>
+  </div>
+</div>
+
+<!-- TOASTS -->
+<div class="toasts" id="toasts"></div>
+
+<script>
+// ── Config ─────────────────────────────────────────────────────────────────
+const BRIDGE = 'http://localhost:10744';
+const REFRESH_MS = 5000;
+
+// ── State ──────────────────────────────────────────────────────────────────
+let allScriptlets = [];
+let activeCategory = 'all';
+let bridgeOnline = false;
+let refreshTimer = null;
+let lastRefresh = null;
+let uptime = 0;
+let uptimeTimer = null;
+let paletteIdx = 0;
+
+// ── Category defs ──────────────────────────────────────────────────────────
+const CATS = {
+  all:         { label:'All',         emoji:'⚡', css:'other' },
+  games:       { label:'Games',       emoji:'🎮', css:'games' },
+  development: { label:'Dev Tools',   emoji:'💻', css:'dev'   },
+  productivity:{ label:'Productivity',emoji:'📋', css:'prod'  },
+  system:      { label:'System',      emoji:'🖥️', css:'sys'   },
+  ai:          { label:'AI / LLM',    emoji:'🤖', css:'ai'    },
+  media:       { label:'Media',       emoji:'🎵', css:'media' },
+  fun:         { label:'Fun',         emoji:'🎉', css:'fun'   },
+  utilities:   { label:'Utilities',   emoji:'🔧', css:'util'  },
+  widgets:     { label:'Widgets',     emoji:'📊', css:'widget'},
+  office:      { label:'Office',      emoji:'📁', css:'other' },
+};
+
+function catDef(c) {
+  return CATS[c] || CATS.all;
+}
+
+// ── Bridge API ─────────────────────────────────────────────────────────────
+async function fetchScriptlets() {
+  const r = await fetch(`${BRIDGE}/scriptlets`, { cache:'no-store' });
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  const data = await r.json();
+  return Array.isArray(data) ? data : Object.values(data);
+}
+
+async function runScript(id) {
+  const r = await fetch(`${BRIDGE}/run/${id}.ahk`, { cache:'no-store' });
+  const txt = await r.text();
+  return txt;
+}
+
+async function stopScript(id) {
+  const r = await fetch(`${BRIDGE}/stop/${id}.ahk`, { cache:'no-store' });
+  const txt = await r.text();
+  return txt;
+}
+
+// ── Toast ──────────────────────────────────────────────────────────────────
+function toast(msg, type='info') {
+  const t = document.createElement('div');
+  const icons = { success:'✅', error:'❌', info:'ℹ️' };
+  t.className = `toast ${type}`;
+  t.innerHTML = `<span class="toast-icon">${icons[type]||'ℹ️'}</span><span>${msg}</span>`;
+  document.getElementById('toasts').appendChild(t);
+  setTimeout(() => {
+    t.style.animation = 'fadeOut .3s ease forwards';
+    setTimeout(() => t.remove(), 300);
+  }, 3500);
+}
+
+// ── Offline screen ─────────────────────────────────────────────────────────
+function renderOffline() {
+  document.getElementById('mainContent').innerHTML = `
+    <div class="offline-screen">
+      <div class="offline-icon">🔌</div>
+      <div class="offline-title">Bridge Offline</div>
+      <div class="offline-sub">
+        The <strong>ScriptletCOMBridge.ahk</strong> is not running.<br>
+        Start it or restart it if it crashed.
+      </div>
+      <div class="offline-code">AutoHotkey64.exe ScriptletCOMBridge.ahk\n(or double-click start_dashboard.bat)</div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
+        <button class="btn-retry" onclick="init()">🔄 Retry Connection</button>
+        <button class="btn-restart" id="offlineRestartBtn" onclick="restartBridge(this)">⚡ Restart Bridge</button>
+      </div>
+    </div>`;
+}
+
+// ── Render ─────────────────────────────────────────────────────────────────
+function setCatActive(cat) {
+  activeCategory = cat;
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.toggle('active', b.dataset.cat === cat));
+  renderCards();
+}
+
+function buildSidebar(scriptlets) {
+  const counts = {};
+  scriptlets.forEach(s => { counts[s.category] = (counts[s.category]||0)+1; });
+  const runCount = scriptlets.filter(s=>s.running).length;
+
+  const catList = document.getElementById('catList');
+  catList.innerHTML = '';
+
+  const allBtn = document.createElement('div');
+  allBtn.className = 'cat-btn' + (activeCategory==='all'?' active':'');
+  allBtn.dataset.cat = 'all';
+  allBtn.innerHTML = `<span class="cat-emoji">⚡</span><span>All Scriptlets</span><span class="cat-badge">${scriptlets.length}</span>`;
+  allBtn.onclick = () => setCatActive('all');
+  catList.appendChild(allBtn);
+
+  if (runCount > 0) {
+    const runBtn = document.createElement('div');
+    runBtn.className = 'cat-btn' + (activeCategory==='running'?' active':'');
+    runBtn.dataset.cat = 'running';
+    runBtn.innerHTML = `<span class="cat-emoji">🟢</span><span>Running</span><span class="cat-badge green">${runCount}</span>`;
+    runBtn.onclick = () => setCatActive('running');
+    catList.appendChild(runBtn);
+  }
+
+  Object.keys(CATS).filter(k=>k!=='all' && counts[k]).sort((a,b)=>counts[b]-counts[a]).forEach(cat => {
+    const def = catDef(cat);
+    const btn = document.createElement('div');
+    btn.className = 'cat-btn' + (activeCategory===cat?' active':'');
+    btn.dataset.cat = cat;
+    btn.innerHTML = `<span class="cat-emoji">${def.emoji}</span><span>${def.label}</span><span class="cat-badge">${counts[cat]}</span>`;
+    btn.onclick = () => setCatActive(cat);
+    catList.appendChild(btn);
+  });
+}
+
+function renderStats(scriptlets) {
+  const running = scriptlets.filter(s=>s.running).length;
+  const cats = [...new Set(scriptlets.map(s=>s.category))].length;
+  document.getElementById('statTotal').textContent = scriptlets.length;
+  document.getElementById('statRunning').textContent = running;
+  document.getElementById('statCats').textContent = cats;
+}
+
+function formatUptime(s) {
+  if (s < 60) return `${s}s`;
+  if (s < 3600) return `${Math.floor(s/60)}m ${s%60}s`;
+  return `${Math.floor(s/3600)}h ${Math.floor((s%3600)/60)}m`;
+}
+
+function filtered(scriptlets) {
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  let list = activeCategory === 'running'
+    ? scriptlets.filter(s=>s.running)
+    : activeCategory === 'all'
+      ? scriptlets
+      : scriptlets.filter(s=>s.category===activeCategory);
+  if (q) list = list.filter(s =>
+    (s.name||'').toLowerCase().includes(q) ||
+    (s.id||'').toLowerCase().includes(q) ||
+    (s.description||'').toLowerCase().includes(q) ||
+    (s.tags||[]).some(t=>t.toLowerCase().includes(q))
+  );
+  return list;
+}
+
+function renderCards() {
+  const list = filtered(allScriptlets);
+  const grid = document.getElementById('scriptletGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+
+  if (!list.length) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:var(--muted);padding:48px;font-size:14px">No scriptlets found 🔍</div>`;
+    return;
+  }
+
+  list.forEach(s => {
+    const def = catDef(s.category);
+    const hotkeys = (s.hotkeys||[]).slice(0,3);
+    const tags = (s.tags||[]).slice(0,4);
+    const card = document.createElement('div');
+    card.className = `card${s.running?' running':''}`;
+    card.innerHTML = `
+      <div class="card-accent card-${def.css}"></div>
+      <div class="card-head">
+        <div class="cat-icon cat-${def.css}">${def.emoji}</div>
+        <div class="card-title">${s.name || s.id}</div>
+        ${s.running ? '<span class="live-badge">LIVE</span>' : ''}
+      </div>
+      ${s.description ? `<div class="card-desc">${s.description}</div>` : ''}
+      ${tags.length ? `<div class="tags">${tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>` : ''}
+      ${hotkeys.length ? `<div class="hotkeys">${hotkeys.map(h=>`<kbd>${h}</kbd>`).join('')}</div>` : ''}
+      <div class="card-actions">
+        <button class="btn btn-run" onclick="doRun('${s.id}')" ${s.running?'disabled':''}>▶ Run</button>
+        <button class="btn btn-stop" onclick="doStop('${s.id}')" ${!s.running?'disabled':''}>■ Stop</button>
+      </div>`;
+    grid.appendChild(card);
+  });
+
+  document.getElementById('sectionCount').textContent = list.length;
+}
+
+function renderMain(scriptlets) {
+  const mc = document.getElementById('mainContent');
+  if (!mc.querySelector('.stats-row')) {
+    mc.innerHTML = `
+      <div class="stats-row">
+        <div class="stat"><div class="stat-val" id="statTotal">0</div><div class="stat-label">Total Scriptlets</div></div>
+        <div class="stat"><div class="stat-val green" id="statRunning">0</div><div class="stat-label">Running Now</div></div>
+        <div class="stat"><div class="stat-val" id="statCats">0</div><div class="stat-label">Categories</div></div>
+        <div class="stat"><div class="stat-val" id="statUptime">0s</div><div class="stat-label">Bridge Uptime</div></div>
+      </div>
+      <div class="section-head">
+        <h2 id="sectionTitle">Scriptlets</h2>
+        <span class="section-count" id="sectionCount">0</span>
+      </div>
+      <div class="grid" id="scriptletGrid"></div>`;
+  }
+  renderStats(scriptlets);
+  buildSidebar(scriptlets);
+  renderCards();
+}
+
+// ── Actions ────────────────────────────────────────────────────────────────
+async function doRun(id) {
+  try {
+    const txt = await runScript(id);
+    const ok = txt.includes('SUCCESS') || txt.includes('Started');
+    toast(ok ? `Started ${id}` : txt, ok ? 'success' : 'error');
+    setTimeout(refresh, 1200);
+  } catch(e) { toast(`Failed: ${e.message}`, 'error'); }
+}
+
+async function doStop(id) {
+  try {
+    const txt = await stopScript(id);
+    const ok = txt.includes('SUCCESS') || txt.includes('Stopped');
+    toast(ok ? `Stopped ${id}` : txt, ok ? 'success' : 'info');
+    setTimeout(refresh, 1200);
+  } catch(e) { toast(`Failed: ${e.message}`, 'error'); }
+}
+
+async function restartBridge(btn) {
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Restarting…'; }
+  const topBtn = document.getElementById('restartBtn');
+  if (topBtn) { topBtn.disabled = true; topBtn.textContent = '⏳'; }
+  toast('Sending restart signal…', 'info');
+  // Best-effort: bridge may close before response arrives
+  try { await fetch(`${BRIDGE}/restart`, { cache:'no-store', signal: AbortSignal.timeout(3000) }); } catch(_) {}
+  toast('Bridge restarting — waiting for it to come back…', 'info');
+  // Poll until bridge is online again (max 20s)
+  let attempts = 0;
+  const poll = setInterval(async () => {
+    attempts++;
+    try {
+      const r = await fetch(`${BRIDGE}/status`, { cache:'no-store', signal: AbortSignal.timeout(1500) });
+      if (r.ok) {
+        clearInterval(poll);
+        toast('⚡ Bridge restarted successfully!', 'success');
+        if (topBtn) { topBtn.disabled = false; topBtn.textContent = '⚡'; topBtn.style.color='#f59e0b'; }
+        init();
+      }
+    } catch(_) {
+      if (attempts >= 20) {
+        clearInterval(poll);
+        toast('Bridge did not come back — start it manually.', 'error');
+        if (btn) { btn.disabled = false; btn.textContent = '⚡ Restart Bridge'; }
+        if (topBtn) { topBtn.disabled = false; topBtn.textContent = '⚡'; }
+      }
+    }
+  }, 1000);
+}
+
+// ── Refresh ────────────────────────────────────────────────────────────────
+async function refresh() {
+  try {
+    allScriptlets = await fetchScriptlets();
+    if (!bridgeOnline) {
+      bridgeOnline = true;
+      document.getElementById('statusDot').classList.remove('offline');
+      document.getElementById('statusText').textContent = 'Bridge Online';
+      toast('Bridge connected!', 'success');
+      uptime = 0;
+      if (uptimeTimer) clearInterval(uptimeTimer);
+      uptimeTimer = setInterval(() => {
+        uptime++;
+        const el = document.getElementById('statUptime');
+        if (el) el.textContent = formatUptime(uptime);
+      }, 1000);
+    }
+    lastRefresh = new Date();
+    document.getElementById('refreshInfo').textContent = `Refreshed ${lastRefresh.toLocaleTimeString()}`;
+    renderMain(allScriptlets);
+  } catch(e) {
+    if (bridgeOnline) {
+      bridgeOnline = false;
+      document.getElementById('statusDot').classList.add('offline');
+      document.getElementById('statusText').textContent = 'Bridge Offline';
+      toast('Bridge connection lost', 'error');
+      if (uptimeTimer) { clearInterval(uptimeTimer); uptimeTimer = null; }
+    }
+    renderOffline();
+  }
+}
+
+// ── Command palette ────────────────────────────────────────────────────────
+function openPalette() {
+  document.getElementById('overlay').classList.add('show');
+  document.getElementById('paletteInput').value = '';
+  paletteIdx = 0;
+  renderPalette('');
+  requestAnimationFrame(() => document.getElementById('paletteInput').focus());
+}
+
+function closePalette() {
+  document.getElementById('overlay').classList.remove('show');
+}
+
+function renderPalette(q) {
+  const list = q
+    ? allScriptlets.filter(s =>
+        (s.name||s.id).toLowerCase().includes(q.toLowerCase()) ||
+        (s.description||'').toLowerCase().includes(q.toLowerCase()))
+    : allScriptlets;
+  const top = list.slice(0,12);
+  const pl = document.getElementById('paletteList');
+  if (!top.length) { pl.innerHTML = `<div class="palette-empty">No scriptlets match "${q}"</div>`; return; }
+  pl.innerHTML = top.map((s,i) => {
+    const def = catDef(s.category);
+    return `<div class="p-item${i===paletteIdx?' selected':''}" data-idx="${i}" data-id="${s.id}" onclick="paletteRun(this)">
+      <span class="p-item-icon">${def.emoji}</span>
+      <div class="p-item-info">
+        <div class="p-item-name">${s.name||s.id}${s.running?' 🟢':''}</div>
+        <div class="p-item-cat">${def.label}</div>
+      </div>
+      <span class="p-run-hint">↵ Run</span>
+    </div>`;
+  }).join('');
+}
+
+function paletteRun(el) {
+  closePalette();
+  doRun(el.dataset.id);
+}
+
+// ── Init ───────────────────────────────────────────────────────────────────
+function init() {
+  refresh();
+  if (refreshTimer) clearInterval(refreshTimer);
+  refreshTimer = setInterval(refresh, REFRESH_MS);
+}
+
+// ── Events ─────────────────────────────────────────────────────────────────
+document.getElementById('searchInput').addEventListener('input', () => renderCards());
+document.getElementById('refreshBtn').addEventListener('click', () => refresh());
+document.getElementById('restartBtn').addEventListener('click', () => restartBridge(null));
+document.getElementById('paletteBtn').addEventListener('click', openPalette);
+document.getElementById('overlay').addEventListener('click', e => { if (e.target===e.currentTarget) closePalette(); });
+
+document.getElementById('paletteInput').addEventListener('input', e => {
+  paletteIdx = 0;
+  renderPalette(e.target.value);
+});
+
+document.getElementById('paletteInput').addEventListener('keydown', e => {
+  const items = document.querySelectorAll('.p-item');
+  if (e.key === 'ArrowDown') { paletteIdx = Math.min(paletteIdx+1, items.length-1); }
+  else if (e.key === 'ArrowUp') { paletteIdx = Math.max(paletteIdx-1, 0); }
+  else if (e.key === 'Enter') {
+    const sel = document.querySelector('.p-item.selected');
+    if (sel) { closePalette(); doRun(sel.dataset.id); }
+    return;
+  } else if (e.key === 'Escape') { closePalette(); return; }
+  items.forEach((el,i) => el.classList.toggle('selected', i===paletteIdx));
+  items[paletteIdx]?.scrollIntoView({ block:'nearest' });
+});
+
+// ── Global hotkey: Ctrl+K for palette ONLY — no bare/system key squatting ─
+document.addEventListener('keydown', e => {
+  if (e.ctrlKey && e.key === 'k') { e.preventDefault(); openPalette(); }
+  if (e.key === 'Escape' && document.getElementById('overlay').classList.contains('show')) closePalette();
+});
+
+// ── Boot ───────────────────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>

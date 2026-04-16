@@ -1,0 +1,24 @@
+# autohotkey-test
+> The Compatibility Scanner checks all AutoHotkey scripts for 2 critical incompatibilities: 1. **v1 Syntax Patterns** - Detects AutoHotkey v1 syntax that is incompatible with v2 2. **Missing v2 Requirem...
+
+This project includes automated llms.txt generation for AI accessibility.
+
+## Docs
+- [Compatibility Scanner Readme](docs\COMPATIBILITY_SCANNER_README.md): The Compatibility Scanner checks all AutoHotkey scripts for 2 critical incompatibilities:
+- [Readme](README.md): A comprehensive collection of AutoHotkey v2 scriptlets with modern web dashboard and development too...
+- [Readme](docs\README.md): This directory contains documentation for the AutoHotkey Development Tools project.
+- [Readme](docs\temp\README.md): A comprehensive collection of AutoHotkey v2 scriptlets, development tools, and automation utilities ...
+- [Readme Comprehensive](docs\temp\README_COMPREHENSIVE.md): [![AutoHotkey](https://img.shields.io/badge/AutoHotkey-v2.0+-blue.svg)](https://autohotkey.com)
+- [Installation](docs\help_topics\installation.md): - **Windows 10 or 11** (64-bit).
+- [Script Assessment](docs\script_assessment.md): This document provides an assessment of the AutoHotkey MCP Scripts project, including functionality ...
+- [Full Report](full_report.txt): Documentation for full_report
+- [Repository Status Report](docs\Repository_Status_Report.md): **Generated**: 2025-11-13
+- [Autohotkey V2 Error Handling And Debugging](docs\AutoHotkey_v2_Error_Handling_and_Debugging.md): **Problem:** By default, AutoHotkey v2 shows error popup dialogs that BLOCK execution and make debug...
+
+## Configuration
+- [Config](.git\config): Application configuration files
+
+## Optional
+- [Changelog](CHANGELOG.md): Project changelog information
+- [Contributing](docs\temp\CONTRIBUTING.md): Project contributing information
+- [License](LICENSE): Project license information
