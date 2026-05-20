@@ -1,0 +1,5 @@
+{
+  "name": "autohotkey-test",
+  "version": "1.0.0",
+  "description": "AutoHotkey v2 scriptlet depot: 75+ scripts (games, productivity, system, dev, MCP tools). ScriptletCOMBridge.ahk serves HTTP on 10744 for list/run/stop. Consumed by autohotkey-mcp as AUTOHOTKEY_SCRIPT_DEPOT."
+}

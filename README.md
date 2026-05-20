@@ -1,139 +1,93 @@
-# AutoHotkey v2 Scriptlets Collection
+# autohotkey-test
 
-**AutoHotkey (AHK)** is a free, open-source **Windows automation language**: you write small scripts (`.ahk`) that can define **hotkeys** and **hotstrings**, send **mouse and keyboard** input, **find and control windows**, read and write **files**, call **COM** objects, run **HTTP** requests, show **GUIs**, and glue together everyday workflows without shipping a full app. **v2** is the current branch: clearer syntax, classes, and stricter behavior than legacy v1, while keeping the same “script everything on the desktop” idea.
+<p align="center">
+  <a href="https://github.com/casey/just"><img src="https://img.shields.io/badge/just-ready_to_go-7c5cfc?style=flat-square&logo=just&logoColor=white" alt="Just"></a>
+  <a href="https://github.com/astral-sh/ruff"><img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json" alt="Ruff"></a>
+  <a href="https://python.org"><img src="https://img.shields.io/badge/Python-3.13+-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python"></a>
+  <a href="https://github.com/PrefectHQ/fastmcp"><img src="https://img.shields.io/badge/FastMCP-3.2-7c5cfc?style=flat-square" alt="FastMCP"></a>
+</p>
 
-**What you can build with it:** keyboard layers and remaps, text expanders, window managers, clipboard tools, installers for repetitive clicks, game helpers, dev utilities, and one-off **MCP** or **HTTP** bridges—anything that fits “when I press this / when this happens, do that on Windows.”
+**AutoHotkey v2 scriptlet depot** — 75+ `.ahk` scripts plus a local HTTP bridge for list/run/stop from [autohotkey-mcp](../autohotkey-mcp).
 
-This repository is a **scriptlet collection** plus a **local web dashboard** to browse and launch scripts. It is **not** the AutoHotkey runtime: install **AutoHotkey v2** from [autohotkey.com](https://www.autohotkey.com/) if you do not already have it.
+## Quick Start
 
-## 🚀 Quick Start
-
-### Launch Dashboard
 ```powershell
-# Start the bridge server
-.\ScriptletCOMBridge.ahk
-
-# Or run the launcher (starts bridge + opens dashboard)
-.\start_dashboard.bat
-
-# Or run the native GUI launcher
-.\scriptlet_launcher_v2.ahk
+git clone https://github.com/sandraschi/autohotkey-test
+cd autohotkey-test
+just
 ```
 
-The web interface is at **`http://127.0.0.1:10744/`** (fleet port 10744). Use `/dashboard` for the dashboard. The launcher may not report "Bridge is live" before opening; the webapp works regardless.
+This opens an interactive dashboard showing all available commands. Run `just bootstrap` to install dependencies, then `just serve` or `just dev` to start.
 
-### Available Scriptlets
+### Manual Setup
 
-Navigate through 74+ scriptlets (⚠️ **Note**: Repository health improved to **FAIR** - Latest bugbash results: 29 succeeded, 0 crashed, 45 timed out):
-- **Games**: Snake, Tetris, Sudoku, Chess (with Stockfish), Pong, Pac-Man, Q*bert, Frogger
-- **Development**: Git Assistant, Code Formatter, AI Code Assistant
-- **Productivity**: Clipboard Manager, Window Snapping, Volume Control
-- **MCP Integration**: Ollama Chatbot, MCP Config Manager, MCP Server Scaffolding Tool, MCP Development Tools
-- **System**: System Monitor, Security Guide, Help System
+If you don't have `just` installed:
+# Fleet-standard start (kills port zombie, starts bridge, opens dashboard)
+.\start.bat
+# Or directly:
+.\start_dashboard.ps1
+Dashboard opens at **`http://127.0.0.1:10744/dashboard`**.
 
-### Key Files
+## What's Here
 
-- `ScriptletCOMBridge.ahk` - HTTP bridge server for web dashboard
-- `launcher_enhanced.html` - Modern web-based scriptlet launcher  
-- `scriptlet_launcher_v2.ahk` - Native GUI launcher
-- `RunScriptlet.bat` - Execute individual scriptlets
-- `scriptlets/` - 75+ scriptlets organized by category
+| Path | Description |
+|------|-------------|
+| `ScriptletCOMBridge.ahk` | HTTP server on **10744** — `/scriptlets`, `/run/:name`, `/stop/:name`, `/dashboard` |
+| `scriptlets/` | 75+ AHK v2 scripts by category |
+| `scriptlets/ai_generated/` | Sandbox for MCP-generated scripts — review before promoting |
+| `scriptlet_launcher_v2.ahk` | Native GUI launcher |
+| `utils/linter.ahk` | Static analyzer for AHK v2 |
+| `utils/batch_debugger.ps1` | Batch syntax checker |
+| `docs/` | Syntax reference, migration guides, bugbash reports |
+| `stockfish.exe` | Chess engine (for `chess_stockfish.ahk`) |
 
-### Development Tools
+## Scriptlet Categories
 
-- `utils/linter.ahk` - AutoHotkey v2 static analyzer
-- `utils/batch_debugger.ps1` - Batch syntax checking
-- `utils/compatibility_scanner.ahk` - v1→v2 migration scanner
+- **games** — Snake, Tetris, Sudoku, Chess (Stockfish), Pong, Pac-Man, Frogger, Q*bert
+- **productivity** — Clipboard manager, window snapping, volume, quick notes
+- **system** — System monitor, security guide, window helpers
+- **development** — Git assistant, code formatter, MCP scaffolding, AHK linter
+- **fun** — Pranks, sounds, corporate comedy
+- **hotkeys** — Remaps and shortcut layers
+- **ai_generated** — Scripts generated via `autohotkey-mcp generate_scriptlet`
 
-### IDE Support
+## Health
 
-**AutoHotkey++ Cursor Extension** - Enhanced AutoHotkey v2 support for Cursor IDE:
-- Full IntelliSense and autocomplete for AutoHotkey v2
-- Real-time syntax checking and error detection
-- Code formatting and refactoring tools
-- Integrated debugging support
-- Syntax highlighting optimized for v2
+Latest bugbash: **29/74 pass, 45 timeout** (~39% success rate).
 
-Install the AutoHotkey++ extension from the Cursor extensions marketplace for the best development experience.
+- Core productivity, hotkey, and clipboard scripts are reliable.
+- Games and complex GUI scripts timeout under headless test conditions — they work fine when run normally.
+- `ai_generated/` scripts are unsanitized and should be reviewed before use.
 
-### MCP Server Scaffolding
+See [docs/BUGBASH_RESULTS.md](docs/BUGBASH_RESULTS.md) for the full report.
 
-The **MCP Server Scaffolding Tool** (`scriptlets/mcp_server_scaffolding.ahk`) generates complete, production-ready MCP servers:
+## Integration with autohotkey-mcp
 
-**Features:**
-- FastMCP 2.12+ compatibility with stdio transport
-- Standard tools included: `help()`, `status()`, `ping()`
-- Organized project structure with `src/tools/` modules
-- Build scripts in `mcpb/` directory
-- Ready-to-use Claude Desktop integration
+`autohotkey-mcp` reads this depot directly:
 
-**Usage**: Press `Ctrl+Alt+M` or `F9` to launch, or run:
-```powershell
-AutoHotkey.exe '/ErrorStdOut' scriptlets\mcp_server_scaffolding.ahk
+```
+AUTOHOTKEY_SCRIPT_DEPOT=D:\Dev\repos\autohotkey-test
+AUTOHOTKEY_BRIDGE_URL=http://127.0.0.1:10744
 ```
 
-See [docs/MCP_Server_Scaffolding_Guide.md](docs/MCP_Server_Scaffolding_Guide.md) for complete documentation.
+When the bridge is running, `list_scriptlets` / `run_scriptlet` / `stop_scriptlet`
+go through it. When it's not, autohotkey-mcp scans `scriptlets/` directly and
+launches AHK via subprocess.
 
-## 🔒 Security
+## Port
 
-**Warning**: AutoHotkey can access and control all parts of your computer. Only run trusted scripts and review code before execution.
+`10744` — ScriptletCOMBridge HTTP server. Registered in `mcp-central-docs/operations/WEBAPP_PORTS.md`.
 
-See `scriptlets/security_guide_pro.ahk` for complete safety guide.
+## Requirements
 
-## 📚 Documentation
-
-- `docs/AutoHotkey_v2_Syntax_Reference.md` - Complete v2 syntax guide
-- `docs/AutoHotkey_Debugging_Guide.md` - Debugging techniques
-- `docs/AutoHotkey_v2_Modulo_Migration_Guide.md` - Migration from v1 to v2
-- `docs/REPOSITORY_HEALTH_IMPROVEMENT_PLAN.md` ⭐ - Action plan to fix failing scriptlets and improve health
-
-## 🎮 Games
-
-All games are functional implementations:
-- **Chess** (`chess_stockfish.ahk`) - Full chess game with Stockfish engine
-- **Snake** (`mini_games_collection.ahk`) - Classic snake game
-- **Sudoku** (`sudoku.ahk`) - Working Sudoku puzzle
-- **Tetris**, **Pong**, **Pac-Man**, **Q*bert**, **Frogger** - Available via launcher
-
-## ⚙️ Requirements
-
-- AutoHotkey v2.0+
-- PowerShell 5.0+
+- AutoHotkey v2.0+ — [autohotkey.com](https://www.autohotkey.com/)
 - Windows 10/11
+- PowerShell 5+
 
-## 📝 Project Structure
+## Security
 
-```
-autohotkey-test/
-├── ScriptletCOMBridge.ahk    # HTTP bridge server
-├── launcher_enhanced.html     # Web dashboard
-├── scriptlets/                # 84 scriptlets
-├── utils/                     # Development tools
-├── docs/                      # Documentation
-├── junk/                      # Archive/temp files
-└── stockfish.exe             # Chess engine
-```
+AHK scripts have full desktop access. Only run trusted scripts. Review `ai_generated/` output before executing.
 
-## 🔧 Scriptlet Categories
+## License
 
-- **Games**: Mini games collection, classic arcade games (Snake, Tetris, Sudoku, Chess, Pong, Pac-Man, Q*bert, Frogger)
-- **Productivity**: Clipboard, window management, automation tools
-- **Development**: Git, code formatting, MCP tools
-- **System**: Monitoring, security, helpers
-- **Utilities**: Various utility scripts
-
-**Note**: See [docs/BUGBASH_RESULTS.md](docs/BUGBASH_RESULTS.md) for latest bugbash comparison and [docs/Repository_Status_Report.md](docs/Repository_Status_Report.md) for detailed analysis.
-
-## 📜 License
-
-Licensed under MIT License - see LICENSE file for details.
-
-## 👤 Author
-
-Sandra - AutoHotkey v2 enthusiast and developer
-
----
-
-**Status**: 75+ scriptlets | AutoHotkey v2 compatible | Web dashboard available  
-**Repository Health**: ⚠️ **POOR** - See [Repository Status Report](docs/Repository_Status_Report.md) for details
-
+MIT
