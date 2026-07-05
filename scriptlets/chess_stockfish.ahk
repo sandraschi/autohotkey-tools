@@ -72,7 +72,7 @@ class ChessApp {
         }
         gui := Gui("+Resize +MinSize560x560", "Chess Board")
         gui.BackColor := "1b1b1b"
-        gui.SetFont("s10", "Segoe UI")
+        gui.SetFont("s10 c4488FF", "Segoe UI")
 
         gui.AddText("x20 y16 w520 Center cFFFFFF", "Chess Board Viewer – click a square to inspect the piece.")
 

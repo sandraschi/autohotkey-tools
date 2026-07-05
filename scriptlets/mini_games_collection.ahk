@@ -47,7 +47,7 @@ class MiniArcade {
         }
         newGui := Gui("+Resize +MinSize360x280", "Mini Games Collection")
         newGui.BackColor := "1e1e1e"
-        newGui.SetFont("s10", "Segoe UI")
+        newGui.SetFont("s10 c4488FF", "Segoe UI")
 
         newGui.AddText("x20 y16 w320 Center cFFFFFF", "Mini Games Collection – quick break fun")
 
@@ -99,7 +99,7 @@ class MiniArcade {
     static StartReactionTimer() {
         dlg := Gui("+Owner" . MiniArcade.gui.Hwnd, "Reaction Timer")
         dlg.BackColor := "202020"
-        dlg.SetFont("s11", "Segoe UI")
+        dlg.SetFont("s11 c4488FF", "Segoe UI")
         dlg.AddText("w280 h24 cFFFFFF", "Click 'Start' then stop as soon as color changes.")
         indicator := dlg.AddText("x20 y40 w280 h80 Center BackgroundFF4444 cFFFFFF", "Waiting ...")
         resultCtrl := dlg.AddText("x20 y130 w280 h24 cFFFFFF", "")
@@ -140,12 +140,12 @@ class MiniArcade {
     static StartGuessGame() {
         dlg := Gui("+Owner" . MiniArcade.gui.Hwnd, "Number Guess")
         dlg.BackColor := "202020"
-        dlg.SetFont("s11", "Segoe UI")
+        dlg.SetFont("s11 c4488FF", "Segoe UI")
         dlg.AddText("x20 y16 w260 h24 cFFFFFF", "Pick a number between 1 and 20")
         slider := dlg.AddSlider("x20 y48 w260 Range1-20 TickInterval1", 10)
         valueText := dlg.AddText("x20 y80 w260 h24 Center cFFFFFF", "Current guess: 10")
         slider.OnEvent("Change", MiniArcade.UpdateGuessDisplay.Bind(MiniArcade, slider, valueText))
-        Random(&target, 1, 20)
+        target := Random(1, 20)
         MiniArcade.guessTarget := target
         checkBtn := dlg.AddButton("x60 y120 w80 h30", "Check")
         resetBtn := dlg.AddButton("x160 y120 w80 h30", "New #")
@@ -175,7 +175,7 @@ class MiniArcade {
     }
 
     static ResetGuess(resultCtrl, *) {
-        Random(&target, 1, 20)
+        target := Random(1, 20)
         MiniArcade.guessTarget := target
         resultCtrl.Text := "New number chosen."
         MiniArcade.UpdateStatus("Guess number reset.")

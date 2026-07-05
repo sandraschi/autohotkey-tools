@@ -7,6 +7,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **Bridge /run endpoint**: Replaced synchronous `& batfile` with `Start-Process` directly in PS server. Resolved timeout when launching games via HTTP.
+- **Bridge /stop endpoint**: Replaced broken WMI/Get-Process logic with `Get-CimInstance` + command-line matching. Stop now works reliably.
+- **All games with dark backgrounds**: Added explicit text colors (`cLime`, `cWhite`, `c4488FF`) to board controls and `SetFont` calls. Previously defaulted to system text color (black on dark mode), making text invisible.
+- **Hotkey scoping**: Pong, Tetris, Frogger changed from global hotkeys with window guards to `HotIf`-scoped hotkeys. Keys (W/S, arrows, etc.) no longer consumed by AHK when the game window isn't focused.
+- **Word Games tab background**: Tab3 → Tab2 so page area respects dark GUI BackColor. Per-control SetFont calls now include explicit colors.
+- **Wordle grid arrows**: Removed `+0x200` style from Edit controls (caused up/down arrow artifacts). Switched to Text controls for cells.
+- **Wordle help**: Added yellow "?" button with MsgBox explaining rules (green/yellow/gray color meaning).
+
+### Added
+- **GDI+ Pong rewrite**: Classic Pong now uses GDI+ vector graphics (rounded green paddles, white ball, dotted center line, dark background, 60fps).
+- **Wordle cheat buttons**: Yellow "C" button suggests a valid word based on all previous guesses. Green "S" button auto-solves the entire puzzle.
+- **Wordle physical keyboard input**: A-Z, Backspace, Enter hotkeys work on the Wordle tab. On-screen keyboard removed.
+- **Hangman physical keyboard input**: A-Z hotkeys work on the Hangman tab.
+- **Wordle guess tracking**: Each submit result is stored for cheat solver analysis.
+- **GDI+ helper library** (`scriptlets/lib/GdipHelper.ahk`): Minimal GDI+ wrapper for AHK v2 (shapes, brushes, pens, bitmap display).
+- **Wordle solver**: Filters WORDS list by green/yellow/gray constraints. Tracks exact positions, present/absent letters, and wrong positions.
+- **iPad Scroll Widget** (`ipad_scroll_widget.ahk`): Vertical always-on-top PgUp/Up/Down/PgDn/Top/End buttons for terminal scrolling via RustDesk from iPad. Uses `PostMessage` WM_MOUSEWHEEL — zero focus steal. Play submenu launches 5 games.
+- **Ollama Chatbot v3** (`ollama_chatbot_v3.ahk`): Native AHK chat client with 4 personalities, model ComboBox, session persistence, dark GUI. ComObject backend.
+- **AHK Launcher** (`ahk_launcher.ahk`): Ctrl+Alt+A, searchable script list with favorites, Run button. Scans depot for `@category` and `@description` headers.
+- **Word Games** (`word_games.ahk`): Ctrl+Alt+G, tabbed Wordle/Anagrams/Hangman with on-screen keyboards.
+- **`justfile`**: 6 recipes — `lint-ahk`, `lint-fix`, `lint-one`, `kill-ahk`, `dash`, `start`.
+- **`autohotkey_v2_standard.md`**: Fleet standard for AHK v2 syntax and conventions.
+
+### Changed
+- **ScriptletErrorHandler.ahk**: Self-registers `OnError` internally — no more invisible error popups on runtime crashes.
+- **Linter** (`utils/linter_headless.ahk`): 33+ checks, added `--fix` mode with `.bak` backup. New checks: `Gui`/`File`/`MenuBar` variable shadowing, `for i from...to...by` v1 syntax.
+- **All 77 scripts**: Bulk v1→v2 migration — `Random(&var)` → `var := Random()`, `Loop Files,` → `Loop Files`, `FormatTime outputVar` → `outputVar := FormatTime()`, `StringRepeat` → `StrRepeat`, missing `#Requires`/`#Include` headers added, `Menu.Add` arrays → proper submenu objects, `ParseJSON` stub added where needed.
+- **README.md**: Updated with widget docs, justfile recipes, and linter status.
+
 ### Changed
 - **Scriptlet bridge port**: 8765 → **10744** (fleet port scheme, see robofang `docs/standards/WEBAPP_PORTS.md`). Bridge binds to `127.0.0.1:10744` only; zombie kill before bind, no port crawling.
 - **Launcher**: `start_dashboard.bat` / `start_dashboard.ps1` start the bridge and open the dashboard. **Known issue:** bridge detection in the launcher may not report "Bridge is live" before opening the browser; the webapp works nonetheless—open `http://127.0.0.1:10744/dashboard` or use the script to open it.

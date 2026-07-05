@@ -22,7 +22,7 @@ class PacmanLauncher {
     static CreateGui() {
         newGui := Gui("+Resize +MinSize260x180", "Pac-Man Game Selector")
         newGui.BackColor := "111122"
-        newGui.SetFont("s10", "Segoe UI")
+        newGui.SetFont("s10 c4488FF", "Segoe UI")
 
         newGui.AddText("x20 y20 w220 Center cFFFF54", "Pac-Man Game Launcher")
         newGui.AddText("x20 y56 w220 h40 cFFFFFF", "Launch the lightweight Pac-Man demo built into this repository.")

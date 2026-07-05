@@ -5,7 +5,7 @@
 OnError(LogError)
 
 class SudokuApp {
-    static gui := ""
+    static sg := ""
     static statusCtrl := ""
     static cellData := []
     static puzzleState := []
@@ -52,14 +52,14 @@ class SudokuApp {
     }
 
     static CreateGui() {
-        if (SudokuApp.gui) {
-            SudokuApp.gui.Destroy()
+        if (SudokuApp.sg) {
+            SudokuApp.sg.Destroy()
         }
-        gui := Gui("+Resize +MinSize460x540", "Sudoku")
-        gui.BackColor := "1f1f1f"
-        gui.SetFont("s10", "Segoe UI")
+        sg := Gui("+Resize +MinSize460x540", "Sudoku")
+        sg.BackColor := "1f1f1f"
+        sg.SetFont("s10 c4488FF", "Segoe UI")
 
-        gui.AddText("x20 y16 w420 Center cFFFFFF", "Sudoku – fill the grid so each row, column, and 3×3 box contains 1‑9.")
+        sg.Add("Text", "x20 y16 w420 Center cFFFFFF", "Sudoku – fill the grid so each row, column, and 3×3 box contains 1‑9.")
 
         SudokuApp.cellData := []
         cellSize := 42
@@ -75,7 +75,7 @@ class SudokuApp {
                 y := baseY + (rowIndex - 1) * cellSize
                 boxShade := Mod(Floor((rowIndex - 1) / 3) + Floor((colIndex - 1) / 3), 2)
                 backColor := boxShade ? "0xF2F2F2" : "0xFFFFFF"
-                ctrl := gui.AddEdit(Format("x{} y{} w{} h{} Limit1 Center +0x200 Background{}", x, y, cellSize - 2, cellSize - 2, backColor), "")
+                ctrl := sg.Add("Edit", Format("x{} y{} w{} h{} Limit1 Center +0x200 Background{}", x, y, cellSize - 2, cellSize - 2, backColor), "")
                 ctrl.SetFont("s16", "Segoe UI")
                 ctrl.OnEvent("Change", SudokuApp.OnCellChange.Bind(SudokuApp, rowIndex, colIndex))
                 ctrl.OnEvent("Focus", SudokuApp.OnCellFocus.Bind(SudokuApp, rowIndex, colIndex))
@@ -84,22 +84,21 @@ class SudokuApp {
             SudokuApp.cellData.Push(rowSet)
         }
 
-        btnCheck := gui.AddButton("x40 y440 w120 h32", "Check Puzzle")
+        btnCheck := sg.Add("Button", "x40 y440 w120 h32", "Check Puzzle")
         btnCheck.OnEvent("Click", (*) => SudokuApp.CheckPuzzle())
-        btnReset := gui.AddButton("x180 y440 w120 h32", "Reset")
+        btnReset := sg.Add("Button", "x180 y440 w120 h32", "Reset")
         btnReset.OnEvent("Click", (*) => SudokuApp.ResetBoard())
-        btnClose := gui.AddButton("x320 y440 w120 h32", "Close")
+        btnClose := sg.Add("Button", "x320 y440 w120 h32", "Close")
         btnClose.OnEvent("Click", (*) => SudokuApp.HideGui())
 
-        SudokuApp.statusCtrl := gui.AddText("x20 y488 w420 h24 cFFFFFF", "")
+        SudokuApp.statusCtrl := sg.Add("Text", "x20 y488 w420 h24 cFFFFFF", "")
 
-        gui.OnEvent("Close", SudokuApp.HideGui)
-        gui.OnEvent("Escape", SudokuApp.HideGui)
-        gui.OnEvent("Size", SudokuApp.OnResize)
+        sg.OnEvent("Close", SudokuApp.HideGui)
+        sg.OnEvent("Escape", SudokuApp.HideGui)
 
-        SudokuApp.gui := gui
+        SudokuApp.sg := sg
         SudokuApp.ResetBoard()
-        gui.Show("w460 h520")
+        sg.Show("w460 h520")
     }
 
     static SetupHotkeys() {
@@ -118,10 +117,10 @@ class SudokuApp {
     }
     
     static IsSudokuWindowActive() {
-        if (!SudokuApp.gui || !SudokuApp.gui.Hwnd) {
+        if (!SudokuApp.sg || !SudokuApp.sg.Hwnd) {
             return false
         }
-        return WinActive("ahk_id " . SudokuApp.gui.Hwnd)
+        return WinActive("ahk_id " . SudokuApp.sg.Hwnd)
     }
     
     static ResetBoardIfActive() {
@@ -137,9 +136,9 @@ class SudokuApp {
     }
     
     static ShowGui(*) {
-        if (SudokuApp.gui) {
-            SudokuApp.gui.Show()
-            WinActivate(SudokuApp.gui.Hwnd)
+        if (SudokuApp.sg) {
+            SudokuApp.sg.Show()
+            WinActivate(SudokuApp.sg.Hwnd)
         } else {
             SudokuApp.Init()
         }
@@ -243,7 +242,7 @@ class SudokuApp {
         }
     }
 
-    static OnResize(gui, minMax, newW, newH) {
+    static OnResize(sg, minMax, newW, newH) {
         if (!SudokuApp.cellData.Length) {
             return
         }
@@ -267,8 +266,8 @@ class SudokuApp {
     }
 
     static HideGui(*) {
-        if (SudokuApp.gui) {
-            SudokuApp.gui.Hide()
+        if (SudokuApp.sg) {
+            SudokuApp.sg.Hide()
             SudokuApp.UpdateStatus("GUI hidden. Press Ctrl+Alt+S to reopen.")
         }
     }
@@ -277,3 +276,4 @@ class SudokuApp {
 SudokuApp.Init()
 
 OnExit((*) => SudokuApp.UpdateStatus(""))
+

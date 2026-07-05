@@ -66,7 +66,7 @@ class PacmanApp {
 
         newGui.AddText("x20 y16 w260 Center cFFFF54", "Pac-Man – eat dots, avoid ghosts!")
         PacmanApp.boardCtrl := newGui.AddText("x20 y48 w200 h200 Background000000 Border", "")
-        PacmanApp.boardCtrl.SetFont("s11", "Consolas")
+        PacmanApp.boardCtrl.SetFont("s11 cYellow", "Consolas")
 
         PacmanApp.scoreCtrl := newGui.AddText("x240 y60 w80 h24 cFFFFFF", "Score: 0")
         btnStart := newGui.AddButton("x240 y100 w80 h30", "Start")
@@ -221,7 +221,7 @@ class PacmanApp {
             }
         }
         if (choices.Length) {
-            Random(&idx, 1, choices.Length)
+            idx := Random(1, choices.Length)
             PacmanApp.ghost := choices[idx]
         }
     }

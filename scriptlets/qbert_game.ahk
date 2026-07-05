@@ -44,7 +44,7 @@ class QBertApp {
 
         newGui.AddText("x20 y16 w220 Center cFFFFFF", "Q*bert – change all tiles twice")
         QBertApp.boardCtrl := newGui.AddText("x20 y48 w200 h160 Background000000 Border", "")
-        QBertApp.boardCtrl.SetFont("s11", "Consolas")
+        QBertApp.boardCtrl.SetFont("s11 cLime", "Consolas")
 
         QBertApp.levelCtrl := newGui.AddText("x20 y220 w200 h24 cFFFFFF Center", "Target color level: 2")
         resetBtn := newGui.AddButton("x20 y250 w90 h28", "Reset")

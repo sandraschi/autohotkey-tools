@@ -1,238 +1,226 @@
-; ==============================================================================
-; Classic Pong Game
-; @name: Classic Pong Game
-; @version: 1.0.0
-; @description: Classic Pong arcade game recreation with AI opponent and sound effects. The original arcade video game that started the gaming revolution.
-; @description: Features smooth ball physics, adjustable difficulty levels, score tracking, and responsive paddle controls. Includes single-player mode with intelligent AI opponent.
-; @description: Faithful recreation of the iconic 1972 arcade game with modern controls and nostalgic gameplay experience.
-; @category: games
-; @author: Sandra
-; @hotkeys: ^!p, F5
-; @enabled: true
-; @priority: 75
-; @tag: pong, game, arcade, classic, retro, entertainment, nostalgic, sports
-; @cli: --difficulty <easy|medium|hard|expert> - Set AI opponent difficulty level
-; @cli: --sound-off - Disable sound effects
-; @cli: --speed <1-10> - Set ball speed multiplier (default: 5)
-; @cli: --help - Show CLI usage and game options
-; @dependencies: 
-; ==============================================================================
-
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
-#Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
+#Include %A_ScriptDir%\lib\GdipHelper.ahk
+#Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 OnError(LogError)
 
+; ==============================================================================
+; Classic Pong Game — GDI+ rendering
+; ==============================================================================
+
 class PongApp {
-    static gui := ""
+    static g := ""
     static boardCtrl := ""
     static statusCtrl := ""
     static scoreCtrl := ""
-    static timerId := 0
-    static width := 32
-    static height := 14
-    static paddleSize := 3
-    static leftY := 5
-    static rightY := 5
-    static ball := {x: 16, y: 7, dx: 1, dy: -1}
+
+    ; GDI+ resources
+    static pBitmap := 0
+    static pGraphics := 0
+    static brushBg := 0
+    static brushLime := 0
+    static brushWhite := 0
+    static brushDotted := 0
+    static brushGray := 0
+
+    ; Board dimensions (pixels)
+    static bw := 600
+    static bh := 350
+    static paddleW := 8
+    static paddleH := 60
+    static ballR := 7
+    static margin := 20
+
+    ; Game state (pixel coords)
+    static leftY := 0.0
+    static rightY := 0.0
+    static ball := {x: 0.0, y: 0.0, dx: 4.0, dy: 3.5}
     static score := {left: 0, right: 0}
+    static running := false
+    static tickFn := 0
 
     static Init() {
+        GdipHelper.Startup()
+        PongApp.CreateBrushes()
         PongApp.CreateGui()
         PongApp.SetupHotkeys()
         PongApp.ResetMatch()
     }
 
-    static HandleError(Thrown, Mode) {
-        message := "Pong error: " . Thrown.Message . " at line " . Thrown.Line
-        try FileAppend(message . "`n", "classic_pong_errors.log", "UTF-8")
-        OutputDebug(message)
-        return 1
+    static CreateBrushes() {
+        PongApp.brushBg     := GdipHelper.BrushCreateSolid(0xFF111118)
+        PongApp.brushLime   := GdipHelper.BrushCreateSolid(0xFF00DD44)
+        PongApp.brushWhite  := GdipHelper.BrushCreateSolid(0xFFFFFFFF)
+        PongApp.brushGray   := GdipHelper.BrushCreateSolid(0xFF333340)
     }
 
     static CreateGui() {
-        if (PongApp.gui) {
-            PongApp.gui.Destroy()
-        }
-        newGui := Gui("+Resize +MinSize320x280", "Classic Pong")
-        newGui.BackColor := "1e1e1e"
-        newGui.SetFont("s10", "Consolas")
+        if (PongApp.g)
+            PongApp.g.Destroy()
+        PongApp.pBitmap := GdipHelper.CreateBitmap(PongApp.bw, PongApp.bh)
+        PongApp.pGraphics := GdipHelper.GraphicsFromImage(PongApp.pBitmap)
+        GdipHelper.SetSmoothingMode(PongApp.pGraphics, 4)
 
-        newGui.AddText("x20 y16 w260 Center cFFFFFF", "Pong – keep the ball in play!")
-        PongApp.boardCtrl := newGui.AddText("x20 y48 w200 h180 Background000000 Border", "")
-        PongApp.boardCtrl.SetFont("s10", "Consolas")
+        newGui := Gui("+Resize +MinSize660x480", "Classic Pong")
+        newGui.BackColor := "0C0C10"
+        newGui.SetFont("s10 cCCCCCC", "Segoe UI")
 
-        PongApp.scoreCtrl := newGui.AddText("x240 y60 w80 h40 cFFFFFF", "0 : 0")
-        btnStart := newGui.AddButton("x240 y110 w80 h30", "Start")
+        newGui.Add("Text", "x20 y12 w260 Center", "Pong — keep the ball in play!")
+        PongApp.boardCtrl := newGui.Add("Picture", "x20 y44 w600 h350")
+        PongApp.scoreCtrl := newGui.Add("Text", "x640 y60 w100 h40 cFFFFFF Center", "0 : 0")
+
+        btnStart := newGui.Add("Button", "x640 y110 w100 h32", "Start")
         btnStart.OnEvent("Click", (*) => PongApp.StartGame())
-        btnPause := newGui.AddButton("x240 y150 w80 h30", "Pause")
+        btnPause := newGui.Add("Button", "x640 y150 w100 h32", "Pause")
         btnPause.OnEvent("Click", (*) => PongApp.PauseGame())
-        btnReset := newGui.AddButton("x240 y190 w80 h30", "Reset")
+        btnReset := newGui.Add("Button", "x640 y190 w100 h32", "Reset")
         btnReset.OnEvent("Click", (*) => PongApp.ResetMatch())
-        btnClose := newGui.AddButton("x240 y230 w80 h30", "Close")
+        btnClose := newGui.Add("Button", "x640 y230 w100 h32", "Close")
         btnClose.OnEvent("Click", (*) => PongApp.HideGui())
 
-        PongApp.statusCtrl := newGui.AddText("x20 y240 w260 h24 cFFFFFF", "Use W/S or Arrow keys to move your paddle.")
+        PongApp.statusCtrl := newGui.Add("Text", "x20 y400 w620 h24 cAAAAAA", "Use W/S or arrow keys. Space=Start  P=Pause  R=Reset")
 
         newGui.OnEvent("Close", PongApp.HideGui)
         newGui.OnEvent("Escape", PongApp.HideGui)
-        newGui.OnEvent("Size", PongApp.OnResize)
 
-        PongApp.gui := newGui
-        newGui.Show("w320 h280")
+        PongApp.g := newGui
+        newGui.Show("w760 h460")
     }
 
     static SetupHotkeys() {
         static registered := false
-        if (registered) {
+        if (registered)
             return
-        }
-        
-        ; Global hotkey to launch/show the game
         Hotkey("^!p", (*) => PongApp.ShowGui())
-        
-        ; Context-sensitive hotkeys - only work when Pong window is active
-        ; Register with window check function
         PongApp.RegisterGameHotkeys()
-        
         registered := true
     }
-    
+
     static RegisterGameHotkeys() {
-        ; These hotkeys check if the Pong window is active before executing
-        Hotkey("w", (*) => PongApp.MovePaddleIfActive(-1))
-        Hotkey("s", (*) => PongApp.MovePaddleIfActive(1))
-        Hotkey("Up", (*) => PongApp.MovePaddleIfActive(-1))
-        Hotkey("Down", (*) => PongApp.MovePaddleIfActive(1))
-        Hotkey("Space", (*) => PongApp.StartGameIfActive())
-        Hotkey("p", (*) => PongApp.PauseGameIfActive())
-        Hotkey("r", (*) => PongApp.ResetMatchIfActive())
+        ; Use HotIf so keys pass through when Pong isn't focused
+        HotIf((*) => WinActive("ahk_id " . PongApp.g.Hwnd))
+        Hotkey("w",       (*) => PongApp.MovePaddle(-8))
+        Hotkey("s",       (*) => PongApp.MovePaddle(8))
+        Hotkey("Up",      (*) => PongApp.MovePaddle(-8))
+        Hotkey("Down",    (*) => PongApp.MovePaddle(8))
+        Hotkey("Space",   (*) => PongApp.StartGame())
+        Hotkey("p",       (*) => PongApp.PauseGame())
+        Hotkey("r",       (*) => PongApp.ResetMatch())
+        HotIf()
     }
-    
-    static IsPongWindowActive() {
-        if (!PongApp.gui || !PongApp.gui.Hwnd) {
-            return false
-        }
-        return WinActive("ahk_id " . PongApp.gui.Hwnd)
-    }
-    
-    static MovePaddleIfActive(direction) {
-        if (PongApp.IsPongWindowActive()) {
-            PongApp.MovePaddle(direction)
-        }
-    }
-    
-    static StartGameIfActive() {
-        if (PongApp.IsPongWindowActive()) {
-            PongApp.StartGame()
-        }
-    }
-    
-    static PauseGameIfActive() {
-        if (PongApp.IsPongWindowActive()) {
-            PongApp.PauseGame()
-        }
-    }
-    
-    static ResetMatchIfActive() {
-        if (PongApp.IsPongWindowActive()) {
-            PongApp.ResetMatch()
-        }
-    }
-    
+
     static ShowGui(*) {
-        if (PongApp.gui) {
-            PongApp.gui.Show()
-            WinActivate(PongApp.gui.Hwnd)
+        if (PongApp.g) {
+            PongApp.g.Show()
+            WinActivate(PongApp.g.Hwnd)
         } else {
             PongApp.Init()
         }
     }
+
+    ; --- Game Logic ---
 
     static ResetMatch() {
         PongApp.PauseGame()
         PongApp.score := {left: 0, right: 0}
         PongApp.ResetRound()
         PongApp.UpdateScore()
-        PongApp.UpdateStatus("Press Start to serve.")
+        PongApp.UpdateStatus("Press Space or Start to serve.")
     }
 
     static ResetRound() {
-        PongApp.leftY := (PongApp.height - PongApp.paddleSize) // 2
-        PongApp.rightY := PongApp.leftY
-        PongApp.ball := {x: PongApp.width // 2, y: PongApp.height // 2, dx: 1, dy: -1}
-        PongApp.UpdateBoard()
+        ch := PongApp.bh - PongApp.paddleH
+        PongApp.leftY := ch / 2.0
+        PongApp.rightY := ch / 2.0
+        PongApp.ball := {x: PongApp.bw / 2.0, y: PongApp.bh / 2.0, dx: 4.0, dy: (Random(0,1) ? 3.5 : -3.5)}
+        PongApp.Render()
     }
 
-    static StartGame() {
-        if (PongApp.timerId) {
+    static StartGame(*) {
+        if (PongApp.running)
             return
-        }
-        PongApp.timerId := SetTimer(PongApp.Tick.Bind(PongApp), 80)
-        PongApp.UpdateStatus("Game running.")
+        PongApp.running := true
+        PongApp.tickFn := (*) => PongApp.Tick()
+        SetTimer(PongApp.tickFn, 16)  ; ~60 fps
+        PongApp.UpdateStatus("Running — W/S or arrows to move.")
     }
 
-    static PauseGame() {
-        if (PongApp.timerId) {
-            SetTimer(PongApp.timerId, 0)
-            PongApp.timerId := 0
+    static PauseGame(*) {
+        if (PongApp.running) {
+            SetTimer(PongApp.tickFn, 0)
+            PongApp.running := false
+            PongApp.tickFn := 0
             PongApp.UpdateStatus("Paused.")
         }
     }
 
     static HideGui(*) {
         PongApp.PauseGame()
-        if (PongApp.gui) {
-            PongApp.gui.Hide()
-        }
+        if (PongApp.g)
+            PongApp.g.Hide()
     }
 
-    static MovePaddle(direction) {
-        PongApp.leftY := Max(0, Min(PongApp.height - PongApp.paddleSize, PongApp.leftY + direction))
-        PongApp.UpdateBoard()
+    static MovePaddle(dy) {
+        ch := PongApp.bh - PongApp.paddleH
+        PongApp.leftY := Max(0.0, Min(Float(ch), PongApp.leftY + dy))
+        PongApp.Render()
     }
 
     static Tick() {
         PongApp.MoveBall()
         PongApp.AutoMoveOpponent()
-        PongApp.UpdateBoard()
+        PongApp.Render()
     }
 
     static AutoMoveOpponent() {
-        target := PongApp.ball.y - PongApp.paddleSize // 2
-        PongApp.rightY := Max(0, Min(PongApp.height - PongApp.paddleSize, target))
+        target := PongApp.ball.y - PongApp.paddleH / 2.0
+        ch := PongApp.bh - PongApp.paddleH
+        PongApp.rightY += (target - PongApp.rightY) * 0.08
+        PongApp.rightY := Max(0.0, Min(Float(ch), PongApp.rightY))
     }
 
     static MoveBall() {
-        nextX := PongApp.ball.x + PongApp.ball.dx
-        nextY := PongApp.ball.y + PongApp.ball.dy
+        nx := PongApp.ball.x + PongApp.ball.dx
+        ny := PongApp.ball.y + PongApp.ball.dy
 
-        if (nextY < 0 || nextY >= PongApp.height) {
-            PongApp.ball.dy := -PongApp.ball.dy
-            nextY := PongApp.ball.y + PongApp.ball.dy
+        ; Wall bounce (top/bottom)
+        if (ny - PongApp.ballR < 0) {
+            PongApp.ball.dy := Abs(PongApp.ball.dy)
+            ny := PongApp.ballR
+        } else if (ny + PongApp.ballR > PongApp.bh) {
+            PongApp.ball.dy := -Abs(PongApp.ball.dy)
+            ny := PongApp.bh - PongApp.ballR
         }
 
-        if (nextX = 0) {
-            if (PongApp.ball.y >= PongApp.leftY && PongApp.ball.y < PongApp.leftY + PongApp.paddleSize) {
-                PongApp.ball.dx := 1
-                nextX := PongApp.ball.x + PongApp.ball.dx
-            }
-        } else if (nextX = PongApp.width - 1) {
-            if (PongApp.ball.y >= PongApp.rightY && PongApp.ball.y < PongApp.rightY + PongApp.paddleSize) {
-                PongApp.ball.dx := -1
-                nextX := PongApp.ball.x + PongApp.ball.dx
+        ; Left paddle collision
+        px := PongApp.margin
+        if (nx - PongApp.ballR <= px + PongApp.paddleW && PongApp.ball.dx < 0) {
+            if (ny >= PongApp.leftY && ny <= PongApp.leftY + PongApp.paddleH) {
+                PongApp.ball.dx := Abs(PongApp.ball.dx) * 1.02
+                nx := px + PongApp.paddleW + PongApp.ballR
+                PongApp.ball.dy += (ny - (PongApp.leftY + PongApp.paddleH/2)) * 0.15
             }
         }
 
-        PongApp.ball.x := nextX
-        PongApp.ball.y := nextY
+        ; Right paddle collision
+        px := PongApp.bw - PongApp.margin - PongApp.paddleW
+        if (nx + PongApp.ballR >= px && PongApp.ball.dx > 0) {
+            if (ny >= PongApp.rightY && ny <= PongApp.rightY + PongApp.paddleH) {
+                PongApp.ball.dx := -Abs(PongApp.ball.dx) * 1.02
+                nx := px - PongApp.ballR
+                PongApp.ball.dy += (ny - (PongApp.rightY + PongApp.paddleH/2)) * 0.15
+            }
+        }
 
-        if (PongApp.ball.x < 0) {
+        PongApp.ball.x := nx
+        PongApp.ball.y := ny
+
+        ; Score
+        if (PongApp.ball.x + PongApp.ballR < 0)
             PongApp.ScorePoint("right")
-        } else if (PongApp.ball.x >= PongApp.width) {
+        else if (PongApp.ball.x - PongApp.ballR > PongApp.bw)
             PongApp.ScorePoint("left")
-        }
     }
 
     static ScorePoint(side) {
@@ -242,54 +230,57 @@ class PongApp {
         PongApp.UpdateStatus(side = "left" ? "You scored!" : "AI scored.")
     }
 
+    ; --- GDI+ Rendering ---
+
+    static Render() {
+        g := PongApp.pGraphics
+
+        ; Clear background
+        GdipHelper.Clear(g, 0xFF0A0A12)
+
+        ; Center line (dotted)
+        cx := PongApp.bw / 2.0
+        loop 18 {
+            y := (A_Index - 1) * 20.0 + 3
+            GdipHelper.FillRectangle(g, PongApp.brushGray, cx - 1, y, 2, 14)
+        }
+
+        ; Left paddle (rounded via two halves)
+        px := PongApp.margin
+        py := PongApp.leftY
+        pw := PongApp.paddleW
+        ph := PongApp.paddleH
+        GdipHelper.FillRectangle(g, PongApp.brushLime, px, py + 4, pw, ph - 8)
+        r := pw / 2.0
+        GdipHelper.FillEllipse(g, PongApp.brushLime, px, py, pw, 2*r)
+        GdipHelper.FillEllipse(g, PongApp.brushLime, px, py + ph - 2*r, pw, 2*r)
+
+        ; Right paddle
+        px := PongApp.bw - PongApp.margin - pw
+        py := PongApp.rightY
+        GdipHelper.FillRectangle(g, PongApp.brushLime, px, py + 4, pw, ph - 8)
+        GdipHelper.FillEllipse(g, PongApp.brushLime, px, py, pw, 2*r)
+        GdipHelper.FillEllipse(g, PongApp.brushLime, px, py + ph - 2*r, pw, 2*r)
+
+        ; Ball
+        bx := PongApp.ball.x - PongApp.ballR
+        by := PongApp.ball.y - PongApp.ballR
+        bd := PongApp.ballR * 2
+        GdipHelper.FillEllipse(g, PongApp.brushWhite, bx, by, bd, bd)
+
+        ; Push to GUI
+        GdipHelper.UpdatePicture(PongApp.boardCtrl, PongApp.pBitmap, PongApp.bw, PongApp.bh)
+    }
+
     static UpdateScore() {
-        if (PongApp.scoreCtrl) {
+        if (PongApp.scoreCtrl)
             PongApp.scoreCtrl.Text := Format("{} : {}", PongApp.score.left, PongApp.score.right)
-        }
     }
 
-    static UpdateBoard() {
-        rows := []
-        Loop PongApp.height {
-            rowIndex := A_Index - 1
-            row := ""
-            Loop PongApp.width {
-                colIndex := A_Index - 1
-                if (PongApp.ball.x = colIndex && PongApp.ball.y = rowIndex) {
-                    row .= "●"
-                } else if (colIndex = 0 && rowIndex >= PongApp.leftY && rowIndex < PongApp.leftY + PongApp.paddleSize) {
-                    row .= "█"
-                } else if (colIndex = PongApp.width - 1 && rowIndex >= PongApp.rightY && rowIndex < PongApp.rightY + PongApp.paddleSize) {
-                    row .= "█"
-                } else {
-                    row .= "·"
-                }
-            }
-            rows.Push(row)
-        }
-        PongApp.boardCtrl.Text := rows.Join("`n")
-    }
-
-    static UpdateStatus(message) {
-        if (PongApp.statusCtrl) {
-            PongApp.statusCtrl.Text := message
-        }
-    }
-
-    static OnResize(gui, minMax, width, height) {
-        if (!PongApp.boardCtrl) {
-            return
-        }
-        newHeight := height - 120
-        PongApp.boardCtrl.Move(20, 48, Min(200, width - 120), newHeight)
-        if (PongApp.statusCtrl) {
-            PongApp.statusCtrl.Move(20, height - 40, width - 40, 24)
-        }
+    static UpdateStatus(msg) {
+        if (PongApp.statusCtrl)
+            PongApp.statusCtrl.Text := msg
     }
 }
 
 PongApp.Init()
-
-OnExit((*) => PongApp.UpdateStatus(""))
-
-

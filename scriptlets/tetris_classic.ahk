@@ -1,3 +1,16 @@
+#Requires AutoHotkey v2.0+
+#SingleInstance Force
+
+; === Guard: catch runtime errors (BEFORE any class/function) ===
+_CatchBootError(Thrown, Mode) {
+    try FileAppend("[" A_Now "] GUARD: " (Thrown && HasProp(Thrown, "Message") ? Thrown.Message : "?") "`n", A_ScriptDir "\crash.log")
+    return 1
+}
+
+
+#Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
+OnError(LogError)
+
 ; ==============================================================================
 ; Tetris Classic
 ; @name: Tetris Classic
@@ -24,7 +37,7 @@
 OnError(LogError)
 
 class TetrisApp {
-    static gui := ""
+    static g := ""
     static boardCtrl := ""
     static nextCtrl := ""
     static scoreCtrl := ""
@@ -36,6 +49,7 @@ class TetrisApp {
     static score := 0
     static level := 1
     static dropInterval := 600
+    static tickFn := 0
 
     static pieceSet := [
         {name: "I", color: "█", shape: [[1,1,1,1]]},
@@ -73,66 +87,63 @@ class TetrisApp {
     }
 
     static CreateGui() {
-        if (TetrisApp.gui) {
-            TetrisApp.gui.Destroy()
+        if (TetrisApp.g) {
+            TetrisApp.g.Destroy()
         }
         newGui := Gui("+Resize +MinSize380x520", "Tetris Classic")
         newGui.BackColor := "1f1f1f"
         newGui.SetFont("s10", "Segoe UI")
 
-        newGui.AddText("x20 y16 w340 Center cFFFFFF", "Tetris – simple falling block demo")
-        TetrisApp.boardCtrl := newGui.AddText("x20 y48 w200 h400 Background000000 Border", "")
-        TetrisApp.boardCtrl.SetFont("s10", "Consolas")
+        newGui.Add("Text", "x20 y16 w340 Center cFFFFFF", "Tetris – simple falling block demo")
+        TetrisApp.boardCtrl := newGui.Add("Text", "x20 y48 w200 h400 Background000000 Border", "")
+        TetrisApp.boardCtrl.SetFont("s10 cLime", "Consolas")
 
-        newGui.AddText("x240 y60 w120 Center cFFFFFF", "Next")
-        TetrisApp.nextCtrl := newGui.AddText("x240 y88 w120 h80 Background000000 Border", "")
-        TetrisApp.nextCtrl.SetFont("s12", "Consolas")
+        newGui.Add("Text", "x240 y60 w120 Center cFFFFFF", "Next")
+        TetrisApp.nextCtrl := newGui.Add("Text", "x240 y88 w120 h80 Background000000 Border", "")
+        TetrisApp.nextCtrl.SetFont("s12 cLime", "Consolas")
 
-        TetrisApp.scoreCtrl := newGui.AddText("x240 y180 w120 h60 cFFFFFF Center", "Score: 0`nLevel: 1")
-        TetrisApp.statusCtrl := newGui.AddText("x20 y460 w340 h24 cFFFFFF", "")
+        TetrisApp.scoreCtrl := newGui.Add("Text", "x240 y180 w120 h60 cFFFFFF Center", "Score: 0`nLevel: 1")
+        TetrisApp.statusCtrl := newGui.Add("Text", "x20 y460 w340 h24 cFFFFFF", "")
 
-        btnStart := newGui.AddButton("x240 y260 w120 h32", "Start")
+        btnStart := newGui.Add("Button", "x240 y260 w120 h32", "Start")
         btnStart.OnEvent("Click", (*) => TetrisApp.StartGame())
-        btnPause := newGui.AddButton("x240 y300 w120 h32", "Pause")
+        btnPause := newGui.Add("Button", "x240 y300 w120 h32", "Pause")
         btnPause.OnEvent("Click", (*) => TetrisApp.PauseGame())
-        btnReset := newGui.AddButton("x240 y340 w120 h32", "Reset")
+        btnReset := newGui.Add("Button", "x240 y340 w120 h32", "Reset")
         btnReset.OnEvent("Click", (*) => TetrisApp.ResetGame())
-        btnClose := newGui.AddButton("x240 y380 w120 h32", "Close")
+        btnClose := newGui.Add("Button", "x240 y380 w120 h32", "Close")
         btnClose.OnEvent("Click", (*) => TetrisApp.HideGui())
 
         newGui.OnEvent("Close", TetrisApp.HideGui)
         newGui.OnEvent("Escape", TetrisApp.HideGui)
-        newGui.OnEvent("Size", TetrisApp.OnResize)
+        
 
-        TetrisApp.gui := newGui
+        TetrisApp.g := newGui
         newGui.Show("w380 h520")
     }
 
     static SetupHotkeys() {
         static registered := false
-        if (registered) {
+        if (registered)
             return
-        }
-        ; Global hotkey to launch/show the game
         Hotkey("^!t", (*) => TetrisApp.ShowGui())
-        
-        ; Context-sensitive hotkeys - only work when Tetris window is active
-        Hotkey("Left", (*) => TetrisApp.MovePieceIfActive(-1, 0))
-        Hotkey("Right", (*) => TetrisApp.MovePieceIfActive(1, 0))
-        Hotkey("Down", (*) => TetrisApp.SoftDropIfActive())
-        Hotkey("Up", (*) => TetrisApp.RotatePieceIfActive())
-        Hotkey("Space", (*) => TetrisApp.StartGameIfActive())
-        Hotkey("p", (*) => TetrisApp.PauseGameIfActive())
-        Hotkey("r", (*) => TetrisApp.ResetGameIfActive())
-        Hotkey("Escape", (*) => TetrisApp.HideGui())
+        HotIf((*) => WinActive("ahk_id " . TetrisApp.g.Hwnd))
+        Hotkey("Left",  (*) => TetrisApp.MovePiece(-1, 0))
+        Hotkey("Right", (*) => TetrisApp.MovePiece(1, 0))
+        Hotkey("Down",  (*) => TetrisApp.SoftDrop())
+        Hotkey("Up",    (*) => TetrisApp.RotatePiece())
+        Hotkey("Space", (*) => TetrisApp.StartGame())
+        Hotkey("p",     (*) => TetrisApp.PauseGame())
+        Hotkey("r",     (*) => TetrisApp.ResetGame())
+        HotIf()
         registered := true
     }
     
     static IsTetrisWindowActive() {
-        if (!TetrisApp.gui || !TetrisApp.gui.Hwnd) {
+        if (!TetrisApp.g || !TetrisApp.g.Hwnd) {
             return false
         }
-        return WinActive("ahk_id " . TetrisApp.gui.Hwnd)
+        return WinActive("ahk_id " . TetrisApp.g.Hwnd)
     }
     
     static MovePieceIfActive(dx, dy) {
@@ -153,19 +164,19 @@ class TetrisApp {
         }
     }
     
-    static StartGameIfActive() {
+    static StartGameIfActive(*) {
         if (TetrisApp.IsTetrisWindowActive()) {
             TetrisApp.StartGame()
         }
     }
     
-    static PauseGameIfActive() {
+    static PauseGameIfActive(*) {
         if (TetrisApp.IsTetrisWindowActive()) {
             TetrisApp.PauseGame()
         }
     }
     
-    static ResetGameIfActive() {
+    static ResetGameIfActive(*) {
         if (TetrisApp.IsTetrisWindowActive()) {
             TetrisApp.ResetBoard()
             TetrisApp.UpdateBoardView()
@@ -176,34 +187,39 @@ class TetrisApp {
     }
     
     static ShowGui(*) {
-        if (TetrisApp.gui) {
-            TetrisApp.gui.Show()
-            WinActivate(TetrisApp.gui.Hwnd)
+        if (TetrisApp.g) {
+            TetrisApp.g.Show()
+            WinActivate(TetrisApp.g.Hwnd)
         } else {
             TetrisApp.Init()
         }
     }
 
-    static StartGame() {
-        if (TetrisApp.timerId) {
+    static running := false
+
+    static StartGame(*) {
+        if (TetrisApp.running) {
             return
         }
         if (!TetrisApp.currentPiece) {
             TetrisApp.SpawnPiece()
         }
+        TetrisApp.running := true
+        TetrisApp.tickFn := (*) => TetrisApp.Tick()
+        SetTimer(TetrisApp.tickFn, TetrisApp.dropInterval)
         TetrisApp.UpdateStatus("Game running – use Arrow keys to control. Up=Rotate, Down=Drop, P=Pause")
-        TetrisApp.timerId := SetTimer(TetrisApp.Tick.Bind(TetrisApp), TetrisApp.dropInterval)
     }
 
-    static PauseGame() {
-        if (TetrisApp.timerId) {
-            SetTimer(TetrisApp.timerId, 0)
-            TetrisApp.timerId := 0
+    static PauseGame(*) {
+        if (TetrisApp.running) {
+            SetTimer(TetrisApp.tickFn, 0)
+            TetrisApp.running := false
+            TetrisApp.tickFn := 0
             TetrisApp.UpdateStatus("Paused. Press Start or Ctrl+Alt+T to resume.")
         }
     }
 
-    static ResetGame() {
+    static ResetGame(*) {
         TetrisApp.PauseGame()
         TetrisApp.ResetBoard()
         TetrisApp.UpdateBoardView()
@@ -214,8 +230,8 @@ class TetrisApp {
 
     static HideGui(*) {
         TetrisApp.PauseGame()
-        if (TetrisApp.gui) {
-            TetrisApp.gui.Hide()
+        if (TetrisApp.g) {
+            TetrisApp.g.Hide()
         }
     }
 
@@ -230,8 +246,8 @@ class TetrisApp {
                 TetrisApp.score += cleared * 100 * TetrisApp.level
                 TetrisApp.level := (TetrisApp.score // 500) + 1
                 TetrisApp.dropInterval := Max(120, 600 - (TetrisApp.level - 1) * 40)
-                if (TetrisApp.timerId) {
-                    SetTimer(TetrisApp.timerId, TetrisApp.dropInterval)
+                if (TetrisApp.running) {
+                    SetTimer(TetrisApp.tickFn, TetrisApp.dropInterval)
                 }
             }
             TetrisApp.UpdateScore()
@@ -439,7 +455,7 @@ class TetrisApp {
         MsgBox("Game Over!`nScore: " . TetrisApp.score . "`nLevel: " . TetrisApp.level, "Tetris", "Iconi")
     }
 
-    static OnResize(gui, minMax, width, height) {
+    static OnResize(g, minMax, width, height) {
         if (!TetrisApp.boardCtrl) {
             return
         }
@@ -456,6 +472,9 @@ class TetrisApp {
 TetrisApp.Init()
 
 OnExit((*) => TetrisApp.UpdateStatus(""))
+
+
+
 
 
 

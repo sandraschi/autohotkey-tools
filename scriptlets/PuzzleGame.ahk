@@ -42,7 +42,7 @@ class PuzzleApp {
     static CreateGui() {
         newGui := Gui("+Resize +MinSize320x360", "Sliding Puzzle")
         newGui.BackColor := "1d1d1d"
-        newGui.SetFont("s10", "Segoe UI")
+        newGui.SetFont("s10 c4488FF", "Segoe UI")
 
         newGui.AddText("x20 y16 w280 Center cFFFFFF", "Sliding Puzzle – arrange tiles in order")
         shuffleBtn := newGui.AddButton("x20 y48 w80 h28", "Shuffle")
@@ -67,7 +67,7 @@ class PuzzleApp {
                 x := startX + (colIndex - 1) * (size + padding)
                 y := startY + (rowIndex - 1) * (size + padding)
                 btn := newGui.AddButton(Format("x{} y{} w{} h{}", x, y, size, size), "")
-                btn.SetFont("s12 Bold", "Segoe UI")
+                btn.SetFont("s12 Bold c4488FF", "Segoe UI")
                 btn.OnEvent("Click", PuzzleApp.HandleClick.Bind(PuzzleApp, rowIndex, colIndex))
                 PuzzleApp.buttons[rowIndex].Push(btn)
             }
@@ -150,7 +150,7 @@ class PuzzleApp {
             if (valid.Length = 0) {
                 continue
             }
-            Random(&idx, 1, valid.Length)
+            idx := Random(1, valid.Length)
             dir := valid[idx]
             PuzzleApp.SwapWithEmpty(PuzzleApp.empty.row + dir[1], PuzzleApp.empty.col + dir[2])
         }
