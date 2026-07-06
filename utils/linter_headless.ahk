@@ -20,12 +20,34 @@ if (!FileExist(fileToCheck)) {
     ExitApp 1
 }
 
+; --fix mode: auto-apply mechanical v1→v2 fixes (with .bak backup)
+fixMode := false
+if (A_Args.Length >= 2 && A_Args[2] = "--fix") {
+    fixMode := true
+}
+
 ; Read the file content
 fileContent := FileRead(fileToCheck)
 if (!fileContent) {
     LogError("Failed to read file: " . fileToCheck)
     ExitApp 1
 }
+
+    ; Apply fixes before linting if --fix mode
+    if (fixMode) {
+        fixed := FileApplyFixes(fileContent, fileToCheck)
+        if (fixed != fileContent) {
+            bakPath := fileToCheck . ".bak"
+            FileCopy(fileToCheck, bakPath, 1)
+            Log("Backup created: " . bakPath)
+            try FileDelete(fileToCheck)
+            FileAppend(fixed, fileToCheck, "UTF-8")
+            Log("Fixes applied to: " . fileToCheck)
+            fileContent := fixed
+        } else {
+            Log("No fixes needed for: " . fileToCheck)
+        }
+    }
 
 ; Initialize results
 issues := []
@@ -101,6 +123,19 @@ v2BuiltInFunctions := [
     "A_LineNumber", "A_LineFile", "A_ThisFunc", "A_ThisLabel", "A_ThisHotkey",
     "A_ThisMenuItem", "A_ThisMenu", "A_ThisMenuItemPos", "A_ThisHotkeyMod",
     "A_EndChar", "A_IsUnicode", "A_IsCompiled", "A_AhkVersion", "A_AhkPath",
+    "A_PID", "A_Index", "A_LoopField", "A_LoopFileName", "A_LoopFileDir",
+    "A_LoopFileExt", "A_LoopFileFullPath", "A_LoopReadLine", "A_LoopRegName",
+    "A_EventInfo", "A_PriorKey", "A_PriorHotkey", "A_PriorLine",
+    "A_CaretX", "A_CaretY", "A_Cursor", "A_DefaultMouseSpeed",
+    "A_DetectHiddenText", "A_DetectHiddenWindows", "A_Encoding",
+    "A_FileEncoding", "A_FormatInteger", "A_FormatFloat",
+    "A_Gui", "A_GuiControl", "A_GuiEvent", "A_GuiHeight", "A_GuiWidth", "A_GuiX", "A_GuiY",
+    "A_KeyDelay", "A_KeyDuration", "A_KeyHistory", "A_ListLines",
+    "A_MaxHotkeysPerInterval", "A_MenuMaskKey",
+    "A_MouseDelay", "A_ProcessName", "A_ProcessPath",
+    "A_SendLevel", "A_SendMode", "A_StoreCapslockMode",
+    "A_TitleMatchMode", "A_TitleMatchModeSpeed",
+    "A_AutoTrim", "A_BatchLines", "A_ControlDelay", "A_WinDelay", "A_WinTitle",
     "Gui", "GuiCtrl", "GuiFromHwnd", "Menu", "MenuBar", "StatusBar", "ListView",
     "TreeView", "ComboBox", "ListBox", "Edit", "Text", "Button", "Checkbox",
     "Radio", "GroupBox", "Picture", "ActiveX", "Custom", "Hotkey", "Hotkey",
@@ -264,7 +299,7 @@ for i, line in lines {
 
 ; Check 7: GUI commands (v1 to v2 migration)
 for i, line in lines {
-    if (RegExMatch(line, "Gui,\s*")) {
+    if (RegExMatch(line, "^\s*Gui\s*,\s*")) {
         AddIssue("Found Gui, command - use Gui() constructor instead", "Error", i)
         hasErrors := true
     }
@@ -340,10 +375,32 @@ for i, line in lines {
     }
 }
 
+; Check 11b: Variable names conflicting with built-in classes
+_reservedClasses := ["Gui", "Menu", "MenuBar", "Map", "Array", "Object", "Buffer", "File", "Error", "InputHook"]
+for i, line in lines {
+    stripped := RegExReplace(line, "\s*;.*", "")
+    for _, cls in _reservedClasses {
+        ; Only flag when assigned directly and NOT calling the built-in itself
+        ; e.g. "gui := Gui()" is fine, "gui := 0" is a conflict
+        if (RegExMatch(stripped, "i)^\s*(" . cls . ")\s*:=\s*(?!\s*" . cls . "\s*\()")) {
+            AddIssue("Variable '" . cls . "' shadows built-in class name — use a different name (e.g. 'hGui' or 'mGui')", "Error", i)
+            hasErrors := true
+        }
+    }
+}
+
 ; Check 12: Loop syntax
 for i, line in lines {
     if (RegExMatch(line, "Loop\s*,\s*")) {
         AddIssue("Found Loop, syntax - use Loop or For loop instead", "Error", i)
+        hasErrors := true
+    }
+}
+
+; Check 12a: v1 "for i from x to y" syntax (not valid in v2)
+for i, line in lines {
+    if (RegExMatch(line, "for\s+\w+\s+from\s+\w+\s+to\s+\w+(\s+by\s+\w+)?")) {
+        AddIssue("Incorrect 'for i from x to y' syntax (v1) - use 'for i in' or 'Loop' instead", "Error", i)
         hasErrors := true
     }
 }
@@ -696,13 +753,23 @@ for i, line in lines {
                                 break
                         }
                         break
-                    }
-                }
+    }
+}
+
+; Check 34: Semicolon used as statement separator (v1 pattern, silently turns following code into comment)
+for i, line in lines {
+    clean := RegExReplace(line, "\s*;.*", "")
+    if (RegExMatch(line, ";\s*\w+\s*:=") && !RegExMatch(line, "^\s*;")) {
+        AddIssue("Semicolon before assignment - in AHK v2, ';' starts a comment. " .
+            "Use separate lines instead of ';' to chain statements.", "Error", i)
+        hasErrors := true
+    }
+}
             }
             
             if (!hasContextCheck) {
-                AddIssue("Hotkey for '" . keyName . "' lacks context restrictions - arrow/navigation keys should only work when specific window is active (add WinActive check)", "Error", i)
-                hasErrors := true
+            AddIssue("Hotkey for '" . keyName . "' lacks context restrictions - arrow/navigation keys should only work when specific window is active (add WinActive check)", "Error", i)
+            hasErrors := true
             }
         }
     }
@@ -825,6 +892,46 @@ try FileAppend(report, reportFile, "UTF-8")
 
 Log("Lint analysis completed. Issues found: " . issues.Length)
 ExitApp hasErrors ? 1 : 0
+
+; === --fix auto-apply functions ===
+
+FileApplyFixes(content, filePath) {
+    replaceCount := 0
+    loopCount := 0
+    readCount := 0
+
+    ; Fix 1: Missing #Requires/#SingleInstance → prepend standard header
+    if !InStr(content, "#Requires AutoHotkey v2") {
+        Log("FIX: Adding missing #Requires header to " . filePath)
+        header := "#Requires AutoHotkey v2.0+`n#SingleInstance Force`n`n"
+        header .= "#Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk`n"
+        header .= "OnError(LogError)`n`n"
+        content := header . content
+    }
+
+    ; Fix 2: Random(&var, min, max) → var := Random(min, max)
+    newContent := RegExReplace(content, "Random\(&(\w+),\s*(-?\d+),\s*([^)]+)\)", "$1 := Random($2, $3)", &replaceCount)
+    if (replaceCount > 0) {
+        content := newContent
+        Log("FIX: Replaced " . replaceCount . " Random(&var, ...) → var := Random(...)")
+    }
+
+    ; Fix 3: Loop Files, → Loop Files
+    loopFix := StrReplace(content, "Loop Files, ", "Loop Files ", , &loopCount)
+    if (loopCount > 0) {
+        content := loopFix
+        Log("FIX: Fixed " . loopCount . " Loop Files, → Loop Files")
+    }
+
+    ; Fix 4: FileRead var, file → FileRead(var, file)
+    newContent := RegExReplace(content, "FileRead\s+(\w+),\s+(.+)", "FileRead($1, $2)", &readCount)
+    if (readCount > 0) {
+        content := newContent
+        Log("FIX: Fixed " . readCount . " FileRead var, file → FileRead(var, file)")
+    }
+
+    return content
+}
 
 ; Helper functions
 AddIssue(message, severity, line := "") {
