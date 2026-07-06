@@ -137,7 +137,7 @@ class ScriptletLauncher {
         if (this.gui) {
             this.gui.Hide()
         }
-        TrayTip("Scriptlet Launcher", "Running in the system tray", , 1)
+        TrayTip("Scriptlet Launcher", "Running in the system tray", 1)
     }
 }
 
