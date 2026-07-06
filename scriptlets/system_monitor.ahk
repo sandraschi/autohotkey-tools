@@ -57,6 +57,7 @@ UpdateSystemInfo()
 ; GUI CREATION
 ; =============================================================================
 CreateGUI() {
+    global guiMain
     
     ; Create main window
     guiMain := Gui("+Resize +MinSize700x500", "System Monitor v2.0")
