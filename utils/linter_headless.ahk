@@ -101,6 +101,7 @@ v2BuiltInFunctions := [
     "Tan", "ASin", "ACos", "ATan", "Exp", "Log", "Ln", "Sqrt", "Random", "Random",
     "FileOpen", "FileReadLine", "FileWriteLine", "FileGetSize", "FileGetTime",
     "FileGetAttrib", "FileGetVersion", "FileSetTime", "FileSetAttrib", "FileRecycle",
+    "JSON",
     "FileRecycleEmpty", "FileCopy", "FileMove", "FileCreateShortcut", "FileGetShortcut",
     "IniRead", "IniWrite", "IniDelete", "IniReadSection", "IniReadSectionNames",
     "RegRead", "RegWrite", "RegDelete", "RegCreateKey", "RegDeleteKey",
