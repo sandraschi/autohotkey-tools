@@ -1,6 +1,7 @@
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
 #Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
+#Include %A_ScriptDir%\lib\JSON.ahk
 
 OnError(LogError)
 
@@ -117,7 +118,7 @@ class MCPConfigManager {
         Hotkey("^!b", MCPConfigManager.BackupConfig)
         Hotkey("^!r", MCPConfigManager.RestoreConfig)
         Hotkey("F9", MCPConfigManager.CloseGui)
-        Hotkey("Escape", MCPConfigManager.CloseGui)
+        Hotkey("Escape", (*) => MCPConfigManager.gui && WinActive("ahk_id " MCPConfigManager.gui.Hwnd) && MCPConfigManager.CloseGui())
         MCPConfigManager.hotkeysRegistered := true
     }
 
@@ -516,10 +517,12 @@ class MCPConfigManager {
     }
 
     static CloseGui(*) {
-        if (MCPConfigManager.gui) {
-            MCPConfigManager.gui.Hide()
-            MCPConfigManager.statusBar.SetText("GUI hidden. Press Ctrl+Alt+C to reopen.")
-        }
+        if !MCPConfigManager.gui
+            return
+        if !WinActive("ahk_id " MCPConfigManager.gui.Hwnd)
+            return
+        MCPConfigManager.gui.Hide()
+        MCPConfigManager.statusBar.SetText("GUI hidden. Press Ctrl+Alt+C to reopen.")
     }
 }
 

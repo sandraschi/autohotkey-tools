@@ -21,6 +21,7 @@
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
 #Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
+#Include %A_ScriptDir%\lib\JSON.ahk
 
 OnError(LogError)
 
@@ -130,7 +131,7 @@ class MCPTroubleshooter {
         Hotkey("^!t", MCPTroubleshooter.RunConfigCheck)
         Hotkey("^F11", MCPTroubleshooter.ApplyQuickFixes)
         Hotkey("F11", MCPTroubleshooter.ApplyQuickFixes)
-        Hotkey("Escape", MCPTroubleshooter.HideWindow)
+        Hotkey("Escape", (*) => MCPTroubleshooter.gui && WinActive("ahk_id " MCPTroubleshooter.gui.Hwnd) && MCPTroubleshooter.HideWindow())
         MCPTroubleshooter.hotkeysRegistered := true
     }
 
@@ -268,10 +269,12 @@ class MCPTroubleshooter {
     }
 
     static HideWindow(*) {
-        if (MCPTroubleshooter.gui) {
-            MCPTroubleshooter.gui.Hide()
-            MCPTroubleshooter.statusBar.SetText("GUI hidden. Press Ctrl+Alt+T to reopen.")
-        }
+        if !MCPTroubleshooter.gui
+            return
+        if !WinActive("ahk_id " MCPTroubleshooter.gui.Hwnd)
+            return
+        MCPTroubleshooter.gui.Hide()
+        MCPTroubleshooter.statusBar.SetText("GUI hidden. Press Ctrl+Alt+T to reopen.")
     }
 }
 
