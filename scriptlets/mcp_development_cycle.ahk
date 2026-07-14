@@ -169,7 +169,7 @@ class MCPDevelopmentCycle {
         Hotkey("^!d", MCPDevelopmentCycle.StartDevelopment)
         Hotkey("^F12", MCPDevelopmentCycle.ShowProgressReport)
         Hotkey("F9", MCPDevelopmentCycle.HideGui)
-        Hotkey("Escape", MCPDevelopmentCycle.HideGui)
+        Hotkey("Escape", (*) => MCPDevelopmentCycle.gui && WinActive("ahk_id " MCPDevelopmentCycle.gui.Hwnd) && MCPDevelopmentCycle.HideGui())
         MCPDevelopmentCycle.hotkeysRegistered := true
     }
 
@@ -393,9 +393,13 @@ class MCPDevelopmentCycle {
     }
 
     static HideGui(*) {
-        if (MCPDevelopmentCycle.gui) {
-            MCPDevelopmentCycle.gui.Hide()
-            MCPDevelopmentCycle.statusBar.SetText("GUI hidden. Press Ctrl+Alt+D to resume.")
+        if !MCPDevelopmentCycle.gui
+            return
+        if !WinActive("ahk_id " MCPDevelopmentCycle.gui.Hwnd)
+            return
+        MCPDevelopmentCycle.gui.Hide()
+        MCPDevelopmentCycle.statusBar.SetText("GUI hidden. Press Ctrl+Alt+D to resume.")
+    }
         }
     }
 }

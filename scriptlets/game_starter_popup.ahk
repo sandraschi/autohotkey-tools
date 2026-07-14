@@ -211,7 +211,7 @@ class GameStarter {
             }
             
             ; Pick random game
-            Random(&randomIndex, 1, this.gameList.Length)
+            randomIndex := Random(1, this.gameList.Length)
             randomGame := this.gameList[randomIndex]
             
             ; Show selection
@@ -261,16 +261,15 @@ class GameStarter {
     }
     
     static HandleEscape(*) {
-        if (WinExist("Game Starter")) {
-            GameStarter.ClosePopup()
-        }
+        if !WinActive("Game Starter")
+            return
+        GameStarter.ClosePopup()
     }
-    
+
     static HandleEnter(*) {
-        if (WinExist("Game Starter")) {
-            ; Could implement selection logic here
-            GameStarter.ClosePopup()
-        }
+        if !WinActive("Game Starter")
+            return
+        GameStarter.ClosePopup()
     }
     
     static SetupHotkeys() {
@@ -278,10 +277,10 @@ class GameStarter {
         Hotkey("^!g", (*) => this.CreateGamePopup())
         
         ; Close with Escape
-        Hotkey("Escape", GameStarter.HandleEscape)
-        
+        Hotkey("Escape", (*) => WinActive("Game Starter") && GameStarter.HandleEscape())
+
         ; Close with Enter (launch selected)
-        Hotkey("Enter", GameStarter.HandleEnter)
+        Hotkey("Enter", (*) => WinActive("Game Starter") && GameStarter.HandleEnter())
     }
 }
 

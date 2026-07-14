@@ -25,7 +25,6 @@
 ; Error handling - log to file instead of showing popups
 OnError(LogError)
 
-#Warn
 
 ; Global variables
 Global snippetsFile := A_ScriptDir "\snippets.json"
@@ -218,9 +217,9 @@ SaveSnippet(guiEditor, editTrigger, editSnippet, isNew) {
 }
 
 ; Save snippets to file
-SaveSnippets(snippets) {
-    try {
-        json := JSON.stringify(snippets, 4)  ; Pretty-print with 4-space indentation
+ SaveSnippets(snippets) {
+     try {
+         json := JSON_Stringify(snippets)
         try FileDelete(snippetsFile)
         FileAppend(json, snippetsFile, "UTF-8")
     } catch as e {
@@ -244,7 +243,7 @@ LoadSnippets() {
         
         ; Parse JSON string to object
         try {
-            obj := JSON.parse(json)
+            obj := JSON_Parse(json)
             if (!IsObject(obj)) {
                 return snippets
             }
@@ -292,9 +291,48 @@ class JSON {
                         key := Trim(pair[1], ' `t"')
                         value := Trim(pair[2], ' `t"')
                         obj[key] := value
-                    }
-                }
-            }
+    }
+}
+
+JSON_Stringify(obj, indent := "") {
+    if (Type(obj) = "Map") {
+        items := []
+        for k, v in obj {
+            items.Push(indent . "  """ . k . """: " . JSON_Stringify(v, indent . "  "))
+        }
+        return "{" . "`n" . Join("`,", items) . "`n" . indent . "}"
+    }
+    if (Type(obj) = "Array") {
+        items := []
+        for v in obj {
+            items.Push(indent . "  " . JSON_Stringify(v, indent . "  "))
+        }
+        return "[" . "`n" . Join("`,", items) . "`n" . indent . "]"
+    }
+    if (Type(obj) = "String") {
+        s := StrReplace(obj, "\", "\\")
+        s := StrReplace(s, """", "\""")
+        s := StrReplace(s, "`n", "\n")
+        s := StrReplace(s, "`t", "\t")
+        return """" . s . """"
+    }
+    if (Type(obj) = "Integer" || Type(obj) = "Float") {
+        return obj
+    }
+    return "null"
+}
+
+Join(sep, arr) {
+    out := ""
+    for i, v in arr {
+        if (i > 1)
+            out .= sep
+        out .= v
+    }
+    return out
+}
+
+JSON_Parse(text) {            }
             
             return obj
         } catch as e {
@@ -341,3 +379,127 @@ class JSON {
     }
 }
 
+JSON_Stringify(obj, indent := "") {
+    if (Type(obj) = "Map") {
+        items := []
+        for k, v in obj {
+            items.Push(indent . "  """ . k . """: " . JSON_Stringify(v, indent . "  "))
+        }
+        return "{`n" . Join(",`n", items) . "`n" . indent . "}"
+    }
+    if (Type(obj) = "String") {
+        s := StrReplace(obj, "\", "\\")
+        s := StrReplace(StrReplace(s, """", "\"""), "`n", "\n")
+        return """" . s . """"
+    }
+    if (Type(obj) = "Integer" || Type(obj) = "Float")
+        return obj
+    return "null"
+}
+
+JSON_Parse(text) {
+    text := Trim(text)
+    if (SubStr(text, 1, 1) = "{")
+        return JSON_ParseMap(text, 2)
+    if (SubStr(text, 1, 1) = "[")
+        return JSON_ParseArr(text, 2)
+    return text
+}
+
+JSON_EatWS(text, pos) {
+    while (pos <= StrLen(text)) {
+        c := SubStr(text, pos, 1)
+        if (c = " " || c = "`t" || c = "`n" || c = "`r")
+            pos++
+        else
+            break
+    }
+    return pos
+}
+
+JSON_ParseMap(text, pos) {
+    m := Map()
+    pos := JSON_EatWS(text, pos)
+    while (pos <= StrLen(text)) {
+        c := SubStr(text, pos, 1)
+        if (c = "}") { return m }
+        if (c = ",") { pos := JSON_EatWS(text, pos + 1); continue }
+        kr := JSON_ParseStr(text, pos)
+        k := kr.val
+        pos := JSON_EatWS(text, kr.pos)
+        if (SubStr(text, pos, 1) = ":") { pos := JSON_EatWS(text, pos + 1) }
+        vr := JSON_ParseVal(text, pos)
+        m[k] := vr.val
+        pos := JSON_EatWS(text, vr.pos)
+    }
+    return m
+}
+
+JSON_ParseArr(text, pos) {
+    arr := []
+    pos := JSON_EatWS(text, pos)
+    while (pos <= StrLen(text)) {
+        c := SubStr(text, pos, 1)
+        if (c = "]") { return arr }
+        if (c = ",") { pos := JSON_EatWS(text, pos + 1); continue }
+        vr := JSON_ParseVal(text, pos)
+        arr.Push(vr.val)
+        pos := JSON_EatWS(text, vr.pos)
+    }
+    return arr
+}
+
+JSON_ParseVal(text, pos) {
+    pos := JSON_EatWS(text, pos)
+    c := SubStr(text, pos, 1)
+    if (c = """") { return JSON_ParseStr(text, pos) }
+    if (c = "{") { r := JSON_ParseMap(text, pos + 1); return {val: r, pos: pos + 2} }
+    if (c = "t") { return {val: true, pos: pos + 4} }
+    if (c = "f") { return {val: false, pos: pos + 5} }
+    if (c = "n") { return {val: "", pos: pos + 4} }
+    end := pos
+    while (end <= StrLen(text)) {
+        d := SubStr(text, end, 1)
+        if ((d >= "0" && d <= "9") || d = "-" || d = "+" || d = "." || d = "e" || d = "E")
+            end++
+        else
+            break
+    }
+    n := SubStr(text, pos, end - pos)
+    if (InStr(n, "."))
+        return {val: Float(n), pos: end}
+    return {val: Integer(n), pos: end}
+}
+
+JSON_ParseStr(text, pos) {
+    pos++
+    out := ""
+    while (pos <= StrLen(text)) {
+        c := SubStr(text, pos, 1)
+        if (c = """") { return {val: out, pos: pos + 1} }
+        if (c = "\") {
+            pos++
+            e := SubStr(text, pos, 1)
+            if (e = "n")      out .= "`n"
+            else if (e = "t") out .= "`t"
+            else if (e = "\") out .= "\"
+            else if (e = """") out .= """"
+            else              out .= e
+            pos++
+            continue
+        }
+        out .= c
+        pos++
+    }
+    return {val: out, pos: pos}
+}
+
+Join(sep, parts) {
+    s := ""
+    for i, v in parts {
+        if (i > 1)
+            s .= sep
+        s .= v
+    }
+    return s
+}

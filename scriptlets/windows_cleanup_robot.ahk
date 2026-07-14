@@ -182,7 +182,7 @@ CheckTempFiles() {
 GetFolderSizeMB(folder) {
     totalSize := 0
     try {
-        Loop Files, folder . "\*.*", "RF"
+        Loop Files folder . "\*.*", "RF"
             totalSize += A_LoopFileSize
     }
     return Round(totalSize / 1048576)  ; MB
@@ -302,7 +302,7 @@ CheckBrowserExtensions() {
     extCount := 0
     
     if DirExist(chromeExtPath) {
-        Loop Files, chromeExtPath . "\*", "D"
+        Loop Files chromeExtPath . "\*", "D"
             extCount++
     }
     
@@ -324,7 +324,7 @@ CheckRecentDownloads() {
     recentExe := []
     
     if DirExist(downloadPath) {
-        Loop Files, downloadPath . "\*.exe"
+        Loop Files downloadPath . "\*.exe"
         {
             exeCount++
             ; Check if downloaded in last 7 days
@@ -482,7 +482,7 @@ SaveReport(*) {
     }
     FileAppend report, ReportFile
     
-    MsgBox "Report saved to:`n" . ReportFile . "`n`nSend this to your tech support person!", AppName, "64"
+    MsgBox("Report saved to:`n" . ReportFile . "`n`nSend this to your tech support person!", AppName, "64"
     Run "notepad.exe " . ReportFile
 }
 
@@ -494,7 +494,7 @@ RunCleanup(*) {
     global Issues
     
     if Issues.Length = 0 {
-        MsgBox "No issues to clean up!", AppName, "64"
+        MsgBox("No issues to clean up!", AppName, "64"
         return
     }
     
@@ -536,14 +536,14 @@ PerformCleanup() {
         }
     }
     
-    MsgBox "Cleanup operations completed!`n`nRe-run analysis to verify improvements.", AppName, "64"
+    MsgBox("Cleanup operations completed!`n`nRe-run analysis to verify improvements.", AppName, "64"
 }
 
 CleanupTempFiles() {
     ; Safe temp cleanup - user's temp folder only
     deletedCount := 0
     
-    Loop Files, A_Temp . "\*.*", "F"
+    Loop Files A_Temp . "\*.*", "F"
     {
         try {
             FileDelete A_LoopFilePath
@@ -551,7 +551,7 @@ CleanupTempFiles() {
         }
     }
     
-    MsgBox "Deleted " . deletedCount . " temporary files.", AppName, "64"
+    MsgBox("Deleted " . deletedCount . " temporary files.", AppName, "64"
 }
 
 RunDiskCleanup() {
@@ -559,7 +559,7 @@ RunDiskCleanup() {
     try {
         Run "cleanmgr.exe"
     } catch {
-        MsgBox "Could not launch Disk Cleanup. Try running it manually.", AppName, "48"
+        MsgBox("Could not launch Disk Cleanup. Try running it manually.", AppName, "48"
     }
 }
 
@@ -616,7 +616,7 @@ This tool uses basic checks. Some warnings may be
 false alarms. When in doubt, ask for help!
     )"
     
-    MsgBox help, AppName . " - Help", "64"
+    MsgBox(help, AppName . " - Help", "64"
 }
 
 ; ============================================================================

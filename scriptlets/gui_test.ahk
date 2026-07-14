@@ -19,13 +19,14 @@ TrayTip("GUI Test", "Script starting...", 3)
 ; Log errors but allow GUI errors to show
 OnError(LogError)
 
-LogError(Thrown, Mode) {
+GuiTestLogError(Thrown, Mode) {
     ScriptletErrorHandler.Handle(Thrown, Mode)
     if (Thrown && (InStr(Thrown.Message, "GUI") || (HasProp(Thrown, "Stack") && InStr(Thrown.Stack, "CreateGUI")))) {
         return 0
     }
     return 1
 }
+OnError(GuiTestLogError)
 
 class GUITest {
     static guiInstance := ""

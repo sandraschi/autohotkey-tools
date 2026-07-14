@@ -54,13 +54,44 @@ CreateGUI() {
     guiMain.MarginY := 10
     
     ; Menu bar
-    menuBar := Menu()
-    menuBar.Add("&File", ["&New", "&Open", "&Save", "Save &As", "", "E&xit"])
-    menuBar.Add("&Edit", ["&Undo", "&Redo", "", "Cu&t", "&Copy", "&Paste", "", "&Find"])
-    menuBar.Add("&Format", ["&Bold", "&Italic", "", "&Heading", "&List", "&Checkbox"])
-    menuBar.Add("&Tools", ["&Word Count", "&Export", "&Settings"])
-    menuBar.Add("&Help", "&About")
-    guiMain.MenuBar := menuBar
+    mBar := MenuBar()
+    fm := Menu()
+    fm.Add("&New", (*) => NewNotes())
+    fm.Add("&Open", (*) => OpenNotes())
+    fm.Add("&Save", (*) => SaveNotes())
+    fm.Add("Save &As", (*) => SaveNotesAs())
+    fm.Add()
+    fm.Add("E&xit", (*) => ExitApp())
+    mBar.Add("&File", fm)
+    
+    em := Menu()
+    em.Add("&Undo", (*) => Send("^z"))
+    em.Add("&Redo", (*) => Send("^y"))
+    em.Add()
+    em.Add("Cu&t", (*) => Send("^x"))
+    em.Add("&Copy", (*) => Send("^c"))
+    em.Add("&Paste", (*) => Send("^v"))
+    em.Add()
+    em.Add("&Find", (*) => SearchNotes())
+    mBar.Add("&Edit", em)
+    
+    fmt := Menu()
+    fmt.Add("&Bold", (*) => FormatText())
+    fmt.Add("&Italic", (*) => FormatText())
+    fmt.Add()
+    fmt.Add("&Heading", (*) => FormatText())
+    fmt.Add("&List", (*) => FormatText())
+    fmt.Add("&Checkbox", (*) => FormatText())
+    mBar.Add("&Format", fmt)
+    
+    tm := Menu()
+    tm.Add("&Word Count", (*) => ShowWordCount())
+    tm.Add("&Export", (*) => ExportNotes("html"))
+    tm.Add("&Settings", (*) => ShowSettings())
+    mBar.Add("&Tools", tm)
+    
+    mBar.Add("&Help", (*) => ShowAbout())
+    guiMain.MenuBar := mBar
     
     ; Toolbar
     toolbar := guiMain.Add("Text", "x10 y10 w780 h30 Background" StrReplace(colors["button"], "0x", ""))
@@ -76,31 +107,6 @@ CreateGUI() {
     ; Event handlers
     guiMain.OnEvent("Close", (*) => ExitApp())
     guiMain.OnEvent("Size", GuiSize)
-    
-    ; Menu event handlers
-    menuBar["File"]["New"].OnEvent("Click", NewNotes)
-    menuBar["File"]["Open"].OnEvent("Click", OpenNotes)
-    menuBar["File"]["Save"].OnEvent("Click", SaveNotes)
-    menuBar["File"]["Save As"].OnEvent("Click", SaveNotesAs)
-    menuBar["File"]["Exit"].OnEvent("Click", (*) => ExitApp())
-    
-    menuBar["Edit"]["Undo"].OnEvent("Click", (*) => Send("^z"))
-    menuBar["Edit"]["Redo"].OnEvent("Click", (*) => Send("^y"))
-    menuBar["Edit"]["Cut"].OnEvent("Click", (*) => Send("^x"))
-    menuBar["Edit"]["Copy"].OnEvent("Click", (*) => Send("^c"))
-    menuBar["Edit"]["Paste"].OnEvent("Click", (*) => Send("^v"))
-    menuBar["Edit"]["Find"].OnEvent("Click", SearchNotes)
-    
-    menuBar["Format"]["Bold"].OnEvent("Click", (*) => FormatText())
-    menuBar["Format"]["Heading"].OnEvent("Click", (*) => FormatText())
-    menuBar["Format"]["List"].OnEvent("Click", (*) => FormatText())
-    menuBar["Format"]["Checkbox"].OnEvent("Click", (*) => FormatText())
-    
-    menuBar["Tools"]["Word Count"].OnEvent("Click", ShowWordCount)
-    menuBar["Tools"]["Export"].OnEvent("Click", (*) => ExportNotes("html"))
-    menuBar["Tools"]["Settings"].OnEvent("Click", ShowSettings)
-    
-    menuBar["Help"]["About"].OnEvent("Click", ShowAbout)
     
     ; Load existing notes
     LoadNotes()

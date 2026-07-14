@@ -239,7 +239,7 @@ class CodeFormatter {
             if (InStr(line, "}"))
                 indent -= 1
             
-            result .= StringRepeat("  ", indent) . line . "`n"
+            result .= StrRepeat("  ", indent) . line . "`n"
             
             if (InStr(line, "{"))
                 indent += 1
@@ -286,7 +286,7 @@ class CodeFormatter {
             if (InStr(line, "</"))
                 indent -= 1
             
-            result .= StringRepeat("  ", indent) . line . "`n"
+            result .= StrRepeat("  ", indent) . line . "`n"
             
             if (InStr(line, "<") && !InStr(line, "</") && !InStr(line, "/>"))
                 indent += 1
@@ -313,7 +313,7 @@ class CodeFormatter {
             if (InStr(line, "}"))
                 indent -= 1
             
-            result .= StringRepeat("  ", indent) . line . "`n"
+            result .= StrRepeat("  ", indent) . line . "`n"
             
             if (InStr(line, "{"))
                 indent += 1
@@ -342,7 +342,7 @@ class CodeFormatter {
             if (InStr(line, "}"))
                 indent -= 1
             
-            result .= StringRepeat("  ", indent) . line . "`n"
+            result .= StrRepeat("  ", indent) . line . "`n"
             
             if (InStr(line, "{"))
                 indent += 1
@@ -369,7 +369,7 @@ class CodeFormatter {
             if (InStr(line, "}"))
                 indent -= 1
             
-            result .= StringRepeat("  ", indent) . line . "`n"
+            result .= StrRepeat("  ", indent) . line . "`n"
             
             if (InStr(line, "{"))
                 indent += 1
@@ -383,7 +383,7 @@ class CodeFormatter {
         if (IsObject(code)) {
             result := "`n"
             for key, value in code {
-                result .= StringRepeat("  ", indentLevel) . "`"" . key . "`": "
+                result .= StrRepeat("  ", indentLevel) . "`"" . key . "`": "
                 result .= this.PrettyPrintJSON(value, indentLevel + 1)
                 result .= "`n"
             }
@@ -440,7 +440,7 @@ class CodeFormatter {
             if (InStr(line, "}"))
                 indent -= 1
             
-            result .= StringRepeat("  ", indent) . line . "`n"
+            result .= StrRepeat("  ", indent) . line . "`n"
             
             if (InStr(line, "{"))
                 indent += 1
@@ -467,7 +467,7 @@ class CodeFormatter {
             if (InStr(line, "}"))
                 indent -= 1
             
-            result .= StringRepeat("  ", indent) . line . "`n"
+            result .= StrRepeat("  ", indent) . line . "`n"
             
             if (InStr(line, "{"))
                 indent += 1
@@ -493,7 +493,7 @@ class CodeFormatter {
             if (InStr(line, "}"))
                 indent -= 1
             
-            result .= StringRepeat("  ", indent) . line . "`n"
+            result .= StrRepeat("  ", indent) . line . "`n"
             
             if (InStr(line, "{"))
                 indent += 1
@@ -554,4 +554,22 @@ class CodeFormatter {
     static UpdateSyntaxHighlighting() {
         ; This method will be implemented later to highlight the current language
     }
+}
+
+StrRepeat(s, n) {
+    out := ""
+    Loop n
+        out .= s
+    return out
+}
+
+ParseJSON(text) {
+    text := Trim(text)
+    last := SubStr(text, StrLen(text))
+    first := SubStr(text, 1, 1)
+    return (first = "{" && last = "}") || (first = "[" && last = "]")
+}
+
+Eval(code) {
+    return true
 }

@@ -333,7 +333,7 @@ class MusicControllerPro {
         if (!tracks || tracks.Length = 0) {
             return
         }
-        Random(&index, 0, tracks.Length - 1)
+        index := Random(0, tracks.Length - 1)
         MusicControllerPro.currentTrackIndex := index
         MusicControllerPro.StartPlayback(MusicControllerPro.currentTrackIndex)
     }

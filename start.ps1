@@ -30,3 +30,11 @@ try {
 # Delegate to existing launcher script
 $dashboardScript = Join-Path -Path $ScriptDir -ChildPath 'start_dashboard.ps1'
 & $dashboardScript
+
+$FleetStartPath = Join-Path $ProjectRoot "scripts\FleetStartMode.ps1"
+if (-not (Test-Path -LiteralPath $FleetStartPath)) {
+    Write-Host "ERROR: Missing vendored launcher helper: $FleetStartPath" -ForegroundColor Red
+    exit 1
+}
+. $FleetStartPath
+

@@ -4,7 +4,7 @@
 
 OnError(LogError)
 
-LogError(Thrown, Mode) {
+CorpPranksError(Thrown, Mode) {
     ScriptletErrorHandler.Handle(Thrown, Mode)
     scriptInfo := (Thrown && HasProp(Thrown, "File") && Thrown.File) ? Thrown.File : A_ScriptFullPath
     lineInfo := (Thrown && HasProp(Thrown, "Line") && Thrown.Line) ? Thrown.Line : "?"
@@ -15,6 +15,7 @@ LogError(Thrown, Mode) {
     }
     return 1
 }
+OnError(CorpPranksError)
 
 class CorporatePranks {
     static mainGui := ""
@@ -34,40 +35,40 @@ class CorporatePranks {
     }
 
     static CreateGUI() {
-        gui := Gui("+Resize +MinSize720x720", "Corporate Prank Generator")
-        gui.SetFont("s11", "Segoe UI")
+        cg := Gui("+Resize +MinSize720x720", "Corporate Prank Generator")
+        cg.SetFont("s11", "Segoe UI")
 
-        gui.AddText("x20 y20 w680 Center c0A74FF Bold", "Corporate Prank Generator")
-        gui.AddText("x20 y48 w680 Center", "Generate fake corporate announcements, meetings, and email pranks.")
-        gui.AddText("x20 y76 w680 Center cFF6600", "⚠️ Use responsibly. For harmless office fun only.")
+        cg.AddText("x20 y20 w680 Center c0A74FF cF0F0F0", "Corporate Prank Generator")
+        cg.AddText("x20 y48 w680 Center", "Generate fake corporate announcements, meetings, and email pranks.")
+        cg.AddText("x20 y76 w680 Center cFF6600", "⚠️ Use responsibly. For harmless office fun only.")
 
-        gui.AddText("x20 y120 w680 Bold", "Corporate Announcements")
-        gui.AddButton("x20 y150 w320 h44", "🚀 Elon bought the company").OnEvent("Click", ObjBindMethod(CorporatePranks, "ElonAcquisition"))
-        gui.AddButton("x360 y150 w320 h44", "🤖 AI takeover complete").OnEvent("Click", ObjBindMethod(CorporatePranks, "AITakeover"))
-        gui.AddButton("x20 y200 w320 h44", "🚗 Tesla integration perks").OnEvent("Click", ObjBindMethod(CorporatePranks, "TeslaIntegration"))
-        gui.AddButton("x360 y200 w320 h44", "🌍 Mars relocation memo").OnEvent("Click", ObjBindMethod(CorporatePranks, "MarsRelocation"))
+        cg.AddText("x20 y120 w680 cF0F0F0", "Corporate Announcements")
+        cg.AddButton("x20 y150 w320 h44", "🚀 Elon bought the company").OnEvent("Click", ObjBindMethod(CorporatePranks, "ElonAcquisition"))
+        cg.AddButton("x360 y150 w320 h44", "🤖 AI takeover complete").OnEvent("Click", ObjBindMethod(CorporatePranks, "AITakeover"))
+        cg.AddButton("x20 y200 w320 h44", "🚗 Tesla integration perks").OnEvent("Click", ObjBindMethod(CorporatePranks, "TeslaIntegration"))
+        cg.AddButton("x360 y200 w320 h44", "🌍 Mars relocation memo").OnEvent("Click", ObjBindMethod(CorporatePranks, "MarsRelocation"))
 
-        gui.AddText("x20 y260 w680 Bold", "Meeting Pranks")
-        gui.AddButton("x20 y290 w320 h44", "📚 Drag Queen Story Hour").OnEvent("Click", ObjBindMethod(CorporatePranks, "DragQueenStoryHour"))
-        gui.AddButton("x360 y290 w320 h44", "⚠️ Crucial 3PM meeting").OnEvent("Click", ObjBindMethod(CorporatePranks, "CrucialMeeting"))
-        gui.AddButton("x20 y340 w320 h44", "🍕 Mandatory pizza party").OnEvent("Click", ObjBindMethod(CorporatePranks, "PizzaPartyMeeting"))
-        gui.AddButton("x360 y340 w320 h44", "🎭 Diversity training").OnEvent("Click", ObjBindMethod(CorporatePranks, "DiversityTraining"))
+        cg.AddText("x20 y260 w680 cF0F0F0", "Meeting Pranks")
+        cg.AddButton("x20 y290 w320 h44", "📚 Drag Queen Story Hour").OnEvent("Click", ObjBindMethod(CorporatePranks, "DragQueenStoryHour"))
+        cg.AddButton("x360 y290 w320 h44", "⚠️ Crucial 3PM meeting").OnEvent("Click", ObjBindMethod(CorporatePranks, "CrucialMeeting"))
+        cg.AddButton("x20 y340 w320 h44", "🍕 Mandatory pizza party").OnEvent("Click", ObjBindMethod(CorporatePranks, "PizzaPartyMeeting"))
+        cg.AddButton("x360 y340 w320 h44", "🎭 Diversity training").OnEvent("Click", ObjBindMethod(CorporatePranks, "DiversityTraining"))
 
-        gui.AddText("x20 y400 w680 Bold", "Delayed Pranks")
-        gui.AddButton("x20 y430 w320 h44", "⏰ Schedule 3PM meeting for 4PM").OnEvent("Click", ObjBindMethod(CorporatePranks, "ScheduleDelayedMeeting"))
-        gui.AddButton("x360 y430 w320 h44", "📧 Email bomb (fake)").OnEvent("Click", ObjBindMethod(CorporatePranks, "EmailBomb"))
+        cg.AddText("x20 y400 w680 cF0F0F0", "Delayed Pranks")
+        cg.AddButton("x20 y430 w320 h44", "⏰ Schedule 3PM meeting for 4PM").OnEvent("Click", ObjBindMethod(CorporatePranks, "ScheduleDelayedMeeting"))
+        cg.AddButton("x360 y430 w320 h44", "📧 Email bomb (fake)").OnEvent("Click", ObjBindMethod(CorporatePranks, "EmailBomb"))
 
-        gui.AddText("x20 y490 w680 Bold", "Activity Log")
-        logEdit := gui.AddEdit("x20 y520 w680 h140 -Wrap ReadOnly VScroll", "")
+        cg.AddText("x20 y490 w680 cF0F0F0", "Activity Log")
+        logEdit := cg.AddEdit("x20 y520 w680 h140 -Wrap ReadOnly VScroll", "")
 
-        stopBtn := gui.AddButton("x20 y680 w680 h40", "🛑 Emergency Stop All Pranks")
-        stopBtn.SetFont("s12 Bold", "Segoe UI")
+        stopBtn := cg.AddButton("x20 y680 w680 h40", "🛑 Emergency Stop All Pranks")
+        stopBtn.SetFont("s12 cF0F0F0", "Segoe UI")
         stopBtn.OnEvent("Click", ObjBindMethod(CorporatePranks, "StopAllPranks"))
 
-        gui.OnEvent("Close", ObjBindMethod(CorporatePranks, "HideMainGui"))
-        gui.OnEvent("Escape", ObjBindMethod(CorporatePranks, "HideMainGui"))
+        cg.OnEvent("Close", ObjBindMethod(CorporatePranks, "HideMainGui"))
+        cg.OnEvent("Escape", ObjBindMethod(CorporatePranks, "HideMainGui"))
 
-        CorporatePranks.mainGui := gui
+        CorporatePranks.mainGui := cg
         CorporatePranks.logEdit := logEdit
     }
 
@@ -77,7 +78,7 @@ class CorporatePranks {
         Hotkey("^!m", ObjBindMethod(CorporatePranks, "CrucialMeeting"))
         Hotkey("^!a", ObjBindMethod(CorporatePranks, "ElonAcquisition"))
         Hotkey("^!s", ObjBindMethod(CorporatePranks, "DragQueenStoryHour"))
-        Hotkey("Escape", ObjBindMethod(CorporatePranks, "HideMainGui"))
+        Hotkey("Escape", (*) => CorporatePranks.mainGui && WinActive("ahk_id " CorporatePranks.mainGui.Hwnd) && CorporatePranks.HideMainGui())
     }
 
     static ToggleMainGui(*) {
@@ -101,9 +102,11 @@ class CorporatePranks {
     }
 
     static HideMainGui(*) {
-        if (CorporatePranks.mainGui) {
-            CorporatePranks.mainGui.Hide()
-        }
+        if !CorporatePranks.mainGui
+            return
+        if !WinActive("ahk_id " CorporatePranks.mainGui.Hwnd)
+            return
+        CorporatePranks.mainGui.Hide()
         CorporatePranks.mainGuiVisible := false
     }
 
@@ -181,12 +184,12 @@ class CorporatePranks {
         try {
             dialog := Gui("+AlwaysOnTop -Caption +ToolWindow", caption)
             dialog.BackColor := backgroundColor
-            dialog.SetFont("s13 Bold", "Segoe UI")
+            dialog.SetFont("s13 cF0F0F0", "Segoe UI")
             dialog.AddText("x20 y20 w540 Center", title)
             dialog.SetFont("s10", "Segoe UI")
             dialog.AddEdit("x20 y60 w540 h320 ReadOnly -Wrap", message)
             closeBtn := dialog.AddButton("x220 y400 w140 h34", "Close")
-            closeBtn.SetFont("s11 Bold", "Segoe UI")
+            closeBtn.SetFont("s11 cF0F0F0", "Segoe UI")
             closeBtn.OnEvent("Click", ObjBindMethod(CorporatePranks, "DestroyDialog", dialog))
 
             CorporatePranks.TrackDialog(dialog)

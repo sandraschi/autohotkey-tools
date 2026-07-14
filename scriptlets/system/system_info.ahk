@@ -15,7 +15,7 @@ class SystemInfo {
             ; Get system information
             SysGet(monitorCount, "MonitorCount")
             SysGet(primaryMonitor, "MonitorPrimary")
-            DriveGetSpaceFree(freeSpace, "C:\")
+            freeSpace := DriveGetSpace("C:")
             
             ; Format information
             info := "=== System Information ===`n"

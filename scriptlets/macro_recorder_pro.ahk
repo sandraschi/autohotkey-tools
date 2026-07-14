@@ -103,7 +103,7 @@ class MacroRecorder {
             .OnEvent("Click", MacroRecorder.OnCloseGUI)
         
         ; Hotkey to close GUI
-        Hotkey("Escape", MacroRecorder.OnCloseGUI, this.gui)
+        Hotkey("Escape", (*) => MacroRecorder.gui && WinActive("ahk_id " MacroRecorder.gui.Hwnd) && MacroRecorder.OnCloseGUI())
         
         this.gui.OnEvent("Close", MacroRecorder.OnCloseGUI)
         
@@ -135,10 +135,10 @@ class MacroRecorder {
         static keyHandler := ObjBindMethod(this, "OnKeyEvent")
         
         Hotkey("!~^+", keyHandler, "On")  ; All keys except modifiers
-        Hotkey("Up", (*) => this.OnMouseEvent("MoveUp"))
-        Hotkey("Down", (*) => this.OnMouseEvent("MoveDown"))
-        Hotkey("Left", (*) => this.OnMouseEvent("MoveLeft"))
-        Hotkey("Right", (*) => this.OnMouseEvent("MoveRight"))
+        Hotkey("Up", (*) => MacroRecorder.gui && WinActive("ahk_id " MacroRecorder.gui.Hwnd) && MacroRecorder.OnMouseEvent("MoveUp"))
+        Hotkey("Down", (*) => MacroRecorder.gui && WinActive("ahk_id " MacroRecorder.gui.Hwnd) && MacroRecorder.OnMouseEvent("MoveDown"))
+        Hotkey("Left", (*) => MacroRecorder.gui && WinActive("ahk_id " MacroRecorder.gui.Hwnd) && MacroRecorder.OnMouseEvent("MoveLeft"))
+        Hotkey("Right", (*) => MacroRecorder.gui && WinActive("ahk_id " MacroRecorder.gui.Hwnd) && MacroRecorder.OnMouseEvent("MoveRight"))
         
         ; Record mouse clicks
         this.SetMouseHook()
@@ -419,6 +419,10 @@ class MacroRecorder {
     }
     
     static OnCloseGUI(*) {
+        if !MacroRecorder.gui
+            return
+        if !WinActive("ahk_id " MacroRecorder.gui.Hwnd)
+            return
         MacroRecorder.gui.Hide()
     }
     

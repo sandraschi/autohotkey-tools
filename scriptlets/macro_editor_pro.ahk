@@ -102,7 +102,7 @@ class MacroEditor {
             .OnEvent("Click", MacroEditor.TestMacro)
         
         Hotkey("F9", MacroEditor.TestMacro)
-        Hotkey("Escape", (*) => MacroEditor.HideGUI(), this.gui)
+        Hotkey("Escape", (*) => MacroEditor.gui && WinActive("ahk_id " MacroEditor.gui.Hwnd) && MacroEditor.HideGUI())
         
         
         ; Add exit handlers
@@ -429,9 +429,10 @@ class MacroEditor {
     }
 
     static HideGUI(*) {
-        if (!this.gui) {
+        if !this.gui
             return
-        }
+        if !WinActive("ahk_id " this.gui.Hwnd)
+            return
         try {
             this.gui.Hide()
         } catch {

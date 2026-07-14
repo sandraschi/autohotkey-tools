@@ -143,7 +143,7 @@ class MCPLogAnalyzer {
         Hotkey("^!l", MCPLogAnalyzer.AnalyzeLatest)
         Hotkey("^F10", MCPLogAnalyzer.ShowRecommendations)
         Hotkey("F9", MCPLogAnalyzer.HideWindow)
-        Hotkey("Escape", MCPLogAnalyzer.HideWindow)
+        Hotkey("Escape", (*) => MCPLogAnalyzer.gui && WinActive("ahk_id " MCPLogAnalyzer.gui.Hwnd) && MCPLogAnalyzer.HideWindow())
         MCPLogAnalyzer.hotkeysRegistered := true
     }
 
@@ -199,9 +199,9 @@ class MCPLogAnalyzer {
     }
 
     static OnFileActivated(listView, row) {
-        file := MCPLogAnalyzer.GetFilePath(row)
-        if (file != "" && FileExist(file)) {
-            Run('notepad "' . file . '"')
+        fPath := MCPLogAnalyzer.GetFilePath(row)
+        if (fPath != "" && FileExist(fPath)) {
+            Run('notepad "' . fPath . '"')
         }
     }
 
@@ -333,10 +333,12 @@ class MCPLogAnalyzer {
     }
 
     static HideWindow(*) {
-        if (MCPLogAnalyzer.gui) {
-            MCPLogAnalyzer.gui.Hide()
-            MCPLogAnalyzer.statusBar.SetText("GUI hidden. Press Ctrl+Alt+L to reopen.")
-        }
+        if !MCPLogAnalyzer.gui
+            return
+        if !WinActive("ahk_id " MCPLogAnalyzer.gui.Hwnd)
+            return
+        MCPLogAnalyzer.gui.Hide()
+        MCPLogAnalyzer.statusBar.SetText("GUI hidden. Press Ctrl+Alt+L to reopen.")
     }
 }
 

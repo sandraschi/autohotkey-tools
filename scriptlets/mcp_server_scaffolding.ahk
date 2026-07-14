@@ -181,7 +181,7 @@ class MCPServerScaffolding {
         Hotkey("^F9", MCPServerScaffolding.ShowPreview)
         Hotkey("F9", MCPServerScaffolding.ShowPreview)
         Hotkey("F8", MCPServerScaffolding.HideWindow)
-        Hotkey("Escape", MCPServerScaffolding.HideWindow)
+        Hotkey("Escape", (*) => MCPServerScaffolding.gui && WinActive("ahk_id " MCPServerScaffolding.gui.Hwnd) && MCPServerScaffolding.HideWindow())
         MCPServerScaffolding.hotkeysRegistered := true
     }
 
@@ -466,11 +466,13 @@ class MCPServerScaffolding {
     }
 
     static HideWindow(*) {
-        if (MCPServerScaffolding.gui) {
-            MCPServerScaffolding.gui.Hide()
-            if (MCPServerScaffolding.statusBar) {
-                MCPServerScaffolding.statusBar.SetText("GUI hidden. Press Ctrl+Alt+M to reopen.")
-            }
+        if !MCPServerScaffolding.gui
+            return
+        if !WinActive("ahk_id " MCPServerScaffolding.gui.Hwnd)
+            return
+        MCPServerScaffolding.gui.Hide()
+        if (MCPServerScaffolding.statusBar) {
+            MCPServerScaffolding.statusBar.SetText("GUI hidden. Press Ctrl+Alt+M to reopen.")
         }
     }
 

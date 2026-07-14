@@ -121,7 +121,7 @@ class AHDebugHelper {
         Hotkey("F3", (*) => AHDebugHelper.ListVariables())
         Hotkey("^!v", (*) => AHDebugHelper.ListLines())
         Hotkey("^!k", (*) => AHDebugHelper.KeyHistory())
-        Hotkey("Escape", (*) => AHDebugHelper.CloseGUI())
+        Hotkey("Escape", (*) => AHDebugHelper.mainGui && WinActive("ahk_id " AHDebugHelper.mainGui.Hwnd) && AHDebugHelper.CloseGUI())
     }
 
     static ToggleGUI() {
@@ -138,10 +138,12 @@ class AHDebugHelper {
     }
 
     static CloseGUI(*) {
-        if (AHDebugHelper.mainGui) {
-            AHDebugHelper.mainGui.Hide()
-            AHDebugHelper.isVisible := false
-        }
+        if !AHDebugHelper.mainGui
+            return
+        if !WinActive("ahk_id " AHDebugHelper.mainGui.Hwnd)
+            return
+        AHDebugHelper.mainGui.Hide()
+        AHDebugHelper.isVisible := false
     }
 
     static ListVariables(*) {
@@ -438,8 +440,8 @@ class AHDebugHelper {
         x := 0
         y := 0
         MouseGetPos(&x, &y)
-        Random(&jitterX, -5, 5)
-        Random(&jitterY, -5, 5)
+        jitterX := Random(-5, 5)
+        jitterY := Random(-5, 5)
         MouseMove(x + jitterX, y + jitterY, 0)
     }
 
@@ -454,8 +456,8 @@ class AHDebugHelper {
     }
 
     static RandomClicksStep(*) {
-        Random(&x, 0, A_ScreenWidth)
-        Random(&y, 0, A_ScreenHeight)
+        x := Random(0, A_ScreenWidth)
+        y := Random(0, A_ScreenHeight)
         Click(x, y)
     }
 

@@ -28,7 +28,7 @@ MENU_ITEMS_VISIBLE := 10
 ClipboardHistory := []
 
 ; Last active window ID
-LastActiveWindow := 0
+savedWindow := 0
 
 ; =============================================================================
 ; MAIN SCRIPT
@@ -93,7 +93,7 @@ ShowClipboardMenu() {
     }
     
     ; Save the current active window
-    LastActiveWindow := WinExist("A")
+    savedWindow := WinExist("A")
     
     ; Create the GUI
     menuGui := Gui("+AlwaysOnTop +ToolWindow -SysMenu -Caption", "Clipboard History")
@@ -177,8 +177,8 @@ PasteSelectedItem(menuGui, lbItems, *) {
         A_Clipboard := selectedItem.text
         
         ; Paste to the last active window
-        if (LastActiveWindow) {
-            WinActivate "ahk_id " LastActiveWindow
+        if (savedWindow) {
+            WinActivate "ahk_id " savedWindow
             Sleep 100
             Send "^v"
         }

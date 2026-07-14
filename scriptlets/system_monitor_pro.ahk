@@ -158,7 +158,7 @@ class SystemMonitorPro {
             RunWait('powershell -Command "Get-WmiObject -Class Win32_Processor | Select-Object -ExpandProperty LoadPercentage"', &output)
             return Integer(output)
         } catch {
-            Random(&fallback, 10, 90)
+            fallback := Random(10, 90)
             return fallback  ; Fallback
         }
     }
@@ -170,7 +170,7 @@ class SystemMonitorPro {
             RunWait(cmd, &output)
             return Integer(output)
         } catch {
-            Random(&fallback, 30, 80)
+            fallback := Random(30, 80)
             return fallback  ; Fallback
         }
     }
@@ -242,9 +242,9 @@ class SystemMonitorPro {
         
         ; Create network display
         chart := "Network Activity`n"
-        Random(&bytesRecv, 1000, 9999)
-        Random(&bytesSent, 100, 999)
-        Random(&packets, 10, 100)
+        bytesRecv := Random(1000, 9999)
+        bytesSent := Random(100, 999)
+        packets := Random(10, 100)
         chart .= "Bytes Received: " . bytesRecv . " MB`n"
         chart .= "Bytes Sent: " . bytesSent . " MB`n"
         chart .= "Packets/sec: " . packets
@@ -396,15 +396,14 @@ class SystemMonitorPro {
     }
     
     static CloseGUI(*) {
+        if !WinActive("System Monitor Pro")
+            return
         try {
-            if (WinExist("System Monitor Pro")) {
-                WinClose("System Monitor Pro")
-            }
+            WinClose("System Monitor Pro")
         } catch {
-            ; Ignore errors
         }
     }
-    
+
     static SetupHotkeys() {
         ; Main hotkey
         Hotkey("^!m", (*) => this.CreateGUI())
@@ -413,7 +412,7 @@ class SystemMonitorPro {
         Hotkey("F10", (*) => this.ShowAlerts())
         
         ; Close with Escape
-        Hotkey("Escape", this.CloseGUI.Bind(this))
+        Hotkey("Escape", (*) => WinActive("System Monitor Pro") && this.CloseGUI())
     }
 }
 

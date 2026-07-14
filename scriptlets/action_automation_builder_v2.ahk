@@ -329,18 +329,18 @@ class AutomationBuilder {
         }
 
         timestamp := ""
-        FormatTime(timestamp, A_Now, "yyyyMMdd_HHmmss")
+        timestamp := FormatTime(A_Now, "yyyyMMdd_HHmmss")
         fileName := "workflow_" . timestamp . ".json"
         filePath := A_ScriptDir . "\" . fileName
 
         try {
             json := AutomationBuilder.SerializeWorkflow()
-            file := FileOpen(filePath, "w", "UTF-8")
-            if (!file) {
+            fObj := FileOpen(filePath, "w", "UTF-8")
+            if (!fObj) {
                 throw Error("Could not open file for writing.")
             }
-            file.Write(json)
-            file.Close()
+            fObj.Write(json)
+            fObj.Close()
             AutomationBuilder.AppendLog("Workflow saved to " . fileName . ".")
             AutomationBuilder.ShowTimedNotification("Workflow Saved", fileName, 10000)
         } catch as e {
@@ -375,7 +375,7 @@ class AutomationBuilder {
         }
 
         generated := ""
-        FormatTime(generated, A_Now, "yyyy-MM-dd HH:mm:ss")
+        generated := FormatTime(A_Now, "yyyy-MM-dd HH:mm:ss")
         quote := Chr(34)
         return "{" . quote . "nodes" . quote . ":[" . AutomationBuilder.JoinArray(nodes, ",") . "]," . quote . "generated" . quote . ":" . quote . generated . quote . "}"
     }

@@ -806,7 +806,7 @@ class Office365Automation {
         Hotkey("^!e", (*) => this.ExcelShortcuts())
         
         ; Close with Escape
-        Hotkey("Escape", (*) => this.CloseSuite())
+        Hotkey("Escape", (*) => WinActive("Office 365 Automation Suite") && this.CloseSuite())
     }
 
     static HandleQuickReplyTemplate(templateGui, reply, template) {
@@ -957,9 +957,9 @@ class Office365Automation {
     }
 
     static CloseSuite() {
-        if (WinExist("Office 365 Automation Suite")) {
-            WinClose("Office 365 Automation Suite")
-        }
+        if !WinActive("Office 365 Automation Suite")
+            return
+        WinClose("Office 365 Automation Suite")
     }
 }
 

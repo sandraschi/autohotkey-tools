@@ -388,11 +388,11 @@ class AICodeAssistant {
     }
 
     static CloseGUI(*) {
-        if (WinExist("AI Code Assistant")) {
-            WinClose("AI Code Assistant")
-        }
+        if !WinActive("AI Code Assistant")
+            return
+        WinClose("AI Code Assistant")
     }
-    
+
     static SetupHotkeys() {
         ; Main hotkey
         Hotkey("^!a", (*) => this.CreateGUI())
@@ -401,16 +401,16 @@ class AICodeAssistant {
         Hotkey("^!i", (*) => this.AnalyzeCode())
         
         ; Close with Escape
-        Hotkey("Escape", (*) => this.CloseGUI())
+        Hotkey("Escape", (*) => WinActive("AI Code Assistant") && this.CloseGUI())
     }
 
     static WriteFileUtf8(path, content) {
-        file := FileOpen(path, "w", "UTF-8")
-        if (!file) {
+        fObj := FileOpen(path, "w", "UTF-8")
+        if (!fObj) {
             throw Error("Unable to open file: " . path)
         }
-        file.Write(content)
-        file.Close()
+        fObj.Write(content)
+        fObj.Close()
     }
 }
 

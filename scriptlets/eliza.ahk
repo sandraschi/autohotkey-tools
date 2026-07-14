@@ -469,7 +469,7 @@ GetElizaResponse(input) {
         "How do you feel when you say that?"
     ]
     
-    Random(&randomIndex, 1, defaultResponses.Length)
+    randomIndex := Random(1, defaultResponses.Length)
     return defaultResponses[randomIndex]
 }
 
