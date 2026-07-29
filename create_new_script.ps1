@@ -75,13 +75,13 @@ Initialize() {
 
 # Write to file
 $content | Out-File -FilePath $filePath -Encoding UTF8 -NoNewline
-Write-Host "  ✓ Script created: $filePath" -ForegroundColor Green
+Write-Host "  OK Script created: $filePath" -ForegroundColor Green
 
 # Step 2: Auto-fix
 Write-Host "`n[2/4] Auto-fixing..." -ForegroundColor Yellow
 $fixResult = & autohotkey.exe /ErrorStdOut utils\autofix_engine.ahk "$filePath" 2>&1
 if ($LASTEXITCODE -eq 0) {
-    Write-Host "  ✓ Auto-fixes applied" -ForegroundColor Green
+    Write-Host "  OK Auto-fixes applied" -ForegroundColor Green
 } else {
     Write-Host "  ⚠ Auto-fix issues" -ForegroundColor Yellow
     Write-Host $fixResult -ForegroundColor Gray
@@ -91,7 +91,7 @@ if ($LASTEXITCODE -eq 0) {
 Write-Host "`n[3/4] Linting..." -ForegroundColor Yellow
 $lintResult = & autohotkey.exe /ErrorStdOut utils\linter.ahk "$filePath" 2>&1
 if ($LASTEXITCODE -eq 0) {
-    Write-Host "  ✓ Linting passed" -ForegroundColor Green
+    Write-Host "  OK Linting passed" -ForegroundColor Green
 } else {
     Write-Host "  ⚠ Linting issues found:" -ForegroundColor Yellow
     Write-Host $lintResult -ForegroundColor Gray
@@ -101,7 +101,7 @@ if ($LASTEXITCODE -eq 0) {
 Write-Host "`n[4/4] Testing execution..." -ForegroundColor Yellow
 $testResult = & autohotkey.exe /ErrorStdOut "$filePath" 2>&1
 if ($LASTEXITCODE -eq 0) {
-    Write-Host "  ✓ Script executes cleanly" -ForegroundColor Green
+    Write-Host "  OK Script executes cleanly" -ForegroundColor Green
 } else {
     Write-Host "  ⚠ Execution issues:" -ForegroundColor Yellow
     Write-Host $testResult -ForegroundColor Gray

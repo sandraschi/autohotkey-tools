@@ -25,7 +25,7 @@ Get-ChildItem -Path $scriptletsDir -Filter "*.ahk" -Recurse | Where-Object {
     if ($content -match 'OnError\("LogError"\)') {
         $content = $content -replace 'OnError\("LogError"\)', 'OnError(LogError)'
         $changed = $true
-        Write-Host "  ✓ Fixed OnError callback" -ForegroundColor Green
+        Write-Host "  OK Fixed OnError callback" -ForegroundColor Green
     }
     
     # Fix 2: LogError function signature and return
@@ -41,14 +41,14 @@ Get-ChildItem -Path $scriptletsDir -Filter "*.ahk" -Recurse | Where-Object {
         $content = $content -replace '(\s+return\s+)true(\s+;.*Suppress.*popup)', '$11$2'
         $content = $content -replace '(\s+return\s+)true(\s+;.*Suppress)', '$11$2'
         $changed = $true
-        Write-Host "  ✓ Fixed LogError signature" -ForegroundColor Green
+        Write-Host "  OK Fixed LogError signature" -ForegroundColor Green
     }
     
     # Fix 3: BackColor with 0x prefix
     if ($content -match 'BackColor\s*:=\s*"0x') {
         $content = $content -replace 'BackColor\s*:=\s*"0x([0-9a-fA-F]{6})"', 'BackColor := "$1"'
         $changed = $true
-        Write-Host "  ✓ Fixed BackColor syntax" -ForegroundColor Green
+        Write-Host "  OK Fixed BackColor syntax" -ForegroundColor Green
     }
     
     # Fix 4: SetFont with cWhite
@@ -56,34 +56,34 @@ Get-ChildItem -Path $scriptletsDir -Filter "*.ahk" -Recurse | Where-Object {
         $content = $content -replace 'SetFont\(([^,)]*),?\s*cWhite', 'SetFont($1cFFFFFF'
         $content = $content -replace 'SetFont\(([^,)]*),?\s*"([^"]*)\s+cWhite', 'SetFont($1"$2 cFFFFFF'
         $changed = $true
-        Write-Host "  ✓ Fixed SetFont color" -ForegroundColor Green
+        Write-Host "  OK Fixed SetFont color" -ForegroundColor Green
     }
     
     # Fix 5: Color options in Add() strings (c0x...)
     if ($content -match 'c0x[0-9a-fA-F]{6}') {
         $content = $content -replace 'c0x([0-9a-fA-F]{6})', { param($m) 'c' + $m.Groups[1].Value.ToUpper() }
         $changed = $true
-        Write-Host "  ✓ Fixed Add() color options" -ForegroundColor Green
+        Write-Host "  OK Fixed Add() color options" -ForegroundColor Green
     }
     
     # Fix 6: Edit controls with +Multi +VScroll
     if ($content -match '\.Add\("Edit".*\+Multi.*\+VScroll') {
         $content = $content -replace '(\+Multi)\s*(\+VScroll)', 'Multi VScroll'
         $changed = $true
-        Write-Host "  ✓ Fixed Edit control options" -ForegroundColor Green
+        Write-Host "  OK Fixed Edit control options" -ForegroundColor Green
     }
     
     # Fix 7: Background with 0x in Add() options
     if ($content -match 'Background0x[0-9a-fA-F]{6}') {
         $content = $content -replace 'Background0x([0-9a-fA-F]{6})', { param($m) 'Background' + $m.Groups[1].Value.ToUpper() }
         $changed = $true
-        Write-Host "  ✓ Fixed Background in Add() options" -ForegroundColor Green
+        Write-Host "  OK Fixed Background in Add() options" -ForegroundColor Green
     }
     
     if ($changed) {
         Set-Content -Path $file -Value $content -Encoding UTF8 -NoNewline
         $fixed++
-        Write-Host "  ✓ File updated" -ForegroundColor Green
+        Write-Host "  OK File updated" -ForegroundColor Green
     } else {
         $skipped++
         Write-Host "  - No changes needed" -ForegroundColor Gray

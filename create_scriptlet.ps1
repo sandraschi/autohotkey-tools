@@ -43,7 +43,7 @@ if ($LASTEXITCODE -ne 0) {
     exit 1
 }
 
-Write-Host "  âœ“ Script generated" -ForegroundColor Green
+Write-Host "  âœ" Script generated" -ForegroundColor Green
 
 # Step 2: Auto-fix the script
 Write-Host "`n[2/4] Auto-fixing scriptlet..." -ForegroundColor Yellow
@@ -52,7 +52,7 @@ $scriptPath = "scriptlets\$filename"
 
 if (Test-Path $scriptPath) {
     $fixResult = & autohotkey.exe /ErrorStdOut "utils\autofix_engine.ahk" "$scriptPath" 2>&1
-    Write-Host "  âœ“ Auto-fixes applied" -ForegroundColor Green
+    Write-Host "  âœ" Auto-fixes applied" -ForegroundColor Green
 } else {
     Write-Host "  âœ- Script not found: $scriptPath" -ForegroundColor Red
     exit 1
@@ -62,7 +62,7 @@ if (Test-Path $scriptPath) {
 Write-Host "`n[3/4] Validating scriptlet..." -ForegroundColor Yellow
 $lintResult = & autohotkey.exe /ErrorStdOut "utils\linter.ahk" "$scriptPath" 2>&1
 if ($LASTEXITCODE -eq 0) {
-    Write-Host "  âœ“ Linting passed" -ForegroundColor Green
+    Write-Host "  âœ" Linting passed" -ForegroundColor Green
 } else {
     Write-Host "  âš  Linting issues found (see output)" -ForegroundColor Yellow
     Write-Host $lintResult -ForegroundColor Gray
@@ -72,7 +72,7 @@ if ($LASTEXITCODE -eq 0) {
 Write-Host "`n[4/4] Testing execution..." -ForegroundColor Yellow
 $testResult = & autohotkey.exe /ErrorStdOut "$scriptPath" 2>&1
 if ($LASTEXITCODE -eq 0) {
-    Write-Host "  âœ“ Script executes without errors" -ForegroundColor Green
+    Write-Host "  âœ" Script executes without errors" -ForegroundColor Green
 } else {
     Write-Host "  âš  Execution test issues:" -ForegroundColor Yellow
     Write-Host $testResult -ForegroundColor Gray
