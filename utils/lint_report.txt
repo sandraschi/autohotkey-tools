@@ -1,0 +1,23 @@
+﻿Lint Report for: D:\Dev\repos\autohotkey-test\scriptlets\ipad_scroll_widget.ahk
+Generated: 2026-07-06 21:00:50
+Total Lines: 192
+
+Issues found:
+
+WARNINGS (9):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+  [Warning] Line 35   - Found global variable declaration - consider using static or local variables
+  [Warning] Line 36   - Found global variable declaration - consider using static or local variables
+  [Warning] Line 72   - Found global variable declaration - consider using static or local variables
+  [Warning] Line 109  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 134  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 156  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 168  - Found global variable declaration - consider using static or local variables
+
+SUGGESTIONS (5):
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+  [Suggestion] Line 9    - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 188  - File operation without try-catch - consider adding error handling
+  [Suggestion] Line 77   - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 78   - Very short variable name - consider using more descriptive names
