@@ -1,12 +1,12 @@
 # test_bridge_detection.ps1
-# Scaffold: minimal HTTP server on 10744 + launcher detection logic. Run from repo root: .\tests\test_bridge_detection.ps1
+# Scaffold: minimal HTTP server on 10764 + launcher detection logic. Run from repo root: .\tests\test_bridge_detection.ps1
 
 $ErrorActionPreference = 'Stop'
-$Port = 10744
+$Port = 10764
 
 # --------------- Same detection logic as start_dashboard.ps1 ---------------
 function Test-BridgeRunning {
-    param([int]$Port = 10744)
+    param([int]$Port = 10764)
     try {
         $tcp = New-Object System.Net.Sockets.TcpClient
         $async = $tcp.BeginConnect('127.0.0.1', $Port, $null, $null)
@@ -85,3 +85,4 @@ if (-not $result2) {
 }
 
 Write-Host "Done." -ForegroundColor Cyan
+

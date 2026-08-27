@@ -1,8 +1,8 @@
-﻿# Per-repo fleet start config for autohotkey-test
+# Per-repo fleet start config for autohotkey-test
 # Edit ports/backend target here - start.ps1 is fleet-standard.
 @{
     Name         = 'autohotkey-test'
-    BackendPort  = 10744
+    BackendPort  = 10764
     FrontendPort = 0
     HealthPath   = '/status'
     WebRoot      = 'D:\Dev\repos\autohotkey-test'
@@ -15,3 +15,4 @@
         Kind = 'none'
     }
 }
+

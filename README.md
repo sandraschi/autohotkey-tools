@@ -29,13 +29,13 @@ If you don't have `just` installed:
 .\start.bat
 # Or directly:
 .\start_dashboard.ps1
-Dashboard opens at **`http://127.0.0.1:10744/dashboard`**.
+Dashboard opens at **`http://127.0.0.1:10764/dashboard`**.
 
 ## What's Here
 
 | Path | Description |
 |------|-------------|
-| `ScriptletCOMBridge.ahk` | HTTP server on **10744** — `/scriptlets`, `/run/:name`, `/stop/:name`, `/dashboard` |
+| `ScriptletCOMBridge.ahk` | HTTP server on **10764** — `/scriptlets`, `/run/:name`, `/stop/:name`, `/dashboard` |
 | `scriptlets/` | 80+ AHK v2 scripts by category |
 | `scriptlets/ai_generated/` | Sandbox for MCP-generated scripts — review before promoting |
 | `scriptlet_launcher_v2.ahk` | Native GUI launcher |
@@ -77,7 +77,7 @@ Dashboard opens at **`http://127.0.0.1:10744/dashboard`**.
 
 ## Arcade Games
 
-13 playable arcade games in `scriptlets/`. GDI+ rendering in classic_pong. ASCII grid rendering in tetris, frogger, pacman, qbert. All use `HotIf`-scoped hotkeys (no global key stealing). Access via bridge at `http://127.0.0.1:10744/dashboard`.
+13 playable arcade games in `scriptlets/`. GDI+ rendering in classic_pong. ASCII grid rendering in tetris, frogger, pacman, qbert. All use `HotIf`-scoped hotkeys (no global key stealing). Access via bridge at `http://127.0.0.1:10764/dashboard`.
 
 | Game | Rendering | Controls |
 |------|-----------|----------|
@@ -99,7 +99,7 @@ All games now use `HotIf`-scoped hotkeys instead of global guards. Keys pass thr
 
 ```
 AUTOHOTKEY_SCRIPT_DEPOT=D:\Dev\repos\autohotkey-test
-AUTOHOTKEY_BRIDGE_URL=http://127.0.0.1:10744
+AUTOHOTKEY_BRIDGE_URL=http://127.0.0.1:10764
 ```
 
 When the bridge is running, `list_scriptlets` / `run_scriptlet` / `stop_scriptlet`
@@ -108,7 +108,7 @@ launches AHK via subprocess.
 
 ## Port
 
-`10744` — ScriptletCOMBridge HTTP server. Registered in `mcp-central-docs/operations/WEBAPP_PORTS.md`.
+`10764` — ScriptletCOMBridge HTTP server. Registered in `mcp-central-docs/operations/WEBAPP_PORTS.md`.
 
 ## Requirements
 
@@ -123,3 +123,4 @@ AHK scripts have full desktop access. Only run trusted scripts. Review `ai_gener
 ## License
 
 MIT
+

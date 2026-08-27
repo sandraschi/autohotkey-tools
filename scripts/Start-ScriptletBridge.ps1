@@ -1,8 +1,8 @@
-# Start ScriptletCOMBridge.ahk (HTTP on 10744). Used by fleet-start custom backend.
+# Start ScriptletCOMBridge.ahk (HTTP on 10764). Used by fleet-start custom backend.
 $ErrorActionPreference = 'Stop'
 $RepoRoot = Split-Path -Parent $PSScriptRoot
 $BridgeScript = Join-Path $RepoRoot 'ScriptletCOMBridge.ahk'
-$BridgePort = 10744
+$BridgePort = 10764
 
 $AhkPaths = @(
     "$env:ProgramFiles\AutoHotkey\v2\AutoHotkey64.exe",
@@ -22,7 +22,7 @@ if (-not $AhkExe) {
 }
 
 function Test-BridgeRunning {
-    param([int]$Port = 10744)
+    param([int]$Port = 10764)
     try {
         $tcp = New-Object System.Net.Sockets.TcpClient
         $async = $tcp.BeginConnect('127.0.0.1', $Port, $null, $null)
@@ -50,3 +50,4 @@ if (-not (Test-Path -LiteralPath $BridgeScript)) {
 
 Start-Process -FilePath $AhkExe -ArgumentList @('/ErrorStdOut', $BridgeScript) -WindowStyle Hidden
 Write-Host "Started ScriptletCOMBridge (waiting for /status on :$BridgePort)..."
+

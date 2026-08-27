@@ -38,8 +38,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **README.md**: Updated with widget docs, justfile recipes, and linter status.
 
 ### Changed
-- **Scriptlet bridge port**: 8765 → **10744** (fleet port scheme, see robofang `docs/standards/WEBAPP_PORTS.md`). Bridge binds to `127.0.0.1:10744` only; zombie kill before bind, no port crawling.
-- **Launcher**: `start_dashboard.bat` / `start_dashboard.ps1` start the bridge and open the dashboard. **Known issue:** bridge detection in the launcher may not report "Bridge is live" before opening the browser; the webapp works nonetheless—open `http://127.0.0.1:10744/dashboard` or use the script to open it.
+- **Scriptlet bridge port**: 8765 → **10764** (fleet port scheme, see robofang `docs/standards/WEBAPP_PORTS.md`). Bridge binds to `127.0.0.1:10764` only; zombie kill before bind, no port crawling.
+- **Launcher**: `start_dashboard.bat` / `start_dashboard.ps1` start the bridge and open the dashboard. **Known issue:** bridge detection in the launcher may not report "Bridge is live" before opening the browser; the webapp works nonetheless—open `http://127.0.0.1:10764/dashboard` or use the script to open it.
 
 ### Added
 - AutoHotkey++ Cursor Extension support documentation
@@ -135,6 +135,7 @@ See git commit history for detailed changes before 2025-01-XX.
 **License**: MIT License  
 **Author**: Sandra Schi  
 **Copyright**: © 2025 Sandra Schi
+
 
 
 

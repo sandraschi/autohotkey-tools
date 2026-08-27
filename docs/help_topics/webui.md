@@ -35,9 +35,10 @@ The modern launcher lives in `launcher_enhanced.html`. It discovers metadata in 
 ## Troubleshooting
 
 1. If nothing loads, ensure the bridge is running (`ScriptletCOMBridge.ahk` or tray).  
-2. Use browser dev tools to inspect fetch calls (should point to `http://127.0.0.1:10744`).  
+2. Use browser dev tools to inspect fetch calls (should point to `http://127.0.0.1:10764`).  
 3. Verify the scriptlet metadata contains valid JSON; malformed fields are ignored.  
 4. Run the harness manually when stats look stale.
 
 Remember: the launcher is the friendly face, but quality comes from the scriptlets and harness underneath. Keep metadata up to date—users rely on it here.
+
 

@@ -16,7 +16,7 @@ AutoHotkey Scriptlet (logs + GUI + hotkeys)
 
 ## Bridge Responsibilities
 
-- Serve `/run`, `/stop`, `/status`, and `/dashboard` on **`http://127.0.0.1:10744`** (fleet port 10744). Single port only; zombie kill before bind.  
+- Serve `/run`, `/stop`, `/status`, and `/dashboard` on **`http://127.0.0.1:10764`** (fleet port 10764). Single port only; zombie kill before bind.  
 - Launch AutoHotkey with `/ErrorStdOut` and `/Warn All,Off`.  
 - Enforce a strict timeout (default 10 s) and throttle (default 5 concurrent).  
 - Terminate stray processes via `CloseMainWindow()` then `Kill()` if needed.  
@@ -46,4 +46,5 @@ Every scriptlet must:
 - When AutoHotkey logs complain about missing callbacks, sweep the repo for identical patterns and fix them all in one pass.
 
 Use the bridge topic whenever you need to remember the launch pipeline or the forced command-line switches the harness applies.
+
 

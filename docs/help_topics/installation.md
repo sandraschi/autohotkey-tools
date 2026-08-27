@@ -34,7 +34,7 @@ The harness launches every scriptlet with `/ErrorStdOut` and `/Warn All,Off`, re
 ## Troubleshooting
 
 - **AutoHotkey not found:** rerun the installer; ensure `.ahk` files are associated.  
-- **Bridge offline:** ensure the bridge is running (tray or `ScriptletCOMBridge.ahk`). Dashboard at `http://127.0.0.1:10744/dashboard`. Launcher may not report "live" but the webapp works. “”  
+- **Bridge offline:** ensure the bridge is running (tray or `ScriptletCOMBridge.ahk`). Dashboard at `http://127.0.0.1:10764/dashboard`. Launcher may not report "live" but the webapp works. “”  
 - **Popups hanging:** ensure every new scriptlet uses timed `MsgBox` or non-blocking alerts.  
 - **Permissions:** if a script needs admin rights, document it in the header and use `Run("*RunAs", ...)` carefully.
 
@@ -46,4 +46,5 @@ The harness launches every scriptlet with `/ErrorStdOut` and `/Warn All,Off`, re
 - Sweep for repeated bug patterns whenever you fix one—Rule #7 in `.cursorrules`.
 
 Done correctly, setup is a once-off effort. The rest of the time, you launch scriptlets, watch logs, and keep grinding down issues.
+
 

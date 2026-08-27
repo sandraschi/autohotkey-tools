@@ -103,7 +103,7 @@ To use these tools:
    ```powershell
    Start-Process powershell -ArgumentList "-NoProfile -File test_server_simple.ps1" -WindowStyle Minimized
    ```
-   Then open `http://127.0.0.1:10744/dashboard`
+   Then open `http://127.0.0.1:10764/dashboard`
 
 2. **Test Macro Recorder:**
    - Press `Ctrl+Alt+R` to start recording
@@ -162,4 +162,5 @@ Possible additions:
 Created: 2025-10-24
 Author: Sandra
 Version: 1.0.0
+
 

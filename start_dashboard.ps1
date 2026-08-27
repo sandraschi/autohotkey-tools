@@ -4,7 +4,7 @@
 $ScriptDir    = Split-Path -Parent $MyInvocation.MyCommand.Path
 $BridgeScript = Join-Path $ScriptDir 'ScriptletCOMBridge.ahk'
 $Dashboard    = Join-Path $ScriptDir 'dashboard.html'
-$BridgePort   = 10744
+$BridgePort   = 10764
 
 Write-Host ""
 Write-Host "AHK Control Tower - Launcher" -ForegroundColor Magenta
@@ -32,11 +32,11 @@ if (-not $AhkExe) {
 }
 Write-Host "OK  AutoHotkey: $AhkExe" -ForegroundColor Green
 
-# 2. Bridge detection: TCP connect then GET /status (port 10744 only)
-$BridgePort = 10744
+# 2. Bridge detection: TCP connect then GET /status (port 10764 only)
+$BridgePort = 10764
 
 function Test-BridgeRunning {
-    param([int]$Port = 10744)
+    param([int]$Port = 10764)
     try {
         # 1) Port open?
         $tcp = New-Object System.Net.Sockets.TcpClient
@@ -72,7 +72,7 @@ if (Test-BridgeRunning -Port $BridgePort) {
     }
     Start-Process -FilePath $AhkExe -ArgumentList "/ErrorStdOut `"$BridgeScript`"" -WindowStyle Hidden
 
-    Write-Host "   Giving bridge time to start (zombie kill + bind 10744)..." -ForegroundColor DarkGray
+    Write-Host "   Giving bridge time to start (zombie kill + bind 10764)..." -ForegroundColor DarkGray
     Start-Sleep -Seconds 6
     Write-Host "   Checking for bridge on port $BridgePort..." -ForegroundColor DarkGray
     $waited = 0
@@ -86,7 +86,7 @@ if (Test-BridgeRunning -Port $BridgePort) {
         Write-Host "OK  Bridge is live on port $BridgePort" -ForegroundColor Green
     } else {
         Write-Host "WARN: Bridge did not respond in time - opening dashboard anyway." -ForegroundColor Yellow
-        Write-Host "   If bind fails, run once as Admin: netsh http add urlacl url=http://+:10744/ user=Everyone" -ForegroundColor DarkGray
+        Write-Host "   If bind fails, run once as Admin: netsh http add urlacl url=http://+:10764/ user=Everyone" -ForegroundColor DarkGray
     }
 }
 
@@ -97,3 +97,4 @@ Start-Process $DashboardUrl
 
 Write-Host "DONE. Dashboard is open in your browser." -ForegroundColor Green
 Write-Host ""
+

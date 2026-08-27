@@ -47,9 +47,9 @@ If you prefer not to use `just`:
    uv run python -m autohotkey_test.server
 
    # HTTP mode (for web dashboard)
-   uv run uvicorn autohotkey_test.server:app --port 10744
+   uv run uvicorn autohotkey_test.server:app --port 10764
    ```
-5. Open `http://localhost:10744` or the frontend URL.
+5. Open `http://localhost:10764` or the frontend URL.
 
 ---
 
@@ -65,3 +65,4 @@ If you prefer not to use `just`:
 ---
 
 *See the main [README](README.md) for feature overview and documentation.*
+
