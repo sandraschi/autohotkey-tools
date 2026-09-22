@@ -27,6 +27,13 @@ Nothing yet.
 ### Changed
 - `ASSESSMENT.md` regenerated from scratch — the previous version, dated 2026-01-01 and describing this as a "Runt" with "no standards compliance detected," was 9 months stale. Retired to `OBSOLETE_ASSESSMENT_2026-01-01.md`.
 - `README.md` and `INSTALL.md` rewritten — both previously carried a generic fleet MCP-server template (Python 3.13+/FastMCP/`uv` badges and instructions) that doesn't apply to this repo at all (AHK v2 + PowerShell, no Python). Also removed the README's description of `ollama_chatbot_v3.ahk` as a working feature (it was the dead stub deleted above); documented the three overlapping launcher implementations honestly instead of presenting one as canonical.
+- **README**: added a section leading with the actual value proposition — this depot is a live target for AI-generated scriptlets (`autohotkey-mcp`'s `generate_scriptlet`), not just a fixed collection to browse. Backed by a real end-to-end demo the same day (see below).
+
+### Added (later same day)
+- **`blender_helper_popup.ahk`**: generated, lint-checked, and registered as a live demonstration of the generate → review → promote workflow the README now documents. Small always-on-top HUD with a Blender shortcut cheat sheet and a render-output-folder shortcut, `Ctrl+Alt+Y`. Caught and fixed a real hotkey collision in the process (`^!b` was already claimed by 3 other registered tools) before registering. `metadata.json`: 63 → 64 plugins.
+
+### Fixed (later same day)
+- **Silent-exit bug**: `blender_helper_popup.ahk` built its GUI and registered its hotkey successfully, then the whole process exited ~51 seconds later with nothing left running — confirmed live via AHK's ListLines debug window. Root cause: a script that only calls the *dynamic* `Hotkey()` function (not a static `Key::` directive) with no `Persistent()`, `SetTimer()`, or shown `Gui` has nothing keeping its auto-execute thread resident in AHK v2. Fixed with `Persistent()`. Audited the rest of today's newly-registered scriptlets for the same pattern and found + fixed 2 more: `window_snapping.ahk`, `system_shortcuts.ahk`. A 4th instance (`scriptlet_tester.ahk`, pre-existing, not registered) and a fleet-wide sweep for the same pattern in other repos' `.ahk` files are tracked as follow-up tasks.
 
 ## [2025-11-22] (historical, previously mislabeled "Unreleased")
 

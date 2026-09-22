@@ -20,7 +20,7 @@ A depot of ~64 AutoHotkey v2 scriptlets (`scriptlets/`) — clipboard/window/med
 | **Has MCPB Packaging** | N/A — not a Claude Desktop MCP server |
 | **Has CI/CD Pipeline** | False — still a real gap |
 | **Has Monitoring Stack** | False — not applicable at this scale, low priority |
-| **Scriptlet catalog** | 63 registered in `metadata.json` (was 43 before 2026-09-22) |
+| **Scriptlet catalog** | 64 registered in `metadata.json` (was 43 before 2026-09-22) |
 | **Depot bridge** | Working, verified live on :10764 as of 2026-09-22 |
 
 ## 🎯 2026-09-22 work log (today)
@@ -32,6 +32,10 @@ A depot of ~64 AutoHotkey v2 scriptlets (`scriptlets/`) — clipboard/window/med
 - Fixed two broken catalog entries: `weather_widget` (registered, but no v2 file exists — only an unmigrated `v1/weather_widget.ahk` needing an API key that was never configured; deregistered rather than leaving a dead entry) and `classic_pranks_collection` (key didn't match its actual file `classic_pranks.ahk`; renamed, and fixed its category from the invalid `"pranks"` to `"fun"`).
 - **`ScriptletCOMBridge.ahk`**: the `/scriptlets` endpoint does a live recursive directory scan (not a `metadata.json` read) and already excluded `v1/` and `lib/`, but not the new `_archive/` — fixed, so archived scriptlets no longer appear as launchable in the dashboard.
 - **`ScriptletCOMBridge.ahk`**: found the bridge's actual `HttpListener` still hardcoded to port **10744** internally (`$port = 10744`, plus 5 more references in port-cleanup/health-check/exit calls), even though the external-facing port migration to 10764 (commit `122b1c0`, per `WEBAPP_PORTS.md`) had updated `dashboard.html` and `start_dashboard.ps1`. Port 10744 now belongs to `openclaw-molt-mcp`'s webapp frontend — this was a live collision risk. Fixed all 6 internal references; killed the stale detached `powershell.exe` listener process still bound to 10744; verified `/status` and `/scriptlets` both respond correctly on 10764.
+- **`justfile`**: `dash` recipe had the same stale-port bug (opened `:10744`). Fixed to `:10764`.
+- **`ScriptletLauncher.ahk`** registered (had a proper header, priority 1/auto-start, was never wired into the catalog): 63 → 64 plugins.
+- **Live demo**: generated `blender_helper_popup.ahk` end-to-end (write → lint → run-test → promote → register) to prove out the README's new generative-workflow pitch. Caught a real hotkey collision (`^!b` already claimed by 3 tools) before registering — moved to `^!y`.
+- **Real bug found via the live demo**: the generated popup built its GUI and registered its hotkey, then the whole AHK process silently exited ~51s later (confirmed via AHK's ListLines debug window) — a script using only the dynamic `Hotkey()` function with no `Persistent()`/`SetTimer()`/shown `Gui` has nothing keeping AHK v2's auto-execute thread resident. Fixed with `Persistent()`; verified the process survived 80s+ after the fix (was dying at 51s before). Audited today's other newly-registered scriptlets for the same pattern and fixed 2 more: `window_snapping.ahk`, `system_shortcuts.ahk`. A 4th pre-existing instance (`scriptlet_tester.ahk`) and a fleet-wide sweep for the same pattern in other repos are running as separate background tasks (not yet complete as of this writing).
 
 ## 📋 Real, currently-open gaps
 
