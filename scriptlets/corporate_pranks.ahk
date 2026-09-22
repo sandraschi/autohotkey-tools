@@ -1,6 +1,6 @@
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
-#Include A_ScriptDir\lib\ScriptletErrorHandler.ahk
+#Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
 ; @name: Corporate Prank Generator
 ; @description: Office-humor pranks distinct from the general/classic prank sets -- corporate-flavored gags with a panic-button stop-all.
