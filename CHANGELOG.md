@@ -35,6 +35,13 @@ Nothing yet.
 ### Fixed (later same day)
 - **Silent-exit bug**: `blender_helper_popup.ahk` built its GUI and registered its hotkey successfully, then the whole process exited ~51 seconds later with nothing left running — confirmed live via AHK's ListLines debug window. Root cause: a script that only calls the *dynamic* `Hotkey()` function (not a static `Key::` directive) with no `Persistent()`, `SetTimer()`, or shown `Gui` has nothing keeping its auto-execute thread resident in AHK v2. Fixed with `Persistent()`. Audited the rest of today's newly-registered scriptlets for the same pattern and found + fixed 2 more: `window_snapping.ahk`, `system_shortcuts.ahk`. A 4th instance (`scriptlet_tester.ahk`, pre-existing, not registered) and a fleet-wide sweep for the same pattern in other repos' `.ahk` files are tracked as follow-up tasks.
 
+### Changed (repo rename)
+- **Repo renamed `autohotkey-test` → `autohotkey-tools`** (GitHub + local), sibling `ahk-linter` renamed to `autohotkey-linter`. Cross-repo references updated fleet-wide (`mcp-central-docs` starts/launchers, port registry, `autohotkey-mcp`'s depot resolution).
+
+### Fixed (later same day, cont'd)
+- **README leftover rename references**: title, clone URL, and two cross-links still said `autohotkey-test`/`ahk-lint` after the rename above. Also replaced a hardcoded `D:\Dev\repos\autohotkey-test` example path with a portable one, and corrected a "no one-click promote tool yet" note — `scriptlet_ops(operation="promote")` was added to `autohotkey-mcp` the same day.
+- **17 live scriptlets failed to load** (`#Include file ... cannot be opened. The program will exit.`): `#Include A_ScriptDir\lib\ScriptletErrorHandler.ahk` is missing the required `%...%` around `A_ScriptDir` — AHK v2 only expands it in `#Include` lines when percent-wrapped, otherwise it's a literal (nonexistent) folder name. Reported for `dev_context_music.ahk`; grep found 16 more with the identical typo. Fixed all 17 (`.bak`'d first, 4 commits of ≤5 files per Batch Mutation Safety rule): `action_automation_builder_v2`, `autohotkey_warning`, `corporate_pranks`, `dev_context_music`, `github_repo_manager`, `macro_expander`, `macro_recorder_pro`, `office365_automation`, `macro_editor_pro`, `prompt_snippets_bank`, `PuzzleGame`, `qbert_game`, `quick_launch`, `system_shortcuts`, `video_filename_scrubber`, `window_snapping`, `word_games`.
+
 ## [2025-11-22] (historical, previously mislabeled "Unreleased")
 
 ### Fixed
