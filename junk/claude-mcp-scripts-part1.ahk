@@ -1,4 +1,5 @@
 #Requires AutoHotkey v2.0+
+Persistent()
 ; Enhanced AutoHotkey v2 Scripts for Claude Desktop MCP Development
 ; Version 2.0 - Extended and Improved
 ; Compatible with AutoHotkey v2.0+
