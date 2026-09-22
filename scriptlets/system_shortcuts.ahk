@@ -1,6 +1,6 @@
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
-#Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
+#Include A_ScriptDir\lib\ScriptletErrorHandler.ahk
 
 ; ==============================================================================
 ; System Shortcuts
@@ -391,7 +391,7 @@ FixStuckTaskbar(*) {
 ; Show a tooltip message
 ShowToolTip(message, duration := 2000) {
     ToolTip message
-    SetTimer () => ToolTip(), -%duration%
+    SetTimer () => ToolTip(), -duration
 }
 
 ; Show an error message

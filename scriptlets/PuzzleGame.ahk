@@ -1,6 +1,12 @@
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
-#Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
+#Include A_ScriptDir\lib\ScriptletErrorHandler.ahk
+
+; @name: Puzzle Game
+; @description: Classic 4x4 sliding-tile (15-puzzle) game with move counter, shuffle and reset.
+; @category: games
+; @hotkeys: ^!p toggle, s shuffle, r reset, Escape hide
+; @tag: games, puzzle, sliding-tile
 
 OnError(LogError)
 

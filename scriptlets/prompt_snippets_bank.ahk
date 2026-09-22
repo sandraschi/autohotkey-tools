@@ -17,7 +17,7 @@
 
 OnError(LogError)
 try
-    #Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
+    #Include A_ScriptDir\lib\ScriptletErrorHandler.ahk
 catch
     LogError(*) {}
 

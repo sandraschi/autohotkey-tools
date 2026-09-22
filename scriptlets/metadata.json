@@ -7,10 +7,18 @@
       "category": "utilities",
       "author": "Sandra",
       "dependencies": [],
-      "hotkeys": ["#v", "^!v", "^!+c"],
+      "hotkeys": [
+        "#v",
+        "^!v",
+        "^!+c"
+      ],
       "enabled": true,
       "priority": 10,
-      "tags": ["clipboard", "productivity", "utilities"]
+      "tags": [
+        "clipboard",
+        "productivity",
+        "utilities"
+      ]
     },
     "system_monitor": {
       "name": "System Monitor",
@@ -19,10 +27,16 @@
       "category": "system",
       "author": "Sandra",
       "dependencies": [],
-      "hotkeys": ["^!s"],
+      "hotkeys": [
+        "^!s"
+      ],
       "enabled": true,
       "priority": 20,
-      "tags": ["system", "monitoring", "performance"]
+      "tags": [
+        "system",
+        "monitoring",
+        "performance"
+      ]
     },
     "window_management": {
       "name": "Window Management",
@@ -31,10 +45,18 @@
       "category": "utilities",
       "author": "Sandra",
       "dependencies": [],
-      "hotkeys": ["^!w", "^!c", "^!t"],
+      "hotkeys": [
+        "^!w",
+        "^!c",
+        "^!t"
+      ],
       "enabled": true,
       "priority": 15,
-      "tags": ["windows", "management", "productivity"]
+      "tags": [
+        "windows",
+        "management",
+        "productivity"
+      ]
     },
     "quick_notes": {
       "name": "Quick Notes",
@@ -43,10 +65,17 @@
       "category": "productivity",
       "author": "Sandra",
       "dependencies": [],
-      "hotkeys": ["^!n", "^!q"],
+      "hotkeys": [
+        "^!n",
+        "^!q"
+      ],
       "enabled": true,
       "priority": 25,
-      "tags": ["notes", "productivity", "writing"]
+      "tags": [
+        "notes",
+        "productivity",
+        "writing"
+      ]
     },
     "media_controls": {
       "name": "Media Controls",
@@ -55,10 +84,21 @@
       "category": "media",
       "author": "Sandra",
       "dependencies": [],
-      "hotkeys": ["^!space", "^!left", "^!right", "^!up", "^!down"],
+      "hotkeys": [
+        "^!space",
+        "^!left",
+        "^!right",
+        "^!up",
+        "^!down"
+      ],
       "enabled": true,
       "priority": 30,
-      "tags": ["media", "music", "video", "controls"]
+      "tags": [
+        "media",
+        "music",
+        "video",
+        "controls"
+      ]
     },
     "volume_control": {
       "name": "Volume Control",
@@ -67,10 +107,18 @@
       "category": "media",
       "author": "Sandra",
       "dependencies": [],
-      "hotkeys": ["^!+up", "^!+down", "^!+m"],
+      "hotkeys": [
+        "^!+up",
+        "^!+down",
+        "^!+m"
+      ],
       "enabled": true,
       "priority": 35,
-      "tags": ["volume", "audio", "media"]
+      "tags": [
+        "volume",
+        "audio",
+        "media"
+      ]
     },
     "text_expander": {
       "name": "Text Expander",
@@ -79,10 +127,17 @@
       "category": "productivity",
       "author": "Sandra",
       "dependencies": [],
-      "hotkeys": ["^!e"],
+      "hotkeys": [
+        "^!e"
+      ],
       "enabled": true,
       "priority": 40,
-      "tags": ["text", "expansion", "snippets", "productivity"]
+      "tags": [
+        "text",
+        "expansion",
+        "snippets",
+        "productivity"
+      ]
     },
     "ide_shortcuts": {
       "name": "IDE Shortcuts",
@@ -91,10 +146,19 @@
       "category": "development",
       "author": "Sandra",
       "dependencies": [],
-      "hotkeys": ["^!i", "^!d", "^!f"],
+      "hotkeys": [
+        "^!i",
+        "^!d",
+        "^!f"
+      ],
       "enabled": true,
       "priority": 5,
-      "tags": ["ide", "development", "shortcuts", "coding"]
+      "tags": [
+        "ide",
+        "development",
+        "shortcuts",
+        "coding"
+      ]
     },
     "ollama_chatbot": {
       "name": "Ollama Chatbot",
@@ -103,10 +167,18 @@
       "category": "ai",
       "author": "Sandra",
       "dependencies": [],
-      "hotkeys": ["^!o", "^!a"],
+      "hotkeys": [
+        "^!o",
+        "^!a"
+      ],
       "enabled": true,
       "priority": 50,
-      "tags": ["ai", "chatbot", "ollama", "llm"]
+      "tags": [
+        "ai",
+        "chatbot",
+        "ollama",
+        "llm"
+      ]
     },
     "weather_widget": {
       "name": "Weather Widget",
@@ -115,10 +187,17 @@
       "category": "widgets",
       "author": "Sandra",
       "dependencies": [],
-      "hotkeys": ["^!w"],
+      "hotkeys": [
+        "^!w"
+      ],
       "enabled": true,
       "priority": 60,
-      "tags": ["weather", "widget", "api", "information"]
+      "tags": [
+        "weather",
+        "widget",
+        "api",
+        "information"
+      ]
     },
     "sudoku": {
       "name": "Sudoku Game",
@@ -127,10 +206,17 @@
       "category": "games",
       "author": "Sandra",
       "dependencies": [],
-      "hotkeys": ["^!s"],
+      "hotkeys": [
+        "^!s"
+      ],
       "enabled": true,
       "priority": 70,
-      "tags": ["game", "sudoku", "puzzle", "entertainment"]
+      "tags": [
+        "game",
+        "sudoku",
+        "puzzle",
+        "entertainment"
+      ]
     },
     "eliza": {
       "name": "ELIZA Chatbot",
@@ -139,10 +225,17 @@
       "category": "ai",
       "author": "Sandra",
       "dependencies": [],
-      "hotkeys": ["^!e"],
+      "hotkeys": [
+        "^!e"
+      ],
       "enabled": true,
       "priority": 80,
-      "tags": ["ai", "chatbot", "eliza", "classic"]
+      "tags": [
+        "ai",
+        "chatbot",
+        "eliza",
+        "classic"
+      ]
     },
     "pranks": {
       "name": "Harmless Pranks",
@@ -151,10 +244,17 @@
       "category": "fun",
       "author": "Sandra",
       "dependencies": [],
-      "hotkeys": ["^!p"],
+      "hotkeys": [
+        "^!p"
+      ],
       "enabled": false,
       "priority": 90,
-      "tags": ["pranks", "fun", "harmless", "entertainment"]
+      "tags": [
+        "pranks",
+        "fun",
+        "harmless",
+        "entertainment"
+      ]
     },
     "annoying_sounds": {
       "name": "Annoying Sounds",
@@ -163,10 +263,17 @@
       "category": "fun",
       "author": "Sandra",
       "dependencies": [],
-      "hotkeys": ["^!a"],
+      "hotkeys": [
+        "^!a"
+      ],
       "enabled": false,
       "priority": 95,
-      "tags": ["sounds", "fun", "annoying", "effects"]
+      "tags": [
+        "sounds",
+        "fun",
+        "annoying",
+        "effects"
+      ]
     },
     "fun_animations": {
       "name": "Fun Animations",
@@ -175,10 +282,17 @@
       "category": "fun",
       "author": "Sandra",
       "dependencies": [],
-      "hotkeys": ["^!f"],
+      "hotkeys": [
+        "^!f"
+      ],
       "enabled": false,
       "priority": 100,
-      "tags": ["animations", "fun", "visual", "effects"]
+      "tags": [
+        "animations",
+        "fun",
+        "visual",
+        "effects"
+      ]
     },
     "fun_games": {
       "name": "Fun Games",
@@ -187,10 +301,17 @@
       "category": "games",
       "author": "Sandra",
       "dependencies": [],
-      "hotkeys": ["^!g"],
+      "hotkeys": [
+        "^!g"
+      ],
       "enabled": true,
       "priority": 75,
-      "tags": ["games", "fun", "entertainment", "simple"]
+      "tags": [
+        "games",
+        "fun",
+        "entertainment",
+        "simple"
+      ]
     },
     "smart_clipboard_manager": {
       "name": "Smart Clipboard Manager",
@@ -199,10 +320,19 @@
       "category": "utilities",
       "author": "Sandra",
       "dependencies": [],
-      "hotkeys": ["#v", "^!c", "^!v"],
+      "hotkeys": [
+        "#v",
+        "^!c",
+        "^!v"
+      ],
       "enabled": true,
       "priority": 5,
-      "tags": ["clipboard", "advanced", "formatting", "history"]
+      "tags": [
+        "clipboard",
+        "advanced",
+        "formatting",
+        "history"
+      ]
     },
     "text_transformer_pro": {
       "name": "Text Transformer Pro",
@@ -211,10 +341,20 @@
       "category": "utilities",
       "author": "Sandra",
       "dependencies": [],
-      "hotkeys": ["^!t", "^!u", "^!l", "^!s"],
+      "hotkeys": [
+        "^!t",
+        "^!u",
+        "^!l",
+        "^!s"
+      ],
       "enabled": true,
       "priority": 8,
-      "tags": ["text", "transformation", "encoding", "formatting"]
+      "tags": [
+        "text",
+        "transformation",
+        "encoding",
+        "formatting"
+      ]
     },
     "window_manager_pro": {
       "name": "Window Manager Pro",
@@ -223,10 +363,22 @@
       "category": "utilities",
       "author": "Sandra",
       "dependencies": [],
-      "hotkeys": ["#Left", "#Right", "#Up", "#Down", "#Space", "#Tab"],
+      "hotkeys": [
+        "#Left",
+        "#Right",
+        "#Up",
+        "#Down",
+        "#Space",
+        "#Tab"
+      ],
       "enabled": true,
       "priority": 12,
-      "tags": ["windows", "management", "snapping", "tiling"]
+      "tags": [
+        "windows",
+        "management",
+        "snapping",
+        "tiling"
+      ]
     },
     "code_formatter_pro": {
       "name": "Code Formatter Pro",
@@ -235,10 +387,19 @@
       "category": "development",
       "author": "Sandra",
       "dependencies": [],
-      "hotkeys": ["^!f", "^!b", "^!c"],
+      "hotkeys": [
+        "^!f",
+        "^!b",
+        "^!c"
+      ],
       "enabled": true,
       "priority": 3,
-      "tags": ["code", "formatting", "syntax", "beautification"]
+      "tags": [
+        "code",
+        "formatting",
+        "syntax",
+        "beautification"
+      ]
     },
     "git_assistant_pro": {
       "name": "Git Assistant Pro",
@@ -247,10 +408,19 @@
       "category": "development",
       "author": "Sandra",
       "dependencies": [],
-      "hotkeys": ["^!g", "^!commit", "^!branch"],
+      "hotkeys": [
+        "^!g",
+        "^!commit",
+        "^!branch"
+      ],
       "enabled": true,
       "priority": 2,
-      "tags": ["git", "workflow", "automation", "commits"]
+      "tags": [
+        "git",
+        "workflow",
+        "automation",
+        "commits"
+      ]
     },
     "music_controller_pro": {
       "name": "Music Controller Pro",
@@ -259,10 +429,22 @@
       "category": "media",
       "author": "Sandra",
       "dependencies": [],
-      "hotkeys": ["#Space", "#Left", "#Right", "#Up", "#Down", "#M"],
+      "hotkeys": [
+        "#Space",
+        "#Left",
+        "#Right",
+        "#Up",
+        "#Down",
+        "#M"
+      ],
       "enabled": true,
       "priority": 15,
-      "tags": ["music", "playlist", "visualizer", "control"]
+      "tags": [
+        "music",
+        "playlist",
+        "visualizer",
+        "control"
+      ]
     },
     "mini_games_collection": {
       "name": "Mini Games Collection",
@@ -271,10 +453,21 @@
       "category": "games",
       "author": "Sandra",
       "dependencies": [],
-      "hotkeys": ["^!g", "#s", "#t", "#m"],
+      "hotkeys": [
+        "^!g",
+        "#s",
+        "#t",
+        "#m"
+      ],
       "enabled": true,
       "priority": 65,
-      "tags": ["games", "snake", "tetris", "memory", "collection"]
+      "tags": [
+        "games",
+        "snake",
+        "tetris",
+        "memory",
+        "collection"
+      ]
     },
     "smart_assistant_pro": {
       "name": "Smart Assistant Pro",
@@ -283,10 +476,20 @@
       "category": "ai",
       "author": "Sandra",
       "dependencies": [],
-      "hotkeys": ["^!a", "#v", "^!s"],
+      "hotkeys": [
+        "^!a",
+        "#v",
+        "^!s"
+      ],
       "enabled": true,
       "priority": 45,
-      "tags": ["ai", "assistant", "voice", "automation", "workflows"]
+      "tags": [
+        "ai",
+        "assistant",
+        "voice",
+        "automation",
+        "workflows"
+      ]
     },
     "workflow_automator_pro": {
       "name": "Workflow Automator Pro",
@@ -295,10 +498,20 @@
       "category": "ai",
       "author": "Sandra",
       "dependencies": [],
-      "hotkeys": ["^!w", "^!r", "^!t"],
+      "hotkeys": [
+        "^!w",
+        "^!r",
+        "^!t"
+      ],
       "enabled": true,
       "priority": 40,
-      "tags": ["workflow", "automation", "triggers", "conditions", "actions"]
+      "tags": [
+        "workflow",
+        "automation",
+        "triggers",
+        "conditions",
+        "actions"
+      ]
     },
     "help_system_pro": {
       "name": "Help System Pro",
@@ -307,10 +520,20 @@
       "category": "utilities",
       "author": "Sandra",
       "dependencies": [],
-      "hotkeys": ["F1", "^!h", "^!?"],
+      "hotkeys": [
+        "F1",
+        "^!h",
+        "^!?"
+      ],
       "enabled": true,
       "priority": 1,
-      "tags": ["help", "documentation", "guide", "tutorial", "beginner"]
+      "tags": [
+        "help",
+        "documentation",
+        "guide",
+        "tutorial",
+        "beginner"
+      ]
     },
     "security_guide_pro": {
       "name": "Security Guide Pro",
@@ -319,10 +542,20 @@
       "category": "utilities",
       "author": "Sandra",
       "dependencies": [],
-      "hotkeys": ["^!s", "F2"],
+      "hotkeys": [
+        "^!s",
+        "F2"
+      ],
       "enabled": true,
       "priority": 2,
-      "tags": ["security", "warning", "safety", "ai", "limitations", "critical"]
+      "tags": [
+        "security",
+        "warning",
+        "safety",
+        "ai",
+        "limitations",
+        "critical"
+      ]
     },
     "classic_pong": {
       "name": "Classic Pong Game",
@@ -331,10 +564,20 @@
       "category": "games",
       "author": "Sandra",
       "dependencies": [],
-      "hotkeys": ["^!p", "F5"],
+      "hotkeys": [
+        "^!p",
+        "F5"
+      ],
       "enabled": true,
       "priority": 85,
-      "tags": ["game", "pong", "arcade", "classic", "ai", "retro"]
+      "tags": [
+        "game",
+        "pong",
+        "arcade",
+        "classic",
+        "ai",
+        "retro"
+      ]
     },
     "classic_frogger": {
       "name": "Classic Frogger Game",
@@ -343,10 +586,20 @@
       "category": "games",
       "author": "Sandra",
       "dependencies": [],
-      "hotkeys": ["^!f", "F6"],
+      "hotkeys": [
+        "^!f",
+        "F6"
+      ],
       "enabled": true,
       "priority": 86,
-      "tags": ["game", "frogger", "arcade", "classic", "retro", "frog"]
+      "tags": [
+        "game",
+        "frogger",
+        "arcade",
+        "classic",
+        "retro",
+        "frog"
+      ]
     },
     "chess_stockfish": {
       "name": "Chess Game with Stockfish Integration",
@@ -354,11 +607,23 @@
       "description": "Full-featured chess game with Stockfish engine integration",
       "category": "games",
       "author": "Sandra",
-      "dependencies": ["stockfish.exe"],
-      "hotkeys": ["^!c", "F7"],
+      "dependencies": [
+        "stockfish.exe"
+      ],
+      "hotkeys": [
+        "^!c",
+        "F7"
+      ],
       "enabled": true,
       "priority": 87,
-      "tags": ["game", "chess", "stockfish", "ai", "strategy", "classic"]
+      "tags": [
+        "game",
+        "chess",
+        "stockfish",
+        "ai",
+        "strategy",
+        "classic"
+      ]
     },
     "claude_desktop_restart": {
       "name": "Claude Desktop Restart Helper",
@@ -367,10 +632,20 @@
       "category": "development",
       "author": "Sandra",
       "dependencies": [],
-      "hotkeys": ["^!r", "^!x", "F8"],
+      "hotkeys": [
+        "^!r",
+        "^!x",
+        "F8"
+      ],
       "enabled": true,
       "priority": 1,
-      "tags": ["claude", "restart", "mcp", "development", "automation"]
+      "tags": [
+        "claude",
+        "restart",
+        "mcp",
+        "development",
+        "automation"
+      ]
     },
     "mcp_server_scaffolding": {
       "name": "MCP Server Scaffolding Tool",
@@ -379,10 +654,19 @@
       "category": "development",
       "author": "Sandra",
       "dependencies": [],
-      "hotkeys": ["^!m", "F9"],
+      "hotkeys": [
+        "^!m",
+        "F9"
+      ],
       "enabled": true,
       "priority": 2,
-      "tags": ["mcp", "scaffolding", "generator", "fastmcp", "development"]
+      "tags": [
+        "mcp",
+        "scaffolding",
+        "generator",
+        "fastmcp",
+        "development"
+      ]
     },
     "mcp_log_analyzer": {
       "name": "MCP Log Analyzer",
@@ -391,10 +675,19 @@
       "category": "development",
       "author": "Sandra",
       "dependencies": [],
-      "hotkeys": ["^!l", "F10"],
+      "hotkeys": [
+        "^!l",
+        "F10"
+      ],
       "enabled": true,
       "priority": 3,
-      "tags": ["mcp", "logs", "analysis", "debugging", "troubleshooting"]
+      "tags": [
+        "mcp",
+        "logs",
+        "analysis",
+        "debugging",
+        "troubleshooting"
+      ]
     },
     "mcp_troubleshooter": {
       "name": "MCP Troubleshooter",
@@ -403,10 +696,19 @@
       "category": "development",
       "author": "Sandra",
       "dependencies": [],
-      "hotkeys": ["^!t", "F11"],
+      "hotkeys": [
+        "^!t",
+        "F11"
+      ],
       "enabled": true,
       "priority": 4,
-      "tags": ["mcp", "troubleshooting", "diagnostics", "fixes", "automation"]
+      "tags": [
+        "mcp",
+        "troubleshooting",
+        "diagnostics",
+        "fixes",
+        "automation"
+      ]
     },
     "mcp_config_manager": {
       "name": "MCP Config Manager",
@@ -415,10 +717,19 @@
       "category": "development",
       "author": "Sandra",
       "dependencies": [],
-      "hotkeys": ["^!c", "F12"],
+      "hotkeys": [
+        "^!c",
+        "F12"
+      ],
       "enabled": true,
       "priority": 5,
-      "tags": ["mcp", "config", "management", "validation", "backup"]
+      "tags": [
+        "mcp",
+        "config",
+        "management",
+        "validation",
+        "backup"
+      ]
     },
     "mcp_development_cycle": {
       "name": "MCP Development Cycle",
@@ -427,10 +738,19 @@
       "category": "development",
       "author": "Sandra",
       "dependencies": [],
-      "hotkeys": ["^!d", "Ctrl+F12"],
+      "hotkeys": [
+        "^!d",
+        "Ctrl+F12"
+      ],
       "enabled": true,
       "priority": 6,
-      "tags": ["mcp", "development", "workflow", "orchestration", "deployment"]
+      "tags": [
+        "mcp",
+        "development",
+        "workflow",
+        "orchestration",
+        "deployment"
+      ]
     },
     "autohotkey_debug_helper": {
       "name": "AutoHotkey Debug Helper",
@@ -439,10 +759,23 @@
       "category": "development",
       "author": "Sandra",
       "dependencies": [],
-      "hotkeys": ["^!d", "F3", "^!v", "^!l", "^!k"],
+      "hotkeys": [
+        "^!d",
+        "F3",
+        "^!v",
+        "^!l",
+        "^!k"
+      ],
       "enabled": true,
       "priority": 7,
-      "tags": ["debug", "debugging", "analysis", "variables", "lines", "hotkeys"]
+      "tags": [
+        "debug",
+        "debugging",
+        "analysis",
+        "variables",
+        "lines",
+        "hotkeys"
+      ]
     },
     "game_starter_popup": {
       "name": "Game Starter Popup",
@@ -451,10 +784,19 @@
       "category": "games",
       "author": "Sandra",
       "dependencies": [],
-      "hotkeys": ["^!g", "Ctrl+Alt+G"],
+      "hotkeys": [
+        "^!g",
+        "Ctrl+Alt+G"
+      ],
       "enabled": true,
       "priority": 8,
-      "tags": ["games", "launcher", "popup", "starter", "arcade"]
+      "tags": [
+        "games",
+        "launcher",
+        "popup",
+        "starter",
+        "arcade"
+      ]
     },
     "tetris_classic": {
       "name": "Tetris Classic",
@@ -463,10 +805,21 @@
       "category": "games",
       "author": "Sandra",
       "dependencies": [],
-      "hotkeys": ["Arrow keys", "Space", "P", "R"],
+      "hotkeys": [
+        "Arrow keys",
+        "Space",
+        "P",
+        "R"
+      ],
       "enabled": true,
       "priority": 9,
-      "tags": ["tetris", "puzzle", "classic", "blocks", "arcade"]
+      "tags": [
+        "tetris",
+        "puzzle",
+        "classic",
+        "blocks",
+        "arcade"
+      ]
     },
     "pacman_classic": {
       "name": "Pacman Classic",
@@ -475,10 +828,21 @@
       "category": "games",
       "author": "Sandra",
       "dependencies": [],
-      "hotkeys": ["Arrow keys", "Space", "P", "R"],
+      "hotkeys": [
+        "Arrow keys",
+        "Space",
+        "P",
+        "R"
+      ],
       "enabled": true,
       "priority": 10,
-      "tags": ["pacman", "arcade", "classic", "ghosts", "dots"]
+      "tags": [
+        "pacman",
+        "arcade",
+        "classic",
+        "ghosts",
+        "dots"
+      ]
     },
     "classic_pranks_collection": {
       "name": "Classic Pranks Collection",
@@ -487,10 +851,19 @@
       "category": "pranks",
       "author": "Sandra",
       "dependencies": [],
-      "hotkeys": ["^!p", "F9"],
+      "hotkeys": [
+        "^!p",
+        "F9"
+      ],
       "enabled": true,
       "priority": 11,
-      "tags": ["pranks", "jokes", "classic", "harmless", "fun"]
+      "tags": [
+        "pranks",
+        "jokes",
+        "classic",
+        "harmless",
+        "fun"
+      ]
     },
     "ai_code_assistant": {
       "name": "AI-Powered Code Assistant",
@@ -499,10 +872,19 @@
       "category": "development",
       "author": "Sandra",
       "dependencies": [],
-      "hotkeys": ["^!a", "Ctrl+Alt+I"],
+      "hotkeys": [
+        "^!a",
+        "Ctrl+Alt+I"
+      ],
       "enabled": true,
       "priority": 12,
-      "tags": ["ai", "code", "assistant", "development", "suggestions"]
+      "tags": [
+        "ai",
+        "code",
+        "assistant",
+        "development",
+        "suggestions"
+      ]
     },
     "system_monitor_pro": {
       "name": "Real-time System Monitor Pro",
@@ -511,66 +893,474 @@
       "category": "system",
       "author": "Sandra",
       "dependencies": [],
-      "hotkeys": ["^!m", "F10"],
+      "hotkeys": [
+        "^!m",
+        "F10"
+      ],
       "enabled": true,
       "priority": 13,
-      "tags": ["system", "monitor", "real-time", "alerts", "analytics"]
+      "tags": [
+        "system",
+        "monitor",
+        "real-time",
+        "alerts",
+        "analytics"
+      ]
+    },
+    "office365_automation": {
+      "name": "Office 365 Automation Suite",
+      "version": "1.0.0",
+      "description": "Comprehensive automation for Outlook, Teams, OneNote, and Office applications",
+      "category": "productivity",
+      "author": "Sandra",
+      "dependencies": [],
+      "hotkeys": [
+        "^!o",
+        "^!n",
+        "^!t",
+        "^!w",
+        "^!e"
+      ],
+      "enabled": true,
+      "priority": 15,
+      "tags": [
+        "office365",
+        "automation",
+        "productivity",
+        "outlook",
+        "teams",
+        "onenote"
+      ]
+    },
+    "windows_cleanup_robot": {
+      "name": "Windows Cleanup Robot",
+      "version": "1.0.0",
+      "description": "Analyzes Windows for common issues and offers safe, explained cleanup options for non-technical users",
+      "category": "system",
+      "author": "Sandra",
+      "dependencies": [],
+      "hotkeys": [],
+      "enabled": true,
+      "priority": 15,
+      "tags": [
+        "cleanup",
+        "disk-space",
+        "maintenance",
+        "system"
+      ]
+    },
+    "github_repo_manager": {
+      "name": "GitHub Repository Manager",
+      "version": "1.0.0",
+      "description": "Manage and display GitHub repositories with URLs, stats, and quick access",
+      "category": "development",
+      "author": "Sandra",
+      "dependencies": [],
+      "hotkeys": [
+        "^!g",
+        "Ctrl+Alt+R"
+      ],
+      "enabled": true,
+      "priority": 15,
+      "tags": [
+        "github",
+        "repository",
+        "development",
+        "git"
+      ]
+    },
+    "macro_editor_pro": {
+      "name": "Macro Editor Pro",
+      "version": "1.0.0",
+      "description": "Edit and optimize recorded macros -- adjust timing, remove redundant actions, validate sequences",
+      "category": "automation",
+      "author": "Sandra",
+      "dependencies": [],
+      "hotkeys": [
+        "^!e"
+      ],
+      "enabled": true,
+      "priority": 15,
+      "tags": [
+        "macro",
+        "editor",
+        "automation",
+        "recording"
+      ]
+    },
+    "macro_recorder_pro": {
+      "name": "Macro Recorder Pro",
+      "version": "1.0.0",
+      "description": "Record and replay mouse/keyboard actions with v2 syntax, playback speed control and looping",
+      "category": "automation",
+      "author": "Sandra",
+      "dependencies": [],
+      "hotkeys": [
+        "^!r",
+        "^!p",
+        "^!s",
+        "^!t"
+      ],
+      "enabled": true,
+      "priority": 15,
+      "tags": [
+        "macro",
+        "recorder",
+        "automation",
+        "playback"
+      ]
+    },
+    "macro_expander": {
+      "name": "Macro Expander",
+      "version": "1.0.0",
+      "description": "Type //name arg1 arg2 to expand into a full prompt template loaded from sop/macros.md, with positional substitution and auto-reload",
+      "category": "productivity",
+      "author": "Sandra",
+      "dependencies": [],
+      "hotkeys": [
+        "// trigger string",
+        "^!r reload"
+      ],
+      "enabled": true,
+      "priority": 15,
+      "tags": [
+        "macros",
+        "text-expansion",
+        "sop",
+        "prompts"
+      ]
+    },
+    "prompt_snippets_bank": {
+      "name": "Prompt Snippets Bank",
+      "version": "1.0.0",
+      "description": "Bank of text snippets for IDE and AI prompting -- scaffold, upgrade, PR, commit and review templates",
+      "category": "productivity",
+      "author": "Sandra",
+      "dependencies": [],
+      "hotkeys": [
+        "^!p"
+      ],
+      "enabled": true,
+      "priority": 15,
+      "tags": [
+        "prompts",
+        "snippets",
+        "ide",
+        "mcp"
+      ]
+    },
+    "quick_launch": {
+      "name": "Quick Launch",
+      "version": "1.0.0",
+      "description": "Fast application and folder launcher with customizable hotkeys",
+      "category": "utilities",
+      "author": "Sandra",
+      "dependencies": [],
+      "hotkeys": [
+        "configurable"
+      ],
+      "enabled": true,
+      "priority": 15,
+      "tags": [
+        "launcher",
+        "shortcuts",
+        "applications"
+      ]
+    },
+    "ipad_scroll_widget": {
+      "name": "iPad Scroll Widget",
+      "version": "1.0.0",
+      "description": "Slim vertical scroll widget for iPad-as-second-screen setups: PgUp/Down, Top/End, Play",
+      "category": "widgets",
+      "author": "Sandra",
+      "dependencies": [],
+      "hotkeys": [
+        "^!s toggle",
+        "^!w pick target"
+      ],
+      "enabled": true,
+      "priority": 15,
+      "tags": [
+        "scroll",
+        "ipad",
+        "widget"
+      ]
+    },
+    "dev_context_music": {
+      "name": "Dev Context Music",
+      "version": "1.0.0",
+      "description": "Context-aware sound effects for dev workflows -- build status, Git ops, test results via Windows system sounds",
+      "category": "development",
+      "author": "Sandra",
+      "dependencies": [],
+      "hotkeys": [],
+      "enabled": true,
+      "priority": 15,
+      "tags": [
+        "development",
+        "sounds",
+        "audio",
+        "feedback"
+      ]
+    },
+    "autohotkey_warning": {
+      "name": "AutoHotkey Warning System",
+      "version": "1.0.0",
+      "description": "Shows security awareness warnings about AutoHotkey's capabilities, especially for AI-generated scripts",
+      "category": "utilities",
+      "author": "Sandra",
+      "dependencies": [],
+      "hotkeys": [
+        "^!w",
+        "F3"
+      ],
+      "enabled": true,
+      "priority": 15,
+      "tags": [
+        "security",
+        "warning",
+        "safety"
+      ]
+    },
+    "system_shortcuts": {
+      "name": "System Shortcuts",
+      "version": "1.0.0",
+      "description": "Essential system management shortcuts: shutdown, restart, hibernate, lock, task manager",
+      "category": "system",
+      "author": "Sandra",
+      "dependencies": [],
+      "hotkeys": [
+        "^!+s",
+        "^!+r",
+        "^!+l",
+        "^!h",
+        "^!e",
+        "#l",
+        "^+h"
+      ],
+      "enabled": true,
+      "priority": 15,
+      "tags": [
+        "system",
+        "shortcuts",
+        "power-management"
+      ]
+    },
+    "window_snapping": {
+      "name": "Window Snapping",
+      "version": "1.0.0",
+      "description": "Window snapping to screen edges/corners with Win+Arrow keys, restore, maximize, center",
+      "category": "utilities",
+      "author": "Sandra",
+      "dependencies": [],
+      "hotkeys": [
+        "#Left",
+        "#Right",
+        "#Up",
+        "#Down"
+      ],
+      "enabled": true,
+      "priority": 15,
+      "tags": [
+        "window-snapping",
+        "productivity",
+        "workspace"
+      ]
+    },
+    "video_filename_scrubber": {
+      "name": "Video Filename Scrubber",
+      "version": "1.0.0",
+      "description": "Cleans and organizes video filenames -- removes brackets, replaces dots, formats episodes/movies",
+      "category": "utilities",
+      "author": "Sandra",
+      "dependencies": [],
+      "hotkeys": [
+        "^!v"
+      ],
+      "enabled": true,
+      "priority": 15,
+      "tags": [
+        "video",
+        "filenames",
+        "media",
+        "organization"
+      ]
+    },
+    "ahk_launcher": {
+      "name": "AHK Launcher",
+      "version": "1.0.0",
+      "description": "Searchable launcher for all registered scriptlets in the depot",
+      "category": "utilities",
+      "author": "Sandra",
+      "dependencies": [],
+      "hotkeys": [
+        "^!a toggle"
+      ],
+      "enabled": true,
+      "priority": 15,
+      "tags": [
+        "launcher",
+        "dashboard",
+        "depot"
+      ]
+    },
+    "word_games": {
+      "name": "Word Games",
+      "version": "1.0.0",
+      "description": "Wordle, Anagrams, and Hangman -- button-based input, no hotkey conflicts",
+      "category": "games",
+      "author": "Sandra",
+      "dependencies": [],
+      "hotkeys": [
+        "^!g toggle"
+      ],
+      "enabled": true,
+      "priority": 15,
+      "tags": [
+        "games",
+        "wordle",
+        "anagrams",
+        "hangman"
+      ]
+    },
+    "qbert_game": {
+      "name": "Q*bert",
+      "version": "1.0.0",
+      "description": "Pyramid-hopping arcade game -- color every cube, avoid falling off the edge",
+      "category": "games",
+      "author": "Sandra",
+      "dependencies": [],
+      "hotkeys": [
+        "^!b toggle",
+        "arrow keys"
+      ],
+      "enabled": true,
+      "priority": 15,
+      "tags": [
+        "games",
+        "arcade",
+        "qbert"
+      ]
+    },
+    "PuzzleGame": {
+      "name": "Puzzle Game",
+      "version": "1.0.0",
+      "description": "Classic 4x4 sliding-tile (15-puzzle) game with move counter, shuffle and reset",
+      "category": "games",
+      "author": "Sandra",
+      "dependencies": [],
+      "hotkeys": [
+        "^!p toggle",
+        "s shuffle",
+        "r reset"
+      ],
+      "enabled": true,
+      "priority": 15,
+      "tags": [
+        "games",
+        "puzzle",
+        "sliding-tile"
+      ]
+    },
+    "corporate_pranks": {
+      "name": "Corporate Prank Generator",
+      "version": "1.0.0",
+      "description": "Office-humor pranks distinct from the general/classic prank sets, with a panic-button stop-all",
+      "category": "fun",
+      "author": "Sandra",
+      "dependencies": [],
+      "hotkeys": [
+        "^!c toggle",
+        "F9 stop all"
+      ],
+      "enabled": true,
+      "priority": 15,
+      "tags": [
+        "fun",
+        "pranks",
+        "office"
+      ]
+    },
+    "action_automation_builder_v2": {
+      "name": "Action Automation Builder",
+      "version": "1.0.0",
+      "description": "Visual drag-and-drop workflow builder for complex automation tasks",
+      "category": "automation",
+      "author": "Sandra",
+      "dependencies": [],
+      "hotkeys": [
+        "^!b"
+      ],
+      "enabled": true,
+      "priority": 15,
+      "tags": [
+        "automation",
+        "workflow",
+        "builder",
+        "visual"
+      ]
     }
   },
   "categories": {
     "utilities": {
       "name": "Utilities",
       "description": "System utilities and productivity tools",
-      "icon": "🔧",
+      "icon": "\ud83d\udd27",
       "priority": 1
     },
     "system": {
       "name": "System",
       "description": "System monitoring and management tools",
-      "icon": "💻",
+      "icon": "\ud83d\udcbb",
       "priority": 2
     },
     "productivity": {
       "name": "Productivity",
       "description": "Tools to enhance productivity and workflow",
-      "icon": "⚡",
+      "icon": "\u26a1",
       "priority": 3
     },
     "media": {
       "name": "Media",
       "description": "Media control and audio/video tools",
-      "icon": "🎵",
+      "icon": "\ud83c\udfb5",
       "priority": 4
     },
     "development": {
       "name": "Development",
       "description": "Development tools and IDE enhancements",
-      "icon": "💻",
+      "icon": "\ud83d\udcbb",
       "priority": 5
     },
     "ai": {
       "name": "AI",
       "description": "Artificial intelligence and chatbot tools",
-      "icon": "🤖",
+      "icon": "\ud83e\udd16",
       "priority": 6
     },
     "widgets": {
       "name": "Widgets",
       "description": "Information widgets and displays",
-      "icon": "📊",
+      "icon": "\ud83d\udcca",
       "priority": 7
     },
     "games": {
       "name": "Games",
       "description": "Games and entertainment applications",
-      "icon": "🎮",
+      "icon": "\ud83c\udfae",
       "priority": 8
     },
     "fun": {
       "name": "Fun",
       "description": "Fun scripts and entertainment tools",
-      "icon": "🎉",
+      "icon": "\ud83c\udf89",
       "priority": 9
+    },
+    "automation": {
+      "name": "Automation",
+      "description": "Macro recording, editing and workflow-building tools",
+      "icon": "\ud83e\udd16",
+      "priority": 10
     }
   },
   "settings": {

@@ -11,6 +11,11 @@
 ; Author: Sandra
 ; Version: 1.0.0
 ; License: MIT
+; @name: Windows Cleanup Robot
+; @description: Analyzes Windows for common issues (disk space, temp files, startup bloat) and offers safe, explained cleanup options. Built for non-technical users -- no admin prompt unless a chosen action truly needs one.
+; @category: system
+; @hotkeys: none (launched via dashboard)
+; @tag: cleanup, disk-space, maintenance, system, non-technical
 ; ============================================================================
 
 #Requires AutoHotkey v2.0
@@ -122,8 +127,8 @@ CheckDiskSpace() {
     global Issues, Warnings, Info
     
     ; Check C: drive
-    DriveGet, freeSpace, SpaceFreeMB, C:
-    DriveGet, totalSpace, Capacity, C:
+    freeSpace := DriveGetSpaceFree("C:")
+    totalSpace := DriveGetCapacity("C:")
     
     if !freeSpace
         freeSpace := GetDriveSpaceMB("C:")

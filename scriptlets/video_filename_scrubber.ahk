@@ -11,7 +11,7 @@
 
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
-#Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
+#Include A_ScriptDir\lib\ScriptletErrorHandler.ahk
 
 ; Show that script is starting
 TrayTip("Video Filename Scrubber", "Script starting...", 3)

@@ -1,6 +1,6 @@
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
-#Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
+#Include A_ScriptDir\lib\ScriptletErrorHandler.ahk
 
 ; ==============================================================================
 ; Quick Launch
