@@ -4,6 +4,22 @@
 
 > 📖 **[Installation Guide](INSTALL.md)** — quick start, manual setup, and troubleshooting
 
+## This is not just a script library — ask Claude to build you something
+
+The point of this depot isn't only "browse and run 64 existing scripts." Through [autohotkey-mcp](../autohotkey-mcp)'s `generate_scriptlet` tool, you can ask an AI assistant to **write a new one for you**, and it becomes a real, launchable entry in this dashboard. For example:
+
+> "Make me an AHK shogi game and wire it into the AHK starter dashboard."
+
+> "Make a useful little helper popup for working in Blender."
+
+What actually happens:
+1. `generate_scriptlet(prompt)` writes the new script to `scriptlets/ai_generated/` (sandboxed — never touches the live catalog directly).
+2. You (or Claude, if asked) review it — run `just lint-ahk` against it, try it standalone.
+3. **"Wiring it in"** means moving it from `ai_generated/` into `scriptlets/` and registering it in `metadata.json` (name, category, hotkeys, description) — the exact process used to bring 21 previously-orphaned tools into the catalog on 2026-09-22. There's no one-click "promote" tool yet; ask Claude to do it, the same way it was done for this whole batch.
+4. Once registered, it shows up in the dashboard like any other scriptlet — searchable, launchable, stoppable, no restart needed (the bridge live-scans `scriptlets/`).
+
+This is the actual value proposition: a standing target you can keep pointing an AI assistant at to grow, not a fixed collection you're stuck with.
+
 ## Quick Start
 
 ```powershell
