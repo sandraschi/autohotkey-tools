@@ -7,6 +7,7 @@
 ; @tag: blender, cheat-sheet, hud, 3d
 
 #SingleInstance Force
+Persistent()
 
 class BlenderHelper {
     static gui := ""
