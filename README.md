@@ -1,97 +1,63 @@
 # autohotkey-test
 
-<p align="center">
-  <a href="https://github.com/casey/just"><img src="https://img.shields.io/badge/just-ready_to_go-7c5cfc?style=flat-square&logo=just&logoColor=white" alt="Just"></a>
-  <a href="https://github.com/astral-sh/ruff"><img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json" alt="Ruff"></a>
-  <a href="https://python.org"><img src="https://img.shields.io/badge/Python-3.13+-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python"></a>
-  <a href="https://github.com/PrefectHQ/fastmcp"><img src="https://img.shields.io/badge/FastMCP-3.2-7c5cfc?style=flat-square" alt="FastMCP"></a>
-</p>
-
+**AutoHotkey v2 scriptlet depot** — 64 working `.ahk` utilities, widgets, games and pranks, served through a local HTTP bridge with a live web dashboard. Sibling to [ahk-lint](../ahk-linter) (AST-based v2 linter with auto-fix) and consumed by [autohotkey-mcp](../autohotkey-mcp).
 
 > 📖 **[Installation Guide](INSTALL.md)** — quick start, manual setup, and troubleshooting
-
-**AutoHotkey v2 scriptlet depot** — 80+ `.ahk` scripts plus a local HTTP bridge for list/run/stop from [autohotkey-mcp](../autohotkey-mcp).
 
 ## Quick Start
 
 ```powershell
 git clone https://github.com/sandraschi/autohotkey-test
 cd autohotkey-test
-just
+just dash
 ```
 
-This opens an interactive dashboard showing all available commands. Run `just bootstrap` to install dependencies, then `just serve` or `just dev` to start.
+`just dash` starts the bridge if it isn't running and opens the dashboard at **`http://127.0.0.1:10764/dashboard`** — browse by category, search, launch and stop scriptlets from the browser.
 
-### Manual Setup
-
-If you don't have `just` installed:
-# Fleet-standard start (kills port zombie, starts bridge, opens dashboard)
+Manual alternative:
+```powershell
 .\start.bat
-# Or directly:
+# or:
 .\start_dashboard.ps1
-Dashboard opens at **`http://127.0.0.1:10764/dashboard`**.
+```
 
-## What's Here
+## What's here
 
 | Path | Description |
 |------|-------------|
-| `ScriptletCOMBridge.ahk` | HTTP server on **10764** — `/scriptlets`, `/run/:name`, `/stop/:name`, `/dashboard` |
-| `scriptlets/` | 80+ AHK v2 scripts by category |
+| `ScriptletCOMBridge.ahk` | HTTP bridge on **:10764** — `/scriptlets` (live directory scan), `/run/:name`, `/stop/:name`, `/status`, `/dashboard` |
+| `dashboard.html` | Web UI, talks to the bridge live — no build step |
+| `scriptlets/` | 64 AHK v2 scripts (`metadata.json` is the catalog: 63 registered) |
+| `scriptlets/_archive/` | Superseded drafts and test scratch files, kept for history, excluded from the dashboard |
+| `scriptlets/v1/` | Unmigrated AHK v1 scripts, excluded from the dashboard and depot scans |
 | `scriptlets/ai_generated/` | Sandbox for MCP-generated scripts — review before promoting |
-| `scriptlet_launcher_v2.ahk` | Native GUI launcher |
-| `utils/linter_headless.ahk` | Headless static analyzer with `--fix` mode |
-| `utils/batch_debugger.ps1` | Batch syntax checker |
-| `docs/` | Syntax reference, migration guides, bugbash reports |
-| `stockfish.exe` | Chess engine (for `chess_stockfish.ahk`) |
-| `justfile` | `lint-ahk`, `lint-fix`, `lint-one`, `kill-ahk`, `dash`, `start` |
+| `utils/linter_headless.ahk` | Headless static analyzer with `--fix` mode (see also the standalone [ahk-lint](../ahk-linter) CLI) |
+| `docs/` | Syntax references, v1→v2 migration guides, bugbash reports (20+ files, not yet indexed) |
+| `justfile` | `just dash` / `lint-ahk` / `lint-fix` / `scan-compat` / `kill-ahk` / `start` |
 
-## Widgets
+### Three launchers, one recommended path
 
-| Widget | Hotkey | What |
-|--------|--------|------|
-| `ipad_scroll_widget.ahk` | — | ▲△▽▼/Top/End buttons + Play game menu. For RustDesk iPad. |
-| `ollama_chatbot_v3.ahk` | Ctrl+Alt+O | 4 personalities, model ComboBox, session persistence, dark GUI |
-| `ahk_launcher.ahk` | Ctrl+Alt+A | Searchable script list with favorites, Run button |
-| `word_games.ahk` | Ctrl+Alt+G | Tabbed Wordle / Anagrams / Hangman. Physical keyboard input, cheat solver. |
-| `classic_pong.ahk` | Ctrl+Alt+P | GDI+ arcade game with vector graphics (green paddles, white ball). |
+There are three separate launcher UIs in this repo, from different points in its history:
 
-## Scriptlet Categories
+- **`dashboard.html` (via the bridge, port 10764)** — current, recommended. Live-scans `scriptlets/`, reads `metadata.json` for descriptions, category filtering, search, run/stop from the browser.
+- **`scriptlets/ScriptletLauncher.ahk`** — tray-resident AHK GUI, auto-starts, tabbed categories. Registered in the catalog.
+- **`scriptlets/ahk_launcher.ahk`** — lightweight searchable popup (`Ctrl+Alt+A`). Registered in the catalog.
+- **`scriptlet_launcher_v2.ahk`** (repo root, ~2965 lines, Sept 2025) — the original monolithic launcher with a hardcoded item list, predates the bridge/dashboard/catalog system entirely. Legacy; not wired into `metadata.json`.
 
-- **games** — Snake, Tetris, Sudoku, Chess (Stockfish), Pong, Pac-Man, Frogger, Q*bert, Wordle, Anagrams, Hangman
-- **productivity** — Clipboard manager, window snapping, volume, quick notes
-- **system** — System monitor, security guide, window helpers
-- **development** — Git assistant, code formatter, MCP scaffolding, AHK linter
-- **chat** — Ollama chatbot v3 with personalities
-- **fun** — Pranks, sounds, corporate comedy
-- **hotkeys** — Remaps and shortcut layers
-- **ai_generated** — Scripts generated via `autohotkey-mcp generate_scriptlet`
+If you're picking one, use the dashboard. The two in-AHK launchers overlap and haven't been consolidated yet.
 
-## Health
+## Scriptlet categories (registered in `metadata.json`)
 
-77 scriptlets, **0 lint errors** (2026-07-05). `just lint-ahk` to verify.
+- **games** — Chess (Stockfish), Pong, Tetris, Frogger, Pac-Man, Q\*bert, Sudoku, Puzzle (15-tile), Wordle/Anagrams/Hangman
+- **productivity** — Clipboard managers, window snapping/management, quick notes, quick launch, text/macro expansion, prompt snippets
+- **system** — System monitor(s), cleanup robot, security warnings, system shortcuts
+- **development** — Git repo manager, code formatter, MCP scaffolding/dev-cycle tools, AHK debug helper
+- **automation** — Macro recorder/editor, visual workflow builder
+- **fun** — Classic and corporate pranks, ambient sounds
+- **widgets** — iPad scroll widget
+- **ai** — Ollama chatbot, AI code assistant
 
-- All scripts pass `linter_headless.ahk` with zero errors
-- 6 shipped widgets running simultaneously from depot
-- `just lint-fix` auto-applies mechanical v1→v2 fixes with `.bak` backup
-- See `standards/rules/autohotkey_v2_standard.md` for fleet AHK v2 conventions
-
-## Arcade Games
-
-13 playable arcade games in `scriptlets/`. GDI+ rendering in classic_pong. ASCII grid rendering in tetris, frogger, pacman, qbert. All use `HotIf`-scoped hotkeys (no global key stealing). Access via bridge at `http://127.0.0.1:10764/dashboard`.
-
-| Game | Rendering | Controls |
-|------|-----------|----------|
-| Classic Pong | GDI+ (paddles, ball, net) | W/S or arrows, Space=Start |
-| Tetris | ASCII (green on black) | Arrows, Up=Rotate, Space=Drop |
-| Frogger | ASCII (green on black) | Arrows |
-| Pac-Man | ASCII (yellow on black) | Arrow keys |
-| Q*bert | ASCII (green on black) | Arrows |
-| Sudoku | Edit grid | Click + type |
-| Chess | Full board UI | Click to move, Stockfish AI |
-| Word Games | Tabbed UI | Physical keyboard: type, Backspace, Enter |
-
-### Hotkey Fixes (2026-07-05)
-All games now use `HotIf`-scoped hotkeys instead of global guards. Keys pass through to other apps when the game window isn't focused. Previously, bare letter hotkeys (W/S/A/D, arrows) were consumed globally regardless of window state.
+Run `just lint-ahk` to check the whole depot against the fleet AHK v2 standard (see `mcp-central-docs/standards/rules/autohotkey_v2_standard.md`).
 
 ## Integration with autohotkey-mcp
 
@@ -102,13 +68,11 @@ AUTOHOTKEY_SCRIPT_DEPOT=D:\Dev\repos\autohotkey-test
 AUTOHOTKEY_BRIDGE_URL=http://127.0.0.1:10764
 ```
 
-When the bridge is running, `list_scriptlets` / `run_scriptlet` / `stop_scriptlet`
-go through it. When it's not, autohotkey-mcp scans `scriptlets/` directly and
-launches AHK via subprocess.
+When the bridge is running, `list_scriptlets` / `run_scriptlet` / `stop_scriptlet` go through it. When it's not, `autohotkey-mcp` scans `scriptlets/` directly and launches AHK via subprocess.
 
 ## Port
 
-`10764` — ScriptletCOMBridge HTTP server. Registered in `mcp-central-docs/operations/WEBAPP_PORTS.md`.
+`10764` — ScriptletCOMBridge HTTP server. Registered in `mcp-central-docs/operations/WEBAPP_PORTS.md`. (Historical note: this used to be 10744, migrated 2026-08-27 due to a collision with `openclaw-molt-mcp` — as of 2026-09-22 all internal references are consistent on 10764.)
 
 ## Requirements
 
@@ -120,7 +84,12 @@ launches AHK via subprocess.
 
 AHK scripts have full desktop access. Only run trusted scripts. Review `ai_generated/` output before executing.
 
+## Known gaps
+
+- `just bootstrap` references `uv sync`/`pre-commit` — there's no `pyproject.toml` or `.pre-commit-config.yaml` in this repo; that recipe doesn't currently work.
+- No CI/CD pipeline.
+- See [ASSESSMENT.md](ASSESSMENT.md) for the current full status.
+
 ## License
 
 MIT
-

@@ -28,7 +28,7 @@ kill-ahk:
 
 # Launch the dashboard
 dash:
-    @start http://127.0.0.1:10744/dashboard
+    @start http://127.0.0.1:10764/dashboard
 
 # Start the launcher
 start:

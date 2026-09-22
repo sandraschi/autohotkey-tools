@@ -1280,6 +1280,26 @@
         "harmless",
         "fun"
       ]
+    },
+    "ScriptletLauncher": {
+      "name": "Scriptlet Launcher",
+      "version": "1.0.0",
+      "description": "Main tray-resident launcher GUI for browsing, searching and launching scriptlets by category, runs automatically on startup",
+      "category": "utilities",
+      "author": "Sandra",
+      "dependencies": [],
+      "hotkeys": [
+        "runs automatically on startup"
+      ],
+      "enabled": true,
+      "priority": 1,
+      "tags": [
+        "launcher",
+        "scriptlets",
+        "management",
+        "gui",
+        "tray"
+      ]
     }
   },
   "categories": {
