@@ -33,7 +33,7 @@ PAD := 4
 
 ; Paths
 global DEPOT := "D:\Dev\repos\autohotkey-test\scriptlets"
-global DASHBOARD_URL := "http://127.0.0.1:10744/dashboard"
+global DASHBOARD_URL := "http://127.0.0.1:10764/dashboard"
 
 ; State
 targetHwnd := 0

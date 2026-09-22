@@ -214,7 +214,7 @@ class MCPTroubleshooter {
 
     static RunConnectivityCheck(*) {
         summary := "🌐 Connectivity Check`n`n"
-        loopPorts := [8000, 8001, 8002, 10744]
+        loopPorts := [8000, 8001, 8002, 10764]
         for port in loopPorts {
             result := MCPTroubleshooter.RunCli("netstat -an | findstr :" . port)
             summary .= result.success && InStr(result.output, ":" . port) ? "⚠️ Port " . port . " in use`n" : "✅ Port " . port . " available`n"

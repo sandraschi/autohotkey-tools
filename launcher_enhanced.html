@@ -842,7 +842,7 @@
 
         async function loadScriptlets() {
             try {
-                const response = await fetch('http://localhost:10744/scriptlets');
+                const response = await fetch('http://localhost:10764/scriptlets');
                 if (response.ok) {
                     const data = await response.json();
                     scriptlets = data.map(scriptlet => ({
@@ -1144,7 +1144,7 @@
             renderScriptlets();
 
             // Call the COM bridge
-            fetch(`http://localhost:10744/run/${scriptletId}.ahk`)
+            fetch(`http://localhost:10764/run/${scriptletId}.ahk`)
                 .then(response => response.text())
                 .then(result => {
                     console.log('Scriptlet started:', result);
@@ -1171,7 +1171,7 @@
             renderScriptlets();
 
             // Call the COM bridge
-            fetch(`http://localhost:10744/stop/${scriptletId}.ahk`)
+            fetch(`http://localhost:10764/stop/${scriptletId}.ahk`)
                 .then(response => response.text())
                 .then(result => {
                     console.log('Scriptlet stopped:', result);
