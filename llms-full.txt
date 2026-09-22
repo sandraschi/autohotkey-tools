@@ -8,7 +8,7 @@ Generated: 2026-07-05
 ## Architecture
 
 ```
-User browser ──→ ScriptletCOMBridge.ahk (port 10744)
+User browser ──→ ScriptletCOMBridge.ahk (port 10764)
                      │
      ┌───────────────┼───────────────┐
      ▼               ▼               ▼
@@ -23,7 +23,7 @@ and use direct PowerShell cmdlets.
 
 ## Bridge API
 
-`http://127.0.0.1:10744` — PowerShell System.Net.HttpListener:
+`http://127.0.0.1:10764` — PowerShell System.Net.HttpListener:
 
 | Endpoint | Method | Response |
 |----------|--------|----------|
@@ -118,7 +118,7 @@ Fleet-standard launcher:
 1. Finds AutoHotkey64.exe (checks common install paths)
 2. Tests bridge liveness via TCP + HTTP GET /status
 3. If not running, launches ScriptletCOMBridge.ahk and polls up to 20s
-4. Opens http://127.0.0.1:10744/dashboard in default browser
+4. Opens http://127.0.0.1:10764/dashboard in default browser
 
 ## Justfile Recipes
 
@@ -134,5 +134,5 @@ Fleet-standard launcher:
 
 ## Port
 
-`10744` — registered in mcp-central-docs/operations/WEBAPP_PORTS.md.
+`10764` — registered in mcp-central-docs/operations/WEBAPP_PORTS.md.
 Frontend port `10747` for autohotkey-mcp web_sota (if running).

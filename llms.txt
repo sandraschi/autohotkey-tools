@@ -2,7 +2,7 @@
 
 AutoHotkey v2 scriptlet depot. 80+ scripts across games, productivity, system,
 dev tools, and MCP integration. Includes ScriptletCOMBridge HTTP server on
-port 10744 for list/run/stop from autohotkey-mcp.
+port 10764 for list/run/stop from autohotkey-mcp.
 
 ## Key fixes applied (2026-07-05)
 
@@ -29,7 +29,7 @@ port 10744 for list/run/stop from autohotkey-mcp.
 
 ## Bridge API
 
-`http://127.0.0.1:10744` — PowerShell HttpListener:
+`http://127.0.0.1:10764` — PowerShell HttpListener:
 - `GET /scriptlets` — JSON list of all 80+ scriptlets
 - `GET /run/{name}` — Launch scriptlet via Start-Process
 - `GET /stop/{name}` — Kill matching AutoHotkey64 process
