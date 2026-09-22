@@ -1,6 +1,6 @@
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
-#Include A_ScriptDir\lib\ScriptletErrorHandler.ahk
+#Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
 
 ; @name: Q*bert
 ; @description: Pyramid-hopping arcade game -- color every cube by landing on it, avoid falling off the edge.
