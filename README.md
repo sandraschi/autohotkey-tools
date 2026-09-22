@@ -1,6 +1,6 @@
-# autohotkey-test
+# autohotkey-tools
 
-**AutoHotkey v2 scriptlet depot** — 64 working `.ahk` utilities, widgets, games and pranks, served through a local HTTP bridge with a live web dashboard. Sibling to [ahk-lint](../ahk-linter) (AST-based v2 linter with auto-fix) and consumed by [autohotkey-mcp](../autohotkey-mcp).
+**AutoHotkey v2 scriptlet depot** — 64 working `.ahk` utilities, widgets, games and pranks, served through a local HTTP bridge with a live web dashboard. Sibling to [autohotkey-linter](../autohotkey-linter) (AST-based v2 linter with auto-fix) and consumed by [autohotkey-mcp](../autohotkey-mcp).
 
 > 📖 **[Installation Guide](INSTALL.md)** — quick start, manual setup, and troubleshooting
 
@@ -15,7 +15,7 @@ The point of this depot isn't only "browse and run 64 existing scripts." Through
 What actually happens:
 1. `generate_scriptlet(prompt)` writes the new script to `scriptlets/ai_generated/` (sandboxed — never touches the live catalog directly).
 2. You (or Claude, if asked) review it — run `just lint-ahk` against it, try it standalone.
-3. **"Wiring it in"** means moving it from `ai_generated/` into `scriptlets/` and registering it in `metadata.json` (name, category, hotkeys, description) — the exact process used to bring 21 previously-orphaned tools into the catalog on 2026-09-22. There's no one-click "promote" tool yet; ask Claude to do it, the same way it was done for this whole batch.
+3. **"Wiring it in"** means moving it from `ai_generated/` into `scriptlets/` and registering it in `metadata.json` (name, category, hotkeys, description). Call `scriptlet_ops(operation="promote", script_id=...)` in `autohotkey-mcp` — it auto-fixes the silent-exit persistence bug, blocks on hotkey collisions and real lint errors (both overridable with `force=True`), and does the registration for you.
 4. Once registered, it shows up in the dashboard like any other scriptlet — searchable, launchable, stoppable, no restart needed (the bridge live-scans `scriptlets/`).
 
 This is the actual value proposition: a standing target you can keep pointing an AI assistant at to grow, not a fixed collection you're stuck with.
@@ -23,8 +23,8 @@ This is the actual value proposition: a standing target you can keep pointing an
 ## Quick Start
 
 ```powershell
-git clone https://github.com/sandraschi/autohotkey-test
-cd autohotkey-test
+git clone https://github.com/sandraschi/autohotkey-tools
+cd autohotkey-tools
 just dash
 ```
 
@@ -47,7 +47,7 @@ Manual alternative:
 | `scriptlets/_archive/` | Superseded drafts and test scratch files, kept for history, excluded from the dashboard |
 | `scriptlets/v1/` | Unmigrated AHK v1 scripts, excluded from the dashboard and depot scans |
 | `scriptlets/ai_generated/` | Sandbox for MCP-generated scripts — review before promoting |
-| `utils/linter_headless.ahk` | Headless static analyzer with `--fix` mode (see also the standalone [ahk-lint](../ahk-linter) CLI) |
+| `utils/linter_headless.ahk` | Headless static analyzer with `--fix` mode (see also the standalone [autohotkey-linter](../autohotkey-linter) CLI) |
 | `docs/` | Syntax references, v1→v2 migration guides, bugbash reports (20+ files, not yet indexed) |
 | `justfile` | `just dash` / `lint-ahk` / `lint-fix` / `scan-compat` / `kill-ahk` / `start` |
 
@@ -77,10 +77,10 @@ Run `just lint-ahk` to check the whole depot against the fleet AHK v2 standard (
 
 ## Integration with autohotkey-mcp
 
-`autohotkey-mcp` reads this depot directly:
+`autohotkey-mcp` reads this depot directly. If you clone it as a sibling of `autohotkey-mcp` (`../autohotkey-tools`), it's found automatically — no configuration needed. Otherwise, point it explicitly:
 
 ```
-AUTOHOTKEY_SCRIPT_DEPOT=D:\Dev\repos\autohotkey-test
+AUTOHOTKEY_SCRIPT_DEPOT=C:\path\to\autohotkey-tools
 AUTOHOTKEY_BRIDGE_URL=http://127.0.0.1:10764
 ```
 
