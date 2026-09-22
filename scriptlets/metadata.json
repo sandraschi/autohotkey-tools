@@ -1300,6 +1300,26 @@
         "gui",
         "tray"
       ]
+    },
+    "blender_helper_popup": {
+      "name": "Blender Helper Popup",
+      "version": "1.0.0",
+      "description": "Small always-on-top HUD with a Blender shortcut cheat sheet and one-click render-output folder access",
+      "category": "development",
+      "author": "Sandra",
+      "dependencies": [],
+      "hotkeys": [
+        "^!y toggle"
+      ],
+      "enabled": true,
+      "priority": 20,
+      "tags": [
+        "blender",
+        "cheat-sheet",
+        "hud",
+        "3d",
+        "ai-generated"
+      ]
     }
   },
   "categories": {
