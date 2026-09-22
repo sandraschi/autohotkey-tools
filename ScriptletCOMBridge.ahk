@@ -53,8 +53,8 @@ StartHTTPServer() {
             ; Kill any existing PowerShell processes running the server
             Run('taskkill /f /im powershell.exe /fi "WINDOWTITLE eq scriptlet_server*"', , 'Hide')
             
-            ; Try to kill processes using port 10744 (with error handling for privilege issues)
-            Run('powershell -Command "try { Get-NetTCPConnection -LocalPort 10744 | ForEach-Object { if ($_.OwningProcess -ne 4) { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue } } } catch { Write-Host \"Port cleanup completed with some errors\" }"', , 'Hide')
+            ; Try to kill processes using port 10764 (with error handling for privilege issues)
+            Run('powershell -Command "try { Get-NetTCPConnection -LocalPort 10764 | ForEach-Object { if ($_.OwningProcess -ne 4) { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue } } } catch { Write-Host \"Port cleanup completed with some errors\" }"', , 'Hide')
             
             Sleep(2000)
         } catch {
@@ -79,12 +79,12 @@ StartHTTPServer() {
         ; Check if server started successfully
         try {
             ; Test if server is responding
-            Run('powershell.exe -Command "try { Invoke-WebRequest -Uri http://127.0.0.1:10744/scriptlets -TimeoutSec 5 | Out-Null; Write-Host SUCCESS } catch { Write-Host FAILED }"', , 'Hide')
+            Run('powershell.exe -Command "try { Invoke-WebRequest -Uri http://127.0.0.1:10764/scriptlets -TimeoutSec 5 | Out-Null; Write-Host SUCCESS } catch { Write-Host FAILED }"', , 'Hide')
         } catch {
             ; Server test failed, but continue
         }
         
-        TrayTip('HTTP server started on port 10744', 'Scriptlet Bridge', '1')
+        TrayTip('HTTP server started on port 10764', 'Scriptlet Bridge', '1')
         
     } catch as e {
         MsgBox('Failed to start HTTP server: ' . e.Message, 'Error', '0x10')
@@ -103,7 +103,7 @@ CreatePowerShellServer() {
     
     ; Define the PowerShell script content using a continuation section
     psScript := ''
-    psScript .= "`$port = 10744`n"
+    psScript .= "`$port = 10764`n"
     psScript .= "`$listener = New-Object System.Net.HttpListener`n"
     psScript .= "`$listener.Prefixes.Add('http://127.0.0.1:' + `$port + '/')`n"
     psScript .= "try { `$listener.Start(); Write-Host 'HTTP server started on port ' + `$port } catch { Write-Host 'Failed to bind port ' + `$port + ': ' + `$_.Exception.Message; exit 1 }`n"
@@ -192,7 +192,7 @@ CreatePowerShellServer() {
     psScript .= "                # If WMI fails, continue without running status`n"
     psScript .= "            }`n"
     psScript .= "            if (Test-Path `$scriptletsDir) {`n"
-    psScript .= "                `$files = Get-ChildItem `$scriptletsDir -Filter '*.ahk' -Recurse | Where-Object { `$_.FullName -notlike '*\v1\*' -and `$_.FullName -notlike '*\lib\*' }`n"
+    psScript .= "                `$files = Get-ChildItem `$scriptletsDir -Filter '*.ahk' -Recurse | Where-Object { `$_.FullName -notlike '*\v1\*' -and `$_.FullName -notlike '*\lib\*' -and `$_.FullName -notlike '*\_archive\*' }`n"
     psScript .= "                foreach (`$file in `$files) {`n"
     psScript .= "                    `$category = 'utilities'`n"
     psScript .= "                    `$description = ''`n"
@@ -558,7 +558,7 @@ Hotkey("^!e", (*) => ExitServer())
 ExitServer() {
     try {
         ; Call the exit endpoint
-        Run('powershell -Command "try { Invoke-WebRequest -Uri http://127.0.0.1:10744/exit -TimeoutSec 5 | Out-Null } catch { Write-Host \"Server exit command sent\" }"', , 'Hide')
+        Run('powershell -Command "try { Invoke-WebRequest -Uri http://127.0.0.1:10764/exit -TimeoutSec 5 | Out-Null } catch { Write-Host \"Server exit command sent\" }"', , 'Hide')
         LogActivity("Exit command sent to server")
         TrayTip("Server exit command sent", "Scriptlet Bridge", '1')
     } catch as e {

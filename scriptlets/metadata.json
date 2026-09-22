@@ -180,25 +180,6 @@
         "llm"
       ]
     },
-    "weather_widget": {
-      "name": "Weather Widget",
-      "version": "1.0.0",
-      "description": "Real-time weather information widget",
-      "category": "widgets",
-      "author": "Sandra",
-      "dependencies": [],
-      "hotkeys": [
-        "^!w"
-      ],
-      "enabled": true,
-      "priority": 60,
-      "tags": [
-        "weather",
-        "widget",
-        "api",
-        "information"
-      ]
-    },
     "sudoku": {
       "name": "Sudoku Game",
       "version": "1.0.0",
@@ -844,27 +825,6 @@
         "dots"
       ]
     },
-    "classic_pranks_collection": {
-      "name": "Classic Pranks Collection",
-      "version": "1.0.0",
-      "description": "Collection of classic computer pranks and harmless jokes",
-      "category": "pranks",
-      "author": "Sandra",
-      "dependencies": [],
-      "hotkeys": [
-        "^!p",
-        "F9"
-      ],
-      "enabled": true,
-      "priority": 11,
-      "tags": [
-        "pranks",
-        "jokes",
-        "classic",
-        "harmless",
-        "fun"
-      ]
-    },
     "ai_code_assistant": {
       "name": "AI-Powered Code Assistant",
       "version": "1.0.0",
@@ -1298,6 +1258,27 @@
         "workflow",
         "builder",
         "visual"
+      ]
+    },
+    "classic_pranks": {
+      "name": "Classic Pranks Collection",
+      "version": "1.0.0",
+      "description": "Collection of classic computer pranks and harmless jokes",
+      "category": "fun",
+      "author": "Sandra",
+      "dependencies": [],
+      "hotkeys": [
+        "^!p",
+        "F9"
+      ],
+      "enabled": true,
+      "priority": 11,
+      "tags": [
+        "pranks",
+        "jokes",
+        "classic",
+        "harmless",
+        "fun"
       ]
     }
   },
