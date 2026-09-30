@@ -108,31 +108,24 @@ class SudokuApp {
         }
         ; Global hotkey to launch/show the game
         Hotkey("^!s", (*) => SudokuApp.ShowGui())
-        
-        ; Context-sensitive hotkeys - only work when Sudoku window is active
-        Hotkey("r", (*) => SudokuApp.ResetBoardIfActive())
-        Hotkey("c", (*) => SudokuApp.CheckPuzzleIfActive())
+
+        ; Game keys are window-scoped via HotIf: r/c/Escape must reach other
+        ; apps untouched unless the Sudoku window is active. A bare Hotkey()
+        ; swallows the keystroke globally even when the callback guards on
+        ; IsSudokuWindowActive() - the key never reaches the foreground app.
+        HotIf((*) => SudokuApp.IsSudokuWindowActive())
+        Hotkey("r", (*) => SudokuApp.ResetBoard())
+        Hotkey("c", (*) => SudokuApp.CheckPuzzle())
         Hotkey("Escape", (*) => SudokuApp.HideGui())
+        HotIf()
         registered := true
     }
-    
+
     static IsSudokuWindowActive() {
         if (!SudokuApp.sg || !SudokuApp.sg.Hwnd) {
             return false
         }
         return WinActive("ahk_id " . SudokuApp.sg.Hwnd)
-    }
-    
-    static ResetBoardIfActive() {
-        if (SudokuApp.IsSudokuWindowActive()) {
-            SudokuApp.ResetBoard()
-        }
-    }
-    
-    static CheckPuzzleIfActive() {
-        if (SudokuApp.IsSudokuWindowActive()) {
-            SudokuApp.CheckPuzzle()
-        }
     }
     
     static ShowGui(*) {
