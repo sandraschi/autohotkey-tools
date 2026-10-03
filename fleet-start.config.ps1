@@ -1,15 +1,15 @@
 # Per-repo fleet start config for autohotkey-test
-# Edit ports/backend target here - start.ps1 is fleet-standard.
+# RETIRED 2026-10-03: stale clone of autohotkey-tools, same bridge on 10764.
+# Marked non-live (Kind none, ports 0) so fleet.lock.json ignores it.
+# To revive: run claim_ports.py --repo autohotkey-test --apply for a fresh pair.
 @{
     Name         = 'autohotkey-test'
-    BackendPort  = 10764
+    BackendPort  = 0
     FrontendPort = 0
     HealthPath   = '/status'
     WebRoot      = 'D:\Dev\repos\autohotkey-test'
     Backend = @{
-        Kind    = 'custom'
-        WorkDir = 'D:\Dev\repos\autohotkey-test'
-        Command = "& 'D:\Dev\repos\autohotkey-test\scripts\Start-ScriptletBridge.ps1'"
+        Kind    = 'none'
     }
     Frontend = @{
         Kind = 'none'
