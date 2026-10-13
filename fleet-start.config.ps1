@@ -1,18 +1,17 @@
-# Per-repo fleet start config for autohotkey-test
+# Per-repo fleet start config for autohotkey-tools
 # Edit ports/backend target here - start.ps1 is fleet-standard.
 @{
-    Name         = 'autohotkey-test'
+    Name         = 'autohotkey-tools'
     BackendPort  = 10764
     FrontendPort = 0
     HealthPath   = '/status'
-    WebRoot      = 'D:\Dev\repos\autohotkey-test'
+    WebRoot      = $PSScriptRoot
     Backend = @{
         Kind    = 'custom'
-        WorkDir = 'D:\Dev\repos\autohotkey-test'
-        Command = "& 'D:\Dev\repos\autohotkey-test\scripts\Start-ScriptletBridge.ps1'"
+        WorkDir = $PSScriptRoot
+        Command = "& '$PSScriptRoot\scripts\Start-ScriptletBridge.ps1'"
     }
     Frontend = @{
         Kind = 'none'
     }
 }
-
