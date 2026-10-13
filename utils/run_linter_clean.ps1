@@ -14,11 +14,19 @@ $runningProcesses = Get-Process -Name 'AutoHotkey*' -ErrorAction SilentlyContinu
 
 if ($runningProcesses) {
     Write-Host "Found $($runningProcesses.Count) running AutoHotkey process(es). Terminating..." -ForegroundColor Red
+    $killedIds = $runningProcesses | ForEach-Object { $_.Id }
     $runningProcesses | ForEach-Object {
         Write-Host "  - Killing: $($_.ProcessName) (PID: $($_.Id))" -ForegroundColor Red
         Stop-Process -Id $_.Id -Force
     }
-    Start-Sleep -Seconds 1
+    # HARDENED 2026-09-17: was a blind Start-Sleep -Seconds 1, no check the
+    # processes actually died (TRAPS_AND_PITFALLS.md #36). Poll instead.
+    $waitSec = 5
+    $elapsed = 0
+    while ($elapsed -lt $waitSec -and ($killedIds | Where-Object { Get-Process -Id $_ -ErrorAction SilentlyContinue })) {
+        Start-Sleep -Milliseconds 500
+        $elapsed += 0.5
+    }
 } else {
     Write-Host "No AutoHotkey processes found running." -ForegroundColor Green
 }
