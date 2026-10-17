@@ -1046,6 +1046,24 @@
         "widget"
       ]
     },
+    "opencode_typo_watcher": {
+      "name": "OpenCode Typo Watcher",
+      "version": "1.0.0",
+      "description": "Keystroke-level autocorrect scoped to OpenCode.exe: classic transpositions plus Sandra's personal typo list",
+      "category": "utilities",
+      "author": "Sandra",
+      "dependencies": [],
+      "hotkeys": [
+        "^!t stats"
+      ],
+      "enabled": true,
+      "priority": 15,
+      "tags": [
+        "opencode",
+        "spellcheck",
+        "typo"
+      ]
+    },
     "dev_context_music": {
       "name": "Dev Context Music",
       "version": "1.0.0",
