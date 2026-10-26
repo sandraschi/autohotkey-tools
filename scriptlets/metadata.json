@@ -1029,21 +1029,28 @@
     },
     "ipad_scroll_widget": {
       "name": "iPad Scroll Widget",
-      "version": "1.0.0",
-      "description": "Slim vertical scroll widget for iPad-as-second-screen setups: PgUp/Down, Top/End, Play",
+      "version": "1.3.1",
+      "description": "Slim vertical touch widget for iPad-as-second-screen + RustDesk: split transparency (frame keyed out, opaque buttons), wheel/key scroll modes, working Top/End via activate-then-Send, auto-hide, position persists in INI",
       "category": "widgets",
       "author": "Sandra",
       "dependencies": [],
       "hotkeys": [
         "^!s toggle",
-        "^!w pick target"
+        "^!w pick target",
+        "^!m snap to target",
+        "^!k wheel/key mode",
+        "^!a autohide on/off"
       ],
       "enabled": true,
       "priority": 15,
       "tags": [
         "scroll",
         "ipad",
-        "widget"
+        "widget",
+        "rustdesk",
+        "opencode",
+        "touch",
+        "a11y"
       ]
     },
     "opencode_typo_watcher": {

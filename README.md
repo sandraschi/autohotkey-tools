@@ -37,6 +37,25 @@ Manual alternative:
 .\start_dashboard.ps1
 ```
 
+## OpenCode helpers
+
+Two scripts for driving OpenCode (AI coding TUI) from Windows, including over RustDesk + iPad touch where the TUI scrollbar is a few px wide and unhittable:
+
+* `scriptlets/ipad_scroll_widget.ahk` (v1.3.1) - 48px always-on-top touch strip: PgUp/Up/Down/PgDn (wheel `PostMessage`, no scrollbar hit needed; key mode via `ControlSend` toggle), Top/End (activate target, then send; keys overridable in `scroll_widget.ini`), Menu (opens dashboard). Hotkeys: `^!s` toggle, `^!w` pick target, `^!m` snap to OpenCode edge, `^!k` wheel/key mode, `^!a` auto-hide. Position/mode/alpha persist in `scriptlets/scroll_widget.ini`. Frame is transparency-keyed out, buttons stay opaque.
+* `scriptlets/opencode_typo_watcher.ahk` - keystroke autocorrect scoped to `OpenCode.exe` only (`teh` -> `the`, plus a personal typo list).
+
+Run (AutoHotkey v2 required):
+
+```powershell
+# single script, no dashboard needed:
+.\RunScriptlet.bat ipad_scroll_widget.ahk
+.\RunScriptlet.bat opencode_typo_watcher.ahk
+# stop:
+.\StopScriptlet.bat ipad_scroll_widget.ahk
+```
+
+or `just dash` and launch/stop them from the dashboard.
+
 ## What's here
 
 | Path | Description |
