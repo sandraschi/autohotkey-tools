@@ -63,6 +63,7 @@ tmp/
 # Local configuration overrides
 config.local.ini
 *.local.ini
+scriptlets/scroll_widget.ini
 
 # Build output
 /dist/
