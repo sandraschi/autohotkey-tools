@@ -1029,8 +1029,8 @@
     },
     "ipad_scroll_widget": {
       "name": "iPad Scroll Widget",
-      "version": "1.3.1",
-      "description": "Slim vertical touch widget for iPad-as-second-screen + RustDesk: split transparency (frame keyed out, opaque buttons), wheel/key scroll modes, working Top/End via activate-then-Send, auto-hide, position persists in INI",
+      "version": "1.6.0",
+      "description": "Slim vertical touch widget for iPad-as-second-screen + RustDesk: wide labeled quick-launch rail with built-in AHK config window (no INI hacking), bottom-aligned, split transparency, Top/End follow working channel",
       "category": "widgets",
       "author": "Sandra",
       "dependencies": [],
@@ -1039,7 +1039,10 @@
         "^!w pick target",
         "^!m snap to target",
         "^!k wheel/key mode",
-        "^!a autohide on/off"
+        "^!a autohide on/off",
+        "^!q quick rail",
+        "^!e export chat MD",
+        "^!o rail config"
       ],
       "enabled": true,
       "priority": 15,
