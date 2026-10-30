@@ -62,30 +62,30 @@ class AutomationBuilder {
             AutomationBuilder.gui.SetFont("s10 cFFFFFF", "Segoe UI")
             AutomationBuilder.gui.MinSize := "820x560"
 
-            title := AutomationBuilder.gui.AddText("x10 y10 w520 h30 Center", "Action Automation Builder")
+            title := AutomationBuilder.gui.Add("Text", "x10 y10 w520 h30 Center", "Action Automation Builder")
             title.SetFont("s12 bold")
 
-            AutomationBuilder.gui.AddButton("x10 y50 w120 h30", "Record Action").OnEvent("Click", ObjBindMethod(AutomationBuilder, "RecordAction"))
-            AutomationBuilder.gui.AddButton("x140 y50 w120 h30", "Add Condition").OnEvent("Click", ObjBindMethod(AutomationBuilder, "AddCondition"))
-            AutomationBuilder.gui.AddButton("x270 y50 w120 h30", "Add Loop").OnEvent("Click", ObjBindMethod(AutomationBuilder, "AddLoop"))
-            AutomationBuilder.gui.AddButton("x400 y50 w120 h30", "Add Delay").OnEvent("Click", ObjBindMethod(AutomationBuilder, "AddDelay"))
-            AutomationBuilder.gui.AddButton("x530 y50 w120 h30", "Run Workflow").OnEvent("Click", ObjBindMethod(AutomationBuilder, "RunWorkflow"))
+            AutomationBuilder.gui.Add("Button", "x10 y50 w120 h30", "Record Action").OnEvent("Click", ObjBindMethod(AutomationBuilder, "RecordAction"))
+            AutomationBuilder.gui.Add("Button", "x140 y50 w120 h30", "Add Condition").OnEvent("Click", ObjBindMethod(AutomationBuilder, "AddCondition"))
+            AutomationBuilder.gui.Add("Button", "x270 y50 w120 h30", "Add Loop").OnEvent("Click", ObjBindMethod(AutomationBuilder, "AddLoop"))
+            AutomationBuilder.gui.Add("Button", "x400 y50 w120 h30", "Add Delay").OnEvent("Click", ObjBindMethod(AutomationBuilder, "AddDelay"))
+            AutomationBuilder.gui.Add("Button", "x530 y50 w120 h30", "Run Workflow").OnEvent("Click", ObjBindMethod(AutomationBuilder, "RunWorkflow"))
 
-            AutomationBuilder.gui.AddText("x10 y90 w520 h20", "Workflow Canvas:")
-            canvasControl := AutomationBuilder.gui.AddEdit("x10 y115 w520 h280 ReadOnly Multi VScroll -WantReturn", "No nodes defined. Use the toolbar to add workflow steps.")
+            AutomationBuilder.gui.Add("Text", "x10 y90 w520 h20", "Workflow Canvas:")
+            canvasControl := AutomationBuilder.gui.Add("Edit", "x10 y115 w520 h280 ReadOnly Multi VScroll -WantReturn", "No nodes defined. Use the toolbar to add workflow steps.")
             canvasControl.BackColor := 0xFFFFFF
             canvasControl.SetFont("c000000")
             AutomationBuilder.canvas := canvasControl
 
-            AutomationBuilder.gui.AddText("x550 y90 w240 h20", "Workflow Nodes:")
-            AutomationBuilder.nodeList := AutomationBuilder.gui.AddListView("x550 y115 w250 h280", ["Node"])
+            AutomationBuilder.gui.Add("Text", "x550 y90 w240 h20", "Workflow Nodes:")
+            AutomationBuilder.nodeList := AutomationBuilder.gui.Add("ListView", "x550 y115 w250 h280", ["Node"])
             AutomationBuilder.nodeList.OnEvent("Click", ObjBindMethod(AutomationBuilder, "NodeSelected"))
 
-            AutomationBuilder.gui.AddButton("x550 y405 w120 h32", "Delete Node").OnEvent("Click", ObjBindMethod(AutomationBuilder, "DeleteNode"))
-            AutomationBuilder.gui.AddButton("x680 y405 w120 h32", "Save Workflow").OnEvent("Click", ObjBindMethod(AutomationBuilder, "SaveWorkflow"))
+            AutomationBuilder.gui.Add("Button", "x550 y405 w120 h32", "Delete Node").OnEvent("Click", ObjBindMethod(AutomationBuilder, "DeleteNode"))
+            AutomationBuilder.gui.Add("Button", "x680 y405 w120 h32", "Save Workflow").OnEvent("Click", ObjBindMethod(AutomationBuilder, "SaveWorkflow"))
 
-            AutomationBuilder.gui.AddText("x10 y405 w520 h20", "Log Output:")
-            logControl := AutomationBuilder.gui.AddEdit("x10 y430 w810 h110 ReadOnly Multi VScroll -WantReturn", "")
+            AutomationBuilder.gui.Add("Text", "x10 y405 w520 h20", "Log Output:")
+            logControl := AutomationBuilder.gui.Add("Edit", "x10 y430 w810 h110 ReadOnly Multi VScroll -WantReturn", "")
             logControl.BackColor := 0x1a1a1a
             logControl.SetFont("s9 cFFFFFF", "Consolas")
             AutomationBuilder.logOutput := logControl
@@ -123,14 +123,14 @@ class AutomationBuilder {
         dialog.SetFont("s9 cFFFFFF", "Segoe UI")
         dialog.OnEvent("Escape", (*) => dialog.Destroy())
 
-        dialog.AddText("x10 y10 w280 h20", "Condition Type:")
+        dialog.Add("Text", "x10 y10 w280 h20", "Condition Type:")
         conditionType := dialog.AddDDL("x10 y35 w260", ["Window", "File", "Network", "Custom"])
 
-        dialog.AddText("x10 y70 w280 h20", "Condition Expression:")
-        conditionEdit := dialog.AddEdit("x10 y95 w260 h90 -WantReturn")
+        dialog.Add("Text", "x10 y70 w280 h20", "Condition Expression:")
+        conditionEdit := dialog.Add("Edit", "x10 y95 w260 h90 -WantReturn")
 
-        dialog.AddButton("x10 y195 w120 h32", "OK").OnEvent("Click", (*) => AutomationBuilder.AddConditionConfirm(dialog, conditionType, conditionEdit))
-        dialog.AddButton("x150 y195 w120 h32", "Cancel").OnEvent("Click", (*) => dialog.Destroy())
+        dialog.Add("Button", "x10 y195 w120 h32", "OK").OnEvent("Click", (*) => AutomationBuilder.AddConditionConfirm(dialog, conditionType, conditionEdit))
+        dialog.Add("Button", "x150 y195 w120 h32", "Cancel").OnEvent("Click", (*) => dialog.Destroy())
 
         dialog.Show("w280 h240")
     }
@@ -159,14 +159,14 @@ class AutomationBuilder {
         dialog.SetFont("s9 cFFFFFF", "Segoe UI")
         dialog.OnEvent("Escape", (*) => dialog.Destroy())
 
-        dialog.AddText("x10 y10 w280 h20", "Loop Type:")
+        dialog.Add("Text", "x10 y10 w280 h20", "Loop Type:")
         loopType := dialog.AddDDL("x10 y35 w260", ["Count", "While", "For Each"])
 
-        dialog.AddText("x10 y70 w280 h20", "Loop Value:")
-        loopValue := dialog.AddEdit("x10 y95 w260 h70 -WantReturn")
+        dialog.Add("Text", "x10 y70 w280 h20", "Loop Value:")
+        loopValue := dialog.Add("Edit", "x10 y95 w260 h70 -WantReturn")
 
-        dialog.AddButton("x10 y175 w120 h32", "OK").OnEvent("Click", (*) => AutomationBuilder.AddLoopConfirm(dialog, loopType, loopValue))
-        dialog.AddButton("x150 y175 w120 h32", "Cancel").OnEvent("Click", (*) => dialog.Destroy())
+        dialog.Add("Button", "x10 y175 w120 h32", "OK").OnEvent("Click", (*) => AutomationBuilder.AddLoopConfirm(dialog, loopType, loopValue))
+        dialog.Add("Button", "x150 y175 w120 h32", "Cancel").OnEvent("Click", (*) => dialog.Destroy())
 
         dialog.Show("w280 h220")
     }
@@ -195,11 +195,11 @@ class AutomationBuilder {
         dialog.SetFont("s9 cFFFFFF", "Segoe UI")
         dialog.OnEvent("Escape", (*) => dialog.Destroy())
 
-        dialog.AddText("x10 y10 w180 h20", "Delay (seconds):")
-        delayValue := dialog.AddEdit("x10 y35 w180", "")
+        dialog.Add("Text", "x10 y10 w180 h20", "Delay (seconds):")
+        delayValue := dialog.Add("Edit", "x10 y35 w180", "")
 
-        dialog.AddButton("x10 y70 w80 h30", "OK").OnEvent("Click", (*) => AutomationBuilder.AddDelayConfirm(dialog, delayValue))
-        dialog.AddButton("x110 y70 w80 h30", "Cancel").OnEvent("Click", (*) => dialog.Destroy())
+        dialog.Add("Button", "x10 y70 w80 h30", "OK").OnEvent("Click", (*) => AutomationBuilder.AddDelayConfirm(dialog, delayValue))
+        dialog.Add("Button", "x110 y70 w80 h30", "Cancel").OnEvent("Click", (*) => dialog.Destroy())
 
         dialog.Show("w210 h120")
     }

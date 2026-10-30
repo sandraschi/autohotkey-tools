@@ -50,55 +50,55 @@ class MacroEditor {
         this.gui.BackColor := "222222"
         
         ; Title
-        this.gui.AddText("x10 y10 w480 h30 Center", "Macro Editor Pro")
+        this.gui.Add("Text", "x10 y10 w480 h30 Center", "Macro Editor Pro")
             .SetFont("s12 bold cFFFFFF")
         
         ; Macro selection
-        this.gui.AddText("x10 y50 w100 h20", "Select Macro:")
+        this.gui.Add("Text", "x10 y50 w100 h20", "Select Macro:")
         this.macroSelect := this.gui.AddDDL("x120 y45 w200 h200 vMacroSelect")
         this.macroSelect.OnEvent("Change", MacroEditor.MacroSelected)
         
         ; Action list
-        this.gui.AddText("x10 y80 w100 h20", "Actions:")
-        this.actionList := this.gui.AddListView("x10 y105 w480 h250 vActionList", ["Time", "Type", "Action", "Details"])
+        this.gui.Add("Text", "x10 y80 w100 h20", "Actions:")
+        this.actionList := this.gui.Add("ListView", "x10 y105 w480 h250 vActionList", ["Time", "Type", "Action", "Details"])
         this.actionList.OnEvent("Click", MacroEditor.ActionSelected)
         
         ; Edit buttons
-        this.gui.AddButton("x10 y365 w100 h35 vEditBtn", "Edit Action")
+        this.gui.Add("Button", "x10 y365 w100 h35 vEditBtn", "Edit Action")
             .OnEvent("Click", MacroEditor.EditAction)
         
-        this.gui.AddButton("x120 y365 w100 h35 vDeleteBtn", "Delete Action")
+        this.gui.Add("Button", "x120 y365 w100 h35 vDeleteBtn", "Delete Action")
             .OnEvent("Click", MacroEditor.DeleteAction)
         
-        this.gui.AddButton("x230 y365 w100 h35 vInsertBtn", "Insert Action")
+        this.gui.Add("Button", "x230 y365 w100 h35 vInsertBtn", "Insert Action")
             .OnEvent("Click", MacroEditor.InsertAction)
         
-        this.gui.AddButton("x340 y365 w100 h35 vOptimizeBtn", "Optimize")
+        this.gui.Add("Button", "x340 y365 w100 h35 vOptimizeBtn", "Optimize")
             .OnEvent("Click", MacroEditor.OptimizeMacro)
         
         ; Action controls
-        this.gui.AddButton("x10 y410 w100 h35 vDuplicateBtn", "Duplicate")
+        this.gui.Add("Button", "x10 y410 w100 h35 vDuplicateBtn", "Duplicate")
             .OnEvent("Click", MacroEditor.DuplicateAction)
         
-        this.gui.AddButton("x120 y410 w100 h35 vMoveUpBtn", "Move Up")
+        this.gui.Add("Button", "x120 y410 w100 h35 vMoveUpBtn", "Move Up")
             .OnEvent("Click", (*) => MacroEditor.MoveAction(-1))
         
-        this.gui.AddButton("x230 y410 w100 h35 vMoveDownBtn", "Move Down")
+        this.gui.Add("Button", "x230 y410 w100 h35 vMoveDownBtn", "Move Down")
             .OnEvent("Click", (*) => MacroEditor.MoveAction(1))
         
         ; Save/Export
-        this.gui.AddButton("x340 y410 w100 h35 vSaveBtn", "Save Macro")
+        this.gui.Add("Button", "x340 y410 w100 h35 vSaveBtn", "Save Macro")
             .OnEvent("Click", MacroEditor.SaveMacro)
         
-        this.gui.AddButton("x450 y410 w40 h35 vExportBtn", "Export")
+        this.gui.Add("Button", "x450 y410 w40 h35 vExportBtn", "Export")
             .OnEvent("Click", MacroEditor.ExportMacro)
         
         ; Log output
-        this.logOutput := this.gui.AddEdit("x10 y455 w480 h80 ReadOnly Multi VScroll", "")
+        this.logOutput := this.gui.Add("Edit", "x10 y455 w480 h80 ReadOnly Multi VScroll", "")
         this.logOutput.SetFont("s9 cFFFFFF", "Consolas")
 
         ; Test button
-        this.gui.AddButton("x10 y545 w150 h35 vTestBtn", "Test Macro (F9)")
+        this.gui.Add("Button", "x10 y545 w150 h35 vTestBtn", "Test Macro (F9)")
             .OnEvent("Click", MacroEditor.TestMacro)
         
         Hotkey("F9", MacroEditor.TestMacro)
@@ -280,21 +280,21 @@ class MacroEditor {
         
         action := this.macro[index]
         
-        dialog.AddText("x10 y10 w300 h20", "Edit Action #" . index)
+        dialog.Add("Text", "x10 y10 w300 h20", "Edit Action #" . index)
             .SetFont("s10 bold")
         
-        dialog.AddText("x10 y40 w100 h20", "Type:")
+        dialog.Add("Text", "x10 y40 w100 h20", "Type:")
         typeSelect := dialog.AddDDL("x120 y35 w150 vTypeSelect", ["key", "mouse"])
             .Text := action.type
         
-        dialog.AddText("x10 y70 w300 h20", "Details:")
-        detailsEdit := dialog.AddEdit("x10 y95 w300 h150 vDetailsEdit")
+        dialog.Add("Text", "x10 y70 w300 h20", "Details:")
+        detailsEdit := dialog.Add("Edit", "x10 y95 w300 h150 vDetailsEdit")
             .Text := this.ActionToText(action)
         
-        okBtn := dialog.AddButton("x10 y255 w140 h35 vOkBtn", "OK")
+        okBtn := dialog.Add("Button", "x10 y255 w140 h35 vOkBtn", "OK")
         okBtn.OnEvent("Click", (*) => this.HandleEditDialogConfirm(dialog, detailsEdit, index))
         
-        dialog.AddButton("x160 y255 w140 h35 vCancelBtn", "Cancel")
+        dialog.Add("Button", "x160 y255 w140 h35 vCancelBtn", "Cancel")
             .OnEvent("Click", (*) => dialog.Destroy())
         
         dialog.Show("w320 h300")
@@ -304,19 +304,19 @@ class MacroEditor {
         dialog := Gui("+AlwaysOnTop", "Insert Action")
         dialog.BackColor := "222222"
         
-        dialog.AddText("x10 y10 w300 h20", "Insert New Action")
+        dialog.Add("Text", "x10 y10 w300 h20", "Insert New Action")
             .SetFont("s10 bold")
         
-        dialog.AddText("x10 y40 w100 h20", "Type:")
+        dialog.Add("Text", "x10 y40 w100 h20", "Type:")
         typeSelect := dialog.AddDDL("x120 y35 w150 vTypeSelect", ["key", "mouse", "delay", "comment"])
         
-        dialog.AddText("x10 y70 w300 h20", "Action Data:")
-        detailsEdit := dialog.AddEdit("x10 y95 w300 h150 vDetailsEdit")
+        dialog.Add("Text", "x10 y70 w300 h20", "Action Data:")
+        detailsEdit := dialog.Add("Edit", "x10 y95 w300 h150 vDetailsEdit")
         
-        okBtn := dialog.AddButton("x10 y255 w140 h35 vOkBtn", "OK")
+        okBtn := dialog.Add("Button", "x10 y255 w140 h35 vOkBtn", "OK")
         okBtn.OnEvent("Click", (*) => this.HandleInsertDialogConfirm(dialog, detailsEdit))
         
-        dialog.AddButton("x160 y255 w140 h35 vCancelBtn", "Cancel")
+        dialog.Add("Button", "x160 y255 w140 h35 vCancelBtn", "Cancel")
             .OnEvent("Click", (*) => dialog.Destroy())
         
         dialog.Show("w320 h300")

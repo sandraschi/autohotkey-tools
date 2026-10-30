@@ -44,61 +44,61 @@ class AICodeAssistant {
             this.gui.BackColor := "1a1a1a"
             this.gui.SetFont("s10 cFFFFFF", "Segoe UI")
 
-            title := this.gui.AddText("x20 y20 w760 Center", "🤖 AI-Powered Code Assistant")
+            title := this.gui.Add("Text", "x20 y20 w760 Center", "🤖 AI-Powered Code Assistant")
             title.SetFont("s12 cFFFFFF bold", "Segoe UI")
 
-            subtitle := this.gui.AddText("x20 y50 w760 Center", "Advanced coding assistance with AI suggestions")
+            subtitle := this.gui.Add("Text", "x20 y50 w760 Center", "Advanced coding assistance with AI suggestions")
             subtitle.SetFont("s10 cFFFFFF", "Segoe UI")
 
-            headerFile := this.gui.AddText("x20 y90 w760", "📁 File Operations")
+            headerFile := this.gui.Add("Text", "x20 y90 w760", "📁 File Operations")
             headerFile.SetFont("s10 cFFFFFF bold", "Segoe UI")
 
-            openBtn := this.gui.AddButton("x20 y120 w150 h40", "📂 Open File")
+            openBtn := this.gui.Add("Button", "x20 y120 w150 h40", "📂 Open File")
             openBtn.SetFont("s10 cFFFFFF", "Segoe UI")
             openBtn.OnEvent("Click", this.OpenFile.Bind(this))
 
-            saveBtn := this.gui.AddButton("x190 y120 w150 h40", "💾 Save File")
+            saveBtn := this.gui.Add("Button", "x190 y120 w150 h40", "💾 Save File")
             saveBtn.SetFont("s10 cFFFFFF", "Segoe UI")
             saveBtn.OnEvent("Click", this.SaveFile.Bind(this))
 
-            newBtn := this.gui.AddButton("x360 y120 w150 h40", "📄 New File")
+            newBtn := this.gui.Add("Button", "x360 y120 w150 h40", "📄 New File")
             newBtn.SetFont("s10 cFFFFFF", "Segoe UI")
             newBtn.OnEvent("Click", this.NewFile.Bind(this))
 
-            headerEditor := this.gui.AddText("x20 y180 w760", "✏️ Code Editor")
+            headerEditor := this.gui.Add("Text", "x20 y180 w760", "✏️ Code Editor")
             headerEditor.SetFont("s10 cFFFFFF bold", "Segoe UI")
 
-            this.codeEditor := this.gui.AddEdit("x20 y210 w760 h200 Multi VScroll")
+            this.codeEditor := this.gui.Add("Edit", "x20 y210 w760 h200 Multi VScroll")
             this.codeEditor.SetFont("s9 cFFFFFF", "Consolas")
             this.codeEditor.BackColor := "2d2d2d"
 
-            headerSuggestions := this.gui.AddText("x20 y430 w760", "🧠 AI Suggestions")
+            headerSuggestions := this.gui.Add("Text", "x20 y430 w760", "🧠 AI Suggestions")
             headerSuggestions.SetFont("s10 cFFFFFF bold", "Segoe UI")
 
             this.suggestions := this.gui.AddListBox("x20 y460 w760 h100")
             this.suggestions.SetFont("s9 cFFFFFF", "Consolas")
             this.suggestions.BackColor := "2d2d2d"
 
-            headerActions := this.gui.AddText("x20 y580 w760", "⚡ AI Actions")
+            headerActions := this.gui.Add("Text", "x20 y580 w760", "⚡ AI Actions")
             headerActions.SetFont("s10 cFFFFFF bold", "Segoe UI")
 
-            analyzeBtn := this.gui.AddButton("x20 y610 w150 h40", "🔍 Analyze Code")
+            analyzeBtn := this.gui.Add("Button", "x20 y610 w150 h40", "🔍 Analyze Code")
             analyzeBtn.SetFont("s10 cFFFFFF", "Segoe UI")
             analyzeBtn.OnEvent("Click", this.AnalyzeCode.Bind(this))
 
-            optimizeBtn := this.gui.AddButton("x190 y610 w150 h40", "⚡ Optimize")
+            optimizeBtn := this.gui.Add("Button", "x190 y610 w150 h40", "⚡ Optimize")
             optimizeBtn.SetFont("s10 cFFFFFF", "Segoe UI")
             optimizeBtn.OnEvent("Click", this.OptimizeCode.Bind(this))
 
-            debugBtn := this.gui.AddButton("x360 y610 w150 h40", "🐛 Debug")
+            debugBtn := this.gui.Add("Button", "x360 y610 w150 h40", "🐛 Debug")
             debugBtn.SetFont("s10 cFFFFFF", "Segoe UI")
             debugBtn.OnEvent("Click", this.DebugCode.Bind(this))
 
-            generateBtn := this.gui.AddButton("x530 y610 w150 h40", "✨ Generate")
+            generateBtn := this.gui.Add("Button", "x530 y610 w150 h40", "✨ Generate")
             generateBtn.SetFont("s10 cFFFFFF", "Segoe UI")
             generateBtn.OnEvent("Click", this.GenerateCode.Bind(this))
 
-            status := this.gui.AddText("x20 y660 w760 Center", "Press Ctrl+Alt+A to open • Ctrl+Alt+I for instant suggestions")
+            status := this.gui.Add("Text", "x20 y660 w760 Center", "Press Ctrl+Alt+A to open • Ctrl+Alt+I for instant suggestions")
             status.SetFont("s10 cFFFFFF", "Segoe UI")
 
             

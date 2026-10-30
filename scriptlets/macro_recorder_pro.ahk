@@ -57,49 +57,49 @@ class MacroRecorder {
         this.gui.BackColor := "222222"
         
         ; Title bar
-        this.gui.AddText("x10 y10 w380 h30 Center", "Macro Recorder Pro")
+        this.gui.Add("Text", "x10 y10 w380 h30 Center", "Macro Recorder Pro")
             .SetFont("s12 bold cFFFFFF")
         
         ; Control buttons
-        this.gui.AddButton("x20 y50 w110 h40 vRecordBtn", "Record (Ctrl+Alt+R)")
+        this.gui.Add("Button", "x20 y50 w110 h40 vRecordBtn", "Record (Ctrl+Alt+R)")
             .OnEvent("Click", (*) => MacroRecorder.ToggleRecord())
         
-        this.gui.AddButton("x150 y50 w110 h40 vPlayBtn", "Play (Ctrl+Alt+P)")
+        this.gui.Add("Button", "x150 y50 w110 h40 vPlayBtn", "Play (Ctrl+Alt+P)")
             .OnEvent("Click", (*) => MacroRecorder.TogglePlay())
         
-        this.gui.AddButton("x280 y50 w110 h40 vStopBtn", "Stop (Ctrl+Alt+S)")
+        this.gui.Add("Button", "x280 y50 w110 h40 vStopBtn", "Stop (Ctrl+Alt+S)")
             .OnEvent("Click", (*) => MacroRecorder.Stop())
         
         ; Speed control
-        this.gui.AddText("x20 y105 w100 h20", "Playback Speed:")
-        this.speedSlider := this.gui.AddSlider("x130 y100 w260 h30 vSpeedSlider", 10, 200, 100)
+        this.gui.Add("Text", "x20 y105 w100 h20", "Playback Speed:")
+        this.speedSlider := this.gui.Add("Slider", "x130 y100 w260 h30 vSpeedSlider", 10, 200, 100)
         this.speedSlider.OnEvent("Change", (*) => MacroRecorder.OnSpeedChanged())
         
         ; Status
-        this.statusLabel := this.gui.AddText("x20 y140 w360 h20 vStatusLabel", "Status: Ready")
+        this.statusLabel := this.gui.Add("Text", "x20 y140 w360 h20 vStatusLabel", "Status: Ready")
             .SetFont("s10 bold")
         
         ; Log area
-        this.gui.AddText("x20 y170 w360 h20", "Log:")
-        this.logArea := this.gui.AddEdit("x20 y195 w360 h150 vLogArea ReadOnly", "")
+        this.gui.Add("Text", "x20 y170 w360 h20", "Log:")
+        this.logArea := this.gui.Add("Edit", "x20 y195 w360 h150 vLogArea ReadOnly", "")
             .SetFont("s9 Consolas")
         
         ; Action count
-        this.actionCountLabel := this.gui.AddText("x20 y355 w360 h20 vActionCountLabel", "Actions recorded: 0")
+        this.actionCountLabel := this.gui.Add("Text", "x20 y355 w360 h20 vActionCountLabel", "Actions recorded: 0")
             .SetFont("s9")
         
         ; Save/Load buttons
-        this.gui.AddButton("x20 y385 w110 h35 vSaveBtn", "Save Macro")
+        this.gui.Add("Button", "x20 y385 w110 h35 vSaveBtn", "Save Macro")
             .OnEvent("Click", (*) => MacroRecorder.SaveMacro())
         
-        this.gui.AddButton("x150 y385 w110 h35 vLoadBtn", "Load Macro")
+        this.gui.Add("Button", "x150 y385 w110 h35 vLoadBtn", "Load Macro")
             .OnEvent("Click", (*) => MacroRecorder.LoadMacro())
         
-        this.gui.AddButton("x280 y385 w110 h35 vClearBtn", "Clear Macro")
+        this.gui.Add("Button", "x280 y385 w110 h35 vClearBtn", "Clear Macro")
             .OnEvent("Click", (*) => MacroRecorder.ClearMacro())
         
         ; Close button
-        this.gui.AddButton("x280 y430 w110 h35 vCloseBtn", "Close")
+        this.gui.Add("Button", "x280 y430 w110 h35 vCloseBtn", "Close")
             .OnEvent("Click", MacroRecorder.OnCloseGUI)
         
         ; Hotkey to close GUI
