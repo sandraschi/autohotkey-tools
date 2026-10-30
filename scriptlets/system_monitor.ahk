@@ -285,7 +285,7 @@ UpdateProcessList() {
             processes := [
                 {name: "System", memory: 0.1, pid: 4, threads: 1, status: "System"},
                 {name: "explorer.exe", memory: 50.0, pid: 1000, threads: 10, status: "Running"},
-                {name: "autohotkey.exe", memory: 20.0, pid: A_PID, threads: 5, status: "Running"}
+                {name: "autohotkey.exe", memory: 20.0, pid: DllCall("kernel32\GetCurrentProcessId", "UInt"), threads: 5, status: "Running"}
             ]
             guiMain["StatusBar"].SetText("WMI Error - showing fallback data: " e.Message, 1)
         }

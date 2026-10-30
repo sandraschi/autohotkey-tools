@@ -14,7 +14,7 @@ OnError(_CatchBootError)
 ; ==============================================================================
 ; @name: iPad Scroll Widget
 ; @version: 1.6.0
-; @description: Slim vertical touch widget: PgUp, Up, Down, PgDn, Top, End, Menu.
+; @description: Slim vertical touch widget for the OpenCode TUI (also great over RustDesk/iPad): PgUp, Up, Down, PgDn, Top, End, Menu.
 ; @description: Menu toggles a wide labeled quick-launch rail, bottom-aligned:
 ; @description: AHK dash, files, fleet, web, Claude, Antigravity, export current
 ; @description: chat to MD, OC webapp (starts stack if down), OC stack start.

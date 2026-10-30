@@ -41,10 +41,12 @@ APPS := Map(
     "#t", "wt.exe"
 )
 
-; Folder Shortcuts (Ctrl+Alt+Key)
+; Folder Shortcuts (Ctrl+Alt+Key). NOTE: Map keys are case-insensitive,
+; so the Shift variant must use explicit "+": "^!+d" (Ctrl+Alt+Shift+D),
+; NOT "^!D" (identical key to "^!d" -> "Duplicate key" crash at startup).
 FOLDERS := Map(
     "^!d", A_MyDocuments,
-    "^!D", A_MyDocuments "\..\Downloads",
+    "^!+d", A_MyDocuments "\..\Downloads",
     "^!p", A_MyPictures,
     "^!m", A_MyMusic,
     "^!v", A_MyVideos,
