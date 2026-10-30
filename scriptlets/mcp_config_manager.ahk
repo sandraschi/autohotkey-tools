@@ -40,63 +40,63 @@ class MCPConfigManager {
             newGui.BackColor := "1c1c1c"
             newGui.SetFont("s10 cFFFFFF", "Segoe UI")
 
-            newGui.AddText("x20 y20 w780 Center Bold", "⚙️ MCP Config Manager")
-            newGui.AddText("x20 y48 w780 Center cC0C0C0", "Manage Claude Desktop MCP servers, validate JSON, and back up configurations.")
+            newGui.Add("Text", "x20 y20 w780 Center Bold", "⚙️ MCP Config Manager")
+            newGui.Add("Text", "x20 y48 w780 Center cC0C0C0", "Manage Claude Desktop MCP servers, validate JSON, and back up configurations.")
 
-            newGui.AddText("x20 y90 w780 Bold", "Configuration File")
-            newGui.AddText("x20 y118 w110", "Path:")
-            pathText := newGui.AddEdit("x140 y112 w660 h24 ReadOnly Center", MCPConfigManager.configPath)
+            newGui.Add("Text", "x20 y90 w780 Bold", "Configuration File")
+            newGui.Add("Text", "x20 y118 w110", "Path:")
+            pathText := newGui.Add("Edit", "x140 y112 w660 h24 ReadOnly Center", MCPConfigManager.configPath)
             pathText.BackColor := "2b2b2b"
 
-            loadBtn := newGui.AddButton("x20 y150 w150 h36", "📥 Load Config")
+            loadBtn := newGui.Add("Button", "x20 y150 w150 h36", "📥 Load Config")
             loadBtn.OnEvent("Click", MCPConfigManager.LoadConfig)
-            saveBtn := newGui.AddButton("x185 y150 w150 h36", "💾 Save Config")
+            saveBtn := newGui.Add("Button", "x185 y150 w150 h36", "💾 Save Config")
             saveBtn.OnEvent("Click", MCPConfigManager.SaveConfig)
-            backupBtn := newGui.AddButton("x350 y150 w150 h36", "📦 Backup Config")
+            backupBtn := newGui.Add("Button", "x350 y150 w150 h36", "📦 Backup Config")
             backupBtn.OnEvent("Click", MCPConfigManager.BackupConfig)
-            restoreBtn := newGui.AddButton("x515 y150 w150 h36", "⤴️ Restore Backup")
+            restoreBtn := newGui.Add("Button", "x515 y150 w150 h36", "⤴️ Restore Backup")
             restoreBtn.OnEvent("Click", MCPConfigManager.RestoreConfig)
-            refreshBtn := newGui.AddButton("x680 y150 w120 h36", "🔄 Refresh")
+            refreshBtn := newGui.Add("Button", "x680 y150 w120 h36", "🔄 Refresh")
             refreshBtn.OnEvent("Click", MCPConfigManager.Refresh)
 
-            newGui.AddText("x20 y205 w360 Bold", "Registered MCP Servers")
-            serverList := newGui.AddListView("x20 y232 w360 h280 -Hdr", ["Server"])
+            newGui.Add("Text", "x20 y205 w360 Bold", "Registered MCP Servers")
+            serverList := newGui.Add("ListView", "x20 y232 w360 h280 -Hdr", ["Server"])
             serverList.OnEvent("Click", MCPConfigManager.ShowServerDetails)
             MCPConfigManager.serverList := serverList
 
-            addBtn := newGui.AddButton("x400 y232 w170 h32", "➕ Add Server")
+            addBtn := newGui.Add("Button", "x400 y232 w170 h32", "➕ Add Server")
             addBtn.OnEvent("Click", MCPConfigManager.AddServer)
-            removeBtn := newGui.AddButton("x400 y272 w170 h32", "🗑️ Remove Server")
+            removeBtn := newGui.Add("Button", "x400 y272 w170 h32", "🗑️ Remove Server")
             removeBtn.OnEvent("Click", MCPConfigManager.RemoveServer)
-            duplicateBtn := newGui.AddButton("x400 y312 w170 h32", "📋 Duplicate Server")
+            duplicateBtn := newGui.Add("Button", "x400 y312 w170 h32", "📋 Duplicate Server")
             duplicateBtn.OnEvent("Click", MCPConfigManager.DuplicateServer)
-            infoBtn := newGui.AddButton("x400 y352 w170 h32", "ℹ️ Server Info")
+            infoBtn := newGui.Add("Button", "x400 y352 w170 h32", "ℹ️ Server Info")
             infoBtn.OnEvent("Click", MCPConfigManager.ShowServerInfoDialog)
-            testBtn := newGui.AddButton("x400 y392 w170 h32", "🧪 Test Command")
+            testBtn := newGui.Add("Button", "x400 y392 w170 h32", "🧪 Test Command")
             testBtn.OnEvent("Click", MCPConfigManager.TestServerCommand)
 
-            newGui.AddText("x20 y530 w780 Bold", "Configuration JSON")
-            editor := newGui.AddEdit("x20 y558 w780 h140 -Wrap VScroll", "")
+            newGui.Add("Text", "x20 y530 w780 Bold", "Configuration JSON")
+            editor := newGui.Add("Edit", "x20 y558 w780 h140 -Wrap VScroll", "")
             editor.BackColor := "282828"
             editor.SetFont("s10", "Consolas")
             MCPConfigManager.editor := editor
 
-            validateBtn := newGui.AddButton("x20 y708 w150 h34", "✅ Validate JSON")
+            validateBtn := newGui.Add("Button", "x20 y708 w150 h34", "✅ Validate JSON")
             validateBtn.OnEvent("Click", MCPConfigManager.ValidateJson)
-            formatBtn := newGui.AddButton("x185 y708 w150 h34", "🎨 Format JSON")
+            formatBtn := newGui.Add("Button", "x185 y708 w150 h34", "🎨 Format JSON")
             formatBtn.OnEvent("Click", MCPConfigManager.FormatJson)
-            resetBtn := newGui.AddButton("x350 y708 w150 h34", "♻️ Reset Template")
+            resetBtn := newGui.Add("Button", "x350 y708 w150 h34", "♻️ Reset Template")
             resetBtn.OnEvent("Click", MCPConfigManager.ResetTemplate)
-            helpBtn := newGui.AddButton("x515 y708 w150 h34", "❓ Help")
+            helpBtn := newGui.Add("Button", "x515 y708 w150 h34", "❓ Help")
             helpBtn.OnEvent("Click", MCPConfigManager.ShowHelp)
 
-            logLabel := newGui.AddText("x20 y750 w780 Bold", "Activity Log")
-            logView := newGui.AddEdit("x20 y778 w780 h110 ReadOnly VScroll", "")
+            logLabel := newGui.Add("Text", "x20 y750 w780 Bold", "Activity Log")
+            logView := newGui.Add("Edit", "x20 y778 w780 h110 ReadOnly VScroll", "")
             logView.BackColor := "242424"
             logView.SetFont("s9", "Consolas")
             MCPConfigManager.logView := logView
 
-            status := newGui.AddStatusBar("Simple")
+            status := newGui.Add("StatusBar")
             status.SetText("Ready")
             MCPConfigManager.statusBar := status
 

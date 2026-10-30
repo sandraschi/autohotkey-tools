@@ -73,25 +73,25 @@ class MCPLogAnalyzer {
         newGui.BackColor := "1d1d1d"
         newGui.SetFont("s10 cFFFFFF", "Segoe UI")
 
-        newGui.AddText("x20 y20 w880 Center Bold", "📊 MCP Log Analyzer")
-        newGui.AddText("x20 y48 w880 Center cC0C0C0", "Scan Claude Desktop MCP logs for startup issues, errors, and performance regressions.")
+        newGui.Add("Text", "x20 y20 w880 Center Bold", "📊 MCP Log Analyzer")
+        newGui.Add("Text", "x20 y48 w880 Center cC0C0C0", "Scan Claude Desktop MCP logs for startup issues, errors, and performance regressions.")
 
-        newGui.AddText("x20 y88 w880 Bold", "Log Sources")
-        newGui.AddText("x20 y116 w120", "Log Directory:")
-        newGui.AddEdit("x150 y110 w580 h26 ReadOnly", MCPLogAnalyzer.logDir)
-        browseBtn := newGui.AddButton("x740 y110 w160 h26", "Browse...")
+        newGui.Add("Text", "x20 y88 w880 Bold", "Log Sources")
+        newGui.Add("Text", "x20 y116 w120", "Log Directory:")
+        newGui.Add("Edit", "x150 y110 w580 h26 ReadOnly", MCPLogAnalyzer.logDir)
+        browseBtn := newGui.Add("Button", "x740 y110 w160 h26", "Browse...")
         browseBtn.OnEvent("Click", MCPLogAnalyzer.SelectLogDir)
 
-        newGui.AddText("x20 y148 w120", "Config Path:")
-        newGui.AddEdit("x150 y142 w580 h26 ReadOnly", MCPLogAnalyzer.configPath)
-        cfgBtn := newGui.AddButton("x740 y142 w160 h26", "Open Config")
+        newGui.Add("Text", "x20 y148 w120", "Config Path:")
+        newGui.Add("Edit", "x150 y142 w580 h26 ReadOnly", MCPLogAnalyzer.configPath)
+        cfgBtn := newGui.Add("Button", "x740 y142 w160 h26", "Open Config")
         cfgBtn.OnEvent("Click", MCPLogAnalyzer.OpenConfig)
 
-        newGui.AddText("x20 y186 w400 Bold", "Detected Log Files")
-        filesList := newGui.AddListView("x20 y214 w400 h300 -Hdr", ["Filename", "Modified"])
+        newGui.Add("Text", "x20 y186 w400 Bold", "Detected Log Files")
+        filesList := newGui.Add("ListView", "x20 y214 w400 h300 -Hdr", ["Filename", "Modified"])
         filesList.OnEvent("ItemActivate", MCPLogAnalyzer.OnFileActivated)
 
-        newGui.AddText("x440 y186 w460 Bold", "Analysis Settings")
+        newGui.Add("Text", "x440 y186 w460 Bold", "Analysis Settings")
         settings := [
             "Connection failures",
             "Import errors",
@@ -102,29 +102,29 @@ class MCPLogAnalyzer {
         ]
         y := 214
         for label in settings {
-            cb := newGui.AddCheckBox("x440 y" . y . " w240", label)
+            cb := newGui.Add("CheckBox", "x440 y" . y . " w240", label)
             cb.Value := 1
             y += 28
         }
-        newGui.AddButton("x440 y380 w200 h40", "🔍 Analyze Latest").OnEvent("Click", MCPLogAnalyzer.AnalyzeLatest)
-        newGui.AddButton("x660 y380 w200 h40", "📈 Analyze All").OnEvent("Click", MCPLogAnalyzer.AnalyzeAll)
-        newGui.AddButton("x440 y430 w420 h36", "🧾 Generate Recommendations").OnEvent("Click", MCPLogAnalyzer.ShowRecommendations)
+        newGui.Add("Button", "x440 y380 w200 h40", "🔍 Analyze Latest").OnEvent("Click", MCPLogAnalyzer.AnalyzeLatest)
+        newGui.Add("Button", "x660 y380 w200 h40", "📈 Analyze All").OnEvent("Click", MCPLogAnalyzer.AnalyzeAll)
+        newGui.Add("Button", "x440 y430 w420 h36", "🧾 Generate Recommendations").OnEvent("Click", MCPLogAnalyzer.ShowRecommendations)
 
-        newGui.AddText("x20 y530 w880 Bold", "Analysis Results")
-        resultsView := newGui.AddListView("x20 y558 w880 h160", ["Severity", "Type", "File", "Message"])
+        newGui.Add("Text", "x20 y530 w880 Bold", "Analysis Results")
+        resultsView := newGui.Add("ListView", "x20 y558 w880 h160", ["Severity", "Type", "File", "Message"])
         resultsView.ModifyCol(1, 80)
         resultsView.ModifyCol(2, 150)
         resultsView.ModifyCol(3, 200)
         resultsView.ModifyCol(4, 420)
         MCPLogAnalyzer.resultsView := resultsView
 
-        newGui.AddText("x20 y728 w880 Bold", "Activity Log")
-        logEdit := newGui.AddEdit("x20 y756 w880 h100 ReadOnly VScroll", "")
+        newGui.Add("Text", "x20 y728 w880 Bold", "Activity Log")
+        logEdit := newGui.Add("Edit", "x20 y756 w880 h100 ReadOnly VScroll", "")
         logEdit.BackColor := "242424"
         logEdit.SetFont("s9", "Consolas")
         MCPLogAnalyzer.logView := logEdit
 
-        status := newGui.AddStatusBar("Simple")
+        status := newGui.Add("StatusBar")
         status.SetText("Ready")
         MCPLogAnalyzer.statusBar := status
 

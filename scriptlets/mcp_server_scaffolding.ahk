@@ -106,32 +106,32 @@ class MCPServerScaffolding {
         newGui.BackColor := "1d1d1d"
         newGui.SetFont("s10 cFFFFFF", "Segoe UI")
 
-        newGui.AddText("x20 y20 w860 Center bold", "🚀 MCP Server Scaffolding Tool")
-        newGui.AddText("x20 y48 w860 Center cC0C0C0", "Generate FastMCP server skeletons with logging, tools, and documentation.")
+        newGui.Add("Text", "x20 y20 w860 Center bold", "🚀 MCP Server Scaffolding Tool")
+        newGui.Add("Text", "x20 y48 w860 Center cC0C0C0", "Generate FastMCP server skeletons with logging, tools, and documentation.")
 
-        newGui.AddText("x20 y90 w860 Bold", "Project Details")
-        newGui.AddText("x20 y118 w140", "Project Name:")
-        nameEdit := newGui.AddEdit("x170 y112 w320 h26", "my-mcp-server")
-        newGui.AddText("x20 y150 w140", "Description:")
-        descriptionEdit := newGui.AddEdit("x170 y144 w520 h26", "Claude MCP server scaffold")
-        newGui.AddText("x20 y182 w140", "Location:")
-        locationEdit := newGui.AddEdit("x170 y176 w520 h26")
-        browseBtn := newGui.AddButton("x700 y176 w180 h26", "Select Directory")
+        newGui.Add("Text", "x20 y90 w860 Bold", "Project Details")
+        newGui.Add("Text", "x20 y118 w140", "Project Name:")
+        nameEdit := newGui.Add("Edit", "x170 y112 w320 h26", "my-mcp-server")
+        newGui.Add("Text", "x20 y150 w140", "Description:")
+        descriptionEdit := newGui.Add("Edit", "x170 y144 w520 h26", "Claude MCP server scaffold")
+        newGui.Add("Text", "x20 y182 w140", "Location:")
+        locationEdit := newGui.Add("Edit", "x170 y176 w520 h26")
+        browseBtn := newGui.Add("Button", "x700 y176 w180 h26", "Select Directory")
         browseBtn.OnEvent("Click", MCPServerScaffolding.SelectDirectory)
 
-        newGui.AddText("x20 y218 w400 Bold", "Template")
-        templateDrop := newGui.AddDropDownList("x20 y244 w320", [])
+        newGui.Add("Text", "x20 y218 w400 Bold", "Template")
+        templateDrop := newGui.Add("DropDownList", "x20 y244 w320", [])
         for template in MCPServerScaffolding.templates {
             templateDrop.Add(template.title)
         }
         templateDrop.Value := 1
-        newGui.AddEdit("x360 y244 w520 h60 ReadOnly -Wrap", MCPServerScaffolding.templates[1].description).BackColor := "262626"
+        newGui.Add("Edit", "x360 y244 w520 h60 ReadOnly -Wrap", MCPServerScaffolding.templates[1].description).BackColor := "262626"
 
-        newGui.AddText("x20 y320 w860 Bold", "Optional Features")
+        newGui.Add("Text", "x20 y320 w860 Bold", "Optional Features")
         checks := []
         y := 348
         for index, feature in MCPServerScaffolding.features {
-            cb := newGui.AddCheckBox("x20 y" . y . " w300", feature.label)
+            cb := newGui.Add("CheckBox", "x20 y" . y . " w300", feature.label)
             cb.Value := 1
             checks.Push(cb)
             if (index = 2) {
@@ -144,19 +144,19 @@ class MCPServerScaffolding {
             y += 28
         }
 
-        generateBtn := newGui.AddButton("x20 y420 w240 h44", "🚀 Generate Server")
+        generateBtn := newGui.Add("Button", "x20 y420 w240 h44", "🚀 Generate Server")
         generateBtn.OnEvent("Click", MCPServerScaffolding.GenerateProject)
-        previewBtn := newGui.AddButton("x280 y420 w240 h44", "📂 Preview Layout")
+        previewBtn := newGui.Add("Button", "x280 y420 w240 h44", "📂 Preview Layout")
         previewBtn.OnEvent("Click", MCPServerScaffolding.ShowPreview)
-        helpBtn := newGui.AddButton("x540 y420 w240 h44", "❓ Help")
+        helpBtn := newGui.Add("Button", "x540 y420 w240 h44", "❓ Help")
         helpBtn.OnEvent("Click", MCPServerScaffolding.ShowHelp)
 
-        newGui.AddText("x20 y480 w860 Bold", "Activity Log")
-        logEdit := newGui.AddEdit("x20 y508 w860 h160 ReadOnly VScroll", "")
+        newGui.Add("Text", "x20 y480 w860 Bold", "Activity Log")
+        logEdit := newGui.Add("Edit", "x20 y508 w860 h160 ReadOnly VScroll", "")
         logEdit.BackColor := "242424"
         logEdit.SetFont("s9", "Consolas")
 
-        status := newGui.AddStatusBar("Simple")
+        status := newGui.Add("StatusBar")
         status.SetText("Ready")
 
         newGui.OnEvent("Size", MCPServerScaffolding.OnResize)

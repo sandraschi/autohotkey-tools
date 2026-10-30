@@ -2,6 +2,19 @@
 #SingleInstance Force
 #Warn
 
+; Crash net: log every uncaught runtime error with timestamp instead of
+; looping error dialogs. Inspect quick_notes_crash.log after a crash.
+_CatchAllError(Thrown, mode) {
+    try {
+        msg := Thrown && HasProp(Thrown, "Message") ? Thrown.Message : "Unknown"
+        extra := Thrown && HasProp(Thrown, "File") ? (" " Thrown.File ":" (HasProp(Thrown, "Line") ? Thrown.Line : "?")) : ""
+        FileAppend("[" A_Now "] " msg extra "`n", A_ScriptDir "\quick_notes_crash.log")
+    } catch {
+    }
+    return 1
+}
+OnError(_CatchAllError)
+
 ; =============================================================================
 ; CONFIGURATION
 ; =============================================================================
@@ -11,16 +24,18 @@ global backupDir := A_MyDocuments "\QuickNotes_Backups"
 
 ; App settings
 global appTitle := "Quick Notes"
-global appVersion := "2.0"
+global appVersion := "2.2"
 global fontSize := 11
 global fontName := "Segoe UI"
+global prefsFile := A_ScriptDir "\quick_notes.ini"
 
-; Color scheme (dark theme)
+; Single light scheme - no theme switching. Control-level BackColor/SetFont
+; is the only coloring used; both are proven on this setup.
 global colors := Map(
-    "bg", "0x1e1e1e",
-    "text", "0xd4d4d4",
-    "button", "0x0078d4",
-    "buttonText", "0xffffff"
+    "bg", "ffffff",
+    "text", "1e1e1e",
+    "button", "0078d4",
+    "buttonText", "ffffff"
 )
 
 ; =============================================================================
@@ -30,6 +45,9 @@ global colors := Map(
 if (!DirExist(backupDir)) {
     DirCreate(backupDir)
 }
+
+; Load saved prefs (theme/font) before building the GUI
+LoadPrefs()
 
 ; Create the GUI
 CreateGUI()
@@ -41,6 +59,31 @@ SetTimer(AutoSave, 30000)
 Hotkey("^!n", ToggleWindow)
 
 ; =============================================================================
+LoadPrefs() {
+    global fontSize, fontName, prefsFile
+    try {
+        fs := Integer(IniRead(prefsFile, "prefs", "fontsize", fontSize))
+        if (fs >= 8 && fs <= 24) {
+            fontSize := fs
+        }
+        fn := IniRead(prefsFile, "prefs", "fontname", fontName)
+        if (fn != "") {
+            fontName := fn
+        }
+    } catch {
+        ; Missing/corrupt INI - stock defaults stand.
+    }
+}
+
+SavePrefs() {
+    global fontSize, fontName, prefsFile
+    try {
+        IniWrite(fontSize, prefsFile, "prefs", "fontsize")
+        IniWrite(fontName, prefsFile, "prefs", "fontname")
+    } catch {
+    }
+}
+
 ; GUI CREATION
 ; =============================================================================
 CreateGUI() {
@@ -48,7 +91,7 @@ CreateGUI() {
     
     ; Create main window
     guiMain := Gui("+Resize +MinSize400x300", appTitle " v" appVersion)
-    guiMain.BackColor := colors["bg"]
+    guiMain.BackColor := StrReplace(colors["bg"], "0x", "")
     guiMain.SetFont("s" fontSize " c" StrReplace(colors["text"], "0x", ""), fontName)
     guiMain.MarginX := 10
     guiMain.MarginY := 10
@@ -93,13 +136,13 @@ CreateGUI() {
     mBar.Add("&Help", (*) => ShowAbout())
     guiMain.MenuBar := mBar
     
-    ; Toolbar
-    toolbar := guiMain.Add("Text", "x10 y10 w780 h30 Background" StrReplace(colors["button"], "0x", ""))
-    
-    ; Main edit control
-    editNotes := guiMain.Add("Edit", "x10 y50 w780 h500 Multi VScroll WantTab", "")
-    editNotes.BackColor := colors["bg"]
-    editNotes.SetFont("s" fontSize, fontName)
+    ; Main edit control - full-bleed: Gui.BackColor is ignored on windows
+    ; with a MenuBar/StatusBar (client keeps the default face color), so the
+    ; window must not show any bare client area. The edit paints its own
+    ; background reliably via .BackColor, hence edge-to-edge placement.
+    editNotes := guiMain.Add("Edit", "x0 y0 w800 h570 Multi VScroll WantTab", "")
+    editNotes.BackColor := StrReplace(colors["bg"], "0x", "")
+    editNotes.SetFont("s" fontSize " c" StrReplace(colors["text"], "0x", ""), fontName)
     
     ; Status bar
     statusBar := guiMain.Add("StatusBar",, "Ready | Lines: 0 | Words: 0")
@@ -176,12 +219,13 @@ FormatText(*) {
 }
 
 ShowSettings(*) {
-    global appTitle, fontSize, fontName, colors
-    
-    ; Create settings GUI
+    global appTitle, fontSize, fontName
+
+    ; Create settings GUI - deliberately native colors: Text labels render
+    ; opaque white on this setup, so a dark dialog would be grey-on-white.
+    ; Font choices apply to the main window, previewed live on OK.
     settingsGui := Gui("+ToolWindow", "Settings - " appTitle)
-    settingsGui.BackColor := colors["bg"]
-    settingsGui.SetFont("s10 c" StrReplace(colors["text"], "0x", ""), fontName)
+    settingsGui.SetFont("s10", fontName)
     
     ; Font settings
     settingsGui.Add("Text", "x10 y10", "Font Size:")
@@ -189,25 +233,53 @@ ShowSettings(*) {
     settingsGui.Add("UpDown", "Range8-24", fontSize)
     
     settingsGui.Add("Text", "x150 y10", "Font:")
-    fontDropdown := settingsGui.Add("DropDownList", "x190 y8 w120 Choose1", ["Segoe UI", "Consolas", "Arial", "Courier New"])
-    
-    ; Theme selection
-    settingsGui.Add("Text", "x10 y40", "Theme:")
-    themeDropdown := settingsGui.Add("DropDownList", "x80 y38 w100 Choose1", ["Dark", "Light"])
+    fonts := ["Segoe UI", "Consolas", "Arial", "Courier New"]
+    fi := 1
+    Loop fonts.Length {
+        if (fonts[A_Index] = fontName) {
+            fi := A_Index
+            break
+        }
+    }
+    fontDropdown := settingsGui.Add("DropDownList", "x190 y8 w120 Choose" fi, fonts)
     
     ; OK and Cancel buttons
-    okBtn := settingsGui.Add("Button", "x10 y70 w80 h30", "&OK")
-    cancelBtn := settingsGui.Add("Button", "x100 y70 w80 h30", "&Cancel")
+    okBtn := settingsGui.Add("Button", "x10 y40 w80 h30", "&OK")
+    cancelBtn := settingsGui.Add("Button", "x100 y40 w80 h30", "&Cancel")
     
-    okBtn.OnEvent("Click", (*) => (
-        fontSize := fontSizeEdit.Value,
-        fontName := fontDropdown.Text,
-        settingsGui.Close()
-    ))
+    okBtn.OnEvent("Click", (*) => OnSettingsOK(fontSizeEdit, fontDropdown, settingsGui))
     
-    cancelBtn.OnEvent("Click", (*) => settingsGui.Close())
+    cancelBtn.OnEvent("Click", (*) => settingsGui.Destroy())
     
-    settingsGui.Show("w320 h110")
+    settingsGui.Show("w320 h85")
+}
+
+OnSettingsOK(fontSizeEdit, fontDropdown, settingsGui) {
+    global fontSize, fontName, guiMain, editNotes, colors
+    try {
+        fs := Integer(fontSizeEdit.Value)
+        if (fs >= 8 && fs <= 24) {
+            fontSize := fs
+        }
+    } catch {
+        ; Empty/non-numeric size field - keep current size.
+    }
+    if (fontDropdown.Text != "") {
+        fontName := fontDropdown.Text
+    }
+    tx := StrReplace(colors["text"], "0x", "")
+    bg := StrReplace(colors["bg"], "0x", "")
+    try guiMain.SetFont("s" fontSize " c" tx, fontName)
+    try editNotes.SetFont("s" fontSize " c" tx, fontName)
+    try editNotes.BackColor := bg
+    try guiMain.Redraw()
+    SavePrefs()
+    settingsGui.Destroy()
+    ShowToastSafe("Settings applied")
+}
+
+ShowToastSafe(msg) {
+    try TrayTip(msg, "Quick Notes", "Iconi")
 }
 
 ; =============================================================================
@@ -255,15 +327,15 @@ GuiSize(thisGui, MinMax, Width, Height) {
     if (MinMax = -1)  ; Window is minimized
         return
     
-    ; Calculate new dimensions
-    editHeight := Height - 100  ; Account for toolbar and status bar
-    editWidth := Width - 20     ; Account for margins
+    ; Calculate new dimensions - edit is full-bleed (no margins, no
+    ; toolbar), bottom edge leaves room for the docked status bar.
+    editHeight := Height - 50
+    editWidth := Width
     
     try {
         ; Update edit control size
-        editNotes.Move(10, 50, editWidth, editHeight)
+        editNotes.Move(0, 0, editWidth, editHeight)
         
-        ; Update toolbar width if needed
         ; (Status bar resizes automatically)
     } catch as resizeErr {
         ; Ignore errors during window creation

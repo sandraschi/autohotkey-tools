@@ -73,48 +73,48 @@ class MCPTroubleshooter {
         gui.BackColor := "1f1f1f"
         gui.SetFont("s10 cFFFFFF", "Segoe UI")
 
-        gui.AddText("x20 y20 w900 Center Bold", "🔧 MCP Troubleshooter")
-        gui.AddText("x20 y48 w900 Center cC0C0C0", "Run diagnostics, review MCP servers, and capture troubleshooting notes.")
+        gui.Add("Text", "x20 y20 w900 Center Bold", "🔧 MCP Troubleshooter")
+        gui.Add("Text", "x20 y48 w900 Center cC0C0C0", "Run diagnostics, review MCP servers, and capture troubleshooting notes.")
 
-        gui.AddText("x20 y88 w900 Bold", "Configuration")
-        gui.AddText("x20 y114 w140", "Claude Config:")
-        gui.AddEdit("x160 y108 w560 h26 ReadOnly", MCPTroubleshooter.configPath)
-        openCfgBtn := gui.AddButton("x740 y108 w180 h26", "Open Config")
+        gui.Add("Text", "x20 y88 w900 Bold", "Configuration")
+        gui.Add("Text", "x20 y114 w140", "Claude Config:")
+        gui.Add("Edit", "x160 y108 w560 h26 ReadOnly", MCPTroubleshooter.configPath)
+        openCfgBtn := gui.Add("Button", "x740 y108 w180 h26", "Open Config")
         openCfgBtn.OnEvent("Click", MCPTroubleshooter.OpenConfig)
 
-        gui.AddText("x20 y150 w400 Bold", "MCP Servers")
-        serverList := gui.AddListView("x20 y176 w400 h260 -Hdr", ["Server", "Command"])
+        gui.Add("Text", "x20 y150 w400 Bold", "MCP Servers")
+        serverList := gui.Add("ListView", "x20 y176 w400 h260 -Hdr", ["Server", "Command"])
         MCPTroubleshooter.serverList := serverList
 
-        diagGroup := gui.AddGroupBox("x440 y150 w460 h170", "Diagnostics")
-        btnConfig := gui.AddButton("x460 y180 w200 h40", "📋 Check Config")
+        diagGroup := gui.Add("GroupBox", "x440 y150 w460 h170", "Diagnostics")
+        btnConfig := gui.Add("Button", "x460 y180 w200 h40", "📋 Check Config")
         btnConfig.OnEvent("Click", MCPTroubleshooter.RunConfigCheck)
-        btnPython := gui.AddButton("x700 y180 w200 h40", "🐍 Check Python")
+        btnPython := gui.Add("Button", "x700 y180 w200 h40", "🐍 Check Python")
         btnPython.OnEvent("Click", MCPTroubleshooter.RunPythonCheck)
-        btnDeps := gui.AddButton("x460 y232 w200 h40", "📦 Check Dependencies")
+        btnDeps := gui.Add("Button", "x460 y232 w200 h40", "📦 Check Dependencies")
         btnDeps.OnEvent("Click", MCPTroubleshooter.RunDependencyCheck)
-        btnNetwork := gui.AddButton("x700 y232 w200 h40", "🌐 Check Connectivity")
+        btnNetwork := gui.Add("Button", "x700 y232 w200 h40", "🌐 Check Connectivity")
         btnNetwork.OnEvent("Click", MCPTroubleshooter.RunConnectivityCheck)
 
-        gui.AddGroupBox("x440 y326 w460 h110", "Quick Actions")
-        btnFix := gui.AddButton("x460 y354 w200 h40", "🛠 Apply Quick Fixes")
+        gui.Add("GroupBox", "x440 y326 w460 h110", "Quick Actions")
+        btnFix := gui.Add("Button", "x460 y354 w200 h40", "🛠 Apply Quick Fixes")
         btnFix.OnEvent("Click", MCPTroubleshooter.ApplyQuickFixes)
-        btnLogs := gui.AddButton("x700 y354 w200 h40", "📂 Open Logs Folder")
+        btnLogs := gui.Add("Button", "x700 y354 w200 h40", "📂 Open Logs Folder")
         btnLogs.OnEvent("Click", MCPTroubleshooter.OpenLogDirectory)
 
-        gui.AddText("x20 y446 w900 Bold", "Diagnostic Output")
-        resultView := gui.AddEdit("x20 y474 w900 h150 ReadOnly VScroll", "")
+        gui.Add("Text", "x20 y446 w900 Bold", "Diagnostic Output")
+        resultView := gui.Add("Edit", "x20 y474 w900 h150 ReadOnly VScroll", "")
         resultView.BackColor := "262626"
         resultView.SetFont("s9", "Consolas")
         MCPTroubleshooter.resultView := resultView
 
-        gui.AddText("x20 y634 w900 Bold", "Activity Log")
-        logEdit := gui.AddEdit("x20 y662 w900 h80 ReadOnly VScroll", "")
+        gui.Add("Text", "x20 y634 w900 Bold", "Activity Log")
+        logEdit := gui.Add("Edit", "x20 y662 w900 h80 ReadOnly VScroll", "")
         logEdit.BackColor := "242424"
         logEdit.SetFont("s9", "Consolas")
         MCPTroubleshooter.logView := logEdit
 
-        status := gui.AddStatusBar("Simple")
+        status := gui.Add("StatusBar")
         status.SetText("Ready")
         MCPTroubleshooter.statusBar := status
 
