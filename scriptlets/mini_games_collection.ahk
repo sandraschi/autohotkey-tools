@@ -49,22 +49,22 @@ class MiniArcade {
         newGui.BackColor := "1e1e1e"
         newGui.SetFont("s10 c4488FF", "Segoe UI")
 
-        newGui.AddText("x20 y16 w320 Center cFFFFFF", "Mini Games Collection – quick break fun")
+        newGui.Add("Text", "x20 y16 w320 Center cFFFFFF", "Mini Games Collection – quick break fun")
 
-        reactionBtn := newGui.AddButton("x40 y56 w120 h48", "⚡ Reaction Timer")
+        reactionBtn := newGui.Add("Button", "x40 y56 w120 h48", "⚡ Reaction Timer")
         reactionBtn.OnEvent("Click", (*) => MiniArcade.StartReactionTimer())
 
-        guessBtn := newGui.AddButton("x200 y56 w120 h48", "🎯 Number Guess")
+        guessBtn := newGui.Add("Button", "x200 y56 w120 h48", "🎯 Number Guess")
         guessBtn.OnEvent("Click", (*) => MiniArcade.StartGuessGame())
 
         info := "Instructions:`n" . "• Reaction Timer: press 'Start' then 'Stop' as quickly as possible.`n" . "• Number Guess: choose a number 1-20 and check the answer.`n" . "• Use Ctrl+Alt+G to open this menu, Ctrl+Alt+Q to close." 
-        newGui.AddText("x20 y120 w320 h100 cFFFFFF", info)
+        newGui.Add("Text", "x20 y120 w320 h100 cFFFFFF", info)
 
-        MiniArcade.statusCtrl := newGui.AddText("x20 y230 w320 h24 cFFFFFF", "Select a mini game to begin.")
+        MiniArcade.statusCtrl := newGui.Add("Text", "x20 y230 w320 h24 cFFFFFF", "Select a mini game to begin.")
 
         newGui.OnEvent("Close", MiniArcade.HideGui)
         newGui.OnEvent("Escape", MiniArcade.HideGui)
-        newGui.OnEvent("Size", MiniArcade.OnResize)
+        newGui.OnEvent("Size", (gui, minMax, width, height) => MiniArcade.OnResize(gui, minMax, width, height))
 
         MiniArcade.gui := newGui
         newGui.Show("w360 h260")
@@ -100,21 +100,21 @@ class MiniArcade {
         dlg := Gui("+Owner" . MiniArcade.gui.Hwnd, "Reaction Timer")
         dlg.BackColor := "202020"
         dlg.SetFont("s11 c4488FF", "Segoe UI")
-        dlg.AddText("w280 h24 cFFFFFF", "Click 'Start' then stop as soon as color changes.")
-        indicator := dlg.AddText("x20 y40 w280 h80 Center BackgroundFF4444 cFFFFFF", "Waiting ...")
-        resultCtrl := dlg.AddText("x20 y130 w280 h24 cFFFFFF", "")
-        startBtn := dlg.AddButton("x60 y170 w80 h30", "Start")
-        stopBtn := dlg.AddButton("x160 y170 w80 h30", "Stop")
+        dlg.Add("Text", "w280 h24 cFFFFFF", "Click 'Start' then stop as soon as color changes.")
+        indicator := dlg.Add("Text", "x20 y40 w280 h80 Center BackgroundFF4444 cFFFFFF", "Waiting ...")
+        resultCtrl := dlg.Add("Text", "x20 y130 w280 h24 cFFFFFF", "")
+        startBtn := dlg.Add("Button", "x60 y170 w80 h30", "Start")
+        stopBtn := dlg.Add("Button", "x160 y170 w80 h30", "Stop")
         stopBtn.Enabled := false
 
-        startBtn.OnEvent("Click", MiniArcade.ReactionStart.Bind(MiniArcade, indicator, startBtn, stopBtn))
+        startBtn.OnEvent("Click", MiniArcade.ReactionGo.Bind(MiniArcade, indicator, startBtn, stopBtn))
         stopBtn.OnEvent("Click", MiniArcade.ReactionStop.Bind(MiniArcade, indicator, startBtn, stopBtn, resultCtrl))
 
         dlg.OnEvent("Close", (*) => dlg.Destroy())
         dlg.Show("w320 h220")
     }
 
-    static ReactionStart(indicator, startBtn, stopBtn, *) {
+    static ReactionGo(indicator, startBtn, stopBtn, *) {
         indicator.Opt("Background44FF44")
         indicator.Text := "GO!"
         MiniArcade.reactionStart := A_TickCount
@@ -141,15 +141,15 @@ class MiniArcade {
         dlg := Gui("+Owner" . MiniArcade.gui.Hwnd, "Number Guess")
         dlg.BackColor := "202020"
         dlg.SetFont("s11 c4488FF", "Segoe UI")
-        dlg.AddText("x20 y16 w260 h24 cFFFFFF", "Pick a number between 1 and 20")
-        slider := dlg.AddSlider("x20 y48 w260 Range1-20 TickInterval1", 10)
-        valueText := dlg.AddText("x20 y80 w260 h24 Center cFFFFFF", "Current guess: 10")
+        dlg.Add("Text", "x20 y16 w260 h24 cFFFFFF", "Pick a number between 1 and 20")
+        slider := dlg.Add("Slider", "x20 y48 w260 Range1-20 TickInterval1", 10)
+        valueText := dlg.Add("Text", "x20 y80 w260 h24 Center cFFFFFF", "Current guess: 10")
         slider.OnEvent("Change", MiniArcade.UpdateGuessDisplay.Bind(MiniArcade, slider, valueText))
         target := Random(1, 20)
         MiniArcade.guessTarget := target
-        checkBtn := dlg.AddButton("x60 y120 w80 h30", "Check")
-        resetBtn := dlg.AddButton("x160 y120 w80 h30", "New #")
-        resultCtrl := dlg.AddText("x20 y170 w260 h24 Center cFFFFFF", "")
+        checkBtn := dlg.Add("Button", "x60 y120 w80 h30", "Check")
+        resetBtn := dlg.Add("Button", "x160 y120 w80 h30", "New #")
+        resultCtrl := dlg.Add("Text", "x20 y170 w260 h24 Center cFFFFFF", "")
 
         checkBtn.OnEvent("Click", MiniArcade.CheckGuess.Bind(MiniArcade, slider, resultCtrl))
         resetBtn.OnEvent("Click", MiniArcade.ResetGuess.Bind(MiniArcade, resultCtrl))

@@ -64,25 +64,25 @@ class PacmanApp {
         newGui.BackColor := "101010"
         newGui.SetFont("s11", "Consolas")
 
-        newGui.AddText("x20 y16 w260 Center cFFFF54", "Pac-Man – eat dots, avoid ghosts!")
-        PacmanApp.boardCtrl := newGui.AddText("x20 y48 w200 h200 Background000000 Border", "")
+        newGui.Add("Text", "x20 y16 w260 Center cFFFF54", "Pac-Man – eat dots, avoid ghosts!")
+        PacmanApp.boardCtrl := newGui.Add("Text", "x20 y48 w200 h200 Background000000 Border", "")
         PacmanApp.boardCtrl.SetFont("s11 cYellow", "Consolas")
 
-        PacmanApp.scoreCtrl := newGui.AddText("x240 y60 w80 h24 cFFFFFF", "Score: 0")
-        btnStart := newGui.AddButton("x240 y100 w80 h30", "Start")
+        PacmanApp.scoreCtrl := newGui.Add("Text", "x240 y60 w80 h24 cFFFFFF", "Score: 0")
+        btnStart := newGui.Add("Button", "x240 y100 w80 h30", "Start")
         btnStart.OnEvent("Click", (*) => PacmanApp.StartGame())
-        btnPause := newGui.AddButton("x240 y140 w80 h30", "Pause")
+        btnPause := newGui.Add("Button", "x240 y140 w80 h30", "Pause")
         btnPause.OnEvent("Click", (*) => PacmanApp.PauseGame())
-        btnReset := newGui.AddButton("x240 y180 w80 h30", "Reset")
+        btnReset := newGui.Add("Button", "x240 y180 w80 h30", "Reset")
         btnReset.OnEvent("Click", (*) => PacmanApp.ResetGame())
-        btnClose := newGui.AddButton("x240 y220 w80 h30", "Close")
+        btnClose := newGui.Add("Button", "x240 y220 w80 h30", "Close")
         btnClose.OnEvent("Click", (*) => PacmanApp.HideGui())
 
-        PacmanApp.statusCtrl := newGui.AddText("x20 y260 w260 h24 cFFFFFF", "Use Arrow keys to move. Space=Start, P=Pause, R=Reset")
+        PacmanApp.statusCtrl := newGui.Add("Text", "x20 y260 w260 h24 cFFFFFF", "Use Arrow keys to move. Space=Start, P=Pause, R=Reset")
 
         newGui.OnEvent("Close", PacmanApp.HideGui)
         newGui.OnEvent("Escape", PacmanApp.HideGui)
-        newGui.OnEvent("Size", PacmanApp.OnResize)
+        newGui.OnEvent("Size", (gui, minMax, width, height) => PacmanApp.OnResize(gui, minMax, width, height))
 
         PacmanApp.gui := newGui
         newGui.Show("w320 h300")

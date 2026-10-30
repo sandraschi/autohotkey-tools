@@ -50,15 +50,15 @@ class PuzzleApp {
         newGui.BackColor := "1d1d1d"
         newGui.SetFont("s10 c4488FF", "Segoe UI")
 
-        newGui.AddText("x20 y16 w280 Center cFFFFFF", "Sliding Puzzle – arrange tiles in order")
-        shuffleBtn := newGui.AddButton("x20 y48 w80 h28", "Shuffle")
+        newGui.Add("Text", "x20 y16 w280 Center cFFFFFF", "Sliding Puzzle – arrange tiles in order")
+        shuffleBtn := newGui.Add("Button", "x20 y48 w80 h28", "Shuffle")
         shuffleBtn.OnEvent("Click", (*) => PuzzleApp.Shuffle(80))
-        resetBtn := newGui.AddButton("x110 y48 w80 h28", "Reset")
+        resetBtn := newGui.Add("Button", "x110 y48 w80 h28", "Reset")
         resetBtn.OnEvent("Click", (*) => PuzzleApp.ResetGame())
-        closeBtn := newGui.AddButton("x200 y48 w80 h28", "Close")
+        closeBtn := newGui.Add("Button", "x200 y48 w80 h28", "Close")
         closeBtn.OnEvent("Click", (*) => PuzzleApp.HideGui())
 
-        PuzzleApp.movesCtrl := newGui.AddText("x20 y84 w160 h24 cFFFFFF", "Moves: 0")
+        PuzzleApp.movesCtrl := newGui.Add("Text", "x20 y84 w160 h24 cFFFFFF", "Moves: 0")
 
         PuzzleApp.buttons := []
         startX := 20
@@ -72,18 +72,18 @@ class PuzzleApp {
                 colIndex := A_Index
                 x := startX + (colIndex - 1) * (size + padding)
                 y := startY + (rowIndex - 1) * (size + padding)
-                btn := newGui.AddButton(Format("x{} y{} w{} h{}", x, y, size, size), "")
+                btn := newGui.Add("Button", Format("x{} y{} w{} h{}", x, y, size, size), "")
                 btn.SetFont("s12 Bold c4488FF", "Segoe UI")
                 btn.OnEvent("Click", PuzzleApp.HandleClick.Bind(PuzzleApp, rowIndex, colIndex))
                 PuzzleApp.buttons[rowIndex].Push(btn)
             }
         }
 
-        PuzzleApp.statusCtrl := newGui.AddText("x20 y320 w280 h24 cFFFFFF", "")
+        PuzzleApp.statusCtrl := newGui.Add("Text", "x20 y320 w280 h24 cFFFFFF", "")
 
         newGui.OnEvent("Close", PuzzleApp.HideGui)
         newGui.OnEvent("Escape", PuzzleApp.HideGui)
-        newGui.OnEvent("Size", PuzzleApp.OnResize)
+        newGui.OnEvent("Size", (gui, minMax, width, height) => PuzzleApp.OnResize(gui, minMax, width, height))
 
         PuzzleApp.gui := newGui
         newGui.Show("w320 h360")

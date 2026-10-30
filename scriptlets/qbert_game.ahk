@@ -48,21 +48,21 @@ class QBertApp {
         newGui.BackColor := "1a1a32"
         newGui.SetFont("s11", "Consolas")
 
-        newGui.AddText("x20 y16 w220 Center cFFFFFF", "Q*bert – change all tiles twice")
-        QBertApp.boardCtrl := newGui.AddText("x20 y48 w200 h160 Background000000 Border", "")
+        newGui.Add("Text", "x20 y16 w220 Center cFFFFFF", "Q*bert - change all tiles twice")
+        QBertApp.boardCtrl := newGui.Add("Text", "x20 y48 w200 h160 Background000000 Border", "")
         QBertApp.boardCtrl.SetFont("s11 cLime", "Consolas")
 
-        QBertApp.levelCtrl := newGui.AddText("x20 y220 w200 h24 cFFFFFF Center", "Target color level: 2")
-        resetBtn := newGui.AddButton("x20 y250 w90 h28", "Reset")
+        QBertApp.levelCtrl := newGui.Add("Text", "x20 y220 w200 h24 cFFFFFF Center", "Target color level: 2")
+        resetBtn := newGui.Add("Button", "x20 y250 w90 h28", "Reset")
         resetBtn.OnEvent("Click", (*) => QBertApp.ResetGame())
-        closeBtn := newGui.AddButton("x130 y250 w90 h28", "Close")
+        closeBtn := newGui.Add("Button", "x130 y250 w90 h28", "Close")
         closeBtn.OnEvent("Click", (*) => QBertApp.HideGui())
 
-        QBertApp.statusCtrl := newGui.AddText("x20 y280 w220 h24 cFFFFFF", "")
+        QBertApp.statusCtrl := newGui.Add("Text", "x20 y280 w220 h24 cFFFFFF", "")
 
         newGui.OnEvent("Close", QBertApp.HideGui)
         newGui.OnEvent("Escape", QBertApp.HideGui)
-        newGui.OnEvent("Size", QBertApp.OnResize)
+        newGui.OnEvent("Size", (gui, minMax, width, height) => QBertApp.OnResize(gui, minMax, width, height))
 
         QBertApp.gui := newGui
         newGui.Show("w260 h320")

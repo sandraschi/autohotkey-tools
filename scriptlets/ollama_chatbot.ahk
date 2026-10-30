@@ -30,24 +30,24 @@ class OllamaChat {
         newGui.BackColor := "101820"
         newGui.SetFont("s10", "Segoe UI")
 
-        header := newGui.AddText("x20 y16 w380 h24 c87CEFA", "Ollama Chat – local LLM interface")
+        header := newGui.Add("Text", "x20 y16 w380 h24 c87CEFA", "Ollama Chat – local LLM interface")
         header.SetFont("s11", "Segoe UI")
 
-        OllamaChat.historyCtrl := newGui.AddEdit("x20 y48 w380 h240 ReadOnly -Wrap VScroll", "")
+        OllamaChat.historyCtrl := newGui.Add("Edit", "x20 y48 w380 h240 ReadOnly -Wrap VScroll", "")
         OllamaChat.historyCtrl.BackColor := "181818"
         OllamaChat.historyCtrl.SetFont("s10", "Consolas")
 
-        OllamaChat.inputCtrl := newGui.AddEdit("x20 y300 w300 h80 -Wrap", "")
-        sendBtn := newGui.AddButton("x330 y300 w70 h32", "Send")
+        OllamaChat.inputCtrl := newGui.Add("Edit", "x20 y300 w300 h80 -Wrap", "")
+        sendBtn := newGui.Add("Button", "x330 y300 w70 h32", "Send")
         sendBtn.OnEvent("Click", (*) => OllamaChat.SendMessage())
-        cfgBtn := newGui.AddButton("x330 y346 w70 h32", "Config")
+        cfgBtn := newGui.Add("Button", "x330 y346 w70 h32", "Config")
         cfgBtn.OnEvent("Click", (*) => OllamaChat.OpenSettings())
 
-        OllamaChat.statusCtrl := newGui.AddText("x20 y360 w380 h24 cFFFFFF", "Model: " . OllamaChat.model . " @ " . OllamaChat.endpoint)
+        OllamaChat.statusCtrl := newGui.Add("Text", "x20 y360 w380 h24 cFFFFFF", "Model: " . OllamaChat.model . " @ " . OllamaChat.endpoint)
 
         newGui.OnEvent("Close", OllamaChat.HideGui)
         newGui.OnEvent("Escape", OllamaChat.HideGui)
-        newGui.OnEvent("Size", OllamaChat.OnResize)
+        newGui.OnEvent("Size", (gui, minMax, width, height) => OllamaChat.OnResize(gui, minMax, width, height))
 
         OllamaChat.gui := newGui
         newGui.Show("w420 h400")
@@ -112,12 +112,12 @@ class OllamaChat {
         dlg.BackColor := "202830"
         dlg.SetFont("s10", "Segoe UI")
 
-        dlg.AddText("x20 y20 w260 h24 cFFFFFF", "Ollama endpoint (http://host:port)")
-        urlEdit := dlg.AddEdit("x20 y48 w260 h24", OllamaChat.endpoint)
-        dlg.AddText("x20 y88 w260 h24 cFFFFFF", "Model name")
-        modelEdit := dlg.AddEdit("x20 y116 w260 h24", OllamaChat.model)
-        saveBtn := dlg.AddButton("x20 y156 w80 h28", "Save")
-        cancelBtn := dlg.AddButton("x120 y156 w80 h28", "Cancel")
+        dlg.Add("Text", "x20 y20 w260 h24 cFFFFFF", "Ollama endpoint (http://host:port)")
+        urlEdit := dlg.Add("Edit", "x20 y48 w260 h24", OllamaChat.endpoint)
+        dlg.Add("Text", "x20 y88 w260 h24 cFFFFFF", "Model name")
+        modelEdit := dlg.Add("Edit", "x20 y116 w260 h24", OllamaChat.model)
+        saveBtn := dlg.Add("Button", "x20 y156 w80 h28", "Save")
+        cancelBtn := dlg.Add("Button", "x120 y156 w80 h28", "Cancel")
 
         saveBtn.OnEvent("Click", OllamaChat.SaveSettings.Bind(OllamaChat, dlg, urlEdit, modelEdit))
         cancelBtn.OnEvent("Click", OllamaChat.CloseDialog.Bind(OllamaChat, dlg))

@@ -70,11 +70,11 @@ class ChessApp {
         if (ChessApp.gui) {
             ChessApp.gui.Destroy()
         }
-        gui := Gui("+Resize +MinSize560x560", "Chess Board")
-        gui.BackColor := "1b1b1b"
-        gui.SetFont("s10 c4488FF", "Segoe UI")
+        newGui := Gui("+Resize +MinSize560x560", "Chess Board")
+        newGui.BackColor := "1b1b1b"
+        newGui.SetFont("s10 c4488FF", "Segoe UI")
 
-        gui.AddText("x20 y16 w520 Center cFFFFFF", "Chess Board Viewer – click a square to inspect the piece.")
+        newGui.Add("Text", "x20 y16 w520 Center cFFFFFF", "Chess Board Viewer – click a square to inspect the piece.")
 
         ChessApp.boardButtons := []
         squareSize := 56
@@ -89,25 +89,25 @@ class ChessApp {
                 posY := baseY + (rowIndex - 1) * squareSize
                 isLight := Mod(rowIndex + colIndex, 2) = 0
                 backOpt := isLight ? "Background0xF0D9B5" : "Background0xB58863"
-                btn := gui.AddButton(Format("x{} y{} w{} h{} {}", posX, posY, squareSize, squareSize, backOpt), "")
+                btn := newGui.Add("Button", Format("x{} y{} w{} h{} {}", posX, posY, squareSize, squareSize, backOpt), "")
                 btn.SetFont("s24", "Segoe UI Symbol")
                 btn.OnEvent("Click", ChessApp.OnSquareClick.Bind(ChessApp, rowIndex, colIndex))
                 ChessApp.boardButtons[rowIndex].Push(btn)
             }
         }
 
-        ChessApp.statusCtrl := gui.AddText("x20 y520 w520 h24 cFFFFFF", "Select a square to view details.")
-        btnBar := gui.AddButton("x360 y520 w80 h28", "New Game")
+        ChessApp.statusCtrl := newGui.Add("Text", "x20 y520 w520 h24 cFFFFFF", "Select a square to view details.")
+        btnBar := newGui.Add("Button", "x360 y520 w80 h28", "New Game")
         btnBar.OnEvent("Click", (*) => ChessApp.ResetBoard())
-        closeBtn := gui.AddButton("x460 y520 w80 h28", "Close")
+        closeBtn := newGui.Add("Button", "x460 y520 w80 h28", "Close")
         closeBtn.OnEvent("Click", (*) => ChessApp.HideGui())
 
-        gui.OnEvent("Close", ChessApp.HideGui)
-        gui.OnEvent("Escape", ChessApp.HideGui)
-        gui.OnEvent("Size", ChessApp.OnResize)
+        newGui.OnEvent("Close", ChessApp.HideGui)
+        newGui.OnEvent("Escape", ChessApp.HideGui)
+        newGui.OnEvent("Size", (gui, minMax, width, height) => ChessApp.OnResize(gui, minMax, width, height))
 
-        ChessApp.gui := gui
-        gui.Show("w560 h560")
+        ChessApp.gui := newGui
+        newGui.Show("w560 h560")
     }
 
     static SetupHotkeys() {

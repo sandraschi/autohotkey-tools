@@ -13,7 +13,7 @@
 ; @tag: games, wordle, anagrams, hangman, word
 ; ==============================================================================
 
-WORDS := ["about","above","abuse","actor","acute","admit","adopt","adult","after","again","agent","agree","ahead","alarm","album","alert","alien","align","alive","allow","alone","along","alter","angel","anger","angle","angry","apart","apple","apply","arena","argue","arise","armor","array","aside","asset","avoid","award","aware","awful","bacon","badge","basic","basin","basis","batch","beach","beard","beast","begin","being","below","bench","billy","birth","black","blade","blame","blank","blast","blaze","bleed","blend","bless","blind","block","blood","bloom","board","bonus","booth","bound","brain","brand","brave","bread","break","breed","brick","brief","bring","broad","broke","brook","brown","brush","buddy","build","built","bunch","burst","cabin","cable","candy","carry","catch","cause","cease","chain","chair","chalk","champ","chaos","charm","chart","chase","cheap","check","cheek","cheer","chess","chest","chief","child","chill","china","choir","civil","claim","clash","class","clean","clear","clerk","click","cliff","climb","cling","clock","close","cloth","cloud","coach","coast","color","comet","cover","craft","crane","crash","crawl","crazy","cream","crest","crime","crisp","cross","crowd","crown","crush","curve","cycle","daily","dance","debut","decay","delay","delta","demon","dense","depot","depth","derby","desk","devil","diary","dirty","ditch","dizzy","dodge","doing","donor","doubt","dough","draft","drain","drama","drank","drape","drawn","dread","dream","dress","dried","drift","drill","drink","drive","drone","drove","drunk","dryer","dying","eager","early","earth","eight","elbow","elder","elect","elite","email","empty","enemy","enjoy","enter","entry","equal","equip","error","essay","event","every","exact","exile","exist","extra","fable","facet","faith","false","fancy","fatal","fault","feast","fence","ferry","fetch","fever","fewer","fiber","field","fifth","fifty","fight","final","first","fixed","flame","flash","fleet","flesh","float","flock","flood","floor","flora","flour","fluid","flush","focal","focus","force","forge","forth","forum","found","frame","frank","fraud","fresh","front","frost","froze","fruit","fully","fungi","gauge","genre","ghost","giant","given","glad","gland","glass","gleam","glide","globe","gloom","glory","gloss","glove","going","grace","grade","grain","grand","grant","grape","graph","grasp","grass","grave","great","green","greet","grief","grill","grind","groan","groom","gross","group","grove","grown","guard","guess","guest","guide","guild","guilt","guise","gulch","gully","gumbo","gummy","happy","harsh","haste","haunt","haven","hazel","heart","heavy","hedge","hello","hence","herbs","hobby","honey","honor","horde","horse","hotel","house","human","humor","hurry","ideal","image","imply","index","indie","inner","input","irony","ivory","jelly","jewel","joint","joker","judge","juice","juicy","kebab","knack","kneel","knock","known","label","labor","large","laser","later","laugh","layer","learn","lease","leave","legal","lemon","level","lever","light","limit","linen","liver","local","lodge","logic","loose","lover","lower","loyal","lucky","lunch","lyric","magic","major","maker","manor","maple","march","marry","marsh","match","maybe","mayor","meant","media","mercy","merge","merit","merry","metal","meter","might","minor","minus","mirth","model","money","month","moral","motor","mound","mount","mourn","mouse","mouth","movie","music","nadir","naval","nerve","never","newly","night","noble","noise","north","noted","novel","nylon","occur","ocean","offer","often","olive","onset","opera","orbit","order","organ","other","ounce","outer","overt","owner","oxide","ozone","paint","panel","panic","paper","party","pasta","paste","patch","pause","peace","pearl","penny","phase","phone","photo","piano","piece","pilot","pitch","pixel","pizza","place","plain","plane","plant","plate","plaza","plead","pluck","plumb","plume","plump","plunge","point","polar","pouch","pound","power","press","price","pride","prime","print","prior","prize","probe","prone","proof","prose","proud","prove","psalm","pulse","punch","pupil","purse","queen","quest","queue","quick","quiet","quirk","quota","quote","radar","radio","raise","rally","ramen","ranch","range","rapid","ratio","reach","react","realm","rebel","recur","refer","reign","relax","relay","renal","renew","reply","rider","ridge","rifle","right","rigid","ripen","risen","risky","rival","river","roast","robin","robot","rocky","roman","rouge","rough","round","route","rover","royal","rugby","ruler","rural","sadly","saint","salad","salsa","salon","sauce","scale","scene","scent","scope","score","scout","scrap","sense","serve","setup","seven","shade","shaft","shake","shall","shame","shape","share","shark","sharp","sheer","sheet","shelf","shell","shift","shine","shirt","shock","shore","short","shout","shove","sight","sigma","silly","since","sixth","sixty","skate","skill","skull","slash","slate","slave","sleep","slice","slope","small","smart","smell","smile","smoke","snack","snake","solar","solid","solve","sorry","sound","south","space","spare","spark","speak","speed","spend","spice","spill","spine","spite","split","spoke","spoon","spray","squad","stack","staff","stage","stain","stake","stale","stall","stamp","stand","stark","start","state","stave","steady","steal","steam","steel","steep","steer","stern","stick","stiff","still","stock","stole","stone","stool","store","storm","story","stove","straw","strip","stuck","study","stuff","style","sugar","suite","sunny","super","surge","swamp","swear","sweep","sweet","swept","swift","swing","swirl","sword","swore","sworn","syrup","table","taste","tease","tempo","tense","tenth","theme","there","thick","thing","think","third","thorn","three","throw","thump","thumb","tidal","tiger","tight","timer","tired","title","toast","today","token","topic","total","touch","tough","tower","toxic","trace","track","trade","trail","train","trait","trash","treat","trend","trial","tribe","trick","tried","troop","truce","truly","trump","trunk","trust","truth","tumor","twice","twist","ultra","uncle","under","union","unite","unity","until","upper","upset","urban","usage","usual","usurp","utter","valid","valor","value","valve","vapor","vault","venom","verse","video","vigor","vinyl","viral","virus","visit","vista","vital","vivid","vocal","vodka","voice","vouch","vowel","waste","watch","water","wavey","wheat","wheel","where","which","while","white","whole","whose","wider","witch","woman","world","worry","worse","worst","worth","would","wound","wreck","wrist","write","wrong","wrote","yacht","yield","young","youth","zebra"]
+WORDS := ["about","above","abuse","actor","acute","admit","adopt","adult","after","again","agent","agree","ahead","alarm","album","alert","alien","align","alive","allow","alone","along","alter","angel","anger","angle","angry","apart","apple","apply","arena","argue","arise","armor","array","aside","asset","avoid","award","aware","awful","bacon","badge","basic","basin","basis","batch","beach","beard","beast","begin","being","below","bench","billy","birth","black","blade","blame","blank","blast","blaze","bleed","blend","bless","blind","block","blood","bloom","board","bonus","booth","bound","brain","brand","brave","bread","break","breed","brick","brief","bring","broad","broke","brook","brown","brush","buddy","build","built","bunch","burst","cabin","cable","candy","carry","catch","cause","cease","chain","chair","chalk","champ","chaos","charm","chart","chase","cheap","check","cheek","cheer","chess","chest","chief","child","chill","china","choir","civil","claim","clash","class","clean","clear","clerk","click","cliff","climb","cling","clock","close","cloth","cloud","coach","coast","color","comet","cover","craft","crane","crash","crawl","crazy","cream","crest","crime","crisp","cross","crowd","crown","crush","curve","cycle","daily","dance","debut","decay","delay","delta","demon","dense","depot","depth","derby","devil","diary","dirty","ditch","dizzy","dodge","doing","donor","doubt","dough","draft","drain","drama","drank","drape","drawn","dread","dream","dress","dried","drift","drill","drink","drive","drone","drove","drunk","dryer","dying","eager","early","earth","eight","elbow","elder","elect","elite","email","empty","enemy","enjoy","enter","entry","equal","equip","error","essay","event","every","exact","exile","exist","extra","fable","facet","faith","false","fancy","fatal","fault","feast","fence","ferry","fetch","fever","fewer","fiber","field","fifth","fifty","fight","final","first","fixed","flame","flash","fleet","flesh","float","flock","flood","floor","flora","flour","fluid","flush","focal","focus","force","forge","forth","forum","found","frame","frank","fraud","fresh","front","frost","froze","fruit","fully","fungi","gauge","genre","ghost","giant","given","gland","glass","gleam","glide","globe","gloom","glory","gloss","glove","going","grace","grade","grain","grand","grant","grape","graph","grasp","grass","grave","great","green","greet","grief","grill","grind","groan","groom","gross","group","grove","grown","guard","guess","guest","guide","guild","guilt","guise","gulch","gully","gumbo","gummy","happy","harsh","haste","haunt","haven","hazel","heart","heavy","hedge","hello","hence","herbs","hobby","honey","honor","horde","horse","hotel","house","human","humor","hurry","ideal","image","imply","index","indie","inner","input","irony","ivory","jelly","jewel","joint","joker","judge","juice","juicy","kebab","knack","kneel","knock","known","label","labor","large","laser","later","laugh","layer","learn","lease","leave","legal","lemon","level","lever","light","limit","linen","liver","local","lodge","logic","loose","lover","lower","loyal","lucky","lunch","lyric","magic","major","maker","manor","maple","march","marry","marsh","match","maybe","mayor","meant","media","mercy","merge","merit","merry","metal","meter","might","minor","minus","mirth","model","money","month","moral","motor","mound","mount","mourn","mouse","mouth","movie","music","nadir","naval","nerve","never","newly","night","noble","noise","north","noted","novel","nylon","occur","ocean","offer","often","olive","onset","opera","orbit","order","organ","other","ounce","outer","overt","owner","oxide","ozone","paint","panel","panic","paper","party","pasta","paste","patch","pause","peace","pearl","penny","phase","phone","photo","piano","piece","pilot","pitch","pixel","pizza","place","plain","plane","plant","plate","plaza","plead","pluck","plumb","plume","plump","point","polar","pouch","pound","power","press","price","pride","prime","print","prior","prize","probe","prone","proof","prose","proud","prove","psalm","pulse","punch","pupil","purse","queen","quest","queue","quick","quiet","quirk","quota","quote","radar","radio","raise","rally","ramen","ranch","range","rapid","ratio","reach","react","realm","rebel","recur","refer","reign","relax","relay","renal","renew","reply","rider","ridge","rifle","right","rigid","ripen","risen","risky","rival","river","roast","robin","robot","rocky","roman","rouge","rough","round","route","rover","royal","rugby","ruler","rural","sadly","saint","salad","salsa","salon","sauce","scale","scene","scent","scope","score","scout","scrap","sense","serve","setup","seven","shade","shaft","shake","shall","shame","shape","share","shark","sharp","sheer","sheet","shelf","shell","shift","shine","shirt","shock","shore","short","shout","shove","sight","sigma","silly","since","sixth","sixty","skate","skill","skull","slash","slate","slave","sleep","slice","slope","small","smart","smell","smile","smoke","snack","snake","solar","solid","solve","sorry","sound","south","space","spare","spark","speak","speed","spend","spice","spill","spine","spite","split","spoke","spoon","spray","squad","stack","staff","stage","stain","stake","stale","stall","stamp","stand","stark","start","state","stave","steal","steam","steel","steep","steer","stern","stick","stiff","still","stock","stole","stone","stool","store","storm","story","stove","straw","strip","stuck","study","stuff","style","sugar","suite","sunny","super","surge","swamp","swear","sweep","sweet","swept","swift","swing","swirl","sword","swore","sworn","syrup","table","taste","tease","tempo","tense","tenth","theme","there","thick","thing","think","third","thorn","three","throw","thump","thumb","tidal","tiger","tight","timer","tired","title","toast","today","token","topic","total","touch","tough","tower","toxic","trace","track","trade","trail","train","trait","trash","treat","trend","trial","tribe","trick","tried","troop","truce","truly","trump","trunk","trust","truth","tumor","twice","twist","ultra","uncle","under","union","unite","unity","until","upper","upset","urban","usage","usual","usurp","utter","valid","valor","value","valve","vapor","vault","venom","verse","video","vigor","vinyl","viral","virus","visit","vista","vital","vivid","vocal","vodka","voice","vouch","vowel","waste","watch","water","wavey","wheat","wheel","where","which","while","white","whole","whose","wider","witch","woman","world","worry","worse","worst","worth","would","wound","wreck","wrist","write","wrong","wrote","yacht","yield","young","youth","zebra"]
 
 class WordGames {
     static gui := 0
@@ -35,7 +35,6 @@ class WordGames {
     static hangMsgLabel := 0
     static hangWrong := 0
     static hangMaxWrong := 6
-    static hangButtons := []
 
     static Init() {
         this.BuildGui()
@@ -82,22 +81,6 @@ class WordGames {
             WordGames.gui.Hide()
         else
             WordGames.gui.Show("NoActivate")
-    }
-
-    static MakeKeyboard(g, x, y, callback) {
-        btns := []
-        rows := [["q","w","e","r","t","y","u","i","o","p"],["a","s","d","f","g","h","j","k","l"],["z","x","c","v","b","n","m"]]
-        for _, row in rows {
-            rx := x
-            for _, ch in row {
-                btn := g.Add("Button", Format("x{} y{} w24 h24 cWhite Background333344", rx, y), StrUpper(ch))
-                btn.OnEvent("Click", callback.Bind(ch))
-                btns.Push(btn)
-                rx += 28
-            }
-            y += 28
-        }
-        return btns
     }
 
     ; ===== WORDLE =====
@@ -268,6 +251,9 @@ class WordGames {
         valid := []
         for _, w in WORDS {
             wChars := StrSplit(w)
+            if (wChars.Length != 5) {
+                continue
+            }
             ok := true
             ; Check exact matches
             for i in [1,2,3,4,5] {
@@ -373,8 +359,9 @@ class WordGames {
             chars[r] := tmp
         }
         WordGames.anagScrambled := JoinChars(chars)
-        if (WordGames.anagScrambled = WordGames.anagWord)
-            WordGames.AnagNew()
+        if (WordGames.anagScrambled = WordGames.anagWord) {
+            return WordGames.AnagNew()
+        }
         WordGames.anagScrambleLabel.Text := StrUpper(WordGames.anagScrambled)
         WordGames.anagInput.Value := ""
     }
@@ -402,7 +389,7 @@ class WordGames {
         WordGames.hangMsgLabel := g.Add("Text", "x60 y90 w380 h20 cGray Center", "")
         gallows := g.Add("Text", "x190 y120 w120 h120 cWhite Center", Chr(0x250C) Chr(0x2500) Chr(0x2500) Chr(0x2510) "`n" Chr(0x2502) "  O  " Chr(0x2502) "`n" Chr(0x2502) " /|\ " Chr(0x2502) "`n" Chr(0x2502) " / \ " Chr(0x2502) "`n" Chr(0x2514) Chr(0x2500) Chr(0x2500) Chr(0x2518))
         gallows.SetFont("s7 cWhite", "Consolas")
-        WordGames.hangButtons := WordGames.MakeKeyboard(g, 60, 260, WordGames.HangmanGuess)
+        g.Add("Text", "x60 y250 w380 h60 cGray Center", "Type letters on your keyboard to guess.`nWrong guesses: 6 = game over.")
         g.Add("Button", "x60 y340 w120 h26 cWhite Background1a5a1a", "New Game").OnEvent("Click", (*) => WordGames.HangmanNew())
     }
 
@@ -411,8 +398,6 @@ class WordGames {
         WordGames.hangWord := WORDS[idx]
         WordGames.hangWrong := 0
         WordGames.hangGuesses := ""
-        for btn in WordGames.hangButtons
-            btn.Enabled := true
         WordGames.hangMsgLabel.Text := ""
         WordGames.HangmanRedraw()
     }
@@ -428,22 +413,15 @@ class WordGames {
         WordGames.hangDisplay.Value := Trim(display)
     }
 
-    static HangmanGuess(btn) {
-        key := btn
+    static HangmanGuess(key, *) {
         if (InStr(WordGames.hangGuesses, key) || WordGames.hangWrong >= WordGames.hangMaxWrong)
             return
-        for b in WordGames.hangButtons {
-            if (b.Text = StrUpper(key))
-                b.Enabled := false
-        }
         WordGames.hangGuesses .= key
         if (!InStr(WordGames.hangWord, key)) {
             WordGames.hangWrong++
             WordGames.hangMsgLabel.Text := "Wrong! (" . WordGames.hangWrong . "/" . WordGames.hangMaxWrong . ")"
             if (WordGames.hangWrong >= WordGames.hangMaxWrong) {
                 WordGames.hangMsgLabel.Text := "Lost! Word: " . StrUpper(WordGames.hangWord)
-                for b in WordGames.hangButtons
-                    b.Enabled := false
                 return
             }
         }
@@ -457,8 +435,6 @@ class WordGames {
         }
         if (won) {
             WordGames.hangMsgLabel.Text := "You won! New Game to play again"
-            for b in WordGames.hangButtons
-                b.Enabled := false
         }
     }
 }
