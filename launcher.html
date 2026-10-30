@@ -307,6 +307,7 @@
             try {
                 const response = await fetch(`${serverURL}/scriptlets`, {
                     method: 'GET',
+                    cache: 'no-store',
                     timeout: 5000
                 });
 
@@ -520,6 +521,7 @@
             try {
                 const response = await fetch(`${serverURL}/status`, {
                     method: 'GET',
+                    cache: 'no-store',
                     timeout: 2000
                 });
 

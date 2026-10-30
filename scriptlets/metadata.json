@@ -60,14 +60,13 @@
     },
     "quick_notes": {
       "name": "Quick Notes",
-      "version": "1.0.0",
+      "version": "2.1.0",
       "description": "Rapid note-taking utility with hotkey access",
       "category": "productivity",
       "author": "Sandra",
       "dependencies": [],
       "hotkeys": [
-        "^!n",
-        "^!q"
+        "^!n"
       ],
       "enabled": true,
       "priority": 25,
@@ -425,6 +424,26 @@
         "playlist",
         "visualizer",
         "control"
+      ]
+    },
+    "lookcraft_quicksearch": {
+      "name": "LookCraft Quick Search",
+      "version": "1.0.0",
+      "description": "Instant mail search over the lookcraft Rust CLI: hotkey prompt, results list, full-body reader, mark-read",
+      "category": "productivity",
+      "author": "Sandra",
+      "dependencies": [],
+      "hotkeys": [
+        "^!j"
+      ],
+      "enabled": true,
+      "priority": 25,
+      "tags": [
+        "lookcraft",
+        "mail",
+        "search",
+        "fleet-cli",
+        "productivity"
       ]
     },
     "mini_games_collection": {

@@ -64,6 +64,7 @@ tmp/
 config.local.ini
 *.local.ini
 scriptlets/scroll_widget.ini
+scriptlets/quick_notes.ini
 
 # Build output
 /dist/
