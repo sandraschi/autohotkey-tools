@@ -581,14 +581,16 @@
     },
     "classic_frogger": {
       "name": "Classic Frogger Game",
-      "version": "1.0.0",
-      "description": "Classic Frogger arcade game with cars, logs, and turtles",
+      "version": "2.0.0",
+      "description": "Classic Frogger arcade game with GDI+ rendering: animated road, directional cars with headlights, goal slots, arrow-key frog",
       "category": "games",
       "author": "Sandra",
       "dependencies": [],
       "hotkeys": [
-        "^!f",
-        "F6"
+        "Up",
+        "Down",
+        "Left",
+        "Right"
       ],
       "enabled": true,
       "priority": 86,
