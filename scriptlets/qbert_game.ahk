@@ -73,16 +73,19 @@ class QBertApp {
         if (registered) {
             return
         }
-        ; Global hotkey to launch/show the game
-        Hotkey("^!b", (*) => QBertApp.ShowGui())
-        
-        ; Context-sensitive hotkeys - only work when Q*bert window is active
-        Hotkey("Up", (*) => QBertApp.HopIfActive(-1, 0))
-        Hotkey("Down", (*) => QBertApp.HopIfActive(1, 0))
-        Hotkey("Left", (*) => QBertApp.HopIfActive(0, -1))
-        Hotkey("Right", (*) => QBertApp.HopIfActive(0, 1))
-        Hotkey("r", (*) => QBertApp.ResetGameIfActive())
+        ; Global hotkey to launch/show the game (dg: Ctrl+Win+B, was ^!b which collides with other tools)
+        Hotkey("^#b", (*) => QBertApp.ShowGui())
+
+        ; Game keys are window-scoped so arrows/letters keep working in
+        ; other apps while Q*Bert runs in the background.
+        HotIf((*) => WinActive("ahk_id " . QBertApp.gui.Hwnd))
+        Hotkey("Up", (*) => QBertApp.Hop(-1, 0))
+        Hotkey("Down", (*) => QBertApp.Hop(1, 0))
+        Hotkey("Left", (*) => QBertApp.Hop(0, -1))
+        Hotkey("Right", (*) => QBertApp.Hop(0, 1))
+        Hotkey("r", (*) => QBertApp.ResetGame())
         Hotkey("Escape", (*) => QBertApp.HideGui())
+        HotIf(())
         registered := true
     }
     

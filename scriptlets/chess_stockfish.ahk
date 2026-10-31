@@ -115,12 +115,15 @@ class ChessApp {
         if (hotkeysRegistered) {
             return
         }
-        ; Global hotkey to launch/show the game
-        Hotkey("^!c", (*) => ChessApp.ShowGui())
-        
-        ; Context-sensitive hotkeys - only work when Chess window is active
-        Hotkey("n", (*) => ChessApp.ResetBoardIfActive())
+        ; Global hotkey to launch/show the game (dg: Ctrl+Win+C - ^!c collides with other tools)
+        Hotkey("^#c", (*) => ChessApp.ShowGui())
+
+        ; Gameplay keys are window-scoped so n/Escape keep working
+        ; in other apps while Chess runs in the background.
+        HotIf((*) => WinActive("ahk_id " . ChessApp.gui.Hwnd))
+        Hotkey("n", (*) => ChessApp.ResetBoard())
         Hotkey("Escape", (*) => ChessApp.HideGui())
+        HotIf()
         hotkeysRegistered := true
     }
     

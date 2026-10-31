@@ -93,18 +93,21 @@ class PacmanApp {
         if (registered) {
             return
         }
-        ; Global hotkey to launch/show the game
-        Hotkey("^!m", (*) => PacmanApp.ShowGui())
-        
-        ; Context-sensitive hotkeys - only work when Pac-Man window is active
-        Hotkey("Up", (*) => PacmanApp.MovePacIfActive(0, -1))
-        Hotkey("Down", (*) => PacmanApp.MovePacIfActive(0, 1))
-        Hotkey("Left", (*) => PacmanApp.MovePacIfActive(-1, 0))
-        Hotkey("Right", (*) => PacmanApp.MovePacIfActive(1, 0))
-        Hotkey("Space", (*) => PacmanApp.StartGameIfActive())
-        Hotkey("p", (*) => PacmanApp.PauseGameIfActive())
-        Hotkey("r", (*) => PacmanApp.ResetGameIfActive())
+        ; Global hotkey to launch/show the game (dg: Ctrl+Win+M, was ^!m which collides with the widget snap)
+        Hotkey("^#m", (*) => PacmanApp.ShowGui())
+
+        ; Game keys are window-scoped so arrows/space/letters keep working
+        ; in other apps while Pac-Man runs in the background.
+        HotIf((*) => WinActive("ahk_id " . PacmanApp.gui.Hwnd))
+        Hotkey("Up", (*) => PacmanApp.MovePac(0, -1))
+        Hotkey("Down", (*) => PacmanApp.MovePac(0, 1))
+        Hotkey("Left", (*) => PacmanApp.MovePac(-1, 0))
+        Hotkey("Right", (*) => PacmanApp.MovePac(1, 0))
+        Hotkey("Space", (*) => PacmanApp.StartGame())
+        Hotkey("p", (*) => PacmanApp.PauseGame())
+        Hotkey("r", (*) => PacmanApp.ResetGame())
         Hotkey("Escape", (*) => PacmanApp.HideGui())
+        HotIf()
         registered := true
     }
     

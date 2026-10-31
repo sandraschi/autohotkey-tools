@@ -94,13 +94,16 @@ class PuzzleApp {
         if (registered) {
             return
         }
-        ; Global hotkey to launch/show the game
-        Hotkey("^!p", (*) => PuzzleApp.ShowGui())
-        
-        ; Context-sensitive hotkeys - only work when Puzzle window is active
-        Hotkey("s", (*) => PuzzleApp.ShuffleIfActive(80))
-        Hotkey("r", (*) => PuzzleApp.ResetGameIfActive())
+        ; Global hotkey to launch/show the game (dg: Ctrl+Win+U for pUzzle - ^!p collides with macro_recorder)
+        Hotkey("^#u", (*) => PuzzleApp.ShowGui())
+
+        ; Gameplay keys are window-scoped so s/r/Escape keep working
+        ; in other apps while the puzzle runs in the background.
+        HotIf((*) => WinActive("ahk_id " . PuzzleApp.gui.Hwnd))
+        Hotkey("s", (*) => PuzzleApp.Shuffle(80))
+        Hotkey("r", (*) => PuzzleApp.ResetGame())
         Hotkey("Escape", (*) => PuzzleApp.HideGui())
+        HotIf()
         registered := true
     }
     

@@ -38,7 +38,7 @@ class WordGames {
 
     static Init() {
         this.BuildGui()
-        Hotkey("^!g", (*) => this.Toggle())
+        Hotkey("^#w", (*) => this.Toggle())
     }
 
     static BuildGui() {

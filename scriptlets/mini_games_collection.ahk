@@ -75,8 +75,8 @@ class MiniArcade {
         if (registered) {
             return
         }
-        Hotkey("^!g", (*) => MiniArcade.ShowGui())
-        Hotkey("^!q", (*) => MiniArcade.HideGui())
+        Hotkey("^#g", (*) => MiniArcade.ShowGui())
+        Hotkey("^#q", (*) => MiniArcade.HideGui())
         registered := true
     }
 
