@@ -178,7 +178,7 @@ DrawSnakeGame() {
     return "Score: " . snakeLength . "`n`n" . grid
 }
 
-Hotkey("^!s", StartSnakeGame)
+Hotkey("^#n", StartSnakeGame)
 
 ; ========================================
 ; MOUSE JIGGLER
@@ -203,7 +203,7 @@ ToggleMouseJiggler(*) {
     SetTimer(() => TrayTip(), -3000)
 }
 
-Hotkey("^!j", ToggleMouseJiggler)
+Hotkey("^#j", ToggleMouseJiggler)
 
 ; ========================================
 ; FAKE ERROR MESSAGE
@@ -212,7 +212,7 @@ ShowFakeError(*) {
     MsgBox("Windows has encountered a critical error!`nError Code: 0x80070002`n`nYour computer will now explode in 10 seconds...", "Critical Error", "Iconx T10")
 }
 
-Hotkey("^!e", ShowFakeError)
+Hotkey("^#e", ShowFakeError)
 
 ; ========================================
 ; FLIP SCREEN
@@ -229,4 +229,4 @@ FlipScreen(*) {
     }
 }
 
-Hotkey("^!f", FlipScreen)
+Hotkey("^#f", FlipScreen)

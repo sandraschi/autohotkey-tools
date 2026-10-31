@@ -273,14 +273,15 @@ class GameStarter {
     }
     
     static SetupHotkeys() {
-        ; Main hotkey
-        Hotkey("^!g", (*) => this.CreateGamePopup())
-        
-        ; Close with Escape
-        Hotkey("Escape", (*) => WinActive("Game Starter") && GameStarter.HandleEscape())
+        ; Main hotkey (Ctrl+Win+P - ^!g collides with word games/git tools)
+        Hotkey("^#p", (*) => this.CreateGamePopup())
 
-        ; Close with Enter (launch selected)
-        Hotkey("Enter", (*) => WinActive("Game Starter") && GameStarter.HandleEnter())
+        ; Close/confirm keys are window-scoped so Esc/Enter keep working
+        ; everywhere else while the popup is closed.
+        HotIf((*) => WinActive("Game Starter"))
+        Hotkey("Escape", (*) => GameStarter.HandleEscape())
+        Hotkey("Enter", (*) => GameStarter.HandleEnter())
+        HotIf()
     }
 }
 

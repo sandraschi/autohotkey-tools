@@ -126,7 +126,7 @@ class TetrisApp {
         static registered := false
         if (registered)
             return
-        Hotkey("^!t", (*) => TetrisApp.ShowGui())
+        Hotkey("^#t", (*) => TetrisApp.ShowGui())
         HotIf((*) => WinActive("ahk_id " . TetrisApp.g.Hwnd))
         Hotkey("Left",  (*) => TetrisApp.MovePiece(-1, 0))
         Hotkey("Right", (*) => TetrisApp.MovePiece(1, 0))

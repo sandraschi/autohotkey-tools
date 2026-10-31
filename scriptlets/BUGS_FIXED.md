@@ -192,3 +192,23 @@ Format: symptom → root cause → fix → audit pattern.
   reviewed receiver-by-receiver (`StrSplit` results, `[]` literals, `A_Args`,
   array_typed params) — music_controller was the only real case. Review rule:
   `Map` + `.Length` never type-checks.
+
+## 17. Global gameplay hotkeys swallow system keys + `^!` collisions
+- **Symptom:** with a game running, arrows/letters/Space/Esc stop working
+  *everywhere* (typing, other apps). Separately, one hotkey (`^!g`, `^!s`,
+  `^!q`, ...) fires in 2-4 scriptlets at once.
+- **Root cause:** two habits. (a) Gameplay keys registered globally with only
+  an internal `*IfActive` guard — the guard makes them no-ops elsewhere but
+  the hotkey still swallows the keystroke system-wide. (b) Copy-pasted
+  `^!letter` toggles with zero coordination (worst: `^!s` claimed 3x,
+  `^!g` claimed 3x including the widget).
+- **Fix (2026-10-31):** gameplay keys wrapped in `HotIf(() => WinActive(...))`
+  blocks (keys pass through when the game window isn't focused); game toggles
+  moved to the untouched `^#` (Ctrl+Win) namespace with per-game mnemonics
+  (`^#g` mini-games, `^#w` word games, `^#p` game popup, `^#n` snake,
+  `^#s` sudoku, `^#t` tetris, `^#m` pacman, `^#b` qbert, `^#u` puzzle,
+  `^#c` chess, `^#j/^#e/^#f` fun-games). Metadata hotkeys updated to match.
+  Out of scope on purpose: tool-to-tool `^!` collisions (hundreds, incl.
+  pranks by design) and non-game single-key hotkeys.
+- **Audit:** any gameplay `Hotkey("<key>", ...)` outside a `HotIf` block that
+  matches its own window; any new `^!` toggle colliding with the list above.

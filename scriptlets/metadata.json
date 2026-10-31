@@ -187,7 +187,7 @@
       "author": "Sandra",
       "dependencies": [],
       "hotkeys": [
-        "^!s"
+        "^#s"
       ],
       "enabled": true,
       "priority": 70,
@@ -282,7 +282,10 @@
       "author": "Sandra",
       "dependencies": [],
       "hotkeys": [
-        "^!g"
+        "^#n snake",
+        "^#j jiggler",
+        "^#e fake error",
+        "^#f flip screen"
       ],
       "enabled": true,
       "priority": 75,
@@ -454,10 +457,8 @@
       "author": "Sandra",
       "dependencies": [],
       "hotkeys": [
-        "^!g",
-        "#s",
-        "#t",
-        "#m"
+        "^#g show",
+        "^#q hide"
       ],
       "enabled": true,
       "priority": 65,
@@ -613,8 +614,8 @@
         "stockfish.exe"
       ],
       "hotkeys": [
-        "^!c",
-        "F7"
+        "^#c show",
+        "n new game"
       ],
       "enabled": true,
       "priority": 87,
@@ -787,8 +788,7 @@
       "author": "Sandra",
       "dependencies": [],
       "hotkeys": [
-        "^!g",
-        "Ctrl+Alt+G"
+        "^#p popup"
       ],
       "enabled": true,
       "priority": 8,
@@ -808,6 +808,7 @@
       "author": "Sandra",
       "dependencies": [],
       "hotkeys": [
+        "^#t show",
         "Arrow keys",
         "Space",
         "P",
@@ -831,6 +832,7 @@
       "author": "Sandra",
       "dependencies": [],
       "hotkeys": [
+        "^#o show",
         "Arrow keys",
         "Space",
         "P",
@@ -1221,7 +1223,7 @@
       "author": "Sandra",
       "dependencies": [],
       "hotkeys": [
-        "^!g toggle"
+        "^#w toggle"
       ],
       "enabled": true,
       "priority": 15,
@@ -1240,7 +1242,7 @@
       "author": "Sandra",
       "dependencies": [],
       "hotkeys": [
-        "^!b toggle",
+        "^#b toggle",
         "arrow keys"
       ],
       "enabled": true,
@@ -1259,7 +1261,7 @@
       "author": "Sandra",
       "dependencies": [],
       "hotkeys": [
-        "^!p toggle",
+        "^#u toggle",
         "s shuffle",
         "r reset"
       ],

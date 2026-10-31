@@ -107,7 +107,7 @@ class SudokuApp {
             return
         }
         ; Global hotkey to launch/show the game
-        Hotkey("^!s", (*) => SudokuApp.ShowGui())
+        Hotkey("^#s", (*) => SudokuApp.ShowGui())
 
         ; Game keys are window-scoped via HotIf: r/c/Escape must reach other
         ; apps untouched unless the Sudoku window is active. A bare Hotkey()
