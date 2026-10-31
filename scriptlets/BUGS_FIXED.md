@@ -157,6 +157,17 @@ Format: symptom → root cause → fix → audit pattern.
 - **Audit:** grep `OnEvent\("Size", [A-Za-z_]+(\.[A-Za-z_]+)?\s*\)` — any bare
   method reference (not wrapped, not pre-bound).
 
+## 15b. Invalid OnEvent event names kill silently too
+- **Symptom:** identical to #14 (instant silent exit, caught only via a
+  Temp-copy bisect with a file-logging OnError).
+- **Root cause:** `ListView.OnEvent("ItemActivate", ...)` — `ItemActivate`
+  is not a valid ListView event name in this AHK build ("Parameter #1 of
+  OnEvent is invalid"). Use `DoubleClick`.
+- **Fix (2026-10-30):** help_system_pro Click stays, ItemActivate → DoubleClick.
+- **Audit:** cross-check every `OnEvent("<Name>", ...)` against the control's
+  documented event list; never assume an event name transfers from another
+  control type or from v1 docs.
+
 ## 15. Local var shadows `static` class field — silent death
 - **Symptom:** identical to #14 (instant silent exit, no log), but for a
   different reason: `static gui := ""` field plus a bare `gui := Gui(...)`
@@ -169,3 +180,15 @@ Format: symptom → root cause → fix → audit pattern.
 - **Audit:** inside each class, compare `static <name>` fields against bare
   `<name> :=` assignments in its static methods. Arrow-function *parameters*
   with the same name are fine (verified live).
+
+## 16. `.Length` on a `Map` (use `.Count`)
+- **Symptom:** instant silent exit; with the crash-net handler in place the log
+  shows `This value of type "Map" has no property named "Length"`.
+- **Root cause:** v2 `Map` has `.Count`, not `.Length` (arrays and strings have
+  `.Length`). `MusicControllerPro.playlists` is a `Map` but `SeedPlaylists()`
+  checked `.Length`.
+- **Fix (2026-10-30):** `playlists.Count`. Verified alive after.
+- **Audit 2026-10-30:** every scriptlet containing both `Map()` and `.Length`
+  reviewed receiver-by-receiver (`StrSplit` results, `[]` literals, `A_Args`,
+  array_typed params) — music_controller was the only real case. Review rule:
+  `Map` + `.Length` never type-checks.

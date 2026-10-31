@@ -79,8 +79,8 @@ class HelpSystem {
 
         ; Left pane for topic list
         HelpSystem.listView := HelpSystem.gui.Add("ListView", "x10 y10 w200 h540 -Hdr", ["Topic"])
-        HelpSystem.listView.OnEvent("Click", HelpSystem.HandleTopicClick)
-        HelpSystem.listView.OnEvent("ItemActivate", HelpSystem.HandleTopicActivate)
+        HelpSystem.listView.OnEvent("Click", (*) => HelpSystem.HandleTopicClick())
+        HelpSystem.listView.OnEvent("DoubleClick", (*) => HelpSystem.HandleTopicActivate())
 
         ; Right pane for content
         HelpSystem.contentArea := HelpSystem.gui.Add("Edit", "x220 y10 w570 h540 ReadOnly VScroll HScroll -Wrap", "")
@@ -89,9 +89,9 @@ class HelpSystem {
         ; Status bar
         HelpSystem.statusBar := HelpSystem.gui.Add("StatusBar", "", "Help System Ready")
 
-        HelpSystem.gui.OnEvent("Close", HelpSystem.HideGUI)
-        HelpSystem.gui.OnEvent("Escape", HelpSystem.HideGUI)
-        HelpSystem.gui.OnEvent("Size", HelpSystem.OnResize)
+        HelpSystem.gui.OnEvent("Close", (*) => HelpSystem.HideGUI())
+        HelpSystem.gui.OnEvent("Escape", (*) => HelpSystem.HideGUI())
+        HelpSystem.gui.OnEvent("Size", (gui, minMax, width, height) => HelpSystem.OnResize(gui, minMax, width, height))
 
         ; Populate list view
         for id, data in HelpSystem.helpData {
@@ -184,14 +184,17 @@ class HelpSystem {
         HelpSystem.UpdateStatus("Showing: " . topic.title)
     }
 
-    static HandleTopicClick(ctrl, row) {
-        if (!row) {
-            row := ctrl.GetNext(0, "F")
-        }
+    static HandleTopicClick(*) {
+        ; Resolve the row ourselves: ListView event arg counts vary,
+        ; so never trust positional event args here.
+        row := 0
+        try row := HelpSystem.listView.GetNext(0, "F")
         HelpSystem.ShowTopicByRow(row)
     }
 
-    static HandleTopicActivate(ctrl, row) {
+    static HandleTopicActivate(*) {
+        row := 0
+        try row := HelpSystem.listView.GetNext(0, "F")
         HelpSystem.ShowTopicByRow(row)
     }
 

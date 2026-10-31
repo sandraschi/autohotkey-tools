@@ -19,8 +19,15 @@ OnError(_CatchAllError)
 ; CONFIGURATION
 ; =============================================================================
 ; File settings
-global notesFile := A_MyDocuments "\QuickNotes.md"  ; Using markdown format
+global notesFile := A_MyDocuments "\QuickNotes.md"  ; legacy single file (migrated on first run)
+global currentFile := ""
+global notesDir := A_MyDocuments "\QuickNotes"
 global backupDir := A_MyDocuments "\QuickNotes_Backups"
+global notesList := 0
+global newBtnCtl := 0
+global delBtnCtl := 0
+global QNFiles := []
+global QNLoading := false
 
 ; App settings
 global appTitle := "Quick Notes"
@@ -45,6 +52,10 @@ global colors := Map(
 if (!DirExist(backupDir)) {
     DirCreate(backupDir)
 }
+
+; Notes live as individual .md files in notesDir (sidebar). First run
+; migrates the legacy single QuickNotes.md into it.
+EnsureNotesDir()
 
 ; Load saved prefs (theme/font) before building the GUI
 LoadPrefs()
@@ -84,10 +95,151 @@ SavePrefs() {
     }
 }
 
+; One-time migration: legacy single file -> notes folder.
+EnsureNotesDir() {
+    global notesDir, notesFile
+    try {
+        if (!DirExist(notesDir)) {
+            DirCreate(notesDir)
+        }
+        hasNotes := false
+        Loop Files notesDir "\*.md" {
+            hasNotes := true
+            break
+        }
+        if (!hasNotes && FileExist(notesFile)) {
+            SplitPath(notesFile, &lfn)
+            FileMove(notesFile, notesDir "\" lfn, true)
+        }
+        if (!hasNotes) {
+            notesFile := notesDir "\QuickNotes.md"
+        }
+    } catch {
+    }
+}
+
+; (Re)build the sidebar list from the notes folder. Selects currentFile
+; when present, else the first note.
+RefreshNotesList() {
+    global notesDir, notesList, QNFiles, currentFile, QNLoading
+    QNLoading := true
+    try notesList.Delete()
+    QNFiles := []
+    names := []
+    paths := Map()
+    try {
+        Loop Files notesDir "\*.md" {
+            names.Push(A_LoopFileName)
+            paths[A_LoopFileName] := A_LoopFileFullPath
+        }
+    } catch {
+    }
+    ; Simple alpha sort (small lists only).
+    Loop names.Length {
+        swapped := false
+        Loop names.Length - A_Index {
+            j := A_Index
+            if (StrCompare(names[j], names[j + 1], true) > 0) {
+                t := names[j]
+                names[j] := names[j + 1]
+                names[j + 1] := t
+                swapped := true
+            }
+        }
+        if (!swapped) {
+            break
+        }
+    }
+    sel := 0
+    for i, nm in names {
+        QNFiles.Push(paths[nm])
+        try notesList.Add([StrReplace(nm, ".md", "")])
+        if (paths[nm] = currentFile) {
+            sel := i
+        }
+    }
+    if (sel = 0 && QNFiles.Length > 0) {
+        sel := 1
+    }
+    if (sel > 0) {
+        try notesList.Modify(sel, "Select")
+    }
+    QNLoading := false
+}
+
+; Switch to another note file: save current first (quietly), then load.
+SelectNote(path) {
+    global notesFile, currentFile, QNLoading
+    if (QNLoading || path = "" || path = notesFile) {
+        return
+    }
+    SaveNotes(true)
+    notesFile := path
+    currentFile := path
+    LoadNotes()
+    UpdateNotesTitle()
+}
+
+UpdateNotesTitle() {
+    global guiMain, appTitle, appVersion, notesFile
+    SplitPath(notesFile, &nm)
+    try guiMain.Title := appTitle " v" appVersion " - " nm
+}
+
+; New-note dialog: name -> file with template -> select it.
+NewNoteDlg() {
+    global notesDir, notesFile, currentFile, editNotes
+    ib := InputBox("Note name:", "New Note", "w300 h130")
+    if (ib.Result != "OK") {
+        return
+    }
+    nm := Trim(ib.Value, " `t`r`n")
+    nm := RegExReplace(nm, '[\\/:*?"<>|]', "")
+    if (nm = "") {
+        nm := "Untitled"
+    }
+    if (!InStr(nm, ".md", false, -3) || SubStr(nm, -2) != ".md") {
+        nm .= ".md"
+    }
+    path := notesDir "\" nm
+    if (!FileExist(path)) {
+        currentDate := FormatTime(A_Now, "yyyy-MM-dd")
+        try FileAppend("# " StrReplace(nm, ".md", "") "`n`n## " currentDate "`n`n", path, "UTF-8")
+    }
+    RefreshNotesList()
+    SelectNote(path)
+    try editNotes.Focus()
+}
+
+; Delete current note (confirmed). Never removes the last one -
+; it gets reset to a blank template instead.
+DeleteNote() {
+    global notesFile, notesDir, QNFiles, editNotes
+    if (QNFiles.Length <= 1) {
+        r := MsgBox("This is the only note. Clear it instead?", "Delete Note", "YesNo Icon?")
+        if (r = "Yes") {
+            try editNotes.Value := ""
+            SaveNotes()
+        }
+        return
+    }
+    SplitPath(notesFile, &nm)
+    r := MsgBox("Delete '" nm "'?", "Delete Note", "YesNo Icon?")
+    if (r != "Yes") {
+        return
+    }
+    try FileDelete(notesFile)
+    RefreshNotesList()
+    if (QNFiles.Length > 0) {
+        SelectNote(QNFiles[1])
+    }
+}
+
 ; GUI CREATION
 ; =============================================================================
 CreateGUI() {
     global guiMain, editNotes, statusBar, currentFile, appTitle, appVersion, fontSize, fontName, colors
+    global notesList, newBtnCtl, delBtnCtl, notesFile, notesDir, QNFiles, QNLoading
     
     ; Create main window
     guiMain := Gui("+Resize +MinSize400x300", appTitle " v" appVersion)
@@ -99,7 +251,7 @@ CreateGUI() {
     ; Menu bar
     mBar := MenuBar()
     fm := Menu()
-    fm.Add("&New", (*) => NewNotes())
+    fm.Add("&New", (*) => NewNoteDlg())
     fm.Add("&Open", (*) => OpenNotes())
     fm.Add("&Save", (*) => SaveNotes())
     fm.Add("Save &As", (*) => SaveNotesAs())
@@ -135,28 +287,68 @@ CreateGUI() {
     
     mBar.Add("&Help", (*) => ShowAbout())
     guiMain.MenuBar := mBar
-    
-    ; Main edit control - full-bleed: Gui.BackColor is ignored on windows
-    ; with a MenuBar/StatusBar (client keeps the default face color), so the
-    ; window must not show any bare client area. The edit paints its own
-    ; background reliably via .BackColor, hence edge-to-edge placement.
-    editNotes := guiMain.Add("Edit", "x0 y0 w800 h570 Multi VScroll WantTab", "")
+
+    ; Sidebar: notes list on the left, editor fills the rest.
+    notesList := guiMain.Add("ListView", "x0 y0 w180 h480 -Hdr -Multi", ["Notes"])
+    notesList.OnEvent("ItemSelect", (*) => SidebarSelect())
+    newBtnCtl := guiMain.Add("Button", "x5 y485 w82 h28", "New")
+    newBtnCtl.OnEvent("Click", (*) => NewNoteDlg())
+    delBtnCtl := guiMain.Add("Button", "x93 y485 w82 h28", "Delete")
+    delBtnCtl.OnEvent("Click", (*) => DeleteNote())
+
+    ; Main edit control: fills everything right of the sidebar. Full-bleed
+    ; because Gui.BackColor is ignored on windows with a MenuBar/StatusBar
+    ; (client keeps the default face color); the edit paints its own
+    ; background reliably via .BackColor.
+    editNotes := guiMain.Add("Edit", "x180 y0 w620 h515 Multi VScroll WantTab", "")
     editNotes.BackColor := StrReplace(colors["bg"], "0x", "")
     editNotes.SetFont("s" fontSize " c" StrReplace(colors["text"], "0x", ""), fontName)
-    
+
     ; Status bar
     statusBar := guiMain.Add("StatusBar",, "Ready | Lines: 0 | Words: 0")
-    
+
     ; Event handlers
     guiMain.OnEvent("Close", (*) => ExitApp())
     guiMain.OnEvent("Size", GuiSize)
-    
-    ; Load existing notes
+
+    ; Load existing notes (migrates legacy single file first)
+    if (notesFile = "") {
+        notesFile := notesDir "\QuickNotes.md"
+    }
+    RefreshNotesList()
+    if (QNFiles.Length > 0) {
+        found := false
+        for _, p in QNFiles {
+            if (p = notesFile) {
+                found := true
+                break
+            }
+        }
+        if (!found) {
+            notesFile := QNFiles[1]
+        }
+    }
     LoadNotes()
-    
+    UpdateNotesTitle()
+
     ; Show window
     guiMain.Show("w800 h600")
     editNotes.Focus()
+}
+
+; Sidebar selection -> switch notes (autosaves the old one, quietly).
+SidebarSelect() {
+    global notesList, QNFiles, QNLoading
+    if (QNLoading || !notesList) {
+        return
+    }
+    try {
+        row := notesList.GetNext()
+        if (row > 0 && row <= QNFiles.Length) {
+            SelectNote(QNFiles[row])
+        }
+    } catch {
+    }
 }
 
 FormatText(*) {
@@ -320,22 +512,45 @@ ToggleWindow(*) {
     }
 }
 
-; Handle window resizing
+; Handle window resizing (sidebar fixed 180px, editor takes the rest)
 GuiSize(thisGui, MinMax, Width, Height) {
-    global editNotes, statusBar
+    global editNotes, statusBar, notesList, newBtnCtl, delBtnCtl
+
     
     if (MinMax = -1)  ; Window is minimized
         return
     
-    ; Calculate new dimensions - edit is full-bleed (no margins, no
-    ; toolbar), bottom edge leaves room for the docked status bar.
-    editHeight := Height - 50
-    editWidth := Width
-    
+    ; Layout: fixed 180px sidebar, editor fills the rest, buttons docked
+    ; above the status bar. Edit stays full-bleed (see CreateGUI note).
+    sideH := Height - 95
+    if (sideH < 50) {
+        sideH := 50
+    }
+    editH := Height - 50
+    if (editH < 50) {
+        editH := 50
+    }
+    btnY := Height - 85
+    if (btnY < sideH + 5) {
+        btnY := sideH + 5
+    }
+    editW := Width - 180
+    if (editW < 100) {
+        editW := 100
+    }
+
     try {
-        ; Update edit control size
-        editNotes.Move(0, 0, editWidth, editHeight)
-        
+        if (notesList) {
+            notesList.Move(0, 0, 180, sideH)
+        }
+        if (newBtnCtl) {
+            newBtnCtl.Move(5, btnY, 82, 28)
+        }
+        if (delBtnCtl) {
+            delBtnCtl.Move(93, btnY, 82, 28)
+        }
+        editNotes.Move(180, 0, editW, editH)
+
         ; (Status bar resizes automatically)
     } catch as resizeErr {
         ; Ignore errors during window creation
@@ -508,7 +723,7 @@ LoadNotes() {
     }
 }
 
-SaveNotes(*) {
+SaveNotes(quiet := false) {
     global notesFile, editNotes, statusBar, backupDir, currentFile
     
     try {
@@ -540,11 +755,13 @@ SaveNotes(*) {
         timeNow := FormatTime(A_Now, "HH:mm:ss")
         statusBar.Text := "Saved at " . timeNow
         currentFile := notesFile
-        
-        ; Show notification
-        TrayTip("Notes saved successfully!", "Quick Notes", "Iconi")
-        SetTimer(() => TrayTip(), -2000)
-        
+
+        if (!quiet) {
+            ; Show notification
+            TrayTip("Notes saved successfully!", "Quick Notes", "Iconi")
+            SetTimer(() => TrayTip(), -2000)
+        }
+
         return true
     } catch as saveErr {
         MsgBox("Failed to save notes: " . saveErr.Message, "Error", "Iconx")
@@ -554,7 +771,7 @@ SaveNotes(*) {
 }
 
 SaveNotesAs(*) {
-    global editNotes, statusBar, currentFile
+    global editNotes, statusBar, currentFile, notesFile
     
     try {
         filePath := FileSelect("S16", A_MyDocuments, "Save Notes As", "Markdown (*.md)")
@@ -572,8 +789,11 @@ SaveNotesAs(*) {
             try FileDelete(filePath)
         }
         FileAppend(editNotes.Value, filePath, "UTF-8")
-        
+
         currentFile := filePath
+        notesFile := filePath
+        RefreshNotesList()
+        UpdateNotesTitle()
         timeNow := FormatTime(A_Now, "HH:mm:ss")
         statusBar.Text := "Saved as " . filePath . " at " . timeNow
         
@@ -585,7 +805,7 @@ SaveNotesAs(*) {
 }
 
 OpenNotes(*) {
-    global editNotes, statusBar, currentFile
+    global editNotes, statusBar, currentFile, notesFile
     
     try {
         filePath := FileSelect("1", A_MyDocuments, "Open Notes", "Markdown (*.md)")
@@ -596,38 +816,13 @@ OpenNotes(*) {
         fileContent := FileRead(filePath, "UTF-8")
         editNotes.Value := fileContent
         currentFile := filePath
+        notesFile := filePath
         statusBar.Text := "Opened " . filePath
+        RefreshNotesList()
+        UpdateNotesTitle()
     } catch as openErr {
         MsgBox("Failed to open notes: " . openErr.Message, "Error", "Iconx")
     }
-}
-
-NewNotes(*) {
-    global editNotes, statusBar, currentFile
-    
-    if (editNotes.Value != "") {
-        result := MsgBox("Save current note?", "New Note", "YesNoCancel Icon?")
-        if (result = "Yes") {
-            if (!SaveNotes()) {
-                return  ; Don't create new note if save failed
-            }
-        } else if (result = "Cancel") {
-            return  ; User cancelled
-        }
-    }
-    
-    ; Create a new note with template
-    currentDate := FormatTime(A_Now, "yyyy-MM-dd")
-    currentTime := FormatTime(A_Now, "HH:mm")
-    template := "# New Note - " . currentDate . "`n`n"
-              . "## " . currentTime . "`n"
-              . "- [ ] Task 1`n- [ ] Task 2`n`n"
-              . "## Notes`n"
-    
-    editNotes.Value := template
-    currentFile := ""
-    statusBar.Text := "Created new note"
-    editNotes.Focus()
 }
 
 AutoSave(*) {

@@ -78,7 +78,7 @@ class MusicControllerPro {
     }
 
     static SeedPlaylists() {
-        if (MusicControllerPro.playlists.Length) {
+        if (MusicControllerPro.playlists.Count) {
             return
         }
         MusicControllerPro.AddPlaylist("Chill", [
