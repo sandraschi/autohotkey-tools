@@ -60,8 +60,8 @@
     },
     "quick_notes": {
       "name": "Quick Notes",
-      "version": "2.1.0",
-      "description": "Rapid note-taking utility with hotkey access",
+      "version": "2.2.0",
+      "description": "Rapid note-taking with sidebar multi-note library, autosave, and hotkey access",
       "category": "productivity",
       "author": "Sandra",
       "dependencies": [],

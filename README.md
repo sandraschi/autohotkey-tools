@@ -94,6 +94,35 @@ If you're picking one, use the dashboard. The two in-AHK launchers overlap and h
 
 Run `just lint-ahk` to check the whole depot against the fleet AHK v2 standard (see `mcp-central-docs/standards/rules/autohotkey_v2_standard.md`).
 
+## Games in AHK (yes, really)
+
+A dozen real-time games run as dependency-free `.ahk` scripts — no engine,
+no runtime beyond AutoHotkey v2 itself. Arcade originals render through a
+GDI+ backbuffer (`scriptlets/lib/GdipHelper.ahk`: offscreen bitmap +
+BitBlt at 60fps-style timer ticks), board games are native Gui controls.
+All of them launch from the Scriptlet Launcher's **Games** tab.
+
+| Game | File | How it plays |
+|---|---|---|
+| Chess (vs Stockfish UI) | `chess_stockfish.ahk` | Click a square, pick a move |
+| Pong | `classic_pong.ahk` | Mouse or arrow keys |
+| Tetris | `tetris_classic.ahk` | Arrow keys, P pause, R restart |
+| Frogger | `classic_frogger.ahk` | Arrow keys, animated road |
+| Pac-Man | `pacman_classic.ahk` | Arrow keys, Space start |
+| Q\*bert | `qbert_game.ahk` | Arrow keys / hop to change tiles |
+| Sudoku | `sudoku.ahk` | Click a cell, type a digit |
+| 15-Puzzle | `PuzzleGame.ahk` | Click tiles next to the gap |
+| Wordle / Anagrams / Hangman | `word_games.ahk` | Type on your keyboard (`^!g` toggles) |
+| Mini arcade | `mini_games_collection.ahk` | Reaction timer, number guess |
+| Game popup | `game_starter_popup.ahk` | Standalone mini-launcher (`Ctrl+Alt+G`) |
+
+New games are welcome and cheap to add: copy `classic_frogger.ahk` as a
+template (game logic + `GdipHelper` blit loop are cleanly separated), register
+the file in `scriptlets/metadata.json`, add one button to the launcher's
+Games tab. See `scriptlets/BUGS_FIXED.md` for the AHK v2 pitfalls this
+depot has already paid for (dead `#Include`, v1 `Add*` methods, silent
+`OnEvent` failures) so you don't pay them again.
+
 ## Integration with autohotkey-mcp
 
 `autohotkey-mcp` reads this depot directly. If you clone it as a sibling of `autohotkey-mcp` (`../autohotkey-tools`), it's found automatically — no configuration needed. Otherwise, point it explicitly:
