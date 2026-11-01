@@ -1,18 +1,15 @@
-﻿Lint Report for: D:\Dev\repos\autohotkey-tools\scriptlets\classic_frogger.ahk
-Generated: 2026-10-31 00:10:01
-Total Lines: 294
+﻿Lint Report for: D:\Dev\repos\autohotkey-tools\scriptlets\fun_games.ahk
+Generated: 2026-10-31 11:41:01
+Total Lines: 233
 
 Issues found:
 
-SUGGESTIONS (11):
-  [Suggestion] Line 8    - File operation without try-catch - consider adding error handling
-  [Suggestion] Line 46   - Very short variable name - consider using more descriptive names
-  [Suggestion] Line 140  - Very short variable name - consider using more descriptive names
-  [Suggestion] Line 154  - Very short variable name - consider using more descriptive names
-  [Suggestion] Line 162  - Very short variable name - consider using more descriptive names
-  [Suggestion] Line 164  - Very short variable name - consider using more descriptive names
-  [Suggestion] Line 167  - Very short variable name - consider using more descriptive names
-  [Suggestion] Line 205  - Very short variable name - consider using more descriptive names
-  [Suggestion] Line 214  - Very short variable name - consider using more descriptive names
-  [Suggestion] Line 225  - Very short variable name - consider using more descriptive names
-  [Suggestion] Line 235  - Very short variable name - consider using more descriptive names
+WARNINGS (2):
+  [Warning] Line N/A  - No class definition found - consider using class-based structure
+  [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+
+SUGGESTIONS (4):
+  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+  [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
+  [Suggestion] Line 156  - Very short variable name - consider using more descriptive names
+  [Suggestion] Line 159  - Very short variable name - consider using more descriptive names
