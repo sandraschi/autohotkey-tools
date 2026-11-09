@@ -1,10 +1,9 @@
 ; ==============================================================================
 ; Chess Game with Stockfish Integration
 ; @name: Chess Game with Stockfish Integration
-; @version: 1.0.0
-; @description: Full-featured chess game with Stockfish engine integration for advanced chess analysis and gameplay.
-; @description: Supports human vs AI, human vs human, and AI analysis modes. Includes move validation, check detection, castling, en passant, and promotion.
-; @description: Features beautiful GUI with piece movement, move history, captured pieces display, and Stockfish engine integration for computer opponents.
+; @version: 1.1.0
+; @description: Human vs human chess with legal-move validation, turn tracking, captures, and auto-queen promotion. Click a piece, then a destination square.
+; @description: Not yet implemented: Stockfish engine play, check/checkmate detection, castling, en passant.
 ; @category: games
 ; @author: Sandra
 ; @hotkeys: ^!c, F7
@@ -31,6 +30,10 @@ class ChessApp {
     static statusCtrl := ""
     static selectedSquare := ""
     static boardState := []
+    static selRow := 0
+    static selCol := 0
+    static turn := "white"
+    static lastMove := ""
     static pieceMap := Map(
         "r", "♜", "R", "♖",
         "n", "♞", "N", "♘",
@@ -64,6 +67,10 @@ class ChessApp {
             ChessApp.boardState.Push(row.Clone())
         }
         ChessApp.selectedSquare := ""
+        ChessApp.selRow := 0
+        ChessApp.selCol := 0
+        ChessApp.turn := "white"
+        ChessApp.lastMove := ""
     }
 
     static CreateGui() {
@@ -74,7 +81,7 @@ class ChessApp {
         newGui.BackColor := "1b1b1b"
         newGui.SetFont("s10 c4488FF", "Segoe UI")
 
-        newGui.Add("Text", "x20 y16 w520 Center cFFFFFF", "Chess Board Viewer – click a square to inspect the piece.")
+        newGui.Add("Text", "x20 y16 w520 Center cFFFFFF", "Chess - White starts. Click a piece, then a destination square.")
 
         ChessApp.boardButtons := []
         squareSize := 56
@@ -96,7 +103,7 @@ class ChessApp {
             }
         }
 
-        ChessApp.statusCtrl := newGui.Add("Text", "x20 y520 w520 h24 cFFFFFF", "Select a square to view details.")
+        ChessApp.statusCtrl := newGui.Add("Text", "x20 y520 w520 h24 cFFFFFF", "White to move.")
         btnBar := newGui.Add("Button", "x360 y520 w80 h28", "New Game")
         btnBar.OnEvent("Click", (*) => ChessApp.ResetBoard())
         closeBtn := newGui.Add("Button", "x460 y520 w80 h28", "Close")
@@ -126,20 +133,20 @@ class ChessApp {
         HotIf()
         hotkeysRegistered := true
     }
-    
+
     static IsChessWindowActive() {
         if (!ChessApp.gui || !ChessApp.gui.Hwnd) {
             return false
         }
         return WinActive("ahk_id " . ChessApp.gui.Hwnd)
     }
-    
+
     static ResetBoardIfActive() {
         if (ChessApp.IsChessWindowActive()) {
             ChessApp.ResetBoard()
         }
     }
-    
+
     static ShowGui(*) {
         if (ChessApp.gui) {
             ChessApp.gui.Show()
@@ -158,6 +165,12 @@ class ChessApp {
                 piece := row[colIndex]
                 button := ChessApp.boardButtons[rowIndex][colIndex]
                 button.Text := piece = "" ? "" : (ChessApp.pieceMap.Has(piece) ? ChessApp.pieceMap[piece] : piece)
+                ; Selected square gets a larger glyph so the selection is visible.
+                if (ChessApp.selRow = rowIndex && ChessApp.selCol = colIndex) {
+                    button.SetFont("s30", "Segoe UI Symbol")
+                } else {
+                    button.SetFont("s24", "Segoe UI Symbol")
+                }
             }
         }
         ChessApp.UpdateStatus()
@@ -167,9 +180,12 @@ class ChessApp {
         if (!ChessApp.statusCtrl) {
             return
         }
-        status := "White pieces: uppercase | Black pieces: lowercase."
-        if (ChessApp.selectedSquare) {
-            status .= " Selected: " . ChessApp.selectedSquare
+        status := (ChessApp.turn = "white" ? "White" : "Black") . " to move."
+        if (ChessApp.lastMove != "") {
+            status .= " Last: " . ChessApp.lastMove
+        }
+        if (ChessApp.selRow) {
+            status .= " Selected: " . ChessApp.SquareName(ChessApp.selRow, ChessApp.selCol)
         }
         if (extra != "") {
             status .= " - " . extra
@@ -177,18 +193,169 @@ class ChessApp {
         ChessApp.statusCtrl.Text := status
     }
 
-    static OnSquareClick(rowIndex, colIndex, ctrl, info) {
+    static SquareName(r, c) {
         ranks := ["8","7","6","5","4","3","2","1"]
         files := ["a","b","c","d","e","f","g","h"]
-        algebraic := files[colIndex] . ranks[rowIndex]
-        piece := ChessApp.boardState[rowIndex][colIndex]
+        return files[c] . ranks[r]
+    }
+
+    static IsOwnPiece(piece) {
         if (piece = "") {
-            ChessApp.selectedSquare := algebraic . " (empty)"
-            ChessApp.UpdateStatus()
+            return false
+        }
+        if (ChessApp.turn = "white") {
+            return piece == StrUpper(piece)
+        }
+        return piece == StrLower(piece)
+    }
+
+    static OnSquareClick(rowIndex, colIndex, ctrl, info) {
+        piece := ChessApp.boardState[rowIndex][colIndex]
+        ; Nothing selected: pick up one of the side-to-move's pieces.
+        if (!ChessApp.selRow) {
+            if (piece = "") {
+                ChessApp.UpdateStatus("Empty square - select a " . ChessApp.turn . " piece.")
+                return
+            }
+            if (!ChessApp.IsOwnPiece(piece)) {
+                ChessApp.UpdateStatus("That's not yours - " . ChessApp.turn . " to move.")
+                return
+            }
+            ChessApp.selRow := rowIndex
+            ChessApp.selCol := colIndex
+            ChessApp.selectedSquare := ChessApp.SquareName(rowIndex, colIndex)
+            ChessApp.UpdateBoard()
             return
         }
-        ChessApp.selectedSquare := Format("{} containing {}", algebraic, ChessApp.pieceMap.Has(piece) ? ChessApp.pieceMap[piece] : piece)
-        ChessApp.UpdateStatus()
+        ; Clicked the selected square again: put the piece back down.
+        if (rowIndex = ChessApp.selRow && colIndex = ChessApp.selCol) {
+            ChessApp.selRow := 0
+            ChessApp.selCol := 0
+            ChessApp.selectedSquare := ""
+            ChessApp.UpdateBoard()
+            return
+        }
+        ; Clicked another own piece: switch selection to it.
+        if (piece != "" && ChessApp.IsOwnPiece(piece)) {
+            ChessApp.selRow := rowIndex
+            ChessApp.selCol := colIndex
+            ChessApp.selectedSquare := ChessApp.SquareName(rowIndex, colIndex)
+            ChessApp.UpdateBoard()
+            return
+        }
+        ; Otherwise: attempt the move.
+        if (!ChessApp.IsLegalMove(ChessApp.selRow, ChessApp.selCol, rowIndex, colIndex)) {
+            ChessApp.UpdateStatus("Illegal move for that piece.")
+            return
+        }
+        ChessApp.DoMove(ChessApp.selRow, ChessApp.selCol, rowIndex, colIndex)
+    }
+
+    static DoMove(sr, sc, dr, dc) {
+        piece := ChessApp.boardState[sr][sc]
+        target := ChessApp.boardState[dr][dc]
+        move := ChessApp.SquareName(sr, sc) . "-" . ChessApp.SquareName(dr, dc)
+        if (target != "") {
+            move .= " x" . target
+        }
+        ChessApp.boardState[dr][dc] := piece
+        ChessApp.boardState[sr][sc] := ""
+        ; Pawn promotion: auto-queen (no promotion dialog yet).
+        if ((piece = "P" && dr = 1) || (piece = "p" && dr = 8)) {
+            ChessApp.boardState[dr][dc] := (piece = "P") ? "Q" : "q"
+            move .= "=Q"
+        }
+        ChessApp.lastMove := move
+        ChessApp.turn := (ChessApp.turn = "white") ? "black" : "white"
+        ChessApp.selRow := 0
+        ChessApp.selCol := 0
+        ChessApp.selectedSquare := ""
+        ChessApp.UpdateBoard()
+    }
+
+    ; Pseudo-legal move check per piece (movement rules only:
+    ; no check detection, no castling, no en passant yet).
+    static IsLegalMove(sr, sc, dr, dc) {
+        if (sr = dr && sc = dc) {
+            return false
+        }
+        piece := ChessApp.boardState[sr][sc]
+        target := ChessApp.boardState[dr][dc]
+        if (piece = "") {
+            return false
+        }
+        white := (piece == StrUpper(piece))
+        if (target != "") {
+            targetWhite := (target == StrUpper(target))
+            if (targetWhite = white) {
+                return false
+            }
+        }
+        dRow := dr - sr
+        dCol := dc - sc
+        aRow := Abs(dRow)
+        aCol := Abs(dCol)
+        pl := StrLower(piece)
+        if (pl = "p") {
+            dir := white ? -1 : 1
+            startRow := white ? 7 : 2
+            if (dCol = 0) {
+                if (dRow = dir && target = "") {
+                    return true
+                }
+                if (dRow = 2 * dir && sr = startRow && target = "" && ChessApp.boardState[sr + dir][sc] = "") {
+                    return true
+                }
+                return false
+            }
+            if (aCol = 1 && dRow = dir && target != "") {
+                return true
+            }
+            return false
+        }
+        if (pl = "n") {
+            return (aRow = 1 && aCol = 2) || (aRow = 2 && aCol = 1)
+        }
+        if (pl = "b") {
+            return aRow = aCol && ChessApp.PathClear(sr, sc, dr, dc)
+        }
+        if (pl = "r") {
+            return (dRow = 0 || dCol = 0) && ChessApp.PathClear(sr, sc, dr, dc)
+        }
+        if (pl = "q") {
+            return (dRow = 0 || dCol = 0 || aRow = aCol) && ChessApp.PathClear(sr, sc, dr, dc)
+        }
+        if (pl = "k") {
+            return aRow <= 1 && aCol <= 1
+        }
+        return false
+    }
+
+    static PathClear(sr, sc, dr, dc) {
+        if (dr > sr) {
+            stepR := 1
+        } else if (dr < sr) {
+            stepR := -1
+        } else {
+            stepR := 0
+        }
+        if (dc > sc) {
+            stepC := 1
+        } else if (dc < sc) {
+            stepC := -1
+        } else {
+            stepC := 0
+        }
+        rr := sr + stepR
+        cc := sc + stepC
+        while (rr != dr || cc != dc) {
+            if (ChessApp.boardState[rr][cc] != "") {
+                return false
+            }
+            rr += stepR
+            cc += stepC
+        }
+        return true
     }
 
     static ResetBoard() {
@@ -200,7 +367,7 @@ class ChessApp {
     static HideGui(*) {
         if (ChessApp.gui) {
             ChessApp.gui.Hide()
-            ChessApp.UpdateStatus("GUI hidden – press Ctrl+Alt+C to reopen.")
+            ChessApp.UpdateStatus("GUI hidden – press Ctrl+Win+C to reopen.")
         }
     }
 
@@ -221,9 +388,9 @@ class ChessApp {
             Loop row.Length {
                 colIndex := A_Index
                 btn := row[colIndex]
-                x := baseX + (colIndex - 1) * squareSize
-                y := baseY + (rowIndex - 1) * squareSize
-                btn.Move(x, y, squareSize, squareSize)
+                px := baseX + (colIndex - 1) * squareSize
+                py := baseY + (rowIndex - 1) * squareSize
+                btn.Move(px, py, squareSize, squareSize)
             }
         }
         if (ChessApp.statusCtrl) {

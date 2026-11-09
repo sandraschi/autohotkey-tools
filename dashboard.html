@@ -61,6 +61,13 @@ a{color:inherit;text-decoration:none}
 .refresh-info{font-size:11px;color:var(--muted)}
 .icon-btn{background:var(--surface);border:1px solid var(--border);color:var(--muted);width:34px;height:34px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;transition:.15s}
 .icon-btn:hover{color:var(--text);border-color:var(--accent)}
+.view-toggle{display:flex;border:1px solid var(--border);border-radius:8px;overflow:hidden;background:var(--bg3)}
+.view-toggle button{background:transparent;border:none;color:var(--muted);padding:6px 10px;font-size:14px;cursor:pointer;transition:.15s;line-height:1}
+.view-toggle button:hover{color:var(--text)}
+.view-toggle button.active{background:var(--accent);color:#fff}
+.sort-select{background:var(--bg3);border:1px solid var(--border);color:var(--text);font-size:12px;padding:6px 8px;border-radius:8px;cursor:pointer;outline:none;font-family:'Inter',sans-serif}
+.sort-select:hover{border-color:var(--accent)}
+.sort-select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
 
 /* Stats */
 .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
@@ -75,6 +82,14 @@ a{color:inherit;text-decoration:none}
 .section-head h2{font-size:16px;font-weight:600}
 .section-count{background:var(--surface);border:1px solid var(--border);color:var(--muted);font-size:11px;padding:2px 8px;border-radius:20px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.grid.list-view{display:flex;flex-direction:column;gap:8px}
+.grid.list-view .card{display:flex;align-items:center;gap:14px;padding:10px 14px}
+.grid.list-view .card-accent{top:0;bottom:0;left:0;right:auto;width:3px;height:auto}
+.grid.list-view .card-head{margin-bottom:0;flex:1;min-width:0;align-items:center}
+.grid.list-view .cat-icon{width:28px;height:28px;font-size:15px}
+.grid.list-view .card-desc{display:none}
+.grid.list-view .tags,.grid.list-view .hotkeys{margin-bottom:0;flex:0 1 auto}
+.grid.list-view .card-actions{flex:0 0 auto}
 .card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;cursor:default;transition:.2s;position:relative;overflow:hidden}
 .card:hover{border-color:rgba(124,58,237,.5);box-shadow:0 4px 24px rgba(0,0,0,.4);transform:translateY(-1px)}
 .card.running{border-color:rgba(16,185,129,.4);background:rgba(16,185,129,.04)}
@@ -125,6 +140,24 @@ kbd{font-size:10px;font-family:'Inter',monospace;background:var(--bg3);border:1p
 .p-run-hint{font-size:11px;color:var(--muted);opacity:0}
 .p-item:hover .p-run-hint,.p-item.selected .p-run-hint{opacity:1}
 .palette-empty{text-align:center;padding:32px;color:var(--muted);font-size:13px}
+.help-modal{background:var(--bg2);border:1px solid var(--border);border-radius:14px;width:min(880px,94vw);max-height:82vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.6)}
+.help-modal input{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-size:14px;font-family:inherit}
+.help-body{display:flex;min-height:0;flex:1}
+.help-nav{width:220px;flex:0 0 auto;border-right:1px solid var(--border);overflow-y:auto;padding:10px}
+.help-nav button{display:block;width:100%;text-align:left;background:transparent;border:none;color:var(--muted);font-size:12.5px;padding:8px 10px;border-radius:8px;cursor:pointer;font-family:inherit}
+.help-nav button:hover{color:var(--text);background:rgba(255,255,255,.04)}
+.help-nav button.active{color:#fff;background:var(--accent)}
+.help-content{flex:1;overflow-y:auto;padding:18px 22px;font-size:13px;line-height:1.65;color:var(--text)}
+.help-content h3{margin:0 0 8px;font-size:15px}
+.help-content h4{margin:14px 0 6px;font-size:13px;color:var(--accent2)}
+.help-content p{margin:0 0 10px}
+.help-content code{background:rgba(255,255,255,.07);padding:1px 6px;border-radius:5px;font-size:12px;color:#f0abfc}
+.help-content pre{background:#0a0a10;border:1px solid var(--border);border-radius:8px;padding:10px 12px;overflow-x:auto;font-size:12px;line-height:1.5;margin:0 0 10px}
+.help-content table{width:100%;border-collapse:collapse;font-size:12.5px;margin:8px 0}
+.help-content th{text-align:left;color:var(--muted);font-weight:600;padding:6px 8px;border-bottom:1px solid var(--border)}
+.help-content td{padding:6px 8px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:top}
+.help-content ul{margin:0 0 10px;padding-left:20px}
+.help-content li{margin-bottom:4px}
 
 /* Toasts */
 .toasts{position:fixed;top:20px;right:20px;z-index:200;display:flex;flex-direction:column;gap:8px}
@@ -192,6 +225,17 @@ kbd{font-size:10px;font-family:'Inter',monospace;background:var(--bg3);border:1p
         <input type="text" id="searchInput" placeholder="Search scriptlets…" autocomplete="off">
       </div>
       <button class="kbd-hint" id="paletteBtn" title="Open command palette (Ctrl+K)">⌘ Ctrl+K</button>
+      <button class="kbd-hint" id="helpBtn" title="Help center (F1)">? Help</button>
+      <div class="view-toggle" id="viewToggle" title="Cards / List view">
+        <button data-view="cards" title="Card view">▦</button>
+        <button data-view="list" title="List view">☰</button>
+      </div>
+      <select class="sort-select" id="sortSelect" title="Sort order">
+        <option value="name-asc">Name A–Z</option>
+        <option value="name-desc">Name Z–A</option>
+        <option value="running-first">Running first</option>
+        <option value="category">Category</option>
+      </select>
       <span class="tb-spacer"></span>
       <span class="refresh-info" id="refreshInfo">–</span>
       <button class="icon-btn" id="refreshBtn" title="Refresh now">🔄</button>
@@ -206,6 +250,18 @@ kbd{font-size:10px;font-family:'Inter',monospace;background:var(--bg3);border:1p
 </div>
 
 <!-- COMMAND PALETTE -->
+<div class="overlay" id="helpOverlay">
+  <div class="help-modal">
+    <div class="palette-input-wrap">
+      <span>?</span>
+      <input type="text" id="helpInput" placeholder="Search help…">
+    </div>
+    <div class="help-body">
+      <div class="help-nav" id="helpNav"></div>
+      <div class="help-content" id="helpContent"></div>
+    </div>
+  </div>
+</div>
 <div class="overlay" id="overlay">
   <div class="palette">
     <div class="palette-input-wrap">
@@ -234,6 +290,8 @@ let lastRefresh = null;
 let uptime = 0;
 let uptimeTimer = null;
 let paletteIdx = 0;
+let viewMode = localStorage.getItem('ahk_view') || 'cards';
+let sortMode = localStorage.getItem('ahk_sort') || 'name-asc';
 
 // ── Category defs ──────────────────────────────────────────────────────────
 const CATS = {
@@ -336,7 +394,7 @@ function buildSidebar(scriptlets) {
     catList.appendChild(runBtn);
   }
 
-  Object.keys(CATS).filter(k=>k!=='all' && counts[k]).sort((a,b)=>counts[b]-counts[a]).forEach(cat => {
+  Object.keys(CATS).filter(k=>k!=='all' && counts[k]).sort((a,b)=>catDef(a).label.localeCompare(catDef(b).label)).forEach(cat => {
     const def = catDef(cat);
     const btn = document.createElement('div');
     btn.className = 'cat-btn' + (activeCategory===cat?' active':'');
@@ -374,13 +432,50 @@ function filtered(scriptlets) {
     (s.description||'').toLowerCase().includes(q) ||
     (s.tags||[]).some(t=>t.toLowerCase().includes(q))
   );
-  return list;
+  return sortList(list);
+}
+
+function sortList(list) {
+  const arr = [...list];
+  const nm = s => (s.name || s.id || '').toLowerCase();
+  if (sortMode === 'name-desc') {
+    arr.sort((a,b) => nm(b).localeCompare(nm(a)));
+  } else if (sortMode === 'running-first') {
+    arr.sort((a,b) => (b.running?1:0)-(a.running?1:0) || nm(a).localeCompare(nm(b)));
+  } else if (sortMode === 'category') {
+    arr.sort((a,b) => (a.category||'').localeCompare(b.category||'') || nm(a).localeCompare(nm(b)));
+  } else {
+    arr.sort((a,b) => nm(a).localeCompare(nm(b)));   // name-asc default
+  }
+  return arr;
+}
+
+function applyToolbar() {
+  document.querySelectorAll('#viewToggle button').forEach(b =>
+    b.classList.toggle('active', b.dataset.view === viewMode));
+  const sel = document.getElementById('sortSelect');
+  if (sel) sel.value = sortMode;
+}
+
+function setView(v) {
+  viewMode = v;
+  localStorage.setItem('ahk_view', v);
+  applyToolbar();
+  renderCards();
+}
+
+function setSort(v) {
+  sortMode = v;
+  localStorage.setItem('ahk_sort', v);
+  applyToolbar();
+  renderCards();
 }
 
 function renderCards() {
   const list = filtered(allScriptlets);
   const grid = document.getElementById('scriptletGrid');
   if (!grid) return;
+  grid.classList.toggle('list-view', viewMode === 'list');
   grid.innerHTML = '';
 
   if (!list.length) {
@@ -559,6 +654,7 @@ function paletteRun(el) {
 
 // ── Init ───────────────────────────────────────────────────────────────────
 function init() {
+  applyToolbar();
   refresh();
   if (refreshTimer) clearInterval(refreshTimer);
   refreshTimer = setInterval(refresh, REFRESH_MS);
@@ -566,9 +662,157 @@ function init() {
 
 // ── Events ─────────────────────────────────────────────────────────────────
 document.getElementById('searchInput').addEventListener('input', () => renderCards());
+document.getElementById('viewToggle').addEventListener('click', e => {
+  const b = e.target.closest('button[data-view]');
+  if (b) setView(b.dataset.view);
+});
+document.getElementById('sortSelect').addEventListener('change', e => setSort(e.target.value));
 document.getElementById('refreshBtn').addEventListener('click', () => refresh());
 document.getElementById('restartBtn').addEventListener('click', () => restartBridge(null));
 document.getElementById('paletteBtn').addEventListener('click', openPalette);
+
+// ── Help center (F1 / ? Help): searchable docs for AHK + both repos ──
+const HELP_SECTIONS = [
+{ id:'tower', title:'Control Tower tour', body: `
+<h3>Control Tower tour</h3>
+<p>This page drives the <code>ScriptletCOMBridge.ahk</code> HTTP server on <code>127.0.0.1:10764</code>. Cards are live: running scriptlets glow, and the list refreshes every 10s without losing your tab, view, or sort (all three persist in localStorage).</p>
+<h4>What each control does</h4>
+<ul>
+<li><b>Search</b> filters name, id, description. <b>Cards/☰</b> toggles layout. <b>Sort</b> orders A–Z (default), Z–A, running-first, or by category.</li>
+<li><b>Run / Stop</b> on a card calls <code>/run/&lt;name&gt;.ahk</code> and <code>/stop/&lt;name&gt;.ahk</code> on the bridge.</li>
+<li><b>↻</b> re-polls now. <b>⚡</b> restarts the bridge server (use after editing the bridge itself, or if cards go stale).</li>
+<li><b>⌘ Ctrl+K</b> command palette: fuzzy-find any scriptlet and launch it with Enter.</li>
+<li><b>? Help</b> (or <b>F1</b>) opens this center. <b>Esc</b> closes any overlay.</li>
+</ul>
+<p>Sidebar: <b>All</b>, <b>Running</b> (live processes), then one button per category present in the depot. Related launchers: <code>launcher.html</code> (classic grid) and <code>launcher_enhanced.html</code>.</p>` },
+{ id:'ahk', title:'AutoHotkey v2 essentials', body: `
+<h3>AutoHotkey v2 essentials</h3>
+<p>Every scriptlet starts with <code>#Requires AutoHotkey v2.0+</code> and usually <code>#SingleInstance Force</code>. The depot standard adds <code>#Include lib\\ScriptletErrorHandler.ahk</code> plus <code>OnError(LogError)</code> so failures land in a log file instead of a popup.</p>
+<h4>Hotkeys vs hotstrings</h4>
+<ul>
+<li><code>Hotkey("^#c", (*) =&gt; ChessApp.ShowGui())</code> — global hotkey. <code>^</code>=Ctrl, <code>!</code>=Alt, <code>#</code>=Win, <code>+</code>=Shift.</li>
+<li><b>Window-scoped</b> hotkeys only fire in one app: <code>HotIf((*) =&gt; WinActive("ahk_id " . gui.Hwnd))</code> … register keys … <code>HotIf()</code> to reset. The reset call takes <b>no</b> arguments.</li>
+<li>Hotstrings (text expansion) live in <code>text_expander.ahk</code> / <code>macro_expander.ahk</code>.</li>
+</ul>
+<h4>Sending input</h4>
+<p><code>Send("{PgUp}")</code> types to the focused window. For touch buttons that steal focus (the iPad widget), activate the target first, then Send — see <code>SendKey()</code> in <code>ipad_scroll_widget.ahk</code>. Posting <code>WM_MOUSEWHEEL</code> scrolls hover-based targets without focus at all.</p>
+<h4>GUI in 30 seconds</h4>
+<pre>g := Gui("+AlwaysOnTop -Caption +ToolWindow", "Title")\ng.BackColor := "1a1a2e"\nbtn := g.Add("Button", "x10 y10 w120 h30", "Click")\nbtn.OnEvent("Click", (*) =&gt; DoThing())\ng.OnEvent("Escape", (*) =&gt; g.Hide())\ng.Show()</pre>
+<h4>Timers that don't leak</h4>
+<p>Store the closure and reuse it: <code>fn := (*) =&gt; Tick()</code>, start with <code>SetTimer(fn, ms)</code>, stop with <code>SetTimer(fn, 0)</code>. Never store <code>SetTimer(...)</code>'s return value — it is not an id.</p>` },
+{ id:'gotchas', title:'Gotchas we already fixed', body: `
+<h3>Gotchas we already fixed (don't reintroduce)</h3>
+<table><tr><th>Symptom</th><th>Cause / fix</th></tr>
+<tr><td>Error at <code>HotIf(())</code></td><td>Reset takes no args: <code>HotIf()</code>. Was in Q*bert; fleet-wide grep proved it the only instance.</td></tr>
+<tr><td>White text on white background</td><td><code>ctrl.BackColor := ...</code> is dead code on Edit/Button (themed controls ignore it). Put colors in the options string: <code>Background2d2d2d</code>, and <code>-Theme BackgroundFF9800</code> for colored buttons. (Was Eliza.)</td></tr>
+<tr><td>Emoji shows as boxes</td><td>Segoe UI has no color emoji. Use text labels; chess glyphs (♜♞♝♛♚♟) are fine in Segoe UI Symbol.</td></tr>
+<tr><td>Game timers never fire / can't pause</td><td>Bound-method + stored SetTimer return. Use the stored-closure pattern above. (Was Pac-Man.)</td></tr>
+<tr><td>Linter recipe crashes PowerShell</td><td>Nested quoting in justfile. Logic now lives in <code>utils/lint_all.ps1</code> / <code>lint_one.ps1</code>; recipes just call them.</td></tr>
+<tr><td>Clicks land in the wrong app</td><td>Scope gameplay keys with <code>HotIf(WinActive(...))</code>. Global arrows/letters steal typing everywhere.</td></tr>
+<tr><td>Script can't find its own files</td><td>Relative paths resolve against the working directory, not the script. Resolve via <code>A_ScriptDir . "\\..."</code>. (Was Game Starter.)</td></tr>
+</table>` },
+{ id:'gdip', title:'GDI+ boards (lib/GdipHelper)', body: `
+<h3>GDI+ boards (lib/GdipHelper)</h3>
+<p>Arcade boards render through a GDI+ backbuffer, never Text controls: create once with <code>GdipHelper.Startup()</code>, <code>CreateBitmap(w,h)</code>, <code>GraphicsFromImage()</code>, paint with <code>FillRectangle / FillEllipse / DrawRectangle</code> using brushes from <code>BrushCreateSolid(0xAARRGGBB)</code>, then <code>UpdatePicture(picCtrl, bmp, w, h)</code>. Dispose with <code>DisposeBrush/Graphics/Image</code> on close (note: the helper has <code>DisposeBrush</code> — plain <code>DeleteBrush</code> does not exist).</p>
+<p>Available shapes are rectangles, ellipses, lines — no polygons or pie slices, so Pac-Man's mouth is a background-colored rect, Q*bert cubes are beveled front-view squares, and ghosts are stacked rects + ellipse domes with eye dots. Rebuilt this way: Pac-Man, Q*bert, Tetris, Snake (in fun_games). Still native controls, deliberately: Chess (buttons), Sudoku + 15-Puzzle (Edit/Button grids), Wordle/Hangman (Text/Edit), mini-games dialogs.</p>` },
+{ id:'tools', title:'Repo: autohotkey-tools', body: `
+<h3>Repo: autohotkey-tools</h3>
+<p>Script depot + bridge + launchers at <code>D:\\Dev\\repos\\autohotkey-tools</code>.</p>
+<h4>Layout</h4>
+<ul>
+<li><code>scriptlets/</code> — the depot (70+). <code>lib/</code> shared helpers (<code>GdipHelper.ahk</code>, <code>ScriptletErrorHandler.ahk</code>, <code>CGdip.ahk</code>). Excluded from listings: <code>lib/</code>, <code>_archive/</code>, <code>v1/</code>, <code>*.bak</code>.</li>
+<li><code>ScriptletCOMBridge.ahk</code> — HTTP server on :10764 generating an embedded PowerShell listener.</li>
+<li><code>launcher.html</code> (classic), <code>dashboard.html</code> (this tower), <code>launcher_enhanced.html</code>.</li>
+<li><code>utils/</code> — <code>linter_headless.ahk</code>, <code>lint_all.ps1</code>, <code>lint_one.ps1</code>. <code>scripts/Start-ScriptletBridge.ps1</code>. <code>docs/security_topics/</code> feeds the Security Guide tabs.</li>
+</ul>
+<h4>Scriptlet anatomy</h4>
+<p>Header block (<code>@name @version @description @category @hotkeys @tag @cli</code>), <code>#Requires</code>, error-handler include, then a class (<code>App.Init() → BuildGui/CreateGui → SetupHotkeys → Update/Draw</code>). Categories come from the bridge's filename patterns; the dashboard sorts A–Z and preserves your tab across reloads.</p>
+<h4>Bridge endpoints</h4>
+<table><tr><th>Endpoint</th><th>Does</th></tr>
+<tr><td><code>/scriptlets</code></td><td>JSON list: id, name, description, path, category, enabled, running</td></tr>
+<tr><td><code>/run/&lt;name&gt;.ahk</code> / <code>/stop/&lt;name&gt;.ahk</code></td><td>Launch / kill a scriptlet</td></tr>
+<tr><td><code>/status</code> / <code>/restart</code> / <code>/dashboard</code> / <code>/exit</code></td><td>Health, restart server, this page's HTML, shutdown</td></tr></table>
+<h4>Daily commands</h4>
+<pre>just dash        # open this tower\njust lint-one NAME   # lint one scriptlet\njust lint-ahk        # lint the whole depot\njust kill-ahk        # kill all AHK processes\njust start         # launch via start.ps1</pre>` },
+{ id:'mcp', title:'Repo: autohotkey-mcp', body: `
+<h3>Repo: autohotkey-mcp</h3>
+<p>FastMCP 3.4 server that lets an AI client manage the depot. Backend <code>:10746</code>, frontend SPA <code>:10747</code>.</p>
+<h4>Tools</h4>
+<ul>
+<li><code>scriptlet_ops</code> — <code>list / run / stop / list_running / get_source / get_metadata / promote</code>. Promote moves a file from <code>scriptlets/ai_generated/</code> live (blocked on hotkey collisions unless <code>force=True</code>).</li>
+<li><code>ahk_dev_ops</code> — <code>generate / list_prompts / refine_prompt / help</code>. Generation writes nothing on validation failure.</li>
+<li><code>macro_ops</code> — <code>list / get / upsert / delete</code> for reusable macros.</li>
+</ul>
+<h4>AI workflow</h4>
+<p>Generate → lands in the <code>ai_generated/</code> sandbox → human reviews, lints (<code>just lint-ahk</code>), tests standalone → <code>promote</code>. Never auto-promote, never auto-run elevated, never silence lint. Sampling (<code>ctx.sample()</code>) and local-LLM generation are conveniences — the reviewer is you. See the Security Guide's AI Safety tab for the checklist.</p>` },
+{ id:'hotkeys', title:'Global hotkey reference', body: `
+<h3>Global hotkey reference</h3>
+<p>Window-scoped game keys (arrows/Space/P/R/Esc) only fire inside their own game window. These work everywhere:</p>
+<table><tr><th>Keys</th><th>Does</th></tr>
+<tr><td><code>Ctrl+Win+C</code></td><td>Chess</td></tr>
+<tr><td><code>Ctrl+Win+M</code></td><td>Pac-Man</td></tr>
+<tr><td><code>Ctrl+Win+T</code></td><td>Tetris</td></tr>
+<tr><td><code>Ctrl+Win+B</code></td><td>Q*bert</td></tr>
+<tr><td><code>Ctrl+Win+W</code></td><td>Word Games</td></tr>
+<tr><td><code>Ctrl+Win+P</code></td><td>Game Starter popup</td></tr>
+<tr><td><code>Ctrl+Alt+P</code></td><td>Pong</td></tr>
+<tr><td><code>Ctrl+Win+S</code></td><td>Sudoku</td></tr>
+<tr><td><code>Ctrl+Win+U</code></td><td>15-Puzzle</td></tr>
+<tr><td><code>Ctrl+Win+G</code> / <code>Ctrl+Win+Q</code></td><td>Mini Games show / hide</td></tr>
+<tr><td><code>Ctrl+Win+N</code> / <code>J</code> / <code>E</code> / <code>F</code></td><td>Snake / jiggler / fake error / flip screen</td></tr>
+<tr><td><code>Ctrl+Alt+E</code></td><td>Eliza (via Pranks)</td></tr>
+<tr><td><code>Ctrl+Alt+S / W / M / K / A / Q / E / O</code></td><td>iPad widget: toggle, pick target, snap, wheel/key mode, autohide, quick rail, export chat, rail config</td></tr>
+<tr><td><code>Ctrl+K</code> / <code>F1</code> / <code>Esc</code></td><td>This tower: palette, help, close overlay</td></tr></table>
+<p>Heads-up: <code>Ctrl+Alt+G</code> is claimed twice over (git tools) — Game Starter documents <code>Ctrl+Win+P</code> instead. <code>Ctrl+Alt+E</code> toggles Eliza.</p>` },
+{ id:'trouble', title:'Troubleshooting', body: `
+<h3>Troubleshooting</h3>
+<table><tr><th>Symptom</th><th>Fix</th></tr>
+<tr><td>Cards show "bridge down" / spinner</td><td>Bridge isn't running: <code>just dash</code>, or ⚡ restart button. Check <code>bridge.log</code> next to the bridge.</td></tr>
+<tr><td>Scriptlet missing from list</td><td>Bridge lists <code>*.ahk</code> except <code>lib/ _archive/ v1/</code> and <code>*.bak</code>. Restart the bridge to rescan.</td></tr>
+<tr><td>Tab jumps back to the left</td><td>Fixed — active tab persists in localStorage. Hard-refresh (Ctrl+F5) if you still see it.</td></tr>
+<tr><td>Game window won't close / keys stuck</td><td>Esc closes popups; <code>just kill-ahk</code> kills everything (including the widget — relaunch after).</td></tr>
+<tr><td>Fleet button 404s</td><td>Fixed: default now points at fleet-launcher :11237. Widget rail is INI-driven — Config → Reset defaults → Save to pick it up.</td></tr>
+<tr><td>Linter recipe crashes</td><td>Fixed via <code>utils/*.ps1</code>. Run <code>just lint-one NAME</code> to verify.</td></tr>
+</table>` }
+];
+let helpSelected = 'tower';
+function openHelp() {
+  renderHelpNav('');
+  document.getElementById('helpInput').value = '';
+  document.getElementById('helpOverlay').classList.add('show');
+  requestAnimationFrame(() => document.getElementById('helpInput').focus());
+}
+function closeHelp() {
+  document.getElementById('helpOverlay').classList.remove('show');
+}
+function renderHelpNav(filter) {
+  const q = (filter || '').trim().toLowerCase();
+  const nav = document.getElementById('helpNav');
+  nav.innerHTML = '';
+  const hits = HELP_SECTIONS.filter(s =>
+    !q || s.title.toLowerCase().includes(q) || s.body.toLowerCase().includes(q));
+  if (!hits.length) { nav.innerHTML = '<div class="palette-empty">No help matches</div>'; return; }
+  if (!hits.some(s => s.id === helpSelected)) helpSelected = hits[0].id;
+  hits.forEach(s => {
+    const b = document.createElement('button');
+    b.textContent = s.title;
+    b.classList.toggle('active', s.id === helpSelected);
+    b.addEventListener('click', () => { helpSelected = s.id; renderHelpNav(document.getElementById('helpInput').value); renderHelpContent(); });
+    nav.appendChild(b);
+  });
+  renderHelpContent();
+}
+function renderHelpContent() {
+  const s = HELP_SECTIONS.find(x => x.id === helpSelected) || HELP_SECTIONS[0];
+  document.getElementById('helpContent').innerHTML = s.body;
+}
+document.getElementById('helpBtn').addEventListener('click', openHelp);
+document.getElementById('helpOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeHelp(); });
+document.getElementById('helpInput').addEventListener('input', e => renderHelpNav(e.target.value));
+document.addEventListener('keydown', e => {
+  if (e.key === 'F1') { e.preventDefault(); openHelp(); }
+  if (e.key === 'Escape' && document.getElementById('helpOverlay').classList.contains('show')) closeHelp();
+});
 document.getElementById('overlay').addEventListener('click', e => { if (e.target===e.currentTarget) closePalette(); });
 
 document.getElementById('paletteInput').addEventListener('input', e => {

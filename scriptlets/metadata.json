@@ -200,8 +200,8 @@
     },
     "eliza": {
       "name": "ELIZA Chatbot",
-      "version": "1.0.0",
-      "description": "Classic ELIZA chatbot recreation",
+      "version": "2.0.0",
+      "description": "ELIZA therapist chatbot - classic patterns plus optional Ollama-powered ELIZA++ mode",
       "category": "ai",
       "author": "Sandra",
       "dependencies": [],
@@ -452,7 +452,7 @@
     "mini_games_collection": {
       "name": "Mini Games Collection",
       "version": "1.0.0",
-      "description": "Collection of fun mini-games including Snake, Tetris, and Memory",
+      "description": "Reaction timer and number-guess mini-games",
       "category": "games",
       "author": "Sandra",
       "dependencies": [],
@@ -605,14 +605,12 @@
       ]
     },
     "chess_stockfish": {
-      "name": "Chess Game with Stockfish Integration",
-      "version": "1.0.0",
-      "description": "Full-featured chess game with Stockfish engine integration",
+      "name": "Chess Game",
+      "version": "1.1.0",
+      "description": "Human-vs-human chess with legal-move validation, turn tracking, captures and auto-queen promotion",
       "category": "games",
       "author": "Sandra",
-      "dependencies": [
-        "stockfish.exe"
-      ],
+      "dependencies": [],
       "hotkeys": [
         "^#c show",
         "n new game"
@@ -782,8 +780,8 @@
     },
     "game_starter_popup": {
       "name": "Game Starter Popup",
-      "version": "1.0.0",
-      "description": "Beautiful game launcher popup with Ctrl+Alt+G hotkey",
+      "version": "1.1.0",
+      "description": "Compact game launcher popup on Ctrl+Win+P - two-column grid, random pick, absolute-path launching",
       "category": "games",
       "author": "Sandra",
       "dependencies": [],
@@ -802,8 +800,8 @@
     },
     "tetris_classic": {
       "name": "Tetris Classic",
-      "version": "1.0.0",
-      "description": "Classic Tetris falling blocks puzzle game",
+      "version": "1.1.0",
+      "description": "Classic Tetris with GDI+ beveled blocks and next-piece preview",
       "category": "games",
       "author": "Sandra",
       "dependencies": [],
@@ -826,13 +824,13 @@
     },
     "pacman_classic": {
       "name": "Pacman Classic",
-      "version": "1.0.0",
-      "description": "Classic Pacman arcade game with ghosts and dots",
+      "version": "2.0.0",
+      "description": "Classic Pacman with GDI+ maze, 2 ghost chasers, lives and levels",
       "category": "games",
       "author": "Sandra",
       "dependencies": [],
       "hotkeys": [
-        "^#o show",
+        "^#m show",
         "Arrow keys",
         "Space",
         "P",
@@ -1052,8 +1050,8 @@
     },
     "ipad_scroll_widget": {
       "name": "iPad Scroll Widget",
-      "version": "1.6.0",
-      "description": "Slim vertical touch widget for iPad-as-second-screen + RustDesk: wide labeled quick-launch rail with built-in AHK config window (no INI hacking), bottom-aligned, split transparency, Top/End follow working channel",
+      "version": "1.7.0",
+      "description": "Slim vertical touch widget for iPad-as-second-screen + RustDesk: wide labeled quick-launch rail with built-in AHK config window (no INI hacking), bottom-aligned, split transparency, Top/End follow working channel, Copy/Paste/Cfg touch buttons, narrow rail",
       "category": "widgets",
       "author": "Sandra",
       "dependencies": [],
@@ -1217,7 +1215,7 @@
     },
     "word_games": {
       "name": "Word Games",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "description": "Wordle, Anagrams, and Hangman -- button-based input, no hotkey conflicts",
       "category": "games",
       "author": "Sandra",

@@ -13,8 +13,8 @@ OnError(_CatchBootError)
 
 ; ==============================================================================
 ; @name: iPad Scroll Widget
-; @version: 1.6.0
-; @description: Slim vertical touch widget for the OpenCode TUI (also great over RustDesk/iPad): PgUp, Up, Down, PgDn, Top, End, Menu.
+; @version: 1.7.0
+; @description: Slim vertical touch widget for the OpenCode TUI (also great over RustDesk/iPad): PgUp, Up, Down, PgDn, Top, End, Menu, Copy, Paste, Cfg.
 ; @description: Menu toggles a wide labeled quick-launch rail, bottom-aligned:
 ; @description: AHK dash, files, fleet, web, Claude, Antigravity, export current
 ; @description: chat to MD, OC webapp (starts stack if down), OC stack start.
@@ -36,14 +36,14 @@ OnError(_CatchBootError)
 ; v1.3.0: split transparency - TRANSKEY frame keyed out, buttons at WIDGET_ALPHA.
 ; v1.4.0: Menu toggles a 6-slot quick-launch rail docked left of the widget.
 global WIDGET_W := 48
-global WIDGET_H := 236
+global WIDGET_H := 323
 global BTN_W := 36
 global BTN_H := 26
 global GAP := 3
 global PAD := 6
 global WIDGET_ALPHA := 100
 global TRANSKEY := "FF00FF"
-global QUICK_W := 150
+global QUICK_W := 120
 global QUICK_H := 299
 global QUICK_N := 10
 global QUICK_GAP := 12
@@ -160,7 +160,7 @@ DefaultQuickSlot(i) {
     switch i {
         case 1: return "AHK dash|" DASHBOARD_URL
         case 2: return "Files|explorer.exe"
-        case 3: return "Fleet app|http://127.0.0.1:10947"
+        case 3: return "Fleet app|http://127.0.0.1:11237"
         case 4: return "Web|https://sandraschi.com"
         case 5: return "Claude|shell:AppsFolder\Claude_pzs8sxrjxfjjc!Claude"
         case 6: return "Antigravity|%LOCALAPPDATA%\Programs\Antigravity\Antigravity.exe"
@@ -278,6 +278,16 @@ BuildWidget() {
     b6 := MyGui.Add("Button", "x" PAD " y" r5 " w" BTN_W " h" BTN_H " Background232433", "End")
     b7 := MyGui.Add("Button", "x" PAD " y" r6 " w" BTN_W " h" BTN_H " Background233026", "Menu")
 
+    r7 := r6 + BTN_H + GAP
+    r8 := r7 + BTN_H + GAP
+
+    b8 := MyGui.Add("Button", "x" PAD " y" r7 " w" BTN_W " h" BTN_H " Background232433", "Copy")
+    b9 := MyGui.Add("Button", "x" PAD " y" r8 " w" BTN_W " h" BTN_H " Background232433", "Paste")
+
+    r9 := r8 + BTN_H + GAP
+
+    b10 := MyGui.Add("Button", "x" PAD " y" r9 " w" BTN_W " h" BTN_H " Background233026", "Cfg")
+
     b1.ToolTip := "Page Up"
     b2.ToolTip := "Line Up"
     b3.ToolTip := "Line Down"
@@ -285,6 +295,9 @@ BuildWidget() {
     b5.ToolTip := "Top - activates target then sends (" TOP_KEYS ")"
     b6.ToolTip := "End - activates target then sends (" END_KEYS ")"
     b7.ToolTip := "Quick-launch rail (click again to hide, ^!q)"
+    b8.ToolTip := "Copy - sends Ctrl+C to the target"
+    b9.ToolTip := "Paste - sends Ctrl+V to the target"
+    b10.ToolTip := "Open rail config (same as ^!o)"
 
     b1.OnEvent("Click", (*) => ScrollWheel("PgUp"))
     b2.OnEvent("Click", (*) => ScrollWheel("Up"))
@@ -293,9 +306,12 @@ BuildWidget() {
     b5.OnEvent("Click", (*) => TopJump())
     b6.OnEvent("Click", (*) => EndJump())
     b7.OnEvent("Click", (*) => ToggleQuick())
+    b8.OnEvent("Click", (*) => SendKey("^c"))
+    b9.OnEvent("Click", (*) => SendKey("^v"))
+    b10.OnEvent("Click", (*) => OpenConfigWindow())
 
     ; Click target label toggles wheel/key mode - fat enough for touch.
-    TargetLbl := MyGui.Add("Text", "x" PAD " y" r6 + BTN_H + GAP " w" BTN_W " h16 Center cGray", "")
+    TargetLbl := MyGui.Add("Text", "x" PAD " y" r9 + BTN_H + GAP " w" BTN_W " h16 Center cGray", "")
     TargetLbl.ToolTip := "Click toggles wheel/key mode (^!k)"
     TargetLbl.OnEvent("Click", (*) => ToggleScrollMode())
     UpdateTargetLabel()

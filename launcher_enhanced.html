@@ -683,79 +683,23 @@
             </div>
         </div>
 
-        <!-- Tabs -->
-        <div class="tabs">
-            <div class="tab active" data-tab="all">
-                <i class="fas fa-th-large"></i>
-                All Scriptlets
-            </div>
-            <div class="tab" data-tab="utilities">
-                <i class="fas fa-tools"></i>
-                Utilities
-            </div>
-            <div class="tab" data-tab="development">
-                <i class="fas fa-code"></i>
-                Development
-            </div>
-            <div class="tab" data-tab="media">
-                <i class="fas fa-music"></i>
-                Media
-            </div>
-            <div class="tab" data-tab="games">
-                <i class="fas fa-gamepad"></i>
-                Games
-            </div>
-            <div class="tab" data-tab="settings">
-                <i class="fas fa-cog"></i>
-                Settings
-            </div>
+        <!-- Tabs (dynamically generated: All + alphabetical live categories) -->
+        <div class="tabs" id="categoryTabs">
         </div>
 
-        <!-- Content -->
+        <!-- Content: single dynamic grid (tabs filter this one container) -->
         <div class="content">
-            <!-- All Scriptlets Tab -->
-            <div class="tab-content active" id="all">
-                <h2>All Scriptlets</h2>
+            <div class="tab-content active" id="tab-all">
+                <h2 id="tabTitle">All Scriptlets</h2>
                 <div class="scriptlet-grid" id="allScriptlets">
                     <!-- Scriptlets will be populated here -->
                 </div>
             </div>
+        </div>
 
-            <!-- Utilities Tab -->
-            <div class="tab-content" id="utilities">
-                <h2>Utility Scriptlets</h2>
-                <div class="scriptlet-grid" id="utilitiesScriptlets">
-                    <!-- Utility scriptlets will be populated here -->
-                </div>
-            </div>
-
-            <!-- Development Tab -->
-            <div class="tab-content" id="development">
-                <h2>Development Tools</h2>
-                <div class="scriptlet-grid" id="developmentScriptlets">
-                    <!-- Development scriptlets will be populated here -->
-                </div>
-            </div>
-
-            <!-- Media Tab -->
-            <div class="tab-content" id="media">
-                <h2>Media Controls</h2>
-                <div class="scriptlet-grid" id="mediaScriptlets">
-                    <!-- Media scriptlets will be populated here -->
-                </div>
-            </div>
-
-            <!-- Games Tab -->
-            <div class="tab-content" id="games">
-                <h2>Games & Entertainment</h2>
-                <div class="scriptlet-grid" id="gamesScriptlets">
-                    <!-- Game scriptlets will be populated here -->
-                </div>
-            </div>
-
-            <!-- Settings Tab -->
-            <div class="tab-content" id="settings">
-                <h2>Settings</h2>
+        <!-- Settings Panel (preserved controls, no longer a tab) -->
+        <div class="content settings-panel" style="margin-top: 2rem;">
+            <h2>Settings</h2>
                 <div class="settings-content">
                     <div class="setting-group">
                         <h3>General Settings</h3>
@@ -800,7 +744,6 @@
                     </div>
                 </div>
             </div>
-        </div>
     </div>
 
     <script>
@@ -845,15 +788,15 @@
                 const response = await fetch('http://localhost:10764/scriptlets');
                 if (response.ok) {
                     const data = await response.json();
-                    scriptlets = data.map(scriptlet => ({
+                    const list = Array.isArray(data) ? data : Object.values(data).flat();
+                    scriptlets = list.map(scriptlet => ({
                         id: scriptlet.id,
-                        name: scriptlet.name,
-                        description: getScriptletDescription(scriptlet.id),
-                        category: getScriptletCategory(scriptlet.id),
-                        hotkeys: getScriptletHotkeys(scriptlet.id),
-                        enabled: scriptlet.enabled,
-                        running: scriptlet.running,
-                        version: '1.0.0'
+                        name: scriptlet.name || scriptlet.id,
+                        description: scriptlet.description || ('Run ' + (scriptlet.name || scriptlet.id)),
+                        path: scriptlet.path || ((scriptlet.id || '') + '.ahk'),
+                        category: scriptlet.category || 'utilities',
+                        enabled: scriptlet.enabled !== false,
+                        running: !!scriptlet.running
                     }));
                 } else {
                     console.error('Failed to load scriptlets:', response.status);
@@ -863,140 +806,65 @@
                 console.error('Error loading scriptlets:', error);
                 loadFallbackScriptlets();
             }
-            
+
+            generateTabs();
             updateStatistics();
             renderScriptlets();
         }
 
-        function getScriptletDescription(id) {
-            const descriptions = {
-                'smart_clipboard_manager': 'Advanced clipboard management with history, formatting, and smart paste',
-                'text_transformer_pro': 'Advanced text manipulation with case conversion, formatting, and encoding',
-                'window_manager_pro': 'Advanced window management with snapping, tiling, and organization',
-                'code_formatter_pro': 'Multi-language code formatting with syntax highlighting and beautification',
-                'git_assistant_pro': 'Advanced Git workflow automation with commit templates and branch management',
-                'music_controller_pro': 'Advanced music control with playlist management and visualizer',
-                'mini_games_collection': 'Collection of fun mini-games including Snake, Tetris, and Memory',
-                'smart_assistant_pro': 'AI-powered assistant with voice commands, automation, and smart workflows',
-                'workflow_automator_pro': 'Advanced workflow automation with triggers, conditions, and actions',
-                'help_system_pro': 'Comprehensive help system explaining AutoHotkey, the bridge, UI, and all features',
-                'security_guide_pro': 'Comprehensive security guide for AutoHotkey scriptlets - warnings, limitations, and best practices',
-                'clipboard_manager': 'Enhanced clipboard operations with history and management',
-                'system_monitor': 'Real-time system resource monitoring with GUI',
-                'window_management': 'Advanced window management and positioning tools',
-                'ollama_chatbot': 'AI chatbot integration with Ollama local models',
-                'sudoku': 'Sudoku puzzle game with solver and hints'
-            };
-            return descriptions[id] || 'AutoHotkey scriptlet for enhanced productivity';
-        }
-
-        function getScriptletCategory(id) {
-            const categories = {
-                'smart_clipboard_manager': 'utilities',
-                'text_transformer_pro': 'utilities',
-                'window_manager_pro': 'utilities',
-                'code_formatter_pro': 'development',
-                'git_assistant_pro': 'development',
-                'music_controller_pro': 'media',
-                'mini_games_collection': 'games',
-                'smart_assistant_pro': 'ai',
-                'workflow_automator_pro': 'ai',
-                'help_system_pro': 'utilities',
-                'security_guide_pro': 'utilities',
-                'clipboard_manager': 'utilities',
-                'system_monitor': 'system',
-                'window_management': 'utilities',
-                'ollama_chatbot': 'ai',
-                'sudoku': 'games'
-            };
-            return categories[id] || 'utilities';
-        }
-
-        function getScriptletHotkeys(id) {
-            const hotkeys = {
-                'smart_clipboard_manager': ['#v', '^!c', '^!v'],
-                'text_transformer_pro': ['^!t', '^!u', '^!l', '^!s'],
-                'window_manager_pro': ['#Left', '#Right', '#Up', '#Down', '#Space', '#Tab'],
-                'code_formatter_pro': ['^!f', '^!b', '^!c'],
-                'git_assistant_pro': ['^!g', '^!commit', '^!branch'],
-                'music_controller_pro': ['#Space', '#Left', '#Right', '#Up', '#Down', '#M'],
-                'mini_games_collection': ['^!g', '#s', '#t', '#m'],
-                'smart_assistant_pro': ['^!a', '#v', '^!s'],
-                'workflow_automator_pro': ['^!w', '^!r', '^!t'],
-                'help_system_pro': ['F1', '^!h', '^!?'],
-                'security_guide_pro': ['^!s', 'F2'],
-                'clipboard_manager': ['#v', '^!v'],
-                'system_monitor': ['^!s'],
-                'window_management': ['^!w', '^!c'],
-                'ollama_chatbot': ['^!o'],
-                'sudoku': ['^!s']
-            };
-            return hotkeys[id] || [];
-        }
-
         function loadFallbackScriptlets() {
-            // Fallback hardcoded scriptlets if server is not available
+            // Fallback entries use the same inline bridge shape when the bridge is down
             scriptlets = [
                 {
                     id: 'clipboard_manager',
                     name: 'Clipboard Manager',
                     description: 'Enhanced clipboard operations with history and management',
+                    path: 'clipboard_manager.ahk',
                     category: 'utilities',
-                    hotkeys: ['#v', '^!v'],
                     enabled: true,
-                    running: false,
-                    version: '1.0.0'
+                    running: false
                 },
                 {
                     id: 'system_monitor',
                     name: 'System Monitor',
                     description: 'Real-time system resource monitoring with GUI',
+                    path: 'system_monitor.ahk',
                     category: 'system',
-                    hotkeys: ['^!s'],
                     enabled: true,
-                    running: true,
-                    version: '1.0.0'
+                    running: true
                 },
                 {
                     id: 'window_management',
                     name: 'Window Management',
                     description: 'Advanced window management and positioning tools',
+                    path: 'window_management.ahk',
                     category: 'utilities',
-                    hotkeys: ['^!w', '^!c'],
                     enabled: true,
-                    running: false,
-                    version: '1.0.0'
+                    running: false
                 },
                 {
                     id: 'ollama_chatbot',
                     name: 'Ollama Chatbot',
                     description: 'AI chatbot integration with Ollama local models',
+                    path: 'ollama_chatbot.ahk',
                     category: 'ai',
-                    hotkeys: ['^!o'],
                     enabled: true,
-                    running: false,
-                    version: '1.0.0'
+                    running: false
                 },
                 {
                     id: 'sudoku',
                     name: 'Sudoku Game',
                     description: 'Complete Sudoku game with solver and hints',
+                    path: 'sudoku.ahk',
                     category: 'games',
-                    hotkeys: ['^!s'],
                     enabled: true,
-                    running: false,
-                    version: '1.0.0'
+                    running: false
                 }
             ];
         }
 
         function setupEventListeners() {
-            // Tab switching
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.addEventListener('click', function() {
-                    switchTab(this.dataset.tab);
-                });
-            });
+            // Tabs are generated dynamically in generateTabs() with their own bindings
 
             // Search functionality
             document.getElementById('searchInput').addEventListener('input', function() {
@@ -1034,45 +902,78 @@
                 document.body.style.fontSize = size + 'px';
                 localStorage.setItem('fontSize', size);
             });
+
+            // Autostart / notifications / hotkeys prefs (preserved, persisted)
+            ['autoStart', 'showNotifications', 'enableHotkeys'].forEach(function(id) {
+                const el = document.getElementById(id);
+                if (!el) return;
+                const saved = localStorage.getItem(id);
+                if (saved !== null) el.checked = saved === 'true';
+                el.addEventListener('change', function() {
+                    localStorage.setItem(id, String(el.checked));
+                });
+            });
+        }
+
+        function generateTabs() {
+            const container = document.getElementById('categoryTabs');
+            if (!container) return;
+            const categories = Array.from(new Set(scriptlets.map(s => s.category || 'utilities')))
+                .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+            if (currentTab !== 'all' && !categories.includes(currentTab)) {
+                currentTab = 'all';
+            }
+            container.innerHTML = '';
+            const tabs = ['all'].concat(categories);
+            tabs.forEach(function(cat) {
+                const tab = document.createElement('div');
+                tab.className = 'tab' + (cat === currentTab ? ' active' : '');
+                tab.dataset.tab = cat;
+                tab.textContent = cat === 'all' ? 'All Scriptlets' : (cat.charAt(0).toUpperCase() + cat.slice(1));
+                tab.addEventListener('click', function() {
+                    switchTab(cat);
+                });
+                container.appendChild(tab);
+            });
         }
 
         function switchTab(tabName) {
-            // Update tab appearance
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
-
-            // Update content
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
-            document.getElementById(tabName).classList.add('active');
-
             currentTab = tabName;
+            // Update tab appearance
+            document.querySelectorAll('#categoryTabs .tab').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.tab === tabName);
+            });
+            const title = document.getElementById('tabTitle');
+            if (title) {
+                title.textContent = tabName === 'all' ? 'All Scriptlets'
+                    : (tabName.charAt(0).toUpperCase() + tabName.slice(1));
+            }
             renderScriptlets();
         }
 
         function renderScriptlets() {
-            const container = document.getElementById(currentTab + 'Scriptlets') || 
-                            document.getElementById('allScriptlets');
-            
+            const container = document.getElementById('allScriptlets');
             if (!container) return;
 
             let filteredScriptlets = scriptlets;
 
-            // Filter by tab
+            // Filter by tab (dynamic categories)
             if (currentTab !== 'all') {
-                filteredScriptlets = scriptlets.filter(s => s.category === currentTab);
+                filteredScriptlets = scriptlets.filter(s => (s.category || 'utilities') === currentTab);
             }
 
             // Filter by search query
             if (searchQuery) {
-                filteredScriptlets = filteredScriptlets.filter(s => 
-                    s.name.toLowerCase().includes(searchQuery) ||
-                    s.description.toLowerCase().includes(searchQuery)
+                filteredScriptlets = filteredScriptlets.filter(s =>
+                    (s.name || '').toLowerCase().includes(searchQuery) ||
+                    (s.description || '').toLowerCase().includes(searchQuery) ||
+                    (s.id || '').toLowerCase().includes(searchQuery)
                 );
             }
+
+            // Sort A-Z by name by default
+            filteredScriptlets = filteredScriptlets.slice().sort((a, b) =>
+                (a.name || a.id || '').localeCompare(b.name || b.id || '', undefined, { sensitivity: 'base' }));
 
             container.innerHTML = '';
 
@@ -1090,23 +991,27 @@
         function createScriptletCard(scriptlet) {
             const card = document.createElement('div');
             card.className = `scriptlet-card ${scriptlet.running ? 'running' : ''}`;
+            const fileName = scriptlet.path || ((scriptlet.id || '') + '.ahk');
+            const enabled = scriptlet.enabled !== false;
+            const runDisabled = (scriptlet.running || !enabled) ? 'disabled' : '';
+            const stopDisabled = (!scriptlet.running) ? 'disabled' : '';
             card.innerHTML = `
                 <div class="scriptlet-header">
-                    <div class="scriptlet-title">${scriptlet.name}</div>
+                    <div class="scriptlet-title">${scriptlet.name || scriptlet.id}</div>
                     <div class="scriptlet-status ${scriptlet.running ? 'running' : ''}"></div>
                 </div>
-                <div class="scriptlet-description">${scriptlet.description}</div>
+                <div class="scriptlet-description">${scriptlet.description || ''}</div>
                 <div class="scriptlet-meta">
-                    <div class="scriptlet-category">${scriptlet.category}</div>
+                    <div class="scriptlet-category">${scriptlet.category || 'utilities'}</div>
                     <div class="scriptlet-hotkeys">
-                        ${scriptlet.hotkeys.map(hk => `<span class="hotkey">${hk}</span>`).join('')}
+                        <span class="hotkey">${fileName}</span>${enabled ? '' : '<span class="hotkey">disabled</span>'}
                     </div>
                 </div>
                 <div class="scriptlet-actions">
-                    <button class="action-btn run-btn" onclick="event.stopPropagation(); runScriptlet('${scriptlet.id}')" ${scriptlet.running ? 'disabled' : ''}>
+                    <button class="action-btn run-btn" onclick="event.stopPropagation(); runScriptlet('${scriptlet.id}')" ${runDisabled}>
                         <i class="fas fa-play"></i> Run
                     </button>
-                    <button class="action-btn stop-btn" onclick="event.stopPropagation(); stopScriptlet('${scriptlet.id}')" ${!scriptlet.running ? 'disabled' : ''}>
+                    <button class="action-btn stop-btn" onclick="event.stopPropagation(); stopScriptlet('${scriptlet.id}')" ${stopDisabled}>
                         <i class="fas fa-stop"></i> Stop
                     </button>
                 </div>
@@ -1241,12 +1146,11 @@
 
         function updateCommandResults() {
             const results = document.getElementById('commandResults');
+            const firstCats = Array.from(new Set(scriptlets.map(s => s.category || 'utilities')))
+                .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })).slice(0, 2);
             const commands = [
-                { name: 'Toggle Clipboard Manager', action: () => toggleScriptlet('clipboard_manager') },
-                { name: 'Toggle System Monitor', action: () => toggleScriptlet('system_monitor') },
-                { name: 'Switch to Utilities Tab', action: () => switchTab('utilities') },
-                { name: 'Switch to Development Tab', action: () => switchTab('development') },
-                { name: 'Open Settings', action: () => switchTab('settings') },
+                { name: 'Switch to All Scriptlets', action: () => switchTab('all') },
+                ...firstCats.map(cat => ({ name: 'Switch to ' + cat, action: () => switchTab(cat) })),
                 { name: 'Toggle Theme', action: () => toggleTheme() }
             ];
 

@@ -5,11 +5,11 @@
 
 ; ==============================================================================
 ; @name: Word Games
-; @version: 1.0.0
+; @version: 1.1.0
 ; @description: Wordle, Anagrams, Hangman. Button-based input (no Hotkey).
 ; @category: games
 ; @author: Sandra
-; @hotkeys: ^!g toggle
+; @hotkeys: ^#w toggle
 ; @tag: games, wordle, anagrams, hangman, word
 ; ==============================================================================
 
@@ -30,6 +30,11 @@ class WordGames {
     static anagWord := ""
     static anagScrambled := ""
     static anagScore := 0
+    static anagTries := 0
+    static anagStreak := 0
+    static anagBest := 0
+    static anagHintUsed := false
+    static anagMsgLabel := 0
     static hangWord := ""
     static hangDisplay := 0
     static hangMsgLabel := 0
@@ -69,6 +74,9 @@ class WordGames {
             Hotkey(ch, WordGames.WordleType.Bind(ch))
         Hotkey("Backspace", (*) => WordGames.WordleUndo())
         Hotkey("Enter",     (*) => WordGames.WordleSubmit())
+        ; Anagrams tab (index 2): Enter submits the guess
+        HotIf((*) => WinActive("ahk_id " . hwnd) && WordGames.tabs.Value = 2)
+        Hotkey("Enter", (*) => WordGames.AnagGuess())
         ; Hangman tab (index 3): letters guess
         HotIf((*) => WinActive("ahk_id " . hwnd) && WordGames.tabs.Value = 3)
         for _, ch in alphabet
@@ -90,7 +98,8 @@ class WordGames {
         WordGames.wordleCol := 0
         WordGames.wordleTarget := ""
 
-        g.Add("Button", "x420 y22 w24 h22 Background333344 cFFFF00", "?").OnEvent("Click", (*) => WordGames.WordleHelp())
+        btnHelp := g.Add("Button", "x420 y22 w24 h22 Background333344 cFFFF00", "?")
+        btnHelp.OnEvent("Click", (*) => WordGames.WordleHelp())
         for r in [1,2,3,4,5,6] {
             row := []
             for c in [1,2,3,4,5] {
@@ -102,11 +111,16 @@ class WordGames {
             }
             WordGames.wordleGrid.Push(row)
         }
-        g.Add("Button", "x50 y335 w120 h28 cWhite Background1a5a1a", "New Game").OnEvent("Click", (*) => WordGames.WordleNew())
-        g.Add("Button", "x190 y335 w120 h28 cWhite Background333344", "Submit").OnEvent("Click", (*) => WordGames.WordleSubmit())
-        g.Add("Button", "x330 y335 w50 h28 cWhite Background333344", "Undo").OnEvent("Click", (*) => WordGames.WordleUndo())
-        g.Add("Button", "x390 y335 w36 h28 Background333344 cFFFF00", "C").OnEvent("Click", (*) => WordGames.WordleCheat())
-        g.Add("Button", "x428 y335 w36 h28 Background333344 c00FF88", "S").OnEvent("Click", (*) => WordGames.WordleSuperCheat())
+        btnNew := g.Add("Button", "x50 y335 w120 h28 cWhite Background1a5a1a", "New Game")
+        btnNew.OnEvent("Click", (*) => WordGames.WordleNew())
+        btnSubmit := g.Add("Button", "x190 y335 w120 h28 cWhite Background333344", "Submit")
+        btnSubmit.OnEvent("Click", (*) => WordGames.WordleSubmit())
+        btnUndo := g.Add("Button", "x330 y335 w50 h28 cWhite Background333344", "Undo")
+        btnUndo.OnEvent("Click", (*) => WordGames.WordleUndo())
+        btnCheat := g.Add("Button", "x390 y335 w36 h28 Background333344 cFFFF00", "C")
+        btnCheat.OnEvent("Click", (*) => WordGames.WordleCheat())
+        btnSuper := g.Add("Button", "x428 y335 w36 h28 Background333344 c00FF88", "S")
+        btnSuper.OnEvent("Click", (*) => WordGames.WordleSuperCheat())
         WordGames.wordleKeyLabel := g.Add("Text", "x50 y370 w400 h30 cGray Center", "Press New Game to start")
     }
 
@@ -339,11 +353,17 @@ class WordGames {
         WordGames.anagScrambleLabel := g.Add("Text", "x50 y90 w400 h40 cFFBF00 Center", "")
         WordGames.anagScrambleLabel.SetFont("s22 cFFFF00", "Consolas")
         WordGames.anagInput := g.Add("Edit", "x100 y140 w300 h28 Center -WantTab", "")
-        g.Add("Button", "x140 y180 w110 h28 cWhite Background1a5a1a", "Guess").OnEvent("Click", (*) => WordGames.AnagGuess())
-        g.Add("Button", "x270 y180 w110 h28 cWhite Background333344", "Skip").OnEvent("Click", (*) => WordGames.AnagNew())
-        scoreLabel := g.Add("Text", "x50 y230 w400 h30 cGray Center", "Score: 0")
+        btnGuess := g.Add("Button", "x100 y180 w90 h28 cWhite Background1a5a1a", "Guess")
+        btnGuess.OnEvent("Click", (*) => WordGames.AnagGuess())
+        btnHint := g.Add("Button", "x200 y180 w90 h28 cWhite Background333344", "Hint (-2)")
+        btnHint.OnEvent("Click", (*) => WordGames.AnagHint())
+        btnSkip := g.Add("Button", "x300 y180 w90 h28 cWhite Background333344", "Skip")
+        btnSkip.OnEvent("Click", (*) => WordGames.AnagNew())
+        scoreLabel := g.Add("Text", "x50 y218 w400 h24 cGray Center", "Score: 0   Streak: 0")
         scoreLabel.SetFont("s12 c4488FF", "Segoe UI")
         WordGames.anagScoreLabel := scoreLabel
+        WordGames.anagMsgLabel := g.Add("Text", "x50 y244 w400 h24 cGray Center", "")
+        WordGames.AnagNew()
     }
 
     static AnagNew() {
@@ -364,21 +384,49 @@ class WordGames {
         }
         WordGames.anagScrambleLabel.Text := StrUpper(WordGames.anagScrambled)
         WordGames.anagInput.Value := ""
+        WordGames.anagTries := 0
+        WordGames.anagHintUsed := false
+        WordGames.AnagScoreLine("Unscramble it - Enter submits too.")
+        try WordGames.anagInput.Focus()
+    }
+
+    static AnagScoreLine(msg := "") {
+        WordGames.anagScoreLabel.Text := "Score: " . WordGames.anagScore . "   Streak: " . WordGames.anagStreak . " (best " . WordGames.anagBest . ")"
+        if (msg != "") {
+            WordGames.anagMsgLabel.Text := msg
+        }
     }
 
     static AnagGuess(*) {
         guess := Trim(WordGames.anagInput.Value)
-        if (guess = "")
+        if (guess = "" || WordGames.anagWord = "")
             return
         if (StrLower(guess) = WordGames.anagWord) {
-            WordGames.anagScore += StrLen(WordGames.anagWord)
-            WordGames.anagScoreLabel.Text := "Score: " . WordGames.anagScore
+            gained := StrLen(WordGames.anagWord) + WordGames.anagStreak
+            WordGames.anagScore += gained
+            WordGames.anagStreak++
+            if (WordGames.anagStreak > WordGames.anagBest) {
+                WordGames.anagBest := WordGames.anagStreak
+            }
             WordGames.AnagNew()
+            WordGames.AnagScoreLine("Correct! +" . gained . " pts - streak " . WordGames.anagStreak)
         } else {
+            WordGames.anagTries++
+            WordGames.anagStreak := 0
             WordGames.anagInput.Value := ""
             WordGames.anagInput.BackColor := "3a1010"
             SetTimer((*) => (WordGames.anagInput.BackColor := "131320", WordGames.anagInput.Redraw()), -300)
+            WordGames.AnagScoreLine("Nope - try " . (WordGames.anagTries + 1) . ". Hint costs 2 pts.")
         }
+    }
+
+    static AnagHint(*) {
+        if (WordGames.anagWord = "" || WordGames.anagHintUsed) {
+            return
+        }
+        WordGames.anagHintUsed := true
+        WordGames.anagScore := Max(0, WordGames.anagScore - 2)
+        WordGames.AnagScoreLine("Starts with: " . StrUpper(SubStr(WordGames.anagWord, 1, 1)))
     }
 
     ; ===== HANGMAN =====
@@ -390,7 +438,8 @@ class WordGames {
         gallows := g.Add("Text", "x190 y120 w120 h120 cWhite Center", Chr(0x250C) Chr(0x2500) Chr(0x2500) Chr(0x2510) "`n" Chr(0x2502) "  O  " Chr(0x2502) "`n" Chr(0x2502) " /|\ " Chr(0x2502) "`n" Chr(0x2502) " / \ " Chr(0x2502) "`n" Chr(0x2514) Chr(0x2500) Chr(0x2500) Chr(0x2518))
         gallows.SetFont("s7 cWhite", "Consolas")
         g.Add("Text", "x60 y250 w380 h60 cGray Center", "Type letters on your keyboard to guess.`nWrong guesses: 6 = game over.")
-        g.Add("Button", "x60 y340 w120 h26 cWhite Background1a5a1a", "New Game").OnEvent("Click", (*) => WordGames.HangmanNew())
+        btnHangNew := g.Add("Button", "x60 y340 w120 h26 cWhite Background1a5a1a", "New Game")
+        btnHangNew.OnEvent("Click", (*) => WordGames.HangmanNew())
     }
 
     static HangmanNew() {

@@ -212,3 +212,34 @@ Format: symptom → root cause → fix → audit pattern.
   pranks by design) and non-game single-key hotkeys.
 - **Audit:** any gameplay `Hotkey("<key>", ...)` outside a `HotIf` block that
   matches its own window; any new `^!` toggle colliding with the list above.
+  (2026-11-09 correction: pacman metadata still said `^#o` — fixed to `^#m`.)
+
+## 18. `HotIf(())` is not a reset — instant death at the line
+- **Symptom:** error dialog pointing at the `HotIf(())` line on launch
+  (`qbert_game`).
+- **Root cause:** the no-context reset takes no arguments: `HotIf()`.
+  Empty parens are not valid there.
+- **Fix (2026-11-09):** `HotIf()`.
+- **Audit:** `HotIf\(\(\)\)` — fleet-wide grep proved a single instance.
+
+## 19. `BackColor := "2d2d2d"` — hex string, not a color
+- **Symptom:** Eliza chat/input white-on-white, no crash. The throw (if any)
+  is swallowed by `OnError(LogError)` into the log file, GUI keeps going
+  with default white + explicitly-set white text.
+- **Root cause:** `BackColor` wants a number (`0x2d2d2d`) or a color name;
+  the Add-options form takes bare hex (`Background2d2d2d`). Buttons
+  additionally ignore colors under visual themes (need `-Theme`).
+  (Refines #12: `Edit.BackColor` as a property is fine *with a proper
+  value* — the options-string form is sturdier.)
+- **Fix (2026-11-09):** `Background2d2d2d` in the `Add("Edit", ...)` options,
+  `-Theme Background4CAF50` for the colored buttons, tofu emoji out.
+- **Audit:** `BackColor := "` — every hit must be a named color or `0x`
+  number, never a bare hex string.
+
+## 20. Relative script paths resolve against the working directory
+- **Symptom:** Game Starter "Game file not found" when double-clicked,
+  works when launched via the bridge (which sets CWD to the repo root).
+- **Root cause:** `FileExist("scriptlets/...")` + `Run` with a relative path.
+- **Fix (2026-11-09):** resolve via `A_ScriptDir` with a FileExist fallback
+  (`ResolveScript()`), so the popup works from any CWD.
+- **Audit:** `FileExist("scriptlets/` and `Run(` with relative script paths.

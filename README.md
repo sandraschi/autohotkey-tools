@@ -1,12 +1,12 @@
 # autohotkey-tools
 
-**AutoHotkey v2 scriptlet depot** — 64 working `.ahk` utilities, widgets, games and pranks, served through a local HTTP bridge with a live web dashboard. Sibling to [autohotkey-linter](../autohotkey-linter) (AST-based v2 linter with auto-fix) and consumed by [autohotkey-mcp](../autohotkey-mcp).
+**AutoHotkey v2 scriptlet depot** — 68 `.ahk` utilities, widgets, games and pranks, served through a local HTTP bridge with a live web dashboard. Sibling to [autohotkey-linter](../autohotkey-linter) (AST-based v2 linter with auto-fix) and consumed by [autohotkey-mcp](../autohotkey-mcp).
 
 > 📖 **[Installation Guide](INSTALL.md)** — quick start, manual setup, and troubleshooting
 
 ## This is not just a script library — ask Claude to build you something
 
-The point of this depot isn't only "browse and run 64 existing scripts." Through [autohotkey-mcp](../autohotkey-mcp)'s `generate_scriptlet` tool, you can ask an AI assistant to **write a new one for you**, and it becomes a real, launchable entry in this dashboard. For example:
+The point of this depot isn't only "browse and run 68 existing scripts." Through [autohotkey-mcp](../autohotkey-mcp)'s `generate_scriptlet` tool, you can ask an AI assistant to **write a new one for you**, and it becomes a real, launchable entry in this dashboard. For example:
 
 > "Make me an AHK shogi game and wire it into the AHK starter dashboard."
 
@@ -41,7 +41,7 @@ Manual alternative:
 
 Two scripts for driving OpenCode (AI coding TUI) from Windows, including over RustDesk + iPad touch where the TUI scrollbar is a few px wide and unhittable:
 
-* `scriptlets/ipad_scroll_widget.ahk` (v1.6.0) - 48px always-on-top touch strip: PgUp/Up/Down/PgDn (wheel `PostMessage`, no scrollbar hit needed; key mode via `SendKey` toggle), Top/End (follow the working channel), Menu (toggles wide labeled quick-launch rail, bottom-aligned: AHK dashboard, files, fleet webapp, sandraschi.com, Claude, Antigravity, export current chat to MD, OC webapp with auto-start, OC stack start, Config - rail edited in a built-in AHK config window, persisted to `scroll_widget.ini`). Hotkeys: `^!s` toggle, `^!w` pick target, `^!m` snap to OpenCode edge, `^!k` wheel/key mode, `^!a` auto-hide, `^!q` quick rail, `^!e` export chat MD, `^!o` rail config. Position/mode/alpha persist in `scriptlets/scroll_widget.ini`. Frame is transparency-keyed out, buttons stay opaque.
+* `scriptlets/ipad_scroll_widget.ahk` (v1.7.0) - 48px always-on-top touch strip: PgUp/Up/Down/PgDn (wheel `PostMessage`, no scrollbar hit needed; key mode via `SendKey` toggle), Top/End (follow the working channel), Copy/Paste (sent through the target-activate channel), Cfg (opens the rail config window), Menu (toggles wide labeled quick-launch rail, bottom-aligned: AHK dashboard, files, fleet webapp, sandraschi.com, Claude, Antigravity, export current chat to MD, OC webapp with auto-start, OC stack start, Config - rail edited in a built-in AHK config window, persisted to `scroll_widget.ini`). Hotkeys: `^!s` toggle, `^!w` pick target, `^!m` snap to OpenCode edge, `^!k` wheel/key mode, `^!a` auto-hide, `^!q` quick rail, `^!e` export chat MD, `^!o` rail config. Position/mode/alpha persist in `scriptlets/scroll_widget.ini`. Frame is transparency-keyed out, buttons stay opaque.
 * `scriptlets/opencode_typo_watcher.ahk` - keystroke autocorrect scoped to `OpenCode.exe` only (`teh` -> `the`, plus a personal typo list).
 
 Run (AutoHotkey v2 required):
@@ -62,7 +62,7 @@ or `just dash` and launch/stop them from the dashboard.
 |------|-------------|
 | `ScriptletCOMBridge.ahk` | HTTP bridge on **:10764** — `/scriptlets` (live directory scan), `/run/:name`, `/stop/:name`, `/status`, `/dashboard` |
 | `dashboard.html` | Web UI, talks to the bridge live — no build step |
-| `scriptlets/` | 64 AHK v2 scripts (`metadata.json` is the catalog: 63 registered) |
+| `scriptlets/` | 68 AHK v2 scripts (one `metadata.json` entry per scriptlet: hotkeys, category, priority) |
 | `scriptlets/_archive/` | Superseded drafts and test scratch files, kept for history, excluded from the dashboard |
 | `scriptlets/v1/` | Unmigrated AHK v1 scripts, excluded from the dashboard and depot scans |
 | `scriptlets/ai_generated/` | Sandbox for MCP-generated scripts — review before promoting |
@@ -74,16 +74,17 @@ or `just dash` and launch/stop them from the dashboard.
 
 There are three separate launcher UIs in this repo, from different points in its history:
 
-- **`dashboard.html` (via the bridge, port 10764)** — current, recommended. Live-scans `scriptlets/`, reads `metadata.json` for descriptions, category filtering, search, run/stop from the browser.
+- **`dashboard.html` (via the bridge, port 10764)** — current, recommended. Live-scans `scriptlets/`, reads `metadata.json` for descriptions, category filtering, search, run/stop from the browser. Cards/list view toggle, A–Z sort (both persist across reloads), command palette (Ctrl+K), and a searchable Help center (F1) documenting AHK v2, both repos, and every fixed gotcha.
 - **`scriptlets/ScriptletLauncher.ahk`** — tray-resident AHK GUI, auto-starts, tabbed categories. Registered in the catalog.
 - **`scriptlets/ahk_launcher.ahk`** — lightweight searchable popup (`Ctrl+Alt+A`). Registered in the catalog.
 - **`scriptlet_launcher_v2.ahk`** (repo root, ~2965 lines, Sept 2025) — the original monolithic launcher with a hardcoded item list, predates the bridge/dashboard/catalog system entirely. Legacy; not wired into `metadata.json`.
+- **`launcher_enhanced.html`** — older enhanced variant with hardcoded description/category maps; misses scriptlets added since. Legacy; use the dashboard.
 
 If you're picking one, use the dashboard. The two in-AHK launchers overlap and haven't been consolidated yet.
 
 ## Scriptlet categories (registered in `metadata.json`)
 
-- **games** — Chess (Stockfish), Pong, Tetris, Frogger, Pac-Man, Q\*bert, Sudoku, Puzzle (15-tile), Wordle/Anagrams/Hangman
+- **games** — Chess, Pong, Tetris, Frogger, Pac-Man, Q\*bert, Sudoku, Puzzle (15-tile), Wordle/Anagrams/Hangman, Snake, Mini arcade, Game popup
 - **productivity** — Clipboard managers, window snapping/management, quick notes, quick launch, text/macro expansion, prompt snippets
 - **system** — System monitor(s), cleanup robot, security warnings, system shortcuts
 - **development** — Git repo manager, code formatter, MCP scaffolding/dev-cycle tools, AHK debug helper
@@ -104,7 +105,7 @@ All of them launch from the Scriptlet Launcher's **Games** tab.
 
 | Game | File | How it plays |
 |---|---|---|
-| Chess (vs Stockfish UI) | `chess_stockfish.ahk` | Click a square, pick a move |
+| Chess (human vs human) | `chess_stockfish.ahk` | Click a piece, then a destination (`^#c` opens) |
 | Pong | `classic_pong.ahk` | Mouse or arrow keys |
 | Tetris | `tetris_classic.ahk` | Arrow keys, P pause, R restart |
 | Frogger | `classic_frogger.ahk` | Arrow keys, animated road |
@@ -112,9 +113,9 @@ All of them launch from the Scriptlet Launcher's **Games** tab.
 | Q\*bert | `qbert_game.ahk` | Arrow keys / hop to change tiles |
 | Sudoku | `sudoku.ahk` | Click a cell, type a digit |
 | 15-Puzzle | `PuzzleGame.ahk` | Click tiles next to the gap |
-| Wordle / Anagrams / Hangman | `word_games.ahk` | Type on your keyboard (`^!g` toggles) |
+| Wordle / Anagrams / Hangman | `word_games.ahk` | Type on your keyboard (`^#w` toggles) |
 | Mini arcade | `mini_games_collection.ahk` | Reaction timer, number guess |
-| Game popup | `game_starter_popup.ahk` | Standalone mini-launcher (`Ctrl+Alt+G`) |
+| Game popup | `game_starter_popup.ahk` | Compact two-column launcher (`Ctrl+Win+P`) |
 
 New games are welcome and cheap to add: copy `classic_frogger.ahk` as a
 template (game logic + `GdipHelper` blit loop are cleanly separated), register
@@ -147,6 +148,8 @@ When the bridge is running, `list_scriptlets` / `run_scriptlet` / `stop_scriptle
 ## Security
 
 AHK scripts have full desktop access. Only run trusted scripts. Review `ai_generated/` output before executing.
+
+The in-repo **Security Guide** (`security_guide_pro.ahk`, dashboard Utilities tab) is complete: Overview, Limitations (no sandbox, AV flags, UAC/UIPI, compiled scripts leak secrets), Best Practices (read-first, least privilege, no secrets in scripts), Emergency (kill chain, persistence spots, credential rotation), and AI Safety (sandboxed generation, promote checklist, prompt injection). Tab content lives in `docs/security_topics/*.md`.
 
 ## Known gaps
 

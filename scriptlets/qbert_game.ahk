@@ -1,6 +1,20 @@
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
+
+; Q*bert v2: GDI+ board (beveled color cubes + drawn player) via lib\GdipHelper.
+; Game logic unchanged: orthogonal pyramid hops recolor tiles, all tiles to
+; target color clears the board.
+
+_CatchBootError(Thrown, Mode) {
+    msg := Thrown && HasProp(Thrown, "Message") ? Thrown.Message : "Unknown"
+    try FileAppend("[" A_Now "] qbert: " msg "`n", A_ScriptDir "\qbert_crash.log")
+    return 1
+}
+OnError(_CatchBootError)
+
 #Include %A_ScriptDir%\lib\ScriptletErrorHandler.ahk
+#Include %A_ScriptDir%\lib\GdipHelper.ahk
+OnError(LogError)
 
 ; @name: Q*bert
 ; @description: Pyramid-hopping arcade game -- color every cube by landing on it, avoid falling off the edge.
@@ -8,25 +22,33 @@
 ; @hotkeys: ^!b toggle, arrow keys to hop
 ; @tag: games, arcade, qbert, puzzle
 
-OnError(LogError)
-
 class QBertApp {
     static gui := ""
-    static boardCtrl := ""
+    static pic := 0
     static statusCtrl := ""
     static levelCtrl := ""
+    static hopsCtrl := ""
     static pyramid := []
     static player := {row: 1, col: 1}
     static targetColor := 2
+    static moves := 0
+    static gfx := 0
+    static bmp := 0
+    static br := {}
+    static pen := 0
+    static CW := 56
+    static CH := 58
+    static BW := 360
+    static BH := 330
 
     static Init() {
         QBertApp.ResetBoard()
         QBertApp.CreateGui()
+        QBertApp.SetupGfx()
         QBertApp.SetupHotkeys()
         QBertApp.UpdateBoard()
-        QBertApp.UpdateStatus("Use Ctrl+Alt+Arrow keys to hop.")
+        QBertApp.UpdateStatus("Use arrow keys to hop.")
     }
-
 
     static ResetBoard() {
         QBertApp.pyramid := []
@@ -38,34 +60,49 @@ class QBertApp {
             QBertApp.pyramid.Push(row)
         }
         QBertApp.player := {row: 1, col: 1}
+        QBertApp.moves := 0
     }
 
     static CreateGui() {
         if (QBertApp.gui) {
             QBertApp.gui.Destroy()
         }
-        newGui := Gui("+Resize +MinSize260x300", "Q*bert Pyramid")
+        newGui := Gui("+MinSize440x400", "Q*bert Pyramid")
         newGui.BackColor := "1a1a32"
-        newGui.SetFont("s11", "Consolas")
+        newGui.SetFont("s10", "Segoe UI")
 
-        newGui.Add("Text", "x20 y16 w220 Center cFFFFFF", "Q*bert - change all tiles twice")
-        QBertApp.boardCtrl := newGui.Add("Text", "x20 y48 w200 h160 Background000000 Border", "")
-        QBertApp.boardCtrl.SetFont("s11 cLime", "Consolas")
-
-        QBertApp.levelCtrl := newGui.Add("Text", "x20 y220 w200 h24 cFFFFFF Center", "Target color level: 2")
-        resetBtn := newGui.Add("Button", "x20 y250 w90 h28", "Reset")
+        newGui.Add("Text", "x20 y10 w320 Center cFFFFFF", "Q*bert - hop every tile to orange")
+        QBertApp.pic := newGui.Add("Picture", "x20 y36 w360 h330", "")
+        QBertApp.levelCtrl := newGui.Add("Text", "x20 y372 w120 h24 cFFFFFF", "Target: orange")
+        QBertApp.hopsCtrl := newGui.Add("Text", "x150 y372 w90 h24 cFFFFFF", "Hops: 0")
+        resetBtn := newGui.Add("Button", "x250 y368 w60 h28", "Reset")
         resetBtn.OnEvent("Click", (*) => QBertApp.ResetGame())
-        closeBtn := newGui.Add("Button", "x130 y250 w90 h28", "Close")
+        closeBtn := newGui.Add("Button", "x320 y368 w60 h28", "Close")
         closeBtn.OnEvent("Click", (*) => QBertApp.HideGui())
 
-        QBertApp.statusCtrl := newGui.Add("Text", "x20 y280 w220 h24 cFFFFFF", "")
+        QBertApp.statusCtrl := newGui.Add("Text", "x20 y400 w360 h24 cFFFFFF", "")
 
         newGui.OnEvent("Close", QBertApp.HideGui)
         newGui.OnEvent("Escape", QBertApp.HideGui)
-        newGui.OnEvent("Size", (gui, minMax, width, height) => QBertApp.OnResize(gui, minMax, width, height))
 
         QBertApp.gui := newGui
-        newGui.Show("w260 h320")
+        newGui.Show("w400 h434")
+    }
+
+    static SetupGfx() {
+        GdipHelper.Startup()
+        QBertApp.bmp := GdipHelper.CreateBitmap(QBertApp.BW, QBertApp.BH)
+        QBertApp.gfx := GdipHelper.GraphicsFromImage(QBertApp.bmp)
+        GdipHelper.SetSmoothingMode(QBertApp.gfx, 4)
+        mk := (c) => GdipHelper.BrushCreateSolid(c)
+        QBertApp.br := Map(
+            ; Tile stage colors: base / top-light / bottom-shade.
+            "t0",   mk(0xFF23233E), "t0hi", mk(0xFF3A3A5C), "t0lo", mk(0xFF12121F),
+            "t1",   mk(0xFF2E6FDB), "t1hi", mk(0xFF7AA8F0), "t1lo", mk(0xFF1A3F80),
+            "t2",   mk(0xFFFF8C00), "t2hi", mk(0xFFFFC25E), "t2lo", mk(0xFF9A5200),
+            "bert", mk(0xFFFF6A00), "bertBelly", mk(0xFFFFB066),
+            "eyeW", mk(0xFFFFFFFF), "pupil", mk(0xFF111111))
+        QBertApp.pen := GdipHelper.PenCreate(0xFF000000, 2)
     }
 
     static SetupHotkeys() {
@@ -85,29 +122,29 @@ class QBertApp {
         Hotkey("Right", (*) => QBertApp.Hop(0, 1))
         Hotkey("r", (*) => QBertApp.ResetGame())
         Hotkey("Escape", (*) => QBertApp.HideGui())
-        HotIf(())
+        HotIf()
         registered := true
     }
-    
+
     static IsQBertWindowActive() {
         if (!QBertApp.gui || !QBertApp.gui.Hwnd) {
             return false
         }
         return WinActive("ahk_id " . QBertApp.gui.Hwnd)
     }
-    
+
     static HopIfActive(rowOffset, colOffset) {
         if (QBertApp.IsQBertWindowActive()) {
             QBertApp.Hop(rowOffset, colOffset)
         }
     }
-    
+
     static ResetGameIfActive() {
         if (QBertApp.IsQBertWindowActive()) {
             QBertApp.ResetGame()
         }
     }
-    
+
     static ShowGui(*) {
         if (QBertApp.gui) {
             QBertApp.gui.Show()
@@ -135,6 +172,7 @@ class QBertApp {
             return
         }
         QBertApp.player := {row: newRow, col: newCol}
+        QBertApp.moves++
         current := QBertApp.pyramid[newRow][newCol]
         QBertApp.pyramid[newRow][newCol] := Mod(current + 1, QBertApp.targetColor + 1)
         if (QBertApp.pyramid[newRow][newCol] = 0) {
@@ -142,8 +180,8 @@ class QBertApp {
         }
         QBertApp.UpdateBoard()
         if (QBertApp.AllTilesTargeted()) {
-            QBertApp.UpdateStatus("Great! All tiles transformed.")
-            MsgBox("You completed the pyramid!", "Q*bert", "Iconi")
+            QBertApp.UpdateStatus("Great! All tiles transformed in " . QBertApp.moves . " hops.")
+            MsgBox("You completed the pyramid in " . QBertApp.moves . " hops!", "Q*bert", "Iconi")
             QBertApp.ResetGame()
         }
     }
@@ -159,24 +197,58 @@ class QBertApp {
         return true
     }
 
+    static RowOrigin(r) {
+        y := 10 + (r - 1) * QBertApp.CH
+        count := QBertApp.pyramid[r].Length
+        x0 := (QBertApp.BW - count * QBertApp.CW) // 2
+        return {x: x0, y: y}
+    }
+
     static UpdateBoard() {
-        lines := []
-        for rowIndex, row in QBertApp.pyramid {
-            indent := Format("{:" . (QBertApp.pyramid.Length - rowIndex) . "}", "")
-            line := indent
-            for colIndex, tile in row {
-                if (QBertApp.player.row = rowIndex && QBertApp.player.col = colIndex) {
-                    line .= "🐰 "
-                } else {
-                    line .= Format("{} ", tile)
-                }
+        g := QBertApp.gfx
+        if (!g) {
+            return
+        }
+        cw := QBertApp.CW
+        ch := QBertApp.CH
+        GdipHelper.Clear(g, 0xFF0B0B1A)
+        Loop QBertApp.pyramid.Length {
+            r := A_Index
+            o := QBertApp.RowOrigin(r)
+            for c, tile in QBertApp.pyramid[r] {
+                QBertApp.DrawCube(g, o.x + (c - 1) * cw, o.y, tile)
             }
-            lines.Push(line)
         }
-        QBertApp.boardCtrl.Text := lines.Join("`n")
-        if (QBertApp.levelCtrl) {
-            QBertApp.levelCtrl.Text := "Target color level: " . QBertApp.targetColor
+        o := QBertApp.RowOrigin(QBertApp.player.row)
+        QBertApp.DrawBert(g, o.x + (QBertApp.player.col - 1) * cw, o.y)
+        GdipHelper.UpdatePicture(QBertApp.pic, QBertApp.bmp, QBertApp.BW, QBertApp.BH)
+        if (QBertApp.hopsCtrl) {
+            QBertApp.hopsCtrl.Text := "Hops: " . QBertApp.moves
         }
+    }
+
+    static DrawCube(g, bx, by, stage) {
+        cw := QBertApp.CW
+        ch := QBertApp.CH
+        key := "t" . stage
+        GdipHelper.FillRectangle(g, QBertApp.br[key], bx + 2, by + 2, cw - 4, ch - 4)
+        ; Bevel: light top strip, dark bottom strip.
+        GdipHelper.FillRectangle(g, QBertApp.br[key . "hi"], bx + 2, by + 2, cw - 4, 7)
+        GdipHelper.FillRectangle(g, QBertApp.br[key . "lo"], bx + 2, by + ch - 9, cw - 4, 7)
+        GdipHelper.DrawRectangle(g, QBertApp.pen, bx + 2, by + 2, cw - 4, ch - 4)
+    }
+
+    static DrawBert(g, bx, by) {
+        cw := QBertApp.CW
+        ch := QBertApp.CH
+        ; Round orange body + lighter belly.
+        GdipHelper.FillEllipse(g, QBertApp.br["bert"], bx + 11, by + 10, cw - 22, ch - 20)
+        GdipHelper.FillEllipse(g, QBertApp.br["bertBelly"], bx + 18, by + 22, cw - 36, ch - 36)
+        ; Eyes on top.
+        GdipHelper.FillEllipse(g, QBertApp.br["eyeW"], bx + 15, by + 6, 11, 11)
+        GdipHelper.FillEllipse(g, QBertApp.br["eyeW"], bx + cw - 26, by + 6, 11, 11)
+        GdipHelper.FillEllipse(g, QBertApp.br["pupil"], bx + 18, by + 9, 5, 5)
+        GdipHelper.FillEllipse(g, QBertApp.br["pupil"], bx + cw - 23, by + 9, 5, 5)
     }
 
     static UpdateStatus(message) {
@@ -190,18 +262,6 @@ class QBertApp {
             QBertApp.gui.Hide()
         }
     }
-
-    static OnResize(gui, minMax, width, height) {
-        if (!QBertApp.boardCtrl) {
-            return
-        }
-        QBertApp.boardCtrl.Move(20, 48, Min(200, width - 80), height - 160)
-        if (QBertApp.statusCtrl) {
-            QBertApp.statusCtrl.Move(20, height - 40, width - 40, 24)
-        }
-    }
 }
 
 QBertApp.Init()
-
-OnExit((*) => QBertApp.UpdateStatus(""))
