@@ -70,7 +70,7 @@ CreateGUI() {
     headerHeight := 60
     headerText := guiEliza.Add("Text", 
         "x" MARGIN " y" MARGIN " w" (WINDOW_WIDTH - MARGIN * 2) " h" headerHeight " Center", 
-        "🧠 ELIZA Therapist")
+        "ELIZA Therapist")
     headerText.SetFont("s16 cFFFFFF Bold", "Segoe UI")
     
     subtitleY := MARGIN + headerHeight + 10
@@ -88,7 +88,7 @@ CreateGUI() {
     
     modeToggle := guiEliza.Add("CheckBox", 
         "x" (WINDOW_WIDTH - MARGIN - 200) " y" toggleY " w200 h25 Checked" . (USE_ELIZA_PLUS ? 1 : 0), 
-        "🤖 Enable ELIZA++ (Ollama LLM)")
+        "Enable ELIZA++ (Ollama LLM)")
     modeToggle.SetFont("s10 cCCCCCC", "Segoe UI")
     modeToggle.OnEvent("Click", ToggleMode)
     
@@ -102,8 +102,7 @@ CreateGUI() {
     chatHistoryLabel.SetFont("s10 cFFFFFF Bold", "Segoe UI")
     
     chatHistory := guiEliza.Add("Edit", 
-        "x" MARGIN " y" (chatY + 25) " w" (WINDOW_WIDTH - MARGIN * 2) " h" CHAT_HISTORY_HEIGHT " ReadOnly +VScroll")
-    chatHistory.BackColor := "2d2d2d"
+        "x" MARGIN " y" (chatY + 25) " w" (WINDOW_WIDTH - MARGIN * 2) " h" CHAT_HISTORY_HEIGHT " ReadOnly +VScroll Background2d2d2d")
     chatHistory.SetFont("s10 cE0E0E0", "Consolas")
     chatHistory.Value := "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`n"
                       . "  Welcome to ELIZA, your virtual therapist.`n`n"
@@ -119,22 +118,19 @@ CreateGUI() {
     inputLabel.SetFont("s10 cFFFFFF Bold", "Segoe UI")
     
     userInput := guiEliza.Add("Edit", 
-        "x" MARGIN " y" (inputY + 25) " w" (WINDOW_WIDTH - MARGIN * 2) " h" INPUT_HEIGHT " vUserInput")
-    userInput.BackColor := "2d2d2d"
+        "x" MARGIN " y" (inputY + 25) " w" (WINDOW_WIDTH - MARGIN * 2) " h" INPUT_HEIGHT " vUserInput Background2d2d2d")
     userInput.SetFont("s11 cFFFFFF", "Segoe UI")
     userInput.OnEvent("Change", (ctrl, info) => CheckForEnter(ctrl, info))
     
     ; Buttons with better styling and spacing
     buttonY := inputY + INPUT_HEIGHT + 25
     btnSend := guiEliza.Add("Button", 
-        "x" MARGIN " y" buttonY " w120 h40 Default", "&Send")
-    btnSend.BackColor := "4CAF50"
+        "x" MARGIN " y" buttonY " w120 h40 Default -Theme Background4CAF50", "&Send")
     btnSend.SetFont("s11 cFFFFFF Bold", "Segoe UI")
     btnSend.OnEvent("Click", ProcessInput)
     
     btnClear := guiEliza.Add("Button", 
-        "x" (MARGIN + 140) " y" buttonY " w120 h40", "C&lear")
-    btnClear.BackColor := "FF9800"
+        "x" (MARGIN + 140) " y" buttonY " w120 h40 -Theme BackgroundFF9800", "C&lear")
     btnClear.SetFont("s11 cFFFFFF", "Segoe UI")
     btnClear.OnEvent("Click", ClearChat)
     
@@ -183,7 +179,7 @@ ProcessInput(*) {
         
         ; Update status
         if (statusBar) {
-            statusBar.Text := USE_ELIZA_PLUS ? "🤖 ELIZA++ is thinking..." : "💭 ELIZA is processing..."
+            statusBar.Text := USE_ELIZA_PLUS ? "ELIZA++ is thinking..." : "ELIZA is processing..."
         }
         
         ; Get and display response based on mode

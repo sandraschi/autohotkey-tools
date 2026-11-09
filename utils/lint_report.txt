@@ -1,15 +1,22 @@
-﻿Lint Report for: D:\Dev\repos\autohotkey-tools\scriptlets\fun_games.ahk
-Generated: 2026-10-31 11:41:01
-Total Lines: 233
+﻿Lint Report for: D:\Dev\repos\autohotkey-tools\utils\..\scriptlets\eliza.ahk
+Generated: 2026-11-09 03:31:58
+Total Lines: 559
 
 Issues found:
 
-WARNINGS (2):
+WARNINGS (12):
   [Warning] Line N/A  - No class definition found - consider using class-based structure
   [Warning] Line N/A  - Missing Init() method - recommended for scriptlets
+  [Warning] Line 60   - Found global variable declaration - consider using static or local variables
+  [Warning] Line 165  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 208  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 231  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 243  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 253  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 277  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 423  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 473  - Found global variable declaration - consider using static or local variables
+  [Warning] Line 506  - Found global variable declaration - consider using static or local variables
 
-SUGGESTIONS (4):
-  [Suggestion] Line N/A  - Consider adding error handling with try/catch blocks
+SUGGESTIONS (1):
   [Suggestion] Line N/A  - Large script without class structure - consider using class-based organization
-  [Suggestion] Line 156  - Very short variable name - consider using more descriptive names
-  [Suggestion] Line 159  - Very short variable name - consider using more descriptive names

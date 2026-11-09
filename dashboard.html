@@ -61,6 +61,13 @@ a{color:inherit;text-decoration:none}
 .refresh-info{font-size:11px;color:var(--muted)}
 .icon-btn{background:var(--surface);border:1px solid var(--border);color:var(--muted);width:34px;height:34px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;transition:.15s}
 .icon-btn:hover{color:var(--text);border-color:var(--accent)}
+.view-toggle{display:flex;border:1px solid var(--border);border-radius:8px;overflow:hidden;background:var(--bg3)}
+.view-toggle button{background:transparent;border:none;color:var(--muted);padding:6px 10px;font-size:14px;cursor:pointer;transition:.15s;line-height:1}
+.view-toggle button:hover{color:var(--text)}
+.view-toggle button.active{background:var(--accent);color:#fff}
+.sort-select{background:var(--bg3);border:1px solid var(--border);color:var(--text);font-size:12px;padding:6px 8px;border-radius:8px;cursor:pointer;outline:none;font-family:'Inter',sans-serif}
+.sort-select:hover{border-color:var(--accent)}
+.sort-select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
 
 /* Stats */
 .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
@@ -75,6 +82,14 @@ a{color:inherit;text-decoration:none}
 .section-head h2{font-size:16px;font-weight:600}
 .section-count{background:var(--surface);border:1px solid var(--border);color:var(--muted);font-size:11px;padding:2px 8px;border-radius:20px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.grid.list-view{display:flex;flex-direction:column;gap:8px}
+.grid.list-view .card{display:flex;align-items:center;gap:14px;padding:10px 14px}
+.grid.list-view .card-accent{top:0;bottom:0;left:0;right:auto;width:3px;height:auto}
+.grid.list-view .card-head{margin-bottom:0;flex:1;min-width:0;align-items:center}
+.grid.list-view .cat-icon{width:28px;height:28px;font-size:15px}
+.grid.list-view .card-desc{display:none}
+.grid.list-view .tags,.grid.list-view .hotkeys{margin-bottom:0;flex:0 1 auto}
+.grid.list-view .card-actions{flex:0 0 auto}
 .card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;cursor:default;transition:.2s;position:relative;overflow:hidden}
 .card:hover{border-color:rgba(124,58,237,.5);box-shadow:0 4px 24px rgba(0,0,0,.4);transform:translateY(-1px)}
 .card.running{border-color:rgba(16,185,129,.4);background:rgba(16,185,129,.04)}
@@ -192,6 +207,16 @@ kbd{font-size:10px;font-family:'Inter',monospace;background:var(--bg3);border:1p
         <input type="text" id="searchInput" placeholder="Search scriptlets…" autocomplete="off">
       </div>
       <button class="kbd-hint" id="paletteBtn" title="Open command palette (Ctrl+K)">⌘ Ctrl+K</button>
+      <div class="view-toggle" id="viewToggle" title="Cards / List view">
+        <button data-view="cards" title="Card view">▦</button>
+        <button data-view="list" title="List view">☰</button>
+      </div>
+      <select class="sort-select" id="sortSelect" title="Sort order">
+        <option value="name-asc">Name A–Z</option>
+        <option value="name-desc">Name Z–A</option>
+        <option value="running-first">Running first</option>
+        <option value="category">Category</option>
+      </select>
       <span class="tb-spacer"></span>
       <span class="refresh-info" id="refreshInfo">–</span>
       <button class="icon-btn" id="refreshBtn" title="Refresh now">🔄</button>
@@ -234,6 +259,8 @@ let lastRefresh = null;
 let uptime = 0;
 let uptimeTimer = null;
 let paletteIdx = 0;
+let viewMode = localStorage.getItem('ahk_view') || 'cards';
+let sortMode = localStorage.getItem('ahk_sort') || 'name-asc';
 
 // ── Category defs ──────────────────────────────────────────────────────────
 const CATS = {
@@ -336,7 +363,7 @@ function buildSidebar(scriptlets) {
     catList.appendChild(runBtn);
   }
 
-  Object.keys(CATS).filter(k=>k!=='all' && counts[k]).sort((a,b)=>counts[b]-counts[a]).forEach(cat => {
+  Object.keys(CATS).filter(k=>k!=='all' && counts[k]).sort((a,b)=>catDef(a).label.localeCompare(catDef(b).label)).forEach(cat => {
     const def = catDef(cat);
     const btn = document.createElement('div');
     btn.className = 'cat-btn' + (activeCategory===cat?' active':'');
@@ -374,13 +401,50 @@ function filtered(scriptlets) {
     (s.description||'').toLowerCase().includes(q) ||
     (s.tags||[]).some(t=>t.toLowerCase().includes(q))
   );
-  return list;
+  return sortList(list);
+}
+
+function sortList(list) {
+  const arr = [...list];
+  const nm = s => (s.name || s.id || '').toLowerCase();
+  if (sortMode === 'name-desc') {
+    arr.sort((a,b) => nm(b).localeCompare(nm(a)));
+  } else if (sortMode === 'running-first') {
+    arr.sort((a,b) => (b.running?1:0)-(a.running?1:0) || nm(a).localeCompare(nm(b)));
+  } else if (sortMode === 'category') {
+    arr.sort((a,b) => (a.category||'').localeCompare(b.category||'') || nm(a).localeCompare(nm(b)));
+  } else {
+    arr.sort((a,b) => nm(a).localeCompare(nm(b)));   // name-asc default
+  }
+  return arr;
+}
+
+function applyToolbar() {
+  document.querySelectorAll('#viewToggle button').forEach(b =>
+    b.classList.toggle('active', b.dataset.view === viewMode));
+  const sel = document.getElementById('sortSelect');
+  if (sel) sel.value = sortMode;
+}
+
+function setView(v) {
+  viewMode = v;
+  localStorage.setItem('ahk_view', v);
+  applyToolbar();
+  renderCards();
+}
+
+function setSort(v) {
+  sortMode = v;
+  localStorage.setItem('ahk_sort', v);
+  applyToolbar();
+  renderCards();
 }
 
 function renderCards() {
   const list = filtered(allScriptlets);
   const grid = document.getElementById('scriptletGrid');
   if (!grid) return;
+  grid.classList.toggle('list-view', viewMode === 'list');
   grid.innerHTML = '';
 
   if (!list.length) {
@@ -559,6 +623,7 @@ function paletteRun(el) {
 
 // ── Init ───────────────────────────────────────────────────────────────────
 function init() {
+  applyToolbar();
   refresh();
   if (refreshTimer) clearInterval(refreshTimer);
   refreshTimer = setInterval(refresh, REFRESH_MS);
@@ -566,6 +631,11 @@ function init() {
 
 // ── Events ─────────────────────────────────────────────────────────────────
 document.getElementById('searchInput').addEventListener('input', () => renderCards());
+document.getElementById('viewToggle').addEventListener('click', e => {
+  const b = e.target.closest('button[data-view]');
+  if (b) setView(b.dataset.view);
+});
+document.getElementById('sortSelect').addEventListener('change', e => setSort(e.target.value));
 document.getElementById('refreshBtn').addEventListener('click', () => refresh());
 document.getElementById('restartBtn').addEventListener('click', () => restartBridge(null));
 document.getElementById('paletteBtn').addEventListener('click', openPalette);

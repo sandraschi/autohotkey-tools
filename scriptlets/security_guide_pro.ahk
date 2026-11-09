@@ -50,7 +50,16 @@ class SecurityGuide {
         for id, filePath in securityFiles {
             fullPath := A_ScriptDir . "\..\" . filePath
             if (FileExist(fullPath)) {
-                content := FileRead(fullPath)
+                try {
+                    content := FileRead(fullPath)
+                } catch {
+                    content := ""
+                }
+                if (content = "") {
+                    this.AppendLog("Warning: Could not read security file: " . fullPath, "WARN")
+                    this.securityData[id] := {title: Format("Error: Topic '{}' unreadable", id), content: "Security content for this topic could not be loaded."}
+                    continue
+                }
                 ; Extract title from first H1 tag if available, otherwise use ID
                 titleMatch := RegExMatch(content, "#\s*(.*?)\n", &match)
                 title := titleMatch ? Trim(match[1]) : Format("Topic: {}", id)

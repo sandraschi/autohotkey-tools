@@ -233,6 +233,91 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 0.6rem 1rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            flex-wrap: wrap;
+        }
+
+        .toolbar-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .toolbar-label {
+            font-size: 0.85rem;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .view-toggle {
+            display: flex;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .view-toggle button {
+            border: none;
+            background: white;
+            padding: 0.4rem 0.8rem;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .view-toggle button.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .sort-select {
+            padding: 0.4rem 0.6rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 0.85rem;
+            background: white;
+            cursor: pointer;
+        }
+
+        /* List view: override grid cards into compact rows */
+        .tab-content.active.list-active {
+            display: block;
+        }
+
+        .tab-content.active.list-active .card {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.6rem;
+        }
+
+        .tab-content.list-active .card-header {
+            min-width: 220px;
+            padding: 0.6rem 1rem;
+        }
+
+        .tab-content.list-active .card-body {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.6rem 1rem;
+            flex: 1;
+        }
+
+        .tab-content.list-active .card-body p {
+            margin-bottom: 0;
+            min-height: auto;
+            flex: 1;
+        }
+
         @media (max-width: 768px) {
             .tab-content.active {
                 grid-template-columns: 1fr;
@@ -272,6 +357,28 @@
             <!-- Tabs will be generated dynamically -->
         </div>
 
+        <div class="toolbar">
+            <div class="toolbar-group">
+                <span class="toolbar-label">View:</span>
+                <div class="view-toggle">
+                    <button id="cardsViewBtn" class="active" onclick="setViewMode('cards')">
+                        <i class="fas fa-th"></i> Cards
+                    </button>
+                    <button id="listViewBtn" onclick="setViewMode('list')">
+                        <i class="fas fa-list"></i> List
+                    </button>
+                </div>
+            </div>
+            <div class="toolbar-group">
+                <span class="toolbar-label">Sort:</span>
+                <select id="sortSelect" class="sort-select" onchange="setSortMode(this.value)">
+                    <option value="name-asc">Name A-Z</option>
+                    <option value="name-desc">Name Z-A</option>
+                    <option value="running-first">Running first</option>
+                </select>
+            </div>
+        </div>
+
         <div id="scriptletsContainer">
             <!-- Scriptlet cards will be generated dynamically -->
         </div>
@@ -289,14 +396,60 @@
         let serverURL = 'http://localhost:10764';
         let allScriptlets = [];
         let categories = new Set();
+        // Preserve UI state across auto-reloads (fixes tab-jump bug)
+        let activeCategory = localStorage.getItem('ahk_launcher_tab') || null;
+        let viewMode = localStorage.getItem('ahk_launcher_view') || 'cards';
+        let sortMode = localStorage.getItem('ahk_launcher_sort') || 'name-asc';
 
         // Check server connection on load
         window.addEventListener('load', () => {
+            applyViewMode();
+            applySortMode();
             checkServerConnection();
             loadScriptlets();
             setInterval(checkServerConnection, 5000); // Check every 5 seconds
             setInterval(loadScriptlets, 10000); // Reload scriptlets every 10 seconds to update running status
         });
+
+        function sortScriptlets(list) {
+            const arr = [...list];
+            if (sortMode === 'name-desc') {
+                arr.sort((a, b) => (b.name || b.id || '').localeCompare(a.name || a.id || '', undefined, { sensitivity: 'base' }));
+            } else if (sortMode === 'running-first') {
+                arr.sort((a, b) => {
+                    const ra = a.running ? 0 : 1;
+                    const rb = b.running ? 0 : 1;
+                    if (ra !== rb) return ra - rb;
+                    return (a.name || a.id || '').localeCompare(b.name || b.id || '', undefined, { sensitivity: 'base' });
+                });
+            } else {
+                // name-asc default: alphabetical
+                arr.sort((a, b) => (a.name || a.id || '').localeCompare(b.name || b.id || '', undefined, { sensitivity: 'base' }));
+            }
+            return arr;
+        }
+
+        function setViewMode(mode) {
+            viewMode = mode;
+            localStorage.setItem('ahk_launcher_view', mode);
+            applyViewMode();
+            generateScriptletCards();
+        }
+
+        function applyViewMode() {
+            document.getElementById('cardsViewBtn').classList.toggle('active', viewMode === 'cards');
+            document.getElementById('listViewBtn').classList.toggle('active', viewMode === 'list');
+        }
+
+        function setSortMode(mode) {
+            sortMode = mode;
+            localStorage.setItem('ahk_launcher_sort', mode);
+            generateScriptletCards();
+        }
+
+        function applySortMode() {
+            document.getElementById('sortSelect').value = sortMode;
+        }
 
         // Load scriptlets from API
         async function loadScriptlets() {
@@ -348,12 +501,11 @@
             });
         }
 
-        // Generate category tabs dynamically
+        // Generate category tabs dynamically (preserves active tab across reloads)
         function generateTabs() {
             const tabsContainer = document.getElementById('categoryTabs');
             tabsContainer.innerHTML = '';
 
-            const categoryOrder = ['utilities', 'system', 'productivity', 'development', 'games', 'fun', 'office'];
             const categoryLabels = {
                 'utilities': 'Utilities',
                 'system': 'System',
@@ -364,12 +516,19 @@
                 'office': 'Office'
             };
 
-            // Add tabs in order, then any remaining categories
-            const sortedCategories = [...categoryOrder.filter(c => categories.has(c)), ...Array.from(categories).filter(c => !categoryOrder.includes(c))];
+            // Default alphabetical (was: hardcoded categoryOrder, then rest unsorted)
+            const sortedCategories = Array.from(categories).sort((a, b) =>
+                a.localeCompare(b, undefined, { sensitivity: 'base' }));
 
-            sortedCategories.forEach((category, index) => {
+            // Validate stored tab, fall back to first category
+            if (!activeCategory || !categories.has(activeCategory)) {
+                activeCategory = sortedCategories[0] || null;
+                if (activeCategory) localStorage.setItem('ahk_launcher_tab', activeCategory);
+            }
+
+            sortedCategories.forEach((category) => {
                 const tab = document.createElement('div');
-                tab.className = 'tab' + (index === 0 ? ' active' : '');
+                tab.className = 'tab' + (category === activeCategory ? ' active' : '');
                 tab.setAttribute('data-tab', category);
                 tab.textContent = categoryLabels[category] || category.charAt(0).toUpperCase() + category.slice(1);
                 tab.addEventListener('click', () => switchTab(category));
@@ -377,7 +536,7 @@
             });
         }
 
-        // Generate scriptlet cards dynamically
+        // Generate scriptlet cards dynamically (sorted, view-mode aware)
         function generateScriptletCards() {
             const container = document.getElementById('scriptletsContainer');
             container.innerHTML = '';
@@ -392,13 +551,15 @@
                 scriptletsByCategory[cat].push(scriptlet);
             });
 
-            // Create tab content for each category
-            Object.keys(scriptletsByCategory).forEach((category, index) => {
+            // Create tab content for each category, alphabetical tab order
+            Object.keys(scriptletsByCategory).sort((a, b) =>
+                a.localeCompare(b, undefined, { sensitivity: 'base' })).forEach((category) => {
                 const tabContent = document.createElement('div');
                 tabContent.id = category;
-                tabContent.className = 'tab-content' + (index === 0 ? ' active' : '');
+                tabContent.className = 'tab-content' + (category === activeCategory ? ' active' : '')
+                    + (viewMode === 'list' ? ' list-active' : '');
                 
-                scriptletsByCategory[category].forEach(scriptlet => {
+                sortScriptlets(scriptletsByCategory[category]).forEach(scriptlet => {
                     const card = createScriptletCard(scriptlet);
                     tabContent.appendChild(card);
                 });
@@ -500,6 +661,8 @@
 
         // Switch tabs
         function switchTab(category) {
+            activeCategory = category;
+            localStorage.setItem('ahk_launcher_tab', category);
             // Remove active class from all tabs and contents
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));

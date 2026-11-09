@@ -6,21 +6,18 @@ set windows-shell := ["powershell.exe", "-NoProfile", "-Command"]
 default:
     @just --list
 
-# Run the AHK v2 linter on ALL scriptlets
+# Run the AHK v2 linter on ALL scriptlets (logic in utils/lint_all.ps1 -
+# inline -Command quoting kept breaking, so recipes shell out to files)
 lint-ahk:
-    @powershell.exe -NoProfile -Command "$ahk = 'C:\Program Files\AutoHotkey\v2\AutoHotkey64.exe'; $linter = '.\utils\linter_headless.ahk'; $scripts = Get-ChildItem '.\scriptlets\*.ahk' -File | Where-Object { $_.Name -notlike '_*' -and $_.Name -notlike '*.bak' }; $pass = 0; $fail = 0; foreach ($f in $scripts) { $p = Start-Process -FilePath $ahk -ArgumentList \"`\"$linter`\" `\"$($f.FullName)`\"\" -PassThru -Wait -NoNewWindow; if ($p.ExitCode -eq 0) { Write-Host \"  OK   $($f.Name)\" -ForegroundColor Green; $pass++ } else { Write-Host \"  FAIL $($f.Name)\" -ForegroundColor Red; $fail++ } }; Write-Host \"`n$pass OK, $fail with issues\" -ForegroundColor $(if ($fail -eq 0) { 'Green' } else { 'Yellow' })"
+    @powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\utils\lint_all.ps1
 
-# --- Auto-fix known v1 v2 issues on ALL scriptlets  creates  bak backups ---
+# --- Auto-fix known v1 v2 issues on ALL scriptlets ---
 lint-fix:
-    @powershell.exe -NoProfile -Command "$ahk = 'C:\Program Files\AutoHotkey\v2\AutoHotkey64.exe'; $linter = '.\utils\linter_headless.ahk'; $scripts = Get-ChildItem '.\scriptlets\*.ahk' -File | Where-Object { $_.Name -notlike '_*' -and $_.Name -notlike '*.bak' }; $fixed = 0; foreach ($f in $scripts) { $p = Start-Process -FilePath $ahk -ArgumentList \"`\"$linter`\" `\"$($f.FullName)`\"\ --fix\" -PassThru -Wait -NoNewWindow; if ($p.ExitCode -eq 0) { Write-Host \"  OK   $($f.Name)\" -ForegroundColor Green } else { Write-Host \"  WARN $($f.Name)\" -ForegroundColor Yellow; $fixed++ } }; Write-Host \"`n$($fixed) files still have warnings after fix\" -ForegroundColor $(if ($fixed -eq 0) { 'Green' } else { 'Yellow' })"
-
-# --- Run the compatibility scanner  v1 v2 migration check ---
-scan-compat:
-    @powershell.exe -NoProfile -Command "& '.\run_compatibility_scan.ps1'"
+    @powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\utils\lint_all.ps1 -Fix
 
 # Lint a single scriptlet: just lint-one scriptlet_name
 lint-one name:
-    @powershell.exe -NoProfile -Command "$ahk = 'C:\Program Files\AutoHotkey\v2\AutoHotkey64.exe'; $linter = '.\utils\linter_headless.ahk'; $path = \".\scriptlets\{{name}}.ahk\"; if (Test-Path $path) { & $ahk \"`\"$linter`\" `\"$path`\"\"; Get-Content '.\utils\lint_report.txt' } else { Write-Host \"Scriptlet not found: {{name}}\" }"
+    @powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\utils\lint_one.ps1 -Name "{{name}}"
 
 # Kill all AHK processes (zombie cleanup)
 kill-ahk:
