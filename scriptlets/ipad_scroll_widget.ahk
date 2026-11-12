@@ -13,7 +13,7 @@ OnError(_CatchBootError)
 
 ; ==============================================================================
 ; @name: iPad Scroll Widget
-; @version: 1.7.0
+; @version: 1.7.1
 ; @description: Slim vertical touch widget for the OpenCode TUI (also great over RustDesk/iPad): PgUp, Up, Down, PgDn, Top, End, Menu, Copy, Paste, Cfg.
 ; @description: Menu toggles a wide labeled quick-launch rail, bottom-aligned:
 ; @description: AHK dash, files, fleet, web, Claude, Antigravity, export current
@@ -43,7 +43,7 @@ global GAP := 3
 global PAD := 6
 global WIDGET_ALPHA := 100
 global TRANSKEY := "FF00FF"
-global QUICK_W := 120
+global QUICK_W := 132
 global QUICK_H := 299
 global QUICK_N := 10
 global QUICK_GAP := 12
