@@ -106,8 +106,8 @@ class MacroEditor {
         
         
         ; Add exit handlers
-        this.gui.OnEvent("Close", this.HideGui())
-        this.gui.OnEvent("Escape", this.HideGui())
+        this.gui.OnEvent("Close", (*) => MacroEditor.HideGUI())
+        this.gui.OnEvent("Escape", (*) => MacroEditor.HideGUI())
         this.gui.Show("w500 h600")
         this.isVisible := true
     }
@@ -130,7 +130,7 @@ class MacroEditor {
             this.macroSelect.Text := macroFiles[1]
     }
     
-    static MacroSelected() {
+    static MacroSelected(*) {
         selected := this.macroSelect.Text
         
         if (selected && FileExist(selected)) {
@@ -185,14 +185,14 @@ class MacroEditor {
         }
     }
     
-    static ActionSelected() {
+    static ActionSelected(*) {
         selected := this.actionList.GetNext()
         if (selected > 0) {
             this.AppendLog("Selected action: " . selected)
         }
     }
     
-    static EditAction() {
+    static EditAction(*) {
         selected := this.actionList.GetNext()
         if (selected = 0) {
             MsgBox("Please select an action to edit", "Edit Action", "Icon!")
@@ -203,7 +203,7 @@ class MacroEditor {
         this.OpenEditDialog(selected)
     }
     
-    static DeleteAction() {
+    static DeleteAction(*) {
         selected := this.actionList.GetNext()
         if (selected = 0) {
             return
@@ -216,12 +216,12 @@ class MacroEditor {
         }
     }
     
-    static InsertAction() {
+    static InsertAction(*) {
         ; Open insert dialog
         this.OpenInsertDialog()
     }
     
-    static DuplicateAction() {
+    static DuplicateAction(*) {
         selected := this.actionList.GetNext()
         if (selected = 0) {
             return
@@ -247,7 +247,7 @@ class MacroEditor {
         this.actionList.Modify(selected + direction, "Select")
     }
     
-    static OptimizeMacro() {
+    static OptimizeMacro(*) {
         ; Remove redundant actions
         beforeCount := this.macro.Length
         
@@ -343,7 +343,7 @@ class MacroEditor {
         return {}
     }
     
-    static SaveMacro() {
+    static SaveMacro(*) {
         if (this.macro.Length = 0) {
             MsgBox("No macro to save", "Save", "Icon!")
             return
@@ -354,7 +354,7 @@ class MacroEditor {
         this.AppendLog("Macro saved")
     }
     
-    static ExportMacro() {
+    static ExportMacro(*) {
         if (this.macro.Length = 0) {
             MsgBox("No macro to export", "Export", "Icon!")
             return
@@ -479,3 +479,5 @@ class MacroEditor {
         return ahk
     }
 }
+
+MacroEditor.Init()
