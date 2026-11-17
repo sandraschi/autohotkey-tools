@@ -419,71 +419,48 @@ ShowToolTip(message, duration := 2000) {
 
 ; Get monitor index that contains the specified window
 GetMonitorFromWindow(hwnd) {
-    ; Get window position
     WinGetPos(&x, &y, , , hwnd)
-    
-    ; Get monitor that contains the window
     monitor := 0
-    SysGet(&monitorCount, 80)  ; SM_CMONITORS
-    
+    monitorCount := MonitorGetCount()
     Loop monitorCount {
-        SysGet(&monitorInfo, 0, A_Index)  ; SM_MONITORINFO
-        if (x >= monitorInfo.Left && x < monitorInfo.Right && 
-            y >= monitorInfo.Top && y < monitorInfo.Bottom) {
+        MonitorGet(A_Index, &left, &top, &right, &bottom)
+        if (x >= left && x < right && y >= top && y < bottom) {
             monitor := A_Index
             break
         }
     }
-    
-    return monitor ? monitor : 1  ; Default to primary monitor
+    return monitor ? monitor : MonitorGetPrimary()
 }
 
 ; Get information about a monitor
 GetMonitorInfo(monitorNum) {
-    static MONITOR_DEFAULTTONEAREST := 0x00000002
-    static MONITORINFOEX_SIZE := 104  ; Size of MONITORINFOEX structure
-    
-    ; Get monitor handle
-    hMonitor := DllCall("MonitorFromPoint", "int64", 0, "uint", MONITOR_DEFAULTTONEAREST)
-    
-    ; Get monitor info
-    VarSetStrCapacity(&monitorInfo, MONITORINFOEX_SIZE)
-    NumPut("uint", MONITORINFOEX_SIZE, monitorInfo, 0)
-    
-    if (DllCall("GetMonitorInfo", "ptr", hMonitor, "ptr", &monitorInfo)) {
-        return {
-            Left: NumGet(monitorInfo, 4, "int"),
-            Top: NumGet(monitorInfo, 8, "int"),
-            Right: NumGet(monitorInfo, 12, "int"),
-            Bottom: NumGet(monitorInfo, 16, "int"),
-            WorkLeft: NumGet(monitorInfo, 20, "int"),
-            WorkTop: NumGet(monitorInfo, 24, "int"),
-            WorkRight: NumGet(monitorInfo, 28, "int"),
-            WorkBottom: NumGet(monitorInfo, 32, "int"),
-            Flags: NumGet(monitorInfo, 36, "uint"),
-            Name: StrGet(&monitorInfo + 40, 32)
-        }
+    try {
+        MonitorGet(monitorNum, &left, &top, &right, &bottom)
+        MonitorGetWorkArea(monitorNum, &workLeft, &workTop, &workRight, &workBottom)
+    } catch {
+        left := 0
+        top := 0
+        right := A_ScreenWidth
+        bottom := A_ScreenHeight
+        workLeft := 0
+        workTop := 0
+        workRight := A_ScreenWidth
+        workBottom := A_ScreenHeight
     }
-    
-    ; Return primary monitor info if we couldn't get the specific monitor
     return {
-        Left: 0,
-        Top: 0,
-        Right: A_ScreenWidth,
-        Bottom: A_ScreenHeight,
-        WorkLeft: 0,
-        WorkTop: 0,
-        WorkRight: A_ScreenWidth,
-        WorkBottom: A_ScreenHeight,
-        Flags: 1,  ; Primary monitor
-        Name: "\\\.\DISPLAY1"
+        Left: left,
+        Top: top,
+        Right: right,
+        Bottom: bottom,
+        WorkLeft: workLeft,
+        WorkTop: workTop,
+        WorkRight: workRight,
+        WorkBottom: workBottom
     }
 }
 
-; Get the number of monitors
 GetMonitorCount() {
-    SysGet(&count, 80)  ; SM_CMONITORS
-    return count
+    return MonitorGetCount()
 }
 
 ; =============================================================================

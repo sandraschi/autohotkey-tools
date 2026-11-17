@@ -57,22 +57,22 @@ class AHDebugHelper {
             newGui.BackColor := "1a1a1a"
             newGui.SetFont("s10 cFFFFFF", "Segoe UI")
 
-            newGui.Add("Text", "x20 y20 w760 Center Bold", "🔧 AutoHotkey Debug Helper")
+            newGui.Add("Text", "x20 y20 w760 Center", "🔧 AutoHotkey Debug Helper")
             newGui.Add("Text", "x20 y50 w760 Center", "Comprehensive debugging tools for AutoHotkey v2 scripts")
 
-            newGui.Add("Text", "x20 y90 w760 Bold", "🎯 Debug Controls")
+            newGui.Add("Text", "x20 y90 w760", "🎯 Debug Controls")
             newGui.Add("Button", "x20 y120 w150 h40", "📊 List Variables").OnEvent("Click", (*) => AHDebugHelper.ListVariables())
             newGui.Add("Button", "x190 y120 w150 h40", "📝 List Lines").OnEvent("Click", (*) => AHDebugHelper.ListLines())
             newGui.Add("Button", "x360 y120 w150 h40", "⌨️ Key History").OnEvent("Click", (*) => AHDebugHelper.KeyHistory())
             newGui.Add("Button", "x530 y120 w150 h40", "📋 Debug Log").OnEvent("Click", (*) => AHDebugHelper.ShowDebugLog())
 
-            newGui.Add("Text", "x20 y180 w760 Bold", "🔍 Script Analysis")
+            newGui.Add("Text", "x20 y180 w760", "🔍 Script Analysis")
             newGui.Add("Button", "x20 y210 w150 h40", "🔍 Analyze Script").OnEvent("Click", (*) => AHDebugHelper.AnalyzeScript())
             newGui.Add("Button", "x190 y210 w150 h40", "⚠️ Check Syntax").OnEvent("Click", (*) => AHDebugHelper.CheckSyntax())
             newGui.Add("Button", "x360 y210 w150 h40", "🔗 Dependencies").OnEvent("Click", (*) => AHDebugHelper.FindDependencies())
             newGui.Add("Button", "x530 y210 w150 h40", "📊 Performance").OnEvent("Click", (*) => AHDebugHelper.PerformanceAnalysis())
 
-            newGui.Add("Text", "x20 y270 w760 Bold", "💻 Command Line Debugging")
+            newGui.Add("Text", "x20 y270 w760", "💻 Command Line Debugging")
             newGui.Add("Text", "x20 y300 w150", "Script Path:")
             scriptPathEdit := newGui.Add("Edit", "x180 y295 w400 h25", A_ScriptDir . "\test_script.ahk")
             newGui.Add("Button", "x600 y295 w150 h40", "🚀 Run with Debug").OnEvent("Click", (*) => AHDebugHelper.RunWithDebug())
@@ -84,7 +84,7 @@ class AHDebugHelper {
             forceReloadCheck := newGui.Add("CheckBox", "x460 y330 w200", "Restart (Force reload)")
             forceReloadCheck.Value := 0
 
-            newGui.Add("Text", "x20 y370 w760 Bold", "📋 Debug Output")
+            newGui.Add("Text", "x20 y370 w760", "📋 Debug Output")
             debugOutput := newGui.Add("Edit", "x20 y400 w760 h170 ReadOnly Multi VScroll", "")
             debugOutput.BackColor := "2d2d2d"
             debugOutput.SetFont("s9 cFFFFFF", "Consolas")
