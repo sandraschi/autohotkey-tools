@@ -43,14 +43,14 @@ class Office365Automation {
     static CreateGUI() {
         this.gui := Gui("+Resize +MinSize800x700", "Office 365 Automation Suite")
         this.gui.BackColor := "1a1a1a"
-        this.gui.SetFont("s12 cFFFFFF Bold", "Segoe UI")
+        this.gui.SetFont("s12 cFFFFFF", "Segoe UI")
         
         ; Title
-        this.gui.Add("Text", "x20 y20 w760 Center Bold", "🏢 Office 365 Automation Suite")
+        this.gui.Add("Text", "x20 y20 w760 Center", "🏢 Office 365 Automation Suite")
         this.gui.Add("Text", "x20 y50 w760 Center ", "Automate common Office 365 tasks and workflows")
         
         ; Outlook Automation
-        this.gui.Add("Text", "x20 y90 w760 Bold", "📧 Outlook Automation")
+        this.gui.Add("Text", "x20 y90 w760", "📧 Outlook Automation")
         
         outlookBtn1 := this.gui.Add("Button", "x20 y120 w180 h50 Background4a4a4a", "📬 Quick Email Reply")
         outlookBtn1.SetFont("s10 cFFFFFF", "Segoe UI")
@@ -69,7 +69,7 @@ class Office365Automation {
         outlookBtn4.OnEvent("Click", this.AutoOrganize.Bind(this))
         
         ; OneNote Automation
-        this.gui.Add("Text", "x20 y190 w760 Bold", "📝 OneNote Automation")
+        this.gui.Add("Text", "x20 y190 w760", "📝 OneNote Automation")
         
         onenoteBtn1 := this.gui.Add("Button", "x20 y220 w180 h50 Background4a4a4a", "📄 Quick Note")
         onenoteBtn1.SetFont("s10 cFFFFFF", "Segoe UI")
@@ -88,7 +88,7 @@ class Office365Automation {
         onenoteBtn4.OnEvent("Click", this.NoteStatistics.Bind(this))
         
         ; Teams Automation
-        this.gui.Add("Text", "x20 y290 w760 Bold", "💬 Microsoft Teams Automation")
+        this.gui.Add("Text", "x20 y290 w760", "💬 Microsoft Teams Automation")
         
         teamsBtn1 := this.gui.Add("Button", "x20 y320 w180 h50 Background4a4a4a", "📞 Quick Call")
         teamsBtn1.SetFont("s10 cFFFFFF", "Segoe UI")
@@ -107,7 +107,7 @@ class Office365Automation {
         teamsBtn4.OnEvent("Click", this.FocusMode.Bind(this))
         
         ; Word & Excel Automation
-        this.gui.Add("Text", "x20 y390 w760 Bold", "📄 Word & Excel Automation")
+        this.gui.Add("Text", "x20 y390 w760", "📄 Word & Excel Automation")
         
         officeBtn1 := this.gui.Add("Button", "x20 y420 w180 h50 Background4a4a4a", "📝 Document Templates")
         officeBtn1.SetFont("s10 cFFFFFF", "Segoe UI")
@@ -126,7 +126,7 @@ class Office365Automation {
         officeBtn4.OnEvent("Click", this.ClipboardSync.Bind(this))
         
         ; Advanced Features
-        this.gui.Add("Text", "x20 y490 w760 Bold", "⚡ Advanced Features")
+        this.gui.Add("Text", "x20 y490 w760", "⚡ Advanced Features")
         
         advancedBtn1 := this.gui.Add("Button", "x20 y520 w180 h50 Background4a4a4a", "🤖 AI Assistant")
         advancedBtn1.SetFont("s10 cFFFFFF", "Segoe UI")
@@ -274,7 +274,7 @@ class Office365Automation {
     static EmailTemplates(*) {
         try {
             templateGui := Gui("+AlwaysOnTop", "Email Templates")
-            templateGui.Add("Text", "w400 Center Bold", "📧 Email Templates")
+            templateGui.Add("Text", "w400 Center", "📧 Email Templates")
             
             templates := [
                 {name: "Follow-up Email", content: "Hi [Name],`n`nI wanted to follow up on our previous conversation regarding [Topic].`n`nPlease let me know if you need any additional information.`n`nBest regards,`n[Your Name]"},
@@ -423,7 +423,7 @@ class Office365Automation {
             notebooks := this.onenoteApp.GetNotebooks()
             
             statsGui := Gui("+AlwaysOnTop", "OneNote Statistics")
-            statsGui.Add("Text", "w400 Center Bold", "📊 OneNote Statistics")
+            statsGui.Add("Text", "w400 Center", "📊 OneNote Statistics")
             
             statsText := "Notebooks: " . notebooks.Count . "`n`n"
             
@@ -473,7 +473,7 @@ class Office365Automation {
     static MeetingStatus(*) {
         try {
             statusGui := Gui("+AlwaysOnTop", "Meeting Status")
-            statusGui.Add("Text", "w300 Center Bold", "📅 Current Meeting Status")
+            statusGui.Add("Text", "w300 Center", "📅 Current Meeting Status")
             
             ; Check if in a meeting
             if (this.IsInMeeting()) {
@@ -521,7 +521,7 @@ class Office365Automation {
     static DocumentTemplates(*) {
         try {
             templateGui := Gui("+AlwaysOnTop", "Document Templates")
-            templateGui.Add("Text", "w400 Center Bold", "📄 Document Templates")
+            templateGui.Add("Text", "w400 Center", "📄 Document Templates")
             
             templates := [
                 "Meeting Minutes",
@@ -603,7 +603,7 @@ class Office365Automation {
     static ExcelShortcuts(*) {
         try {
             shortcutsGui := Gui("+AlwaysOnTop", "Excel Shortcuts")
-            shortcutsGui.Add("Text", "w400 Center Bold", "📊 Excel Automation Shortcuts")
+            shortcutsGui.Add("Text", "w400 Center", "📊 Excel Automation Shortcuts")
             
             shortcuts := [
                 "Ctrl+Shift+L - Auto-filter",
@@ -656,7 +656,7 @@ class Office365Automation {
             
             ; Show clipboard sync options
             syncGui := Gui("+AlwaysOnTop", "Clipboard Sync")
-            syncGui.Add("Text", "w300 Center Bold", "📋 Clipboard Sync")
+            syncGui.Add("Text", "w300 Center", "📋 Clipboard Sync")
             syncGui.Add("Text", "w280", "Current clipboard content:")
             contentText := syncGui.Add("Text", "w280 h100", currentClipboard)
             
@@ -672,7 +672,7 @@ class Office365Automation {
     static AIAssistant(*) {
         try {
             aiGui := Gui("+AlwaysOnTop", "AI Assistant")
-            aiGui.Add("Text", "w400 Center Bold", "🤖 AI Assistant")
+            aiGui.Add("Text", "w400 Center", "🤖 AI Assistant")
             aiGui.Add("Text", "w380", "AI-powered Office 365 assistance")
             
             features := [
@@ -698,7 +698,7 @@ class Office365Automation {
     static ProductivityAnalytics(*) {
         try {
             analyticsGui := Gui("+AlwaysOnTop", "Productivity Analytics")
-            analyticsGui.Add("Text", "w400 Center Bold", "📈 Productivity Analytics")
+            analyticsGui.Add("Text", "w400 Center", "📈 Productivity Analytics")
             
             ; Mock analytics data
             analyticsText := "Today's Activity:`n" . 
@@ -727,7 +727,7 @@ class Office365Automation {
     static Settings(*) {
         try {
             settingsGui := Gui("+AlwaysOnTop", "Settings")
-            settingsGui.Add("Text", "w400 Center Bold", "🔧 Office 365 Automation Settings")
+            settingsGui.Add("Text", "w400 Center", "🔧 Office 365 Automation Settings")
             
             ; Auto-connect checkbox
             autoConnectCheck := settingsGui.Add("Checkbox", "w380 h20", "Auto-connect to Office apps on startup")
@@ -738,7 +738,7 @@ class Office365Automation {
             notifyCheck.Value := 1
             
             ; Hotkey settings
-            settingsGui.Add("Text", "w380 Bold", "Hotkeys:")
+            settingsGui.Add("Text", "w380", "Hotkeys:")
             settingsGui.Add("Text", "w380", "Ctrl+Alt+O - Open automation suite")
             settingsGui.Add("Text", "w380", "Ctrl+Alt+N - Quick note")
             settingsGui.Add("Text", "w380", "Ctrl+Alt+T - Teams call")
@@ -757,7 +757,7 @@ class Office365Automation {
     static Help(*) {
         try {
             helpGui := Gui("+AlwaysOnTop", "Help")
-            helpGui.Add("Text", "w500 Center Bold", "❓ Office 365 Automation Help")
+            helpGui.Add("Text", "w500 Center", "❓ Office 365 Automation Help")
             
             helpText := "Welcome to Office 365 Automation Suite!`n`n" . 
                        "Features:`n" . 

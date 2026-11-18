@@ -73,10 +73,10 @@ class MCPLogAnalyzer {
         newGui.BackColor := "1d1d1d"
         newGui.SetFont("s10 cFFFFFF", "Segoe UI")
 
-        newGui.Add("Text", "x20 y20 w880 Center Bold", "📊 MCP Log Analyzer")
+        newGui.Add("Text", "x20 y20 w880 Center", "📊 MCP Log Analyzer")
         newGui.Add("Text", "x20 y48 w880 Center cC0C0C0", "Scan Claude Desktop MCP logs for startup issues, errors, and performance regressions.")
 
-        newGui.Add("Text", "x20 y88 w880 Bold", "Log Sources")
+        newGui.Add("Text", "x20 y88 w880", "Log Sources")
         newGui.Add("Text", "x20 y116 w120", "Log Directory:")
         newGui.Add("Edit", "x150 y110 w580 h26 ReadOnly", MCPLogAnalyzer.logDir)
         browseBtn := newGui.Add("Button", "x740 y110 w160 h26", "Browse...")
@@ -87,11 +87,11 @@ class MCPLogAnalyzer {
         cfgBtn := newGui.Add("Button", "x740 y142 w160 h26", "Open Config")
         cfgBtn.OnEvent("Click", MCPLogAnalyzer.OpenConfig)
 
-        newGui.Add("Text", "x20 y186 w400 Bold", "Detected Log Files")
+        newGui.Add("Text", "x20 y186 w400", "Detected Log Files")
         filesList := newGui.Add("ListView", "x20 y214 w400 h300 -Hdr", ["Filename", "Modified"])
-        filesList.OnEvent("ItemActivate", MCPLogAnalyzer.OnFileActivated)
+        filesList.OnEvent("DoubleClick", MCPLogAnalyzer.OnFileActivated)
 
-        newGui.Add("Text", "x440 y186 w460 Bold", "Analysis Settings")
+        newGui.Add("Text", "x440 y186 w460", "Analysis Settings")
         settings := [
             "Connection failures",
             "Import errors",
@@ -110,7 +110,7 @@ class MCPLogAnalyzer {
         newGui.Add("Button", "x660 y380 w200 h40", "📈 Analyze All").OnEvent("Click", MCPLogAnalyzer.AnalyzeAll)
         newGui.Add("Button", "x440 y430 w420 h36", "🧾 Generate Recommendations").OnEvent("Click", MCPLogAnalyzer.ShowRecommendations)
 
-        newGui.Add("Text", "x20 y530 w880 Bold", "Analysis Results")
+        newGui.Add("Text", "x20 y530 w880", "Analysis Results")
         resultsView := newGui.Add("ListView", "x20 y558 w880 h160", ["Severity", "Type", "File", "Message"])
         resultsView.ModifyCol(1, 80)
         resultsView.ModifyCol(2, 150)
@@ -118,7 +118,7 @@ class MCPLogAnalyzer {
         resultsView.ModifyCol(4, 420)
         MCPLogAnalyzer.resultsView := resultsView
 
-        newGui.Add("Text", "x20 y728 w880 Bold", "Activity Log")
+        newGui.Add("Text", "x20 y728 w880", "Activity Log")
         logEdit := newGui.Add("Edit", "x20 y756 w880 h100 ReadOnly VScroll", "")
         logEdit.BackColor := "242424"
         logEdit.SetFont("s9", "Consolas")
@@ -130,7 +130,7 @@ class MCPLogAnalyzer {
 
         newGui.OnEvent("Close", MCPLogAnalyzer.HideWindow)
         newGui.OnEvent("Escape", MCPLogAnalyzer.HideWindow)
-        newGui.OnEvent("Size", MCPLogAnalyzer.OnResize)
+        newGui.OnEvent("Size", (gui, minMax, w, h) => MCPLogAnalyzer.OnResize(gui, minMax, w, h))
 
         newGui.filesList := filesList
         MCPLogAnalyzer.gui := newGui
@@ -169,7 +169,19 @@ class MCPLogAnalyzer {
         Loop Files MCPLogAnalyzer.logDir . "\*.log" {
             files.Push({path: A_LoopFileFullPath, time: A_LoopFileTimeModified})
         }
-        files.Sort((a, b) => a.time > b.time ? -1 : 1)
+        i := 1
+        while (i < files.Length) {
+            j := i + 1
+            while (j <= files.Length) {
+                if (files[j].time > files[i].time) {
+                    swapped := files[i]
+                    files[i] := files[j]
+                    files[j] := swapped
+                }
+                j++
+            }
+            i++
+        }
         for file in files {
             list.Add(, RegExReplace(file.path, ".*\\", ""), file.time)
         }
@@ -198,7 +210,8 @@ class MCPLogAnalyzer {
         }
     }
 
-    static OnFileActivated(listView, row) {
+    static OnFileActivated(listView, *) {
+        row := listView.GetNext()
         fPath := MCPLogAnalyzer.GetFilePath(row)
         if (fPath != "" && FileExist(fPath)) {
             Run('notepad "' . fPath . '"')

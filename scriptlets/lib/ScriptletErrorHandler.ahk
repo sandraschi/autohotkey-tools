@@ -14,7 +14,7 @@ class ScriptletErrorHandler {
     static logDir := ""
 
     static Handle(Thrown, Mode) {
-        scriptName := RegExReplace(A_ScriptName, "\.ahk$", "", , 1)
+        scriptName := RegExReplace(A_ScriptName, "\.ahk$", "")
         ScriptletErrorHandler.EnsureLogDirectory()
 
         timestamp := FormatTime(A_Now, "yyyy-MM-dd HH:mm:ss")
