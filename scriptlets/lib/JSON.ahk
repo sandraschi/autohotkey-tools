@@ -110,13 +110,36 @@ class JSON {
 		}
 		ES(S) {
 			switch Type(S) {
-				case "Float": if (v := '', d := InStr(S, 'e')) v := SubStr(S, d), S := SubStr(S, 1, d - 1); if ((StrLen(S) > 17) && (d := RegExMatch(S, "(99999+|00000+)\d{0,3}$"))) S := Round(S, Max(1, d - InStr(S, ".") - 1)); return S v
+				case "Float":
+					v := ""
+					d := InStr(S, "e")
+					if (d) {
+						v := SubStr(S, d)
+						S := SubStr(S, 1, d - 1)
+					}
+					if ((StrLen(S) > 17) && (d := RegExMatch(S, "(99999+|00000+)\d{0,3}$")))
+						S := Round(S, Max(1, d - InStr(S, ".") - 1))
+					return S v
 				case "Integer": return S
-				case "String": S := StrReplace(S, "\", "\\"); S := StrReplace(S, "`t", "\t"); S := StrReplace(S, "`r", "\r"); S := StrReplace(S, "`n", "\n"); S := StrReplace(S, "`b", "\b"); S := StrReplace(S, "`f", "\f"); S := StrReplace(S, "`v", "\v"); S := StrReplace(S, '"', '\"'); return '"' S '"'
+				case "String":
+					S := StrReplace(S, "\", "\\")
+					S := StrReplace(S, Chr(9), "\t")
+					S := StrReplace(S, Chr(13), "\r")
+					S := StrReplace(S, Chr(10), "\n")
+					S := StrReplace(S, Chr(8), "\b")
+					S := StrReplace(S, Chr(12), "\f")
+					S := StrReplace(S, Chr(11), "\v")
+					S := StrReplace(S, '"', '\"')
+					return '"' S '"'
 				default: return S == this.true ? "true" : S == this.false ? "false" : "null"
 			}
 		}
-		CL(i) { Loop (s := "", space ? i - 1 : 0) s .= space; return s }
+		CL(i) {
+			s := ""
+			Loop (space ? i - 1 : 0)
+				s .= space
+			return s
+		}
 	}
 
 	; Aliases for older API compatibility

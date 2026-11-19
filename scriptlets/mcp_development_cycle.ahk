@@ -100,10 +100,10 @@ class MCPDevelopmentCycle {
         newGui.BackColor := "1b1b1b"
         newGui.SetFont("s10 cFFFFFF", "Segoe UI")
 
-        newGui.Add("Text", "x20 y20 w980 Center Bold", "🚀 MCP Development Cycle")
+        newGui.Add("Text", "x20 y20 w980 Center", "🚀 MCP Development Cycle")
         newGui.Add("Text", "x20 y48 w980 Center cC0C0C0", "Guide MCP projects from planning through maintenance with structured phases and logging.")
 
-        newGui.Add("Text", "x20 y90 w980 Bold", "Project Overview")
+        newGui.Add("Text", "x20 y90 w980", "Project Overview")
         newGui.Add("Text", "x20 y118 w120", "Project Name:")
         projectName := newGui.Add("Edit", "x150 y112 w280 h26", "my-mcp-project")
         newGui.Add("Text", "x460 y118 w120", "Description:")
@@ -111,12 +111,12 @@ class MCPDevelopmentCycle {
 
         newGui.Add("Text", "x20 y150 w980", "Project Root: " . MCPDevelopmentCycle.projectRoot)
 
-        newGui.Add("Text", "x20 y188 w420 Bold", "Development Phases")
+        newGui.Add("Text", "x20 y188 w420", "Development Phases")
         phaseList := newGui.Add("ListView", "x20 y216 w420 h360 -Hdr", ["Phase", "Status"])
         phaseList.OnEvent("ItemSelect", MCPDevelopmentCycle.OnPhaseSelected)
         MCPDevelopmentCycle.phaseList := phaseList
 
-        newGui.Add("Text", "x460 y188 w540 Bold", "Phase Details")
+        newGui.Add("Text", "x460 y188 w540", "Phase Details")
         detailEdit := newGui.Add("Edit", "x460 y216 w540 h360 ReadOnly Multi VScroll", "")
         detailEdit.BackColor := "262626"
         detailEdit.SetFont("s10", "Consolas")
@@ -133,7 +133,7 @@ class MCPDevelopmentCycle {
         btnReport := newGui.Add("Button", "x860 y594 w140 h40", "📊 Phase Report")
         btnReport.OnEvent("Click", MCPDevelopmentCycle.ShowPhaseReport)
 
-        newGui.Add("Text", "x20 y646 w980 Bold", "Workflow Controls")
+        newGui.Add("Text", "x20 y646 w980", "Workflow Controls")
         btnDevStart := newGui.Add("Button", "x20 y676 w230 h44", "🚀 Start Development")
         btnDevStart.OnEvent("Click", MCPDevelopmentCycle.StartDevelopment)
         btnPause := newGui.Add("Button", "x260 y676 w230 h44", "⏸️ Pause Development")
@@ -143,7 +143,7 @@ class MCPDevelopmentCycle {
         btnProgress := newGui.Add("Button", "x740 y676 w230 h44", "📈 Progress Report")
         btnProgress.OnEvent("Click", MCPDevelopmentCycle.ShowProgressReport)
 
-        newGui.Add("Text", "x20 y730 w980 Bold", "Activity Log")
+        newGui.Add("Text", "x20 y730 w980", "Activity Log")
         logEdit := newGui.Add("Edit", "x20 y758 w980 h120 ReadOnly VScroll", "")
         logEdit.BackColor := "242424"
         logEdit.SetFont("s9", "Consolas")
@@ -158,7 +158,7 @@ class MCPDevelopmentCycle {
 
         newGui.OnEvent("Close", MCPDevelopmentCycle.HideGui)
         newGui.OnEvent("Escape", MCPDevelopmentCycle.HideGui)
-        newGui.OnEvent("Size", MCPDevelopmentCycle.OnResize)
+        newGui.OnEvent("Size", (gui, minMax, w, h) => MCPDevelopmentCycle.OnResize(gui, minMax, w, h))
         MCPDevelopmentCycle.gui := newGui
     }
 
@@ -399,8 +399,6 @@ class MCPDevelopmentCycle {
             return
         MCPDevelopmentCycle.gui.Hide()
         MCPDevelopmentCycle.statusBar.SetText("GUI hidden. Press Ctrl+Alt+D to resume.")
-    }
-        }
     }
 }
 
