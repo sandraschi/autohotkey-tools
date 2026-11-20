@@ -270,114 +270,6 @@ LoadSnippets() {
     return snippets
 }
 
-; Simple JSON handler for AutoHotkey v2.0
-class JSON {
-    static parse(json) {
-        if (!json) {
-            return {}
-        }
-        
-        try {
-            ; Simple parser that handles basic JSON objects
-            obj := {}
-            json := Trim(json, " `t\r\n")
-            
-            ; Only handle simple objects for now
-            if (SubStr(json, 1, 1) = "{" && SubStr(json, 0) = "}") {
-                json := SubStr(json, 2, -1)
-                Loop Parse, json, "," {
-                    pair := StrSplit(Trim(A_LoopField), ":")
-                    if (pair.Length() >= 2) {
-                        key := Trim(pair[1], ' `t"')
-                        value := Trim(pair[2], ' `t"')
-                        obj[key] := value
-    }
-}
-
-JSON_Stringify(obj, indent := "") {
-    if (Type(obj) = "Map") {
-        items := []
-        for k, v in obj {
-            items.Push(indent . "  """ . k . """: " . JSON_Stringify(v, indent . "  "))
-        }
-        return "{" . "`n" . Join("`,", items) . "`n" . indent . "}"
-    }
-    if (Type(obj) = "Array") {
-        items := []
-        for v in obj {
-            items.Push(indent . "  " . JSON_Stringify(v, indent . "  "))
-        }
-        return "[" . "`n" . Join("`,", items) . "`n" . indent . "]"
-    }
-    if (Type(obj) = "String") {
-        s := StrReplace(obj, "\", "\\")
-        s := StrReplace(s, """", "\""")
-        s := StrReplace(s, "`n", "\n")
-        s := StrReplace(s, "`t", "\t")
-        return """" . s . """"
-    }
-    if (Type(obj) = "Integer" || Type(obj) = "Float") {
-        return obj
-    }
-    return "null"
-}
-
-Join(sep, arr) {
-    out := ""
-    for i, v in arr {
-        if (i > 1)
-            out .= sep
-        out .= v
-    }
-    return out
-}
-
-JSON_Parse(text) {            }
-            
-            return obj
-        } catch as e {
-            MsgBox("Error parsing JSON: " . e.Message)
-            return {}
-        }
-    }
-    
-    static stringify(obj, space := "") {
-        if (!IsObject(obj)) {
-            return obj = "" ? '""' : obj
-        }
-        
-        result := "{"
-        first := true
-        
-        ; Simple stringifier for Maps
-        for key, value in obj {
-            if (!first) {
-                result .= ","
-            }
-            result .= "`"" key "`": " (IsNumber(value) ? value : "`"" value "`"")
-            first := false
-        }
-        
-        result .= "}"
-        return result
-    }
-    
-    static _escapeString(str) {
-        ; Handle empty string
-        if (str = "") {
-            return ""
-        }
-        
-        ; Simple escaping for quotes and backslashes
-        str := StrReplace(str, "\", "\\")
-        str := StrReplace(str, '"', '\"')
-        str := StrReplace(str, "`n", "\n")
-        str := StrReplace(str, "`r", "\r")
-        str := StrReplace(str, "`t", "\t")
-        
-        return str
-    }
-}
 
 JSON_Stringify(obj, indent := "") {
     if (Type(obj) = "Map") {
@@ -422,8 +314,12 @@ JSON_ParseMap(text, pos) {
     pos := JSON_EatWS(text, pos)
     while (pos <= StrLen(text)) {
         c := SubStr(text, pos, 1)
-        if (c = "}") { return m }
-        if (c = ",") { pos := JSON_EatWS(text, pos + 1); continue }
+        if (c = "}")
+            return m
+        if (c = ",") {
+            pos := JSON_EatWS(text, pos + 1)
+            continue
+        }
         kr := JSON_ParseStr(text, pos)
         k := kr.val
         pos := JSON_EatWS(text, kr.pos)
@@ -440,8 +336,12 @@ JSON_ParseArr(text, pos) {
     pos := JSON_EatWS(text, pos)
     while (pos <= StrLen(text)) {
         c := SubStr(text, pos, 1)
-        if (c = "]") { return arr }
-        if (c = ",") { pos := JSON_EatWS(text, pos + 1); continue }
+        if (c = "]")
+            return arr
+        if (c = ",") {
+            pos := JSON_EatWS(text, pos + 1)
+            continue
+        }
         vr := JSON_ParseVal(text, pos)
         arr.Push(vr.val)
         pos := JSON_EatWS(text, vr.pos)
@@ -452,11 +352,18 @@ JSON_ParseArr(text, pos) {
 JSON_ParseVal(text, pos) {
     pos := JSON_EatWS(text, pos)
     c := SubStr(text, pos, 1)
-    if (c = """") { return JSON_ParseStr(text, pos) }
-    if (c = "{") { r := JSON_ParseMap(text, pos + 1); return {val: r, pos: pos + 2} }
-    if (c = "t") { return {val: true, pos: pos + 4} }
-    if (c = "f") { return {val: false, pos: pos + 5} }
-    if (c = "n") { return {val: "", pos: pos + 4} }
+    if (c = """")
+        return JSON_ParseStr(text, pos)
+    if (c = "{") {
+        r := JSON_ParseMap(text, pos + 1)
+        return {val: r, pos: pos + 2}
+    }
+    if (c = "t")
+        return {val: true, pos: pos + 4}
+    if (c = "f")
+        return {val: false, pos: pos + 5}
+    if (c = "n")
+        return {val: "", pos: pos + 4}
     end := pos
     while (end <= StrLen(text)) {
         d := SubStr(text, end, 1)
@@ -476,7 +383,8 @@ JSON_ParseStr(text, pos) {
     out := ""
     while (pos <= StrLen(text)) {
         c := SubStr(text, pos, 1)
-        if (c = """") { return {val: out, pos: pos + 1} }
+        if (c = """")
+            return {val: out, pos: pos + 1}
         if (c = "\") {
             pos++
             e := SubStr(text, pos, 1)

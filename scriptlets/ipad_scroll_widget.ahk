@@ -13,8 +13,8 @@ OnError(_CatchBootError)
 
 ; ==============================================================================
 ; @name: iPad Scroll Widget
-; @version: 1.7.0
-; @description: Slim vertical touch widget for the OpenCode TUI (also great over RustDesk/iPad): PgUp, Up, Down, PgDn, Top, End, Menu, Copy, Paste, Cfg.
+; @version: 1.7.2
+; @description: Slim vertical touch widget for OpenCode, Cursor, and Antigravity (also great over RustDesk/iPad): PgUp, Up, Down, PgDn, Top, End, Menu, Copy, Paste, Cfg.
 ; @description: Menu toggles a wide labeled quick-launch rail, bottom-aligned:
 ; @description: AHK dash, files, fleet, web, Claude, Antigravity, export current
 ; @description: chat to MD, OC webapp (starts stack if down), OC stack start.
@@ -24,7 +24,7 @@ OnError(_CatchBootError)
 ; @category: utilities
 ; @author: Sandra
 ; @hotkeys: ^!s toggle  ^!w pick target  ^!m snap  ^!k wheel/key  ^!a autohide  ^!q quick rail  ^!e export chat MD  ^!o rail config
-; @tag: scroll, ipad, rustdesk, opencode, terminal, widget, games, touch, a11y
+; @tag: scroll, ipad, rustdesk, opencode, cursor, antigravity, terminal, widget, games, touch, a11y
 ; ==============================================================================
 
 ; Why this exists: the OpenCode TUI scrollbar is a few px wide - near-invisible
@@ -43,7 +43,7 @@ global GAP := 3
 global PAD := 6
 global WIDGET_ALPHA := 100
 global TRANSKEY := "FF00FF"
-global QUICK_W := 120
+global QUICK_W := 132
 global QUICK_H := 299
 global QUICK_N := 10
 global QUICK_GAP := 12
@@ -83,11 +83,14 @@ global SETTINGS_FILE := A_ScriptDir "\scroll_widget.ini"
 SetWorkingDir(A_ScriptDir)
 
 LoadSettings()
-Dbg("startup: scroll-widget v1.6.0")
-targetHwnd := DetectTerminal()
+Dbg("startup: scroll-widget v1.7.2")
+targetHwnd := ForegroundHost()
+if (!targetHwnd)
+    targetHwnd := DetectTerminal()
 if (targetHwnd) {
     targetName := WinGetProcessName("ahk_id " targetHwnd)
     Dbg("startup: target hwnd=" targetHwnd " exe=" targetName " title=" WinGetTitle("ahk_id " targetHwnd))
+    Dbg("startup: wheel hwnd=" WheelTarget(targetHwnd))
     OutputDebug("[scroll-widget] target: " WinGetTitle("ahk_id " targetHwnd))
 } else {
     Dbg("startup: no target found")
@@ -137,12 +140,79 @@ FindVisibleWindow(exeList) {
     return 0
 }
 
-DetectTerminal() {
-    ; Prefer OpenCode strictly - it is the primary scroll target.
-    hwnd := FindVisibleWindow(["opencode.exe"])
-    if (hwnd) {
-        return hwnd
+IsScrollHost(exe) {
+    for _, name in ["OpenCode.exe", "Cursor.exe", "Antigravity.exe"] {
+        if (exe = name)
+            return true
     }
+    return false
+}
+
+; Foreground window when it is one of the editors. Own widget windows are
+; ignored so a tap does not retarget the strip onto itself.
+ForegroundHost() {
+    global MyGui, MyQuick, MyCfg
+    hwnd := WinExist("A")
+    if (!hwnd)
+        return 0
+    if (MyGui && hwnd = MyGui.Hwnd)
+        return 0
+    if (MyQuick && hwnd = MyQuick.Hwnd)
+        return 0
+    if (MyCfg && hwnd = MyCfg.Hwnd)
+        return 0
+    try exe := WinGetProcessName("ahk_id " hwnd)
+    catch
+        return 0
+    if (IsScrollHost(exe))
+        return hwnd
+    return 0
+}
+
+FollowHost() {
+    global targetHwnd, targetName
+    host := ForegroundHost()
+    if (!host || host = targetHwnd)
+        return
+    targetHwnd := host
+    try targetName := WinGetProcessName("ahk_id " host)
+    UpdateTargetLabel()
+}
+
+; Chromium editors scroll the render child, not the top-level frame.
+; OpenCode's window has no Chrome_RenderWidgetHostHWND, so it stays on the
+; top-level hwnd that already accepts the wheel posts.
+WheelTarget(top) {
+    best := 0
+    bestArea := 0
+    try ctrls := WinGetControlsHwnd("ahk_id " top)
+    catch
+        return top
+    for _, ch in ctrls {
+        try cls := WinGetClass("ahk_id " ch)
+        catch
+            continue
+        if (cls != "Chrome_RenderWidgetHostHWND")
+            continue
+        try WinGetPos(&x, &y, &w, &h, "ahk_id " ch)
+        catch
+            continue
+        if (w < 40 || h < 40)
+            continue
+        area := w * h
+        if (area > bestArea) {
+            bestArea := area
+            best := ch
+        }
+    }
+    return best ? best : top
+}
+
+DetectTerminal() {
+    ; Fallback when no editor is in front. OpenCode first, then Cursor, then Antigravity.
+    hwnd := FindVisibleWindow(["OpenCode.exe", "Cursor.exe", "Antigravity.exe"])
+    if (hwnd)
+        return hwnd
     return FindVisibleWindow(["terminal.exe", "pwsh.exe", "cmd.exe", "conhost.exe", "WindowsTerminal.exe"])
 }
 
@@ -677,13 +747,19 @@ ToggleAutoHide(*) {
 }
 
 IsTargetActive() {
-    global targetHwnd
-    if (WinActive("ahk_exe opencode.exe")) {
-        return true
+    global targetHwnd, MyGui, MyQuick, MyCfg
+    hwnd := WinExist("A")
+    if (hwnd) {
+        if ((MyGui && hwnd = MyGui.Hwnd) || (MyQuick && hwnd = MyQuick.Hwnd) || (MyCfg && hwnd = MyCfg.Hwnd))
+            return true
+        try exe := WinGetProcessName("ahk_id " hwnd)
+        catch
+            exe := ""
+        if (IsScrollHost(exe))
+            return true
     }
-    if (targetHwnd && WinExist("ahk_id " targetHwnd)) {
+    if (targetHwnd && WinExist("ahk_id " targetHwnd))
         return WinActive("ahk_id " targetHwnd) != 0
-    }
     return false
 }
 
@@ -721,6 +797,7 @@ RefreshVisibility() {
 }
 
 AutoHideTick() {
+    FollowHost()
     RefreshVisibility()
     ; Re-dock every tick: RustDesk viewport/display changes can move the main
     ; widget (snap, resolution switch) while the rail keeps stale coords.
@@ -745,8 +822,9 @@ PostWheel(delta) {
         ShowToast("No scroll target - WinExist found nothing. Press ^!w over target.")
         return false
     }
+    scrollHwnd := WheelTarget(targetHwnd)
     try {
-        WinGetPos(&wx, &wy, &ww, &wh, "ahk_id " targetHwnd)
+        WinGetPos(&wx, &wy, &ww, &wh, "ahk_id " scrollHwnd)
     } catch {
         ShowToast("Target lost - pick again with ^!w")
         targetHwnd := 0
@@ -758,7 +836,7 @@ PostWheel(delta) {
     lParam := (cy << 16) | (cx & 0xFFFF)
     wParam := delta << 16
     try {
-        PostMessage(0x020A, wParam, lParam, , "ahk_id " targetHwnd)
+        PostMessage(0x020A, wParam, lParam, , "ahk_id " scrollHwnd)
         return true
     } catch as e {
         ShowToast("Scroll post failed: " e.Message)
@@ -816,7 +894,7 @@ SendKey(keys) {
     }
     if (!targetHwnd) {
         Dbg("SendKey: no target, keys=" keys)
-        ShowToast("No target - press ^!w over OpenCode first")
+        ShowToast("No target - press ^!w over the editor first")
         return
     }
     try {
@@ -825,7 +903,7 @@ SendKey(keys) {
         WinActivate("ahk_id " targetHwnd)
         if (!WinWaitActive("ahk_id " targetHwnd, , 1)) {
             Dbg("SendKey: focus FAILED hwnd=" targetHwnd)
-            ShowToast("Target won't focus - press ^!w over OpenCode")
+            ShowToast("Target won't focus - press ^!w over the editor")
             return
         }
         Sleep(50)
