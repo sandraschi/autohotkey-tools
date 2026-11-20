@@ -5,8 +5,8 @@ const path = require('path');
 const port = 8765;
 
 const server = http.createServer((req, res) => {
-    // Enable CORS
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    // Enable loopback-scoped CORS
+    res.setHeader('Access-Control-Allow-Origin', `http://127.0.0.1:${port}`);
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     

@@ -9,9 +9,9 @@ PORT = 8765
 
 class ScriptletHandler(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
-        # Enable CORS
+        # Enable loopback-scoped CORS
         self.send_response(200)
-        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Origin", f"http://127.0.0.1:{PORT}")
         self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.send_header("Content-Type", "text/plain")
