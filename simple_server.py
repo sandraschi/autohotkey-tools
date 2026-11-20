@@ -41,14 +41,14 @@ class ScriptletHandler(http.server.BaseHTTPRequestHandler):
 
     def do_OPTIONS(self):
         self.send_response(200)
-        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Origin", f"http://127.0.0.1:{PORT}")
         self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.end_headers()
 
 
 try:
-    with socketserver.TCPServer(("", PORT), ScriptletHandler) as httpd:
+    with socketserver.TCPServer(("127.0.0.1", PORT), ScriptletHandler) as httpd:
         print(f"Server running on port {PORT}")
         httpd.serve_forever()
 except Exception as e:
