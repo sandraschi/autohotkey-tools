@@ -29,6 +29,8 @@ OnError(LogError)
 
 class GitHubRepoManager {
     static gui := ""
+    static listCtrl := ""
+    static detailsCtrl := ""
     static username := "sandraschi"
     static repositories := []
     
@@ -57,11 +59,11 @@ class GitHubRepoManager {
         this.gui.SetFont("s10 cFFFFFF", "Segoe UI")
         
         ; Title
-        this.gui.Add("Text", "x20 y20 w760 Center Bold", "🐙 GitHub Repository Manager")
+        this.gui.Add("Text", "x20 y20 w760 Center", "🐙 GitHub Repository Manager")
         this.gui.Add("Text", "x20 y50 w760 Center ", "Manage and display GitHub repositories for @" . this.username)
         
         ; Profile info
-        this.gui.Add("Text", "x20 y90 w760 Bold", "👤 Profile Information")
+        this.gui.Add("Text", "x20 y90 w760", "👤 Profile Information")
         this.gui.Add("Text", "x20 y120 w200", "Username: @" . this.username)
         this.gui.Add("Text", "x240 y120 w200", "Location: Vienna")
         this.gui.Add("Text", "x460 y120 w200", "Repositories: 34")
@@ -70,7 +72,7 @@ class GitHubRepoManager {
         this.gui.Add("Text", "x460 y150 w200", "Following: 6")
         
         ; Actions
-        this.gui.Add("Text", "x20 y190 w760 Bold", "⚡ Actions")
+        this.gui.Add("Text", "x20 y190 w760", "⚡ Actions")
         
         refreshBtn := this.gui.Add("Button", "x20 y220 w150 h40 Background4a4a4a", "🔄 Refresh List")
         refreshBtn.SetFont("s10 cFFFFFF", "Segoe UI")
@@ -85,27 +87,25 @@ class GitHubRepoManager {
         openProfileBtn.OnEvent("Click", this.OpenProfile.Bind(this))
         
         ; Repository list
-        this.gui.Add("Text", "x20 y280 w760 Bold", "📚 Repositories")
+        this.gui.Add("Text", "x20 y280 w760", "📚 Repositories")
         
         repoList := this.gui.Add("ListBox", "x20 y310 w760 h250")
         repoList.SetFont("s9 cFFFFFF", "Consolas")
         repoList.BackColor := "2d2d2d"
+        this.listCtrl := repoList
         
         ; Populate list
         this.PopulateRepositoryList()
         
         ; Repository details
-        this.gui.Add("Text", "x20 y580 w760 Bold", "📖 Repository Details")
+        this.gui.Add("Text", "x20 y580 w760", "📖 Repository Details")
         
         detailsText := this.gui.Add("Text", "x20 y610 w760 h60 ", "Select a repository to view details...")
         detailsText.SetFont("s9 cFFFFFF", "Segoe UI")
-        
-        ; Store references
-        this.gui.repoList := repoList
-        this.gui.detailsText := detailsText
+        this.detailsCtrl := detailsText
         
         ; Event handlers
-        repoList.OnEvent("Click", this.ShowRepositoryDetails.Bind(this))
+        repoList.OnEvent("Change", this.ShowRepositoryDetails.Bind(this))
         
         
         ; Add exit handlers
@@ -115,21 +115,21 @@ class GitHubRepoManager {
     }
     
     static PopulateRepositoryList() {
-        if (!this.gui.repoList) {
+        if (!this.listCtrl) {
             return
         }
         
-        this.gui.repoList.Text := ""
+        this.listCtrl.Text := ""
         
         for repo in this.repositories {
             repoText := "[" . repo.language . "] " . repo.name . " ⭐" . repo.stars
-            this.gui.repoList.Add([repoText])
+            this.listCtrl.Add([repoText])
         }
     }
     
     static ShowRepositoryDetails(*) {
         try {
-            selectedIndex := this.gui.repoList.Value
+            selectedIndex := this.listCtrl.Value
             if (selectedIndex > 0 && selectedIndex <= this.repositories.Length) {
                 repo := this.repositories[selectedIndex]
                 
@@ -139,10 +139,10 @@ class GitHubRepoManager {
                 details .= "⭐ Stars: " . repo.stars . "`n"
                 details .= "🔗 URL: https://github.com/" . this.username . "/" . repo.name
                 
-                this.gui.detailsText.Text := details
+                this.detailsCtrl.Text := details
             }
         } catch as e {
-            this.gui.detailsText.Text := "Error loading details: " . e.Message
+            this.detailsCtrl.Text := "Error loading details: " . e.Message
         }
     }
     
