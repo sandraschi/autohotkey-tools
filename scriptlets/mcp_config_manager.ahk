@@ -40,10 +40,10 @@ class MCPConfigManager {
             newGui.BackColor := "1c1c1c"
             newGui.SetFont("s10 cFFFFFF", "Segoe UI")
 
-            newGui.Add("Text", "x20 y20 w780 Center Bold", "⚙️ MCP Config Manager")
+            newGui.Add("Text", "x20 y20 w780 Center", "⚙️ MCP Config Manager")
             newGui.Add("Text", "x20 y48 w780 Center cC0C0C0", "Manage Claude Desktop MCP servers, validate JSON, and back up configurations.")
 
-            newGui.Add("Text", "x20 y90 w780 Bold", "Configuration File")
+            newGui.Add("Text", "x20 y90 w780", "Configuration File")
             newGui.Add("Text", "x20 y118 w110", "Path:")
             pathText := newGui.Add("Edit", "x140 y112 w660 h24 ReadOnly Center", MCPConfigManager.configPath)
             pathText.BackColor := "2b2b2b"
@@ -59,7 +59,7 @@ class MCPConfigManager {
             refreshBtn := newGui.Add("Button", "x680 y150 w120 h36", "🔄 Refresh")
             refreshBtn.OnEvent("Click", MCPConfigManager.Refresh)
 
-            newGui.Add("Text", "x20 y205 w360 Bold", "Registered MCP Servers")
+            newGui.Add("Text", "x20 y205 w360", "Registered MCP Servers")
             serverList := newGui.Add("ListView", "x20 y232 w360 h280 -Hdr", ["Server"])
             serverList.OnEvent("Click", MCPConfigManager.ShowServerDetails)
             MCPConfigManager.serverList := serverList
@@ -75,7 +75,7 @@ class MCPConfigManager {
             testBtn := newGui.Add("Button", "x400 y392 w170 h32", "🧪 Test Command")
             testBtn.OnEvent("Click", MCPConfigManager.TestServerCommand)
 
-            newGui.Add("Text", "x20 y530 w780 Bold", "Configuration JSON")
+            newGui.Add("Text", "x20 y530 w780", "Configuration JSON")
             editor := newGui.Add("Edit", "x20 y558 w780 h140 -Wrap VScroll", "")
             editor.BackColor := "282828"
             editor.SetFont("s10", "Consolas")
@@ -90,7 +90,7 @@ class MCPConfigManager {
             helpBtn := newGui.Add("Button", "x515 y708 w150 h34", "❓ Help")
             helpBtn.OnEvent("Click", MCPConfigManager.ShowHelp)
 
-            logLabel := newGui.Add("Text", "x20 y750 w780 Bold", "Activity Log")
+            logLabel := newGui.Add("Text", "x20 y750 w780", "Activity Log")
             logView := newGui.Add("Edit", "x20 y778 w780 h110 ReadOnly VScroll", "")
             logView.BackColor := "242424"
             logView.SetFont("s9", "Consolas")

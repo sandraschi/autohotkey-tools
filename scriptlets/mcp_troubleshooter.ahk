@@ -73,16 +73,16 @@ class MCPTroubleshooter {
         gui.BackColor := "1f1f1f"
         gui.SetFont("s10 cFFFFFF", "Segoe UI")
 
-        gui.Add("Text", "x20 y20 w900 Center Bold", "🔧 MCP Troubleshooter")
+        gui.Add("Text", "x20 y20 w900 Center", "🔧 MCP Troubleshooter")
         gui.Add("Text", "x20 y48 w900 Center cC0C0C0", "Run diagnostics, review MCP servers, and capture troubleshooting notes.")
 
-        gui.Add("Text", "x20 y88 w900 Bold", "Configuration")
+        gui.Add("Text", "x20 y88 w900", "Configuration")
         gui.Add("Text", "x20 y114 w140", "Claude Config:")
         gui.Add("Edit", "x160 y108 w560 h26 ReadOnly", MCPTroubleshooter.configPath)
         openCfgBtn := gui.Add("Button", "x740 y108 w180 h26", "Open Config")
         openCfgBtn.OnEvent("Click", MCPTroubleshooter.OpenConfig)
 
-        gui.Add("Text", "x20 y150 w400 Bold", "MCP Servers")
+        gui.Add("Text", "x20 y150 w400", "MCP Servers")
         serverList := gui.Add("ListView", "x20 y176 w400 h260 -Hdr", ["Server", "Command"])
         MCPTroubleshooter.serverList := serverList
 
@@ -102,13 +102,13 @@ class MCPTroubleshooter {
         btnLogs := gui.Add("Button", "x700 y354 w200 h40", "📂 Open Logs Folder")
         btnLogs.OnEvent("Click", MCPTroubleshooter.OpenLogDirectory)
 
-        gui.Add("Text", "x20 y446 w900 Bold", "Diagnostic Output")
+        gui.Add("Text", "x20 y446 w900", "Diagnostic Output")
         resultView := gui.Add("Edit", "x20 y474 w900 h150 ReadOnly VScroll", "")
         resultView.BackColor := "262626"
         resultView.SetFont("s9", "Consolas")
         MCPTroubleshooter.resultView := resultView
 
-        gui.Add("Text", "x20 y634 w900 Bold", "Activity Log")
+        gui.Add("Text", "x20 y634 w900", "Activity Log")
         logEdit := gui.Add("Edit", "x20 y662 w900 h80 ReadOnly VScroll", "")
         logEdit.BackColor := "242424"
         logEdit.SetFont("s9", "Consolas")
@@ -118,7 +118,7 @@ class MCPTroubleshooter {
         status.SetText("Ready")
         MCPTroubleshooter.statusBar := status
 
-        gui.OnEvent("Size", MCPTroubleshooter.OnResize)
+        gui.OnEvent("Size", (gui, minMax, w, h) => MCPTroubleshooter.OnResize(gui, minMax, w, h))
         gui.OnEvent("Close", MCPTroubleshooter.HideWindow)
         gui.OnEvent("Escape", MCPTroubleshooter.HideWindow)
         MCPTroubleshooter.gui := gui

@@ -72,7 +72,7 @@ class MacroRecorder {
         
         ; Speed control
         this.gui.Add("Text", "x20 y105 w100 h20", "Playback Speed:")
-        this.speedSlider := this.gui.Add("Slider", "x130 y100 w260 h30 vSpeedSlider", 10, 200, 100)
+        this.speedSlider := this.gui.Add("Slider", "x130 y100 w260 h30 vSpeedSlider Range10-200", 100)
         this.speedSlider.OnEvent("Change", (*) => MacroRecorder.OnSpeedChanged())
         
         ; Status
@@ -82,7 +82,7 @@ class MacroRecorder {
         ; Log area
         this.gui.Add("Text", "x20 y170 w360 h20", "Log:")
         this.logArea := this.gui.Add("Edit", "x20 y195 w360 h150 vLogArea ReadOnly", "")
-            .SetFont("s9 Consolas")
+            .SetFont("s9", "Consolas")
         
         ; Action count
         this.actionCountLabel := this.gui.Add("Text", "x20 y355 w360 h20 vActionCountLabel", "Actions recorded: 0")
@@ -100,12 +100,12 @@ class MacroRecorder {
         
         ; Close button
         this.gui.Add("Button", "x280 y430 w110 h35 vCloseBtn", "Close")
-            .OnEvent("Click", MacroRecorder.OnCloseGUI)
+            .OnEvent("Click", (*) => MacroRecorder.OnCloseGUI())
         
         ; Hotkey to close GUI
         Hotkey("Escape", (*) => MacroRecorder.gui && WinActive("ahk_id " MacroRecorder.gui.Hwnd) && MacroRecorder.OnCloseGUI())
         
-        this.gui.OnEvent("Close", MacroRecorder.OnCloseGUI)
+        this.gui.OnEvent("Close", (*) => MacroRecorder.OnCloseGUI())
         
         this.gui.Show("w400 h480")
     }
