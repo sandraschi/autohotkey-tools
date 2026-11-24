@@ -1050,8 +1050,8 @@
     },
     "ipad_scroll_widget": {
       "name": "iPad Scroll Widget",
-      "version": "1.7.0",
-      "description": "Slim vertical touch widget for iPad-as-second-screen + RustDesk: wide labeled quick-launch rail with built-in AHK config window (no INI hacking), bottom-aligned, split transparency, Top/End follow working channel, Copy/Paste/Cfg touch buttons, narrow rail",
+      "version": "1.7.2",
+      "description": "Slim vertical touch widget for iPad-as-second-screen + RustDesk. Follows the focused OpenCode, Cursor, or Antigravity window. Wide labeled quick-launch rail with built-in AHK config window, bottom-aligned, split transparency, Top/End follow working channel, Copy/Paste/Cfg touch buttons, narrow rail",
       "category": "widgets",
       "author": "Sandra",
       "dependencies": [],
@@ -1073,6 +1073,8 @@
         "widget",
         "rustdesk",
         "opencode",
+        "cursor",
+        "antigravity",
         "touch",
         "a11y"
       ]

@@ -31,9 +31,9 @@ OnError(LogError)
 ; UI Settings
 APP_TITLE := "ELIZA Therapist"
 WINDOW_WIDTH := 700
-WINDOW_HEIGHT := 680
-CHAT_HISTORY_HEIGHT := 450
-INPUT_HEIGHT := 90
+WINDOW_HEIGHT := 720
+CHAT_HISTORY_HEIGHT := 330
+INPUT_HEIGHT := 70
 MARGIN := 20
 
 ; ELIZA++ (Ollama) Settings
@@ -67,7 +67,7 @@ CreateGUI() {
     guiEliza.SetFont("s11 cFFFFFF", "Segoe UI")
     
     ; Header with title
-    headerHeight := 60
+    headerHeight := 50
     headerText := guiEliza.Add("Text", 
         "x" MARGIN " y" MARGIN " w" (WINDOW_WIDTH - MARGIN * 2) " h" headerHeight " Center", 
         "ELIZA Therapist")
@@ -201,6 +201,19 @@ ProcessInput(*) {
         if (statusBar) {
             statusBar.Text := "✗ Error: " . e.Message
         }
+    }
+}
+
+SelectModel(*) {
+    global modelCombo, OLLAMA_MODEL, conversationHistory, statusBar
+    sel := modelCombo.Text
+    if (sel = "") {
+        return
+    }
+    OLLAMA_MODEL := sel
+    conversationHistory := []
+    if (statusBar) {
+        statusBar.Text := "✓ Model set to " . OLLAMA_MODEL . " - history cleared"
     }
 }
 
