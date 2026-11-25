@@ -529,25 +529,53 @@ class CodeFormatter {
         return Trim(code)
     }
     
-    static CopyOutput() {
+    static NewFile(*) {
+        this.inputArea.Text := ""
+        this.outputArea.Text := ""
+        this.statusBar.Text := "Ready"
+    }
+
+    static OpenFile(*) {
+        path := FileSelect("1",, "Open code", "All files (*.*)")
+        if !path
+            return
+        this.inputArea.Text := FileRead(path, "UTF-8")
+        this.statusBar.Text := "Opened"
+    }
+
+    static SaveFile(*) {
+        this.SaveAsFile()
+    }
+
+    static SaveAsFile(*) {
+        path := FileSelect("S",, "Save code", "All files (*.*)")
+        if !path
+            return
+        if FileExist(path)
+            FileDelete(path)
+        FileAppend(this.inputArea.Text, path, "UTF-8")
+        this.statusBar.Text := "Saved"
+    }
+
+    static CopyOutput(*) {
         Clipboard := this.outputArea.Text
         this.statusBar.Text := "Output copied to clipboard"
     }
     
-    static ClearAll() {
+    static ClearAll(*) {
         this.inputArea.Text := ""
         this.outputArea.Text := ""
         this.statusBar.Text := "Ready"
     }
     
-    static SwapInputOutput() {
+    static SwapInputOutput(*) {
         temp := this.inputArea.Text
         this.inputArea.Text := this.outputArea.Text
         this.outputArea.Text := temp
         this.statusBar.Text := "Swapped I/O"
     }
     
-    static ShowSettings() {
+    static ShowSettings(*) {
         MsgBox("Settings window not implemented yet.")
     }
     
@@ -573,3 +601,5 @@ ParseJSON(text) {
 Eval(code) {
     return true
 }
+
+CodeFormatter.Init()
