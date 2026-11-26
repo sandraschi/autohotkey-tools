@@ -262,7 +262,7 @@ class AICodeAssistant {
             inputGui.BackColor := "2d2d2d"
             inputGui.SetFont("s10 cFFFFFF", "Segoe UI")
             
-            inputGui.Add("Text", "x20 y20 w300 Center Bold", "✨ AI Code Generator")
+            inputGui.Add("Text", "x20 y20 w300 Center", "✨ AI Code Generator")
             inputGui.Add("Text", "x20 y60 w300", "Describe what you want to create:")
             
             description := inputGui.Add("Edit", "x20 y90 w300 h100 Multi")

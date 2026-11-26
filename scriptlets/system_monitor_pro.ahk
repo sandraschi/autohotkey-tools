@@ -45,14 +45,13 @@ class SystemMonitorPro {
     static CreateGUI() {
         this.gui := Gui("+Resize +MinSize1000x700", "System Monitor Pro")
         this.gui.BackColor := "1a1a1a"
+        this.gui.SetFont("s10 cFFFFFF Bold", "Segoe UI")
+        this.gui.Add("Text", "x20 y20 w960 Center", "📊 Real-time System Monitor Pro")
         this.gui.SetFont("s10 cFFFFFF", "Segoe UI")
-        
-        ; Title
-        this.gui.Add("Text", "x20 y20 w960 Center Bold", "📊 Real-time System Monitor Pro")
-        this.gui.Add("Text", "x20 y50 w960 Center ", "Advanced system monitoring with alerts and analytics")
+        this.gui.Add("Text", "x20 y50 w960 Center", "Advanced system monitoring with alerts and analytics")
         
         ; Control panel
-        this.gui.Add("Text", "x20 y90 w960 Bold", "🎛️ Control Panel")
+        this.gui.Add("Text", "x20 y90 w960", "🎛️ Control Panel")
         
         startBtn := this.gui.Add("Button", "x20 y120 w150 h40 Background4a4a4a", "▶️ Start Monitor")
         startBtn.SetFont("s10 cFFFFFF", "Segoe UI")
@@ -71,25 +70,25 @@ class SystemMonitorPro {
         exportBtn.OnEvent("Click", this.ExportData.Bind(this))
         
         ; System metrics
-        this.gui.Add("Text", "x20 y180 w960 Bold", "📈 System Metrics")
+        this.gui.Add("Text", "x20 y180 w960", "📈 System Metrics")
         
         ; CPU section
-        this.gui.Add("Text", "x20 y210 w300 Bold ", "🖥️ CPU Usage")
+        this.gui.Add("Text", "x20 y210 w300", "🖥️ CPU Usage")
         this.cpuChart := this.gui.Add("Text", "x20 y240 w300 h100 Background2d2d2d Border", "")
         this.cpuChart.SetFont("s8 cFFFFFF", "Courier New")
         
         ; Memory section
-        this.gui.Add("Text", "x340 y210 w300 Bold ", "💾 Memory Usage")
+        this.gui.Add("Text", "x340 y210 w300", "💾 Memory Usage")
         this.memoryChart := this.gui.Add("Text", "x340 y240 w300 h100 Background2d2d2d Border", "")
         this.memoryChart.SetFont("s8 cFFFFFF", "Courier New")
         
         ; Network section
-        this.gui.Add("Text", "x660 y210 w300 Bold ", "🌐 Network Activity")
+        this.gui.Add("Text", "x660 y210 w300", "🌐 Network Activity")
         this.networkChart := this.gui.Add("Text", "x660 y240 w300 h100 Background2d2d2d Border", "")
         this.networkChart.SetFont("s8 cFFFFFF", "Courier New")
         
         ; Process list
-        this.gui.Add("Text", "x20 y360 w960 Bold", "🔄 Top Processes")
+        this.gui.Add("Text", "x20 y360 w960", "🔄 Top Processes")
         
         this.processList := this.gui.Add("ListBox", "x20 y390 w960 h200")
         this.processList.SetFont("s9 cFFFFFF", "Courier New")
@@ -345,7 +344,7 @@ class SystemMonitorPro {
             alertGui.BackColor := "2d2d2d"
             alertGui.SetFont("s10 cFFFFFF", "Segoe UI")
             
-            alertGui.Add("Text", "x20 y20 w400 Center Bold", "🚨 System Alerts")
+            alertGui.Add("Text", "x20 y20 w400 Center", "🚨 System Alerts")
             
             if (this.alerts.Length = 0) {
                 alertGui.Add("Text", "x20 y60 w400 Center", "No alerts at this time")
