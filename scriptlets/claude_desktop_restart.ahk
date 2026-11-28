@@ -121,11 +121,11 @@ class ClaudeRestart {
         newGui.SetFont("s10 cFFFFFF", "Segoe UI")
         
         ; Title
-        newGui.Add("Text", "x20 y20 w560 Center Bold", "🚀 Claude Desktop Restarter")
+        newGui.Add("Text", "x20 y20 w560 Center", "🚀 Claude Desktop Restarter")
         newGui.Add("Text", "x20 y50 w560 Center ", "Intelligent restart with graceful shutdown and fallback")
         
         ; Status section
-        newGui.Add("Text", "x20 y90 w560 Bold", "📊 Status Information")
+        newGui.Add("Text", "x20 y90 w560", "📊 Status Information")
         newGui.Add("Text", "x20 y115 w560", "Claude Executable: " . (this.claudeExe ? this.claudeExe : "Not Found"))
         newGui.Add("Text", "x20 y140 w560", "Config File: " . this.configFile)
         newGui.Add("Text", "x20 y165 w560", "Temp Directory: " . this.tempDir)
@@ -133,7 +133,7 @@ class ClaudeRestart {
         newGui.Add("Text", "x20 y190 w560", "Admin Status: " . adminStatus)
         
         ; Restart options
-        newGui.Add("Text", "x20 y220 w560 Bold", "🔄 Restart Options")
+        newGui.Add("Text", "x20 y220 w560", "🔄 Restart Options")
         
         ; Intelligent Restart
         newGui.Add("Button", "x20 y250 w200 h50", "Intelligent Restart").OnEvent("Click", this.IntelligentRestart.Bind(this))
